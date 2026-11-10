@@ -1,0 +1,9 @@
+# Python môi trường vẽ hiệu ứng (tạo lại bằng: python -m venv .venv && .venv/Scripts/python -m pip install numpy pillow)
+.venv/
+__pycache__/
+*.pyc
+# Node / tạm
+node_modules/
+*.log
+.DS_Store
+Thumbs.db

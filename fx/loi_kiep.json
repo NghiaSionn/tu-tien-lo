@@ -1,0 +1,437 @@
+{
+ "frames": [
+  {
+   "filename": "loi_kiep 0",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 184
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 184
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 184
+   },
+   "duration": 42
+  },
+  {
+   "filename": "loi_kiep 1",
+   "frame": {
+    "x": 96,
+    "y": 0,
+    "w": 96,
+    "h": 184
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 184
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 184
+   },
+   "duration": 42
+  },
+  {
+   "filename": "loi_kiep 2",
+   "frame": {
+    "x": 192,
+    "y": 0,
+    "w": 96,
+    "h": 184
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 184
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 184
+   },
+   "duration": 42
+  },
+  {
+   "filename": "loi_kiep 3",
+   "frame": {
+    "x": 288,
+    "y": 0,
+    "w": 96,
+    "h": 184
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 184
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 184
+   },
+   "duration": 42
+  },
+  {
+   "filename": "loi_kiep 4",
+   "frame": {
+    "x": 384,
+    "y": 0,
+    "w": 96,
+    "h": 184
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 184
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 184
+   },
+   "duration": 42
+  },
+  {
+   "filename": "loi_kiep 5",
+   "frame": {
+    "x": 480,
+    "y": 0,
+    "w": 96,
+    "h": 184
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 184
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 184
+   },
+   "duration": 42
+  },
+  {
+   "filename": "loi_kiep 6",
+   "frame": {
+    "x": 0,
+    "y": 184,
+    "w": 96,
+    "h": 184
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 184
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 184
+   },
+   "duration": 42
+  },
+  {
+   "filename": "loi_kiep 7",
+   "frame": {
+    "x": 96,
+    "y": 184,
+    "w": 96,
+    "h": 184
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 184
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 184
+   },
+   "duration": 42
+  },
+  {
+   "filename": "loi_kiep 8",
+   "frame": {
+    "x": 192,
+    "y": 184,
+    "w": 96,
+    "h": 184
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 184
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 184
+   },
+   "duration": 42
+  },
+  {
+   "filename": "loi_kiep 9",
+   "frame": {
+    "x": 288,
+    "y": 184,
+    "w": 96,
+    "h": 184
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 184
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 184
+   },
+   "duration": 42
+  },
+  {
+   "filename": "loi_kiep 10",
+   "frame": {
+    "x": 384,
+    "y": 184,
+    "w": 96,
+    "h": 184
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 184
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 184
+   },
+   "duration": 42
+  },
+  {
+   "filename": "loi_kiep 11",
+   "frame": {
+    "x": 480,
+    "y": 184,
+    "w": 96,
+    "h": 184
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 184
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 184
+   },
+   "duration": 42
+  },
+  {
+   "filename": "loi_kiep 12",
+   "frame": {
+    "x": 0,
+    "y": 368,
+    "w": 96,
+    "h": 184
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 184
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 184
+   },
+   "duration": 42
+  },
+  {
+   "filename": "loi_kiep 13",
+   "frame": {
+    "x": 96,
+    "y": 368,
+    "w": 96,
+    "h": 184
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 184
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 184
+   },
+   "duration": 42
+  },
+  {
+   "filename": "loi_kiep 14",
+   "frame": {
+    "x": 192,
+    "y": 368,
+    "w": 96,
+    "h": 184
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 184
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 184
+   },
+   "duration": 42
+  },
+  {
+   "filename": "loi_kiep 15",
+   "frame": {
+    "x": 288,
+    "y": 368,
+    "w": 96,
+    "h": 184
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 184
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 184
+   },
+   "duration": 42
+  }
+ ],
+ "meta": {
+  "app": "beanfx",
+  "version": "1",
+  "image": "loi_kiep.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 576,
+   "h": 552
+  },
+  "scale": "1",
+  "frameTags": [
+   {
+    "name": "leader",
+    "from": 0,
+    "to": 1,
+    "direction": "forward"
+   },
+   {
+    "name": "strike",
+    "from": 2,
+    "to": 6,
+    "direction": "forward"
+   },
+   {
+    "name": "fade",
+    "from": 7,
+    "to": 15,
+    "direction": "forward"
+   }
+  ],
+  "beanfx": {
+   "name": "loi_kiep",
+   "fps": 24,
+   "loop": false,
+   "end": "remove",
+   "frames": 16,
+   "rows": 1,
+   "frameSize": [
+    96,
+    184
+   ],
+   "pivot": [
+    48,
+    166
+   ],
+   "columns": 6,
+   "blend_light": "add",
+   "light_gain": 1.0,
+   "states": {
+    "leader": [
+     0,
+     1
+    ],
+    "strike": [
+     2,
+     6
+    ],
+    "fade": [
+     7,
+     15
+    ]
+   },
+   "act": {
+    "windup": 0.0,
+    "hits": [
+     {
+      "frame": 2,
+      "t": 0.0833,
+      "freeze": 0.04,
+      "shake": 3,
+      "push": 0,
+      "react": "flinch",
+      "shake_time": 0.2
+     }
+    ]
+   },
+   "sheet": "loi_kiep.png",
+   "light": "loi_kiep_light.png",
+   "color": "loi_kiep_color.png"
+  }
+ }
+}

@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tu Tiên Lộ — Prototype</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #0d0b14; overflow: hidden; }
+  body { display: flex; align-items: center; justify-content: center;
+         font-family: "Segoe UI", system-ui, sans-serif; color: #f3ead2; user-select: none; }
+  #wrap { position: relative; font-size: 12px; }
+  #game { display: block; image-rendering: pixelated; image-rendering: crisp-edges; background: #000; }
+  #hud { position: absolute; inset: 0; pointer-events: none; }
+  .box { background: rgba(18, 14, 28, .78); border: 1px solid #b89a54; border-radius: .35em; }
+
+  #panel { position: absolute; left: .7em; top: .7em; width: 17em; padding: .6em .75em; }
+  #realm { font-weight: 700; font-size: 1.15em; color: #ffd978; letter-spacing: .02em; }
+  .row { display: flex; justify-content: space-between; font-size: .85em; margin-top: .45em; opacity: .92; }
+  .bar { height: .6em; margin-top: .2em; background: #241d33; border: 1px solid #4b3f63; border-radius: .2em; overflow: hidden; }
+  .bar > i { display: block; height: 100%; width: 0; }
+  #hpFill { background: linear-gradient(#e2584f, #a32f38); }
+  #tvFill { background: linear-gradient(#7fe3ff, #3b86d6); }
+  #tvFill.full { background: linear-gradient(#fff0a0, #e0a020); }
+  #stats { display: flex; gap: 1em; font-size: .85em; margin-top: .55em; }
+
+  #log { position: absolute; left: .7em; bottom: 4.6em; width: 24em; font-size: .88em;
+         text-shadow: 0 1px 2px #000, 0 0 3px #000; line-height: 1.45; }
+  #log div { transition: opacity 1s; }
+  #log .good { color: #9cf2a0; } #log .bad { color: #ff8f8a; } #log .gold { color: #ffd978; }
+
+  #actions { position: absolute; left: 0; right: 0; bottom: 1.9em; display: flex; justify-content: center; gap: .5em; }
+  button { pointer-events: auto; font: inherit; font-size: .9em; color: #f3ead2; cursor: pointer;
+           padding: .4em .8em; background: rgba(30, 24, 46, .9); border: 1px solid #b89a54; border-radius: .35em; }
+  button:hover { background: #3a2f58; }
+  button.on { background: #1f5a6e; border-color: #7fe3ff; }
+  button.ready { background: #7a5a12; border-color: #ffe08a; animation: pulse 1s infinite; }
+  button:disabled { opacity: .45; cursor: default; }
+  @keyframes pulse { 50% { box-shadow: 0 0 .8em #ffd978; } }
+
+  #help { position: absolute; left: 0; right: 0; bottom: .45em; text-align: center; font-size: .75em;
+          opacity: .75; text-shadow: 0 1px 2px #000; }
+  #reset { position: absolute; right: .7em; top: .7em; font-size: .75em; opacity: .7; }
+</style>
+</head>
+<body>
+<div id="wrap">
+  <canvas id="game"></canvas>
+  <div id="hud">
+    <div id="panel" class="box">
+      <div id="realm"></div>
+      <div class="row"><span>Khí huyết</span><span id="hpTxt"></span></div>
+      <div class="bar"><i id="hpFill"></i></div>
+      <div class="row"><span>Tu vi</span><span id="tvTxt"></span></div>
+      <div class="bar"><i id="tvFill"></i></div>
+      <div id="stats"><span>⚔ <b id="atkTxt"></b></span><span>💎 <b id="stoneTxt"></b></span><span>🧪 <b id="pillTxt"></b></span></div>
+    </div>
+    <button id="reset">Chơi lại từ đầu</button>
+    <div id="log"></div>
+    <div id="actions">
+      <button id="btnMed">Tọa thiền (T)</button>
+      <button id="btnBreak">Đột phá (B)</button>
+      <button id="btnPill">Dùng đan (1)</button>
+      <button id="btnBuy">Mua đan · 25💎 (2)</button>
+    </div>
+    <div id="help">WASD / mũi tên: di chuyển · Space: phóng kiếm khí · T: tọa thiền · B: đột phá · 1: dùng đan · 2: mua đan</div>
+  </div>
+</div>
+<script type="module" src="game.js"></script>
+</body>
+</html>
