@@ -1,0 +1,11 @@
+{
+  "name": "tu-tien-lo",
+  "version": "0.2.0-dev",
+  "private": true,
+  "type": "module",
+  "description": "Tu Tiên Lộ — game web pixel tu tiên (prototype). Không có dependency; test dùng node:test có sẵn.",
+  "scripts": {
+    "test": "node --test tests/",
+    "start": "python tools/serve.py 8123"
+  }
+}

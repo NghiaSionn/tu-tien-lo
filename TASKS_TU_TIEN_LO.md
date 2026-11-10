@@ -28,7 +28,7 @@
 
 ## M0 — BẢO TOÀN PROTOTYPE & CHẤT LƯỢNG NỀN (P0)
 
-### M0-01 [ ] Audit, snapshot, baseline (S)
+### M0-01 [x] Audit, snapshot, baseline (S)
 **Phụ thuộc:** không.  
 **Làm:** kiểm tra source thực tế, git/backup, xác thực chạy trên local server, console lỗi, các file trong `fx`, giấy phép MIT, launch config.
 
@@ -37,7 +37,7 @@
 - Có hướng dẫn start game; không xóa tài sản/cấu hình cũ.
 - Các vấn đề được đánh dấu `VERIFIED` hoặc `NOT VERIFIED` rõ ràng.
 
-### M0-02 [ ] Regression test chức năng đã có (M)
+### M0-02 [x] Regression test chức năng đã có (M)
 **Phụ thuộc:** M0-01.  
 **Làm:** test WASD/mũi tên, Space/J, T, B, 1, 2, hub/safe zone, địch/trúng/collision, UI nút, VFX 5 loại; thử chết -> respawn, mua đan, reload save (các mục handoff ghi chưa test).
 
@@ -46,7 +46,7 @@
 - Không thay đổi cân bằng trước khi xác định baseline.
 - Lỗi hiện hữu được lập task hoặc ghi rõ lý do chặn.
 
-### M0-03 [ ] Tối thiểu bộ test logic + debug harness (M)
+### M0-03 [x] Tối thiểu bộ test logic + debug harness (M)
 **Phụ thuộc:** M0-01.  
 **Làm:** chuẩn bị runner test nhẹ (Node built-in test nếu phù hợp), PRNG seed-injectable cho code mới, game-state inspect/debug và bộ test regression nền. Hạn chế thêm tooling không cần thiết.
 
@@ -54,7 +54,7 @@
 - Có một lệnh chạy test trong README/project docs; tối thiểu tests cho tính tu vi/cảnh giới, HP, tiền không âm, loading save.
 - Có log failure hữu ích, không viết test chỉ kiểm tra file tồn tại.
 
-### M0-04 [ ] Thiết kế schema save v2 + migration an toàn (M)
+### M0-04 [x] Thiết kế schema save v2 + migration an toàn (M)
 **Phụ thuộc:** M0-02, M0-03.  
 **Làm:** tách meta/run state, migration từ `tutien_save_v1` sang version mới, valid/default, backup/export/import nếu khả thi.
 
@@ -63,7 +63,7 @@
 - Reload v2 thành công, save hỏng không gây crash hoặc âm thầm xóa hết.
 - Không ghi đè v1 khi chưa xác minh migration; có test dữ liệu biên/độc hại.
 
-### M0-05 [ ] Refactor module theo lát cắt (L)
+### M0-05 [x] Refactor module theo lát cắt (L)
 **Phụ thuộc:** M0-01..04.  
 **Làm:** tách ít nhất core/state/config, combat/entities, progression, render/VFX, UI, persistence; giữ entry `index.html`, giữ asset beanfx hoạt động.
 
@@ -74,11 +74,13 @@
 
 **GATE M0:** Chỉ tiếp tục khi baseline chơi được, save cũ không mất, test runner hoạt động, không có regression blocker.
 
+> **Kết quả 10/11/2026: ĐẠT.** Baseline commit `0032429` (tag `baseline-v0.1`). Save v1 migrate trong trình duyệt thật, `tutien_save_v1` giữ nguyên. `npm test` 41/41. Regression động phủ chạy lại bằng phím thật trên code mới (TEST_REPORT §3.1). Chi tiết: `TEST_REPORT.md`, ADR 0001.
+
 ---
 
 ## M1 — COMBAT + THẺ NÂNG CẤP: PROOF OF FUN (P1)
 
-### M1-01 [ ] Run state machine và cổng vào/ra bí cảnh (M)
+### M1-01 [x] Run state machine và cổng vào/ra bí cảnh (M)
 **Phụ thuộc:** M0 Gate.  
 **Làm:** state `HUB -> PREPARE -> RUN -> CARD_DRAFT -> RUN -> RESULTS -> HUB`; placeholder arena dùng asset/map cũ; trả nhân vật và camera đúng vị trí; quản lý pause.
 
@@ -86,7 +88,7 @@
 - Vào/thoát run nhiều lần không chồng state, mất input hoặc spawn trùng quái.
 - `runState` mới mỗi lượt; `metaState` giữ lại; điều khiển cũ còn dùng ở hub.
 
-### M1-02 [ ] Chiến đấu tự động/hybrid có thể cấu hình (M)
+### M1-02 [x] Chiến đấu tự động/hybrid có thể cấu hình (M)
 **Phụ thuộc:** M1-01.  
 **Làm:** cooldown auto skill ưu tiên, mục tiêu gần nhất hợp lệ; bản đầu giữ kiếm khí và manual Space/J; ưu tiên cảm giác điều khiển và readability.
 
@@ -95,7 +97,7 @@
 - Người chơi chủ yếu di chuyển vẫn chiến đấu được; manual không bị hỏng.
 - Không tấn công trong hub khi không bật chế độ đúng.
 
-### M1-03 [ ] EXP theo run + xử lý tăng nhiều cấp (M)
+### M1-03 [x] EXP theo run + xử lý tăng nhiều cấp (M)
 **Phụ thuộc:** M1-01, M0-03.  
 **Làm:** `runXp`, `runLevel`, công thức config, drop/nhặt EXP, queue level-up; render HUD XP.
 
@@ -104,7 +106,7 @@
 - Thêm đủ XP cho 3 cấp một lúc -> có đúng 3 lần lựa chọn, không mất hay nhân đôi.
 - Kết thúc run reset level/xp, không reset realm.
 
-### M1-04 [ ] Draft 1 trong 3 thẻ (L)
+### M1-04 [x] Draft 1 trong 3 thẻ (L)
 **Phụ thuộc:** M1-03.  
 **Làm:** data-driven pool, eligibility, unique card selection, UI đầy đủ tên/icon/cấp/mô tả, click/tap/phím, paused world, xử lý pool thiếu thẻ.
 
@@ -113,7 +115,7 @@
 - Thẻ max cấp/không đủ điều kiện không hiển thị; pool thiếu 3 vẫn không softlock.
 - Quái/projectile/timer dừng khi chọn và resume đúng; UI không bị khóa do blur/reload.
 
-### M1-05 [ ] Skill definitions + 3 lối build đầu (L)
+### M1-05 [x] Skill definitions + 3 lối build đầu (L)
 **Phụ thuộc:** M1-02..04.  
 **Làm:** thiết kế đủ 12 công pháp trong data; triển khai tối thiểu bộ Kiếm/Hỏa/Lôi hoạt động có cấp nâng khác nhau; skill data tách logic render, có cap DoT/chain.
 
@@ -122,7 +124,7 @@
 - Không có NaN/Infinity, projectiles không trôi vô hạn, trạng thái đốt/giật không stack vô hạn.
 - Có automated tests cho cooldown, damage, effect cap.
 
-### M1-06 [ ] Tiến hóa công pháp theo công thức (L)
+### M1-06 [~] Tiến hóa công pháp theo công thức (L)
 **Phụ thuộc:** M1-05.  
 **Làm:** resolver cho 4 combo thiết kế: Liệt Diễm Kiếm Trận, Lôi Đình Vạn Kiếm, Hỏa Long Quyển, Lôi Cương Hộ Thể; nếu skill phụ chưa có thì làm đủ logic để evolution test end-to-end. Art placeholder cho combo chưa có VFX.
 
@@ -132,6 +134,8 @@
 - Có cách hiện điều kiện tiến hóa trong UI mà không spoil mọi bí mật nếu không muốn.
 
 **GATE M1:** Có thể vào run, di chuyển, đánh, lên cấp, chọn thẻ, tạo ít nhất 3 build, tiến hóa 4 combo, thoát run; không có softlock hoặc memory leak rõ ràng.
+
+> **Kết quả 10/11/2026: CHƯA ĐẠT ĐỦ.** Vào run, đánh, lên cấp, chọn thẻ, thoát run, chết, tải lại giữa bảng thẻ đều đã thử bằng phím thật. Lôi Đình Vạn Kiếm đã tiến hóa bằng chơi thật (TEST_REPORT M11). 3 tiến hóa còn lại mới xác minh bằng test tự động + bot mô phỏng (`tools/sim.mjs`), **chưa chơi tay**. Chưa đo memory leak. Cân bằng: build Kiếm+Lôi vượt trội.
 
 ---
 
@@ -365,6 +369,17 @@ Tạo thư mục `docs/adr/` hoặc phần ghi chú khi có quyết định ản
 | Ngày | Task ID | Trạng thái | Kiểm thử | Ghi chú |
 |---|---|---|---|---|
 | 2026-11-10 | — | SPEC WRITTEN | Chưa chạy code | GDD và backlog được soạn từ HANDOFF và các quyết định đã thảo luận |
+| 2026-11-10 | M0-01 | DONE | git init, commit `0032429` + tag `baseline-v0.1`; chạy local OK, console sạch | `.gitignore` bỏ `.venv/`, `backups/`; save trình duyệt sao ra `backups/` |
+| 2026-11-10 | M0-02 | DONE | 13 bước baseline PASS, 1 FAIL nhỏ (phím bấm nhanh bị bỏ qua, đã sửa ở M0-05); mobile NOT VERIFIED | `TEST_REPORT.md` §1 |
+| 2026-11-10 | M0-03 | DONE | `npm test` 41/41 PASS | `node:test`, không dependency; `mulberry32` có seed; `window.__game` |
+| 2026-11-10 | M0-04 | DONE | 8 test save PASS; migrate thật trong trình duyệt PASS | save v2 + bak + corrupt; v1 chỉ đọc; xuất/nhập JSON (UI chưa thử tay) |
+| 2026-11-10 | M0-05 | DONE | Regression động phủ trên code mới bằng phím thật PASS; 0 vòng import | `src/` 17 module; `game.js` cũ chuyển `legacy/game_v0.1.js` (không dùng) |
+| 2026-11-10 | M1-01 | DONE | Vào/thoát nhiều lần bằng phím thật; test 5 run liên tiếp | Tự tạm dừng khi blur: PASS (sự kiện giả); đổi tab thật NOT VERIFIED |
+| 2026-11-10 | M1-02 | DONE | Test hồi chiêu, tầm nhìn; Space tay trong run và động phủ PASS | ADR 0002 |
+| 2026-11-10 | M1-03 | DONE | Test 3 cấp cùng lúc PASS; EXP không chạm meta | ADR 0003 |
+| 2026-11-10 | M1-04 | DONE | Bấm đúp chỉ nhận 1 thẻ; thế giới dừng khi chọn; pool cạn có thẻ dự phòng; tải lại và blur giữa bảng thẻ không kẹt | blur là sự kiện giả |
+| 2026-11-10 | M1-05 | DONE | 12 công pháp trong data, 8 đã chạy; test NaN/cap/cooldown PASS | Cân bằng chưa đều (bot) |
+| 2026-11-10 | M1-06 | PARTIAL | 4 tiến hóa có test + bot đạt được; 1/4 chơi tay (Lôi Đình Vạn Kiếm) | Còn chơi tay 3 tiến hóa |
 
 ---
 

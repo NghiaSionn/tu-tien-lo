@@ -1,227 +1,158 @@
-# Bàn giao: Tu Tiên Lộ (prototype)
+# Bàn giao: Tu Tiên Lộ
 
-Game web pixel 2D top-down, thể loại tu tiên, chơi một mình trong trình duyệt. Đây là bản prototype đầu tiên, chưa có phần online.
+Game web pixel 2D top-down, tu tiên + roguelite, chơi một mình trong trình duyệt. Chưa có phần online.
 
-Cập nhật: 2026-11-10.
+Cập nhật: 2026-11-10, sau phiên M0 + M1. Bản trước của file này (v0.1) nằm trong git ở tag `baseline-v0.1`.
+
+| | |
+|---|---|
+| Trạng thái | M0 xong (gate đạt). M1 xong phần lớn; gate M1 **chưa đạt đủ** (xem §6) |
+| Test tự động | `npm test`: 41/41 PASS |
+| Kiểm thử tay | `TEST_REPORT.md` |
+| Quyết định kỹ thuật | `docs/adr/0001…0003` |
+| Rollback | `git checkout baseline-v0.1` (code v0.1 nguyên trạng) |
 
 ---
 
-## 1. Chạy game
-
-Game tải sprite sheet bằng `fetch`, nên **phải chạy qua server**. Mở thẳng `index.html` bằng double-click sẽ không chạy.
+## 1. Chạy
 
 ```bash
-python -m http.server 8123
+python tools/serve.py
 ```
 
-Rồi mở http://localhost:8123.
+Mở http://localhost:8123. `tools/serve.py` tắt cache; dùng `python -m http.server 8123` vẫn chạy nhưng trình duyệt dễ giữ bản cũ. Trong Claude Code desktop: `.claude/launch.json` (tên `tutien`).
 
-Trong Claude Code desktop, cấu hình server đã có sẵn ở `.claude/launch.json` (tên `tutien`, cổng 8123).
-
-**Điều khiển:**
-
-| Phím | Tác dụng |
-|---|---|
-| WASD / mũi tên | Di chuyển |
-| Space (hoặc J) | Phóng kiếm khí, tự ngắm yêu thú gần nhất trong 130px |
-| T | Bật/tắt tọa thiền |
-| B | Đột phá khi tu vi đầy |
-| 1 | Dùng Tụ Khí Đan (+25% tu vi cần cho bậc hiện tại) |
-| 2 | Mua đan, giá 25 linh thạch |
-
-Các nút trên màn hình làm cùng việc. Nút "Chơi lại từ đầu" ở góc phải trên xóa tiến độ.
-
----
-
-## 2. Cấu trúc thư mục
-
-```
-GameWeb_TuTien/
-├── index.html          Khung trang, HUD (bảng chỉ số, nhật ký, nút), CSS
-├── game.js             Toàn bộ logic và đồ họa của game (ES module, ~545 dòng)
-├── lib/
-│   ├── beanfx.js       Trình phát sprite sheet beanfx (lấy nguyên từ repo beanfx)
-│   └── beanfx.LICENSE  Giấy phép MIT của beanfx
-├── fx/                 Sprite sheet hiệu ứng đã xuất (game đọc thư mục này)
-│   └── <tên>.json, <tên>.png, <tên>_color.png, <tên>_light.png
-├── vfx/
-│   ├── make_fx.py      Script vẽ 5 hiệu ứng, xuất ra fx/
-│   ├── kit/            Bộ kit vẽ của beanfx (Python, MIT, có LICENSE)
-│   └── preview/        Ảnh xem trước các khung hiệu ứng trên nền cỏ, phóng 3 lần
-├── .venv/              Python có numpy và pillow, chỉ dùng để vẽ hiệu ứng
-└── .claude/launch.json Cấu hình server xem thử
+```bash
+npm test
 ```
 
-Không dùng framework hay bundler. Game là HTML + JS thuần, canvas 480×270 phóng to theo cửa sổ (nét pixel giữ sắc nhờ `image-rendering: pixelated`).
+```bash
+node tools/sim.mjs
+```
 
-Dự án **chưa phải git repo**.
+(bot mô phỏng run để xem xu hướng cân bằng; không thay được playtest người thật).
 
----
+**Điều khiển**
 
-## 3. Những gì đã có trong game
-
-### 3.1 Bản đồ
-- 80×60 ô, mỗi ô 16px. Sinh bằng noise với hạt giống cố định (`SEED = 20261110`), nên lần nào cũng giống nhau.
-- Loại ô: cỏ, nước, nền đá (giữa bản đồ), cây (xanh và anh đào hồng), đá tảng. Nước, cây, đá chặn đường.
-- Viền bản đồ là hàng cây.
-- **Tụ linh trận** ở giữa: ba vòng xoay phát sáng. Ngồi thiền trong vòng (bán kính 34px) thì tu vi tăng ×3.
-- **Vùng an toàn** bán kính 7 ô quanh trận: yêu thú không vào được, và đứng trong đó thì chúng thôi đuổi.
-
-### 3.2 Nhân vật
-- Sprite vẽ bằng chuỗi ký tự trong code: áo trắng, đai đỏ, 4 hướng, 4 khung đi bộ, tư thế ngồi thiền (có nhấp nhô thở).
-- Tốc độ 82px/giây.
-
-### 3.3 Cảnh giới (18 bậc)
-
-| Chỉ số `L` | Tên |
-|---|---|
-| 0–8 | Luyện Khí tầng 1–9 |
-| 9–11 | Trúc Cơ sơ / trung / hậu kỳ |
-| 12–14 | Kim Đan sơ / trung / hậu kỳ |
-| 15–17 | Nguyên Anh sơ / trung / hậu kỳ (17 là đỉnh của bản này) |
-
-Công thức (trong `game.js`):
-- Tu vi cần để lên bậc: `need(L) = round(60 × 1.38^L)`
-- Hệ số sức mạnh: `power(L) = (1 + 0.25L) × 1.6^(đại cảnh giới)`
-- Máu tối đa `100 × power`, công `12 × power`
-
-**Đột phá:**
-- Bậc nhỏ (trong cùng đại cảnh giới): thành công ngay.
-- Lên đại cảnh giới (Luyện Khí → Trúc Cơ → Kim Đan → Nguyên Anh): phải **độ lôi kiếp** 2,6 giây, sét đánh liên tục, tỉ lệ thành công 70% (`MAJOR_CHANCE`). Thất bại thì mất 30% tu vi và máu còn 30%.
-
-### 3.4 Tu luyện
-- Tọa thiền: `2 × (1 + 0.15L)` tu vi/giây, ×3 trong tụ linh trận; hồi 5% máu/giây. Di chuyển hoặc bị đánh thì đứng dậy.
-- Không thiền vẫn hồi 0,8% máu/giây.
-
-### 3.5 Yêu thú
-- Tối đa 45 con, hết thì sinh thêm. Không sinh trong bán kính 10 ô quanh trận, và không sinh gần người chơi (14 ô).
-- Cấp 1–13, tăng dần theo khoảng cách tới trận. 4 loại theo cấp:
-
-| Cấp | Tên | Màu |
+| Phím | Ở động phủ | Ở bí cảnh |
 |---|---|---|
-| 1–3 | Dã Lang | xám |
-| 4–6 | Hỏa Hồ | cam |
-| 7–10 | Huyền Băng Thú | băng lam |
-| 11–13 | Ma Ảnh | tím |
+| WASD / mũi tên | di chuyển | di chuyển |
+| Space / J | kiếm khí thường | kiếm khí thường (thêm vào công pháp tự động) |
+| T | tọa thiền | — |
+| B | đột phá / độ kiếp | — |
+| 1 / 2 | dùng / mua Tụ Khí Đan | chọn thẻ 1 / 2 (3) khi bảng thẻ mở |
+| E | mở bảng vào bí cảnh khi đứng gần cổng | — |
+| Esc / P | đóng bảng | tạm dừng / tiếp tục |
+| Enter | — | về động phủ ở bảng kết quả |
 
-- Đi lang thang; thấy người chơi trong 80px thì đuổi, xa quá 170px thì bỏ.
-- Máu `30 × 1.3^(cấp−1)`, sát thương `6 × 1.28^(cấp−1)`, đánh mỗi 0,9 giây.
-- Giết được: tu vi `8 × 1.3^(cấp−1)`, linh thạch `1 + cấp`, 15% rơi 1 Tụ Khí Đan.
+---
 
-### 3.6 Chết
-Máu về 0 thì được đưa về tụ linh trận, mất 10% tu vi, hồi đầy máu.
+## 2. Cấu trúc
 
-### 3.7 Lưu tiến độ
-- Tự lưu vào `localStorage` (khóa `tutien_save_v1`) mỗi 3 giây, khi đột phá, khi chết và khi đóng trang.
-- Lưu: cảnh giới, tu vi, máu, linh thạch, số đan, vị trí. Bản lưu hỏng hoặc vị trí không hợp lệ thì bắt đầu mới.
-
-### 3.8 Gỡ lỗi
-`window.__game` cho phép đọc và chỉnh trạng thái từ console:
-
-```js
-__game.S.tuvi = 1e6        // đầy tu vi để thử đột phá
-__game.S.L = 8             // nhảy lên Luyện Khí tầng 9 (ngay trước lôi kiếp)
-__game.update(1 / 24)      // chạy thêm một bước
+```
+index.html              Khung trang, HUD động phủ + HUD bí cảnh, bảng (modal), CSS
+src/
+  main.js               Vòng lặp, trạng thái HUB/PREPARE/RUN/CARD_DRAFT/RESULTS/SETTINGS, nối mọi thứ
+  core/config.js        MỌI thông số gameplay + cờ FEATURES (run, manualAttackInRun)
+  core/rng.js           mulberry32 có seed; hash/noise sinh bản đồ
+  core/input.js         Bàn phím; phím bấm rất nhanh vẫn được tính 1 khung
+  world/map.js          Bản đồ động phủ (giống hệt v0.1, có test checksum) + đấu trường; va chạm, tầm nhìn
+  progression/realm.js  18 bậc cảnh giới, công thức baseline
+  progression/runxp.js  EXP trong run, hàng đợi lượt chọn thẻ
+  progression/draft.js  Bốc 1/3 thẻ, áp thẻ đúng 1 lần, điều kiện tiến hóa
+  systems/cultivation.js Tu vi, đột phá, lôi kiếp kiểu cũ, đan, chết (thuần logic)
+  systems/run.js        Một lượt bí cảnh: sinh quái, chiến ý, máu, kết thúc
+  systems/combat.js     8 công pháp + 4 tiến hóa: hồi chiêu, mục tiêu, đạn, vùng, khiên, sét nhảy
+  entities/monsters.js  Yêu thú: sinh, AI, thiêu đốt/làm chậm
+  data/skills.js        Dữ liệu 12 công pháp, 4 tiến hóa, 6 bị động, thẻ dự phòng
+  persistence/save.js   Save v2, migrate v1, sao lưu, xuất/nhập
+  render/sprites.js     Sprite vẽ bằng code (giữ nguyên v0.1)
+  render/render.js      Vẽ khung + hiệu ứng tạm
+  ui/ui.js              HUD, bảng chuẩn bị/thẻ/tạm dừng/kết quả/cài đặt
+tests/                  node:test (realm, cultivation, save, run)
+tools/serve.py          Server dev không cache
+tools/sim.mjs           Bot mô phỏng run
+lib/beanfx.js, fx/, vfx/ Hiệu ứng beanfx (không đổi từ v0.1)
+legacy/game_v0.1.js     Code v0.1 một file, KHÔNG còn được nạp; giữ để đối chiếu
+docs/adr/               Quyết định kỹ thuật
 ```
 
-Có `S`, `p` (người chơi), `monsters`, `shots`, `fxs`, `update`.
+Không có dependency, không bundler. 17 module, không có vòng import.
 
 ---
 
-## 4. Hiệu ứng beanfx
+## 3. Gameplay hiện có
 
-### 4.1 beanfx là gì
-[beanfx](https://github.com/baenv/beanfx) (MIT, tác giả bien) là plugin cho Claude Code: mô tả hiệu ứng bằng chữ, nó viết code Python vẽ hiệu ứng pixel-art và xuất sprite sheet. Mỗi hiệu ứng có **lớp màu** và **lớp ánh sáng** vẽ cộng sáng (additive) lên trên. Trang demo: https://beanfx.vhbien000.workers.dev/
+### 3.1 Động phủ (giữ nguyên v0.1)
+Bản đồ 80×60, tụ linh trận, vùng an toàn, 45 yêu thú theo khoảng cách, tọa thiền (×3 trong trận), 18 bậc cảnh giới, đột phá, lôi kiếp kiểu cũ (2,6 s, 70%), Tụ Khí Đan, chết mất 10% tu vi. Mọi công thức như v0.1, nay nằm trong `src/core/config.js`.
 
-### 4.2 Cách đã dùng
-- Repo có sẵn 20 hiệu ứng mẫu, nhưng chúng quá to so với nhân vật 16px của game (160–320px, nhiều cái vẽ cả nhân vật thi triển), nên **không dùng hiệu ứng mẫu**.
-- Thay vào đó đã chép bộ kit vẽ (`vfx/kit/`) và trình phát (`lib/beanfx.js`) vào dự án, rồi viết 5 hiệu ứng mới đúng cỡ trong `vfx/make_fx.py`.
-- **Chưa cài plugin `/beanfx`** vào Claude Code. Muốn tự mô tả hiệu ứng bằng chữ thì cài theo hướng dẫn trong README của beanfx.
+Thêm: **cổng bí cảnh** phía bắc tụ linh trận; nút **Cài đặt** (giảm hiệu ứng, rung màn hình, xuất/nhập save, chơi lại).
 
-### 4.3 Năm hiệu ứng
+### 3.2 Bí cảnh (mới, M1)
+- Đứng gần cổng → E → chọn công pháp khởi đầu (Kiếm Khí / Hỏa Cầu / Lôi Kích) → vào đấu trường 44×44 ô.
+- Quái sinh quanh người chơi, mạnh dần theo thời gian và theo cảnh giới. Sống đủ **8 phút** = thắng (tạm, M2 sẽ thay bằng boss).
+- Công pháp tự thi triển khi có mục tiêu trong tầm và trong tầm nhìn (cây/đá chặn).
+- Quái chết rơi **chiến ý**; đủ EXP → game dừng, bảng **chọn 1 trong 3 thẻ**. Lên nhiều cấp cùng lúc thì lần lượt chọn đủ.
+- Tối đa 4 công pháp chủ động + 4 bị động.
+- **Tiến hóa** khi công pháp chính cấp 5 + có công pháp phụ + đã sống 90 s: Lôi Đình Vạn Kiếm, Liệt Diễm Kiếm Trận, Hỏa Long Quyển, Lôi Cương Hộ Thể (bảng chi tiết ở ADR 0003).
+- Chết hoặc rời bí cảnh → bảng kết quả → về đúng chỗ cũ ở động phủ. **Cảnh giới, tu vi, đồ không đổi; chưa có phần thưởng** (M2-03).
+- Run không được lưu: tải lại trang giữa run = về động phủ.
 
-| Tên | Ô | Khung | fps | Kiểu | Dùng khi |
-|---|---|---|---|---|---|
-| `kiem_khi` | 32×32 | 16 hướng × 6 | 18 | lặp | Đạn kiếm khí: lưỡi liềm xanh lam có vệt gió |
-| `kiem_trung` | 32×32 | 8 | 24 | một lần | Kiếm khí trúng quái, cây hoặc đá |
-| `loi_kiep` | 96×184 | 16 | 24 | một lần | Sét tím độ kiếp: tia dò, cú đánh có nhánh, đánh lại, tàn dư |
-| `dot_pha` | 128×144 | 30 | 24 | một lần | Đột phá: chớp trắng, cột sáng vàng, hai vòng sóng, đốm bay lên |
-| `toa_thien` | 64×64 | 24 | 12 | lặp | Linh khí xoáy vào người khi tọa thiền |
+Công pháp đã chạy: Kiếm Khí, Phi Kiếm Trận, Hỏa Cầu, Hỏa Luân, Lôi Kích, Lôi Vực, Phong Nhận, Hộ Thể Cương Khí. Chỉ có dữ liệu thiết kế, chưa vào pool: Phong Ảnh Bộ, Băng Châm, Hàn Khí, Linh Châu.
 
-Cả 5 qua bộ kiểm tra `export.check` của beanfx (không chạm mép ô, không có khung rỗng, hiệu ứng một lần tan dần chứ không biến mất đột ngột).
-
-`loi_kiep` và `dot_pha` có **hit**: tới khung chạm, game rung màn hình và chớp sáng. `toa_thien` phát nhanh hơn (×1,6) và sáng hơn khi ngồi trong tụ linh trận.
-
-### 4.4 Vẽ lại hoặc sửa hiệu ứng
-
-```bash
-.venv/Scripts/python vfx/make_fx.py
-```
-
-```bash
-.venv/Scripts/python vfx/make_fx.py loi_kiep
-```
-
-- Mỗi hiệu ứng là một hàm `render(f)` trả về bản đồ sắc độ (chỉ số màu 0–3, −1 là trống) và lớp sáng.
-- Bảng màu ở đầu file (`CYAN`, `VIOLET`, `GOLD` và ramp ánh sáng tương ứng).
-- Thêm hiệu ứng mới: viết hàm vẽ, thêm vào `EFFECTS`, rồi trong `game.js` thêm tên vào danh sách tải `FX` và gọi `spawnFx('ten', x, y)`.
-- Lệnh trả mã thoát 1 nếu hiệu ứng không qua kiểm tra, kèm lý do.
-
-### 4.5 Thứ vẫn vẽ bằng code (chưa chuyển sang beanfx)
-- Vòng tụ linh trận giữa bản đồ.
-- Hạt sáng: tia khi dùng đan, xác quái nổ khi chết, tia lửa nhỏ quanh sét.
-- Chữ số sát thương bay lên.
+### 3.3 Hiệu ứng
+5 hiệu ứng beanfx cũ vẫn dùng (kiếm khí, kiếm trúng, lôi kiếp — cũng dùng cho Lôi Kích ở tỉ lệ 0,5 —, đột phá — cũng dùng khi tiến hóa —, tọa thiền). Các công pháp mới đang vẽ tạm bằng code (vòng lửa, lốc, khiên, phi kiếm, cầu lửa, lưỡi gió, sét nhảy).
 
 ---
 
-## 5. Đã kiểm tra
+## 4. Save
 
-Đã chạy trong trình duyệt, console không có lỗi:
-- Di chuyển, tọa thiền (cả trong và ngoài trận), tu vi tăng đúng tốc độ.
-- Phóng kiếm khí, trúng và giết quái, nhận tu vi và linh thạch.
-- Đột phá bậc nhỏ, độ kiếp thành công (Luyện Khí 9 → Trúc Cơ) và **thất bại** (Trúc Cơ hậu kỳ → Kim Đan).
-- Hiệu ứng beanfx hiện đúng chỗ, đúng hướng.
+Chi tiết: ADR 0001.
 
-**Chưa kiểm tra:**
-- Bị đánh chết và hồi sinh ở trận.
-- Mua đan bằng nút/phím (logic đơn giản nhưng chưa bấm thử).
-- Tải lại trang để xem tiến độ có được giữ không.
-- Màn hình điện thoại: **chưa có điều khiển cảm ứng**, chỉ chơi được bằng bàn phím.
+- `tutien_save_v1`: **chỉ đọc**, không bao giờ ghi/xóa.
+- Lần đầu mở bản mới: đọc v1 → migrate → ghi `tutien_save_v2`, đọc lại để xác minh, chép v1 nguyên văn sang `tutien_save_v1_backup`.
+- Mỗi lần lưu: bản v2 trước xoay sang `tutien_save_v2_bak`. v2 hỏng → giữ ở `tutien_save_v2_corrupt` và phục hồi từ bak, rồi tới v1.
+- Chỉ lưu metaState: cảnh giới, tu vi, máu, linh thạch, đan, vị trí động phủ, cài đặt, thống kê run.
+- Quay về code v0.1 vẫn chạy với v1 nhưng mất tiến độ kể từ lúc migrate.
+
+Save trên trình duyệt của máy này lúc kết thúc phiên: đã đưa về đúng giá trị v1 gốc (Luyện Khí 1, 0 linh thạch, 1 đan). Bản sao v1 gốc: `backups/browser_save_v1_2026-11-10.json` (không có trong git).
 
 ---
 
-## 6. Hạn chế đã biết
+## 5. Đã kiểm thử (tóm tắt — đầy đủ trong `TEST_REPORT.md`)
 
-- Chỉ chơi một mình, lưu trong trình duyệt; xóa dữ liệu trình duyệt là mất tiến độ, và dễ sửa số bằng console.
-- Chưa có âm thanh (beanfx hỗ trợ âm thanh cho hiệu ứng, chưa dùng).
-- Cân bằng chỉ chỉnh sơ: quái cấp cao ở rìa bản đồ có thể quá mạnh hoặc quá yếu so với tốc độ lên cấp.
-- Toàn bộ code game nằm trong một file `game.js`; khi thêm tính năng lớn nên tách ra module (bản đồ, thực thể, HUD, hiệu ứng).
-
----
-
-## 7. Hướng đi tiếp theo
-
-Lộ trình đã thống nhất từ đầu có 3 giai đoạn; hiện đang ở cuối giai đoạn 1.
-
-**Giai đoạn 1: chơi một mình (đang làm)**
-- Nội dung chơi: công pháp/kỹ năng (ngũ hành), trang bị, luyện đan, boss, thêm vùng bản đồ.
-- Thêm hiệu ứng beanfx cho kỹ năng mới; chuyển tụ linh trận sang beanfx.
-- Điều khiển cảm ứng cho điện thoại.
-- Âm thanh.
-
-**Giai đoạn 2: bán online**
-- Đăng nhập, lưu tiến độ trên server, bảng xếp hạng, chat thế giới.
-- Gợi ý: Cloudflare Workers + D1 (cùng hạ tầng với trang beanfx) hoặc Supabase.
-
-**Giai đoạn 3: online thật**
-- Thấy người chơi khác di chuyển, tông môn, PvP, boss thế giới.
-- Gợi ý: Colyseus (Node.js) hoặc Cloudflare Durable Objects. Lúc này mọi tính toán quan trọng (sát thương, tu vi, rơi đồ) phải chuyển lên server để chống hack.
-
-Nếu chuyển engine cho giai đoạn sau: Phaser 3 hoặc PixiJS. Sprite sheet trong `fx/` theo định dạng Aseprite nên engine nào cũng đọc được.
+- Baseline v0.1: đi, va chạm, T, B, 1, 2, Space, **chết → hồi sinh, mua đan, tải lại trang** đều PASS.
+- Bản mới, bằng phím thật: migrate save, đi, tọa thiền, đột phá, lôi kiếp, đánh quái, chết, mua/dùng đan, cài đặt, tải lại trang.
+- Bí cảnh, bằng phím thật: vào/hủy/vào lại, tự đánh, chọn thẻ (bấm đúp chỉ nhận 1), thế giới dừng khi chọn, tạm dừng, rời bí cảnh, chết trong bí cảnh, tải lại giữa bảng thẻ, Space tay, **tiến hóa Lôi Đình Vạn Kiếm bằng một lượt chơi 3 phút**.
+- 3 tiến hóa còn lại: test tự động + bot mô phỏng đạt được bằng bốc thẻ bình thường; **chưa chơi tay**.
+- FPS: 60 (16,7 ms/khung) ở động phủ và đầu bí cảnh. Stress test 100 quái/200 đạn/300 hạt **chưa đo**.
 
 ---
 
-## 8. Giấy phép và nguồn
+## 6. Hạn chế và lỗi còn mở
 
-- `vfx/kit/` và `lib/beanfx.js`: từ [baenv/beanfx](https://github.com/baenv/beanfx), giấy phép MIT, giữ nguyên file LICENSE.
-- Mọi hình ảnh khác (bản đồ, nhân vật, yêu thú) và 5 hiệu ứng trong `fx/` là vẽ mới cho dự án này, không dùng asset bên ngoài.
+1. **Gate M1 chưa đạt đủ**: 3/4 tiến hóa chưa chơi tay; chưa đo rò bộ nhớ.
+2. Cân bằng chưa đều (bot): Kiếm + Lôi thắng 3/4 lượt; Lôi + Thể và Phi Kiếm + Hỏa thường chết ở phút 3–6. Chỉnh ở M2-04.
+3. Chưa có boss, mini-boss, phần thưởng run (M2). "Thắng" = sống 8 phút.
+4. Viên chiến ý nhỏ, khó thấy trên cỏ.
+5. Không có điều khiển cảm ứng (M5-06).
+6. Chưa thử tay: xuất/nhập save và "Chơi lại" trong Cài đặt (có test logic), đổi tab thật khi đang run.
+7. Lôi kiếp vẫn là RNG 70% (sẽ thay ở M3-03).
+8. Chiêu mới vẽ tạm bằng code; cần VFX beanfx (M5-03).
+
+---
+
+## 7. Bước tiếp theo (theo `TASKS_TU_TIEN_LO.md`)
+
+1. Đóng gate M1: chơi tay 3 tiến hóa còn lại (Phi Kiếm + Hỏa, Hỏa Luân + Phong Nhận, Hộ Thể + Lôi), đo bộ nhớ sau vài lượt.
+2. M2-01: director thời gian, 3–4 kiểu quái (đuổi, lao, bắn xa, tinh anh) có cảnh báo.
+3. M2-02: mini-boss + boss cuối.
+4. M2-03: phần thưởng run commit một lần.
+5. M2-04: cân bằng một run hoàn chỉnh.
+
+---
+
+## 8. Giấy phép
+
+- `vfx/kit/`, `lib/beanfx.js`: từ [baenv/beanfx](https://github.com/baenv/beanfx), MIT, có LICENSE.
+- Mọi hình ảnh khác và 5 hiệu ứng trong `fx/` là vẽ mới cho dự án này.

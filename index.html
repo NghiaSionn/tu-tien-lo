@@ -16,11 +16,13 @@
   #panel { position: absolute; left: .7em; top: .7em; width: 17em; padding: .6em .75em; }
   #realm { font-weight: 700; font-size: 1.15em; color: #ffd978; letter-spacing: .02em; }
   .row { display: flex; justify-content: space-between; font-size: .85em; margin-top: .45em; opacity: .92; }
-  .bar { height: .6em; margin-top: .2em; background: #241d33; border: 1px solid #4b3f63; border-radius: .2em; overflow: hidden; }
+  .bar { height: .6em; margin-top: .2em; background: #241d33; border: 1px solid #4b3f63; border-radius: .2em; overflow: hidden; position: relative; }
   .bar > i { display: block; height: 100%; width: 0; }
-  #hpFill { background: linear-gradient(#e2584f, #a32f38); }
+  #hpFill, #rHpFill { background: linear-gradient(#e2584f, #a32f38); }
+  #rShield { position: absolute; left: 0; top: 0; background: rgba(255, 217, 120, .75); }
   #tvFill { background: linear-gradient(#7fe3ff, #3b86d6); }
   #tvFill.full { background: linear-gradient(#fff0a0, #e0a020); }
+  #rXpFill { background: linear-gradient(#9cf2a0, #3fa060); }
   #stats { display: flex; gap: 1em; font-size: .85em; margin-top: .55em; }
 
   #log { position: absolute; left: .7em; bottom: 4.6em; width: 24em; font-size: .88em;
@@ -35,14 +37,57 @@
   button.on { background: #1f5a6e; border-color: #7fe3ff; }
   button.ready { background: #7a5a12; border-color: #ffe08a; animation: pulse 1s infinite; }
   button:disabled { opacity: .45; cursor: default; }
+  #btnRun { background: #3b2470; border-color: #b48cff; animation: pulsev 1.2s infinite; }
   @keyframes pulse { 50% { box-shadow: 0 0 .8em #ffd978; } }
+  @keyframes pulsev { 50% { box-shadow: 0 0 .8em #b48cff; } }
 
   #help { position: absolute; left: 0; right: 0; bottom: .45em; text-align: center; font-size: .75em;
           opacity: .75; text-shadow: 0 1px 2px #000; }
-  #reset { position: absolute; right: .7em; top: .7em; font-size: .75em; opacity: .7; }
+  .corner { position: absolute; right: .7em; top: .7em; font-size: .75em; opacity: .8; }
+
+  /* HUD bí cảnh */
+  #runHud { position: absolute; left: .7em; top: .7em; right: .7em; display: none; }
+  #runTop { display: flex; gap: .6em; align-items: center; }
+  #runTop .box { padding: .35em .6em; }
+  #rLvBox { min-width: 13em; } #rLvBox b { color: #9cf2a0; }
+  #rTime { font-size: 1.3em; font-weight: 700; color: #ffd978; font-variant-numeric: tabular-nums; }
+  #rHpBox { min-width: 11em; }
+  #rSkills { display: flex; gap: .3em; margin-top: .45em; }
+  .slot { position: relative; width: 2.3em; height: 2.3em; display: flex; align-items: center; justify-content: center;
+          background: rgba(18, 14, 28, .85); border: 1px solid var(--c, #b89a54); border-radius: .3em; overflow: hidden; }
+  .slot span { font-size: 1.15em; } .slot b { position: absolute; right: .15em; bottom: 0; font-size: .7em; }
+  .slot i { position: absolute; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, .55); height: 0; }
+  .slot.evo { box-shadow: 0 0 .5em var(--c); } .slot.pas { border-color: #6a5f80; opacity: .9; }
+  #btnPause { position: absolute; right: 0; top: 0; font-size: .75em; }
+  body[data-mode=run] #runHud { display: block; }
+  body[data-mode=run] #panel, body[data-mode=run] #actions, body[data-mode=run] #btnSettings { display: none; }
+  body[data-mode=run] #help::after { content: ' · Esc: tạm dừng'; }
+
+  /* bảng */
+  #modal { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+           background: rgba(8, 6, 14, .62); pointer-events: auto; }
+  #modal[hidden] { display: none; }
+  .sheet { background: rgba(20, 15, 32, .97); border: 1px solid #b89a54; border-radius: .5em; padding: 1em 1.2em;
+           max-width: 40em; width: calc(100% - 3em); max-height: calc(100% - 2em); overflow: auto; }
+  .sheet h2 { margin: 0 0 .3em; color: #ffd978; font-size: 1.35em; } .sheet h2.lose { color: #ff8f8a; } .sheet h2.win { color: #9cf2a0; }
+  .sheet h3 { margin: .8em 0 .35em; font-size: 1em; color: #e6d7a8; }
+  .sheet p { margin: .3em 0; font-size: .9em; line-height: 1.4; } .sheet .sub { opacity: .78; font-size: .82em; }
+  .sheet .row { justify-content: flex-end; gap: .5em; margin-top: .9em; opacity: 1; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(10em, 1fr)); gap: .6em; margin-top: .5em; }
+  .card { position: relative; text-align: left; padding: .6em .7em .7em; border: 1px solid var(--c); background: rgba(30, 24, 46, .95);
+          display: flex; flex-direction: column; gap: .2em; font-size: .9em; }
+  .card:hover { background: #2e2448; transform: translateY(-2px); }
+  .card .key { position: absolute; right: .5em; top: .4em; font-size: .75em; opacity: .7; border: 1px solid #6a5f80; border-radius: .2em; padding: 0 .3em; }
+  .card .ic { font-size: 1.6em; } .card b { color: var(--c); font-size: 1.05em; } .card em { font-style: normal; font-size: .75em; opacity: .75; }
+  .card p { margin: .2em 0 0; font-size: .85em; } .card small { font-size: .72em; color: #ffd978; opacity: .85; }
+  .card.t-EVOLUTION { box-shadow: 0 0 1em var(--c); border-width: 2px; }
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: .5em; margin: .6em 0; text-align: center; font-size: .78em; opacity: .9; }
+  .stats b { display: block; font-size: 1.5em; color: #ffd978; }
+  .opt { display: block; margin: .4em 0; font-size: .9em; pointer-events: auto; }
+  button.ghost { background: transparent; } button.danger { border-color: #ff8f8a; color: #ffb4b0; }
 </style>
 </head>
-<body>
+<body data-mode="hub">
 <div id="wrap">
   <canvas id="game"></canvas>
   <div id="hud">
@@ -54,17 +99,36 @@
       <div class="bar"><i id="tvFill"></i></div>
       <div id="stats"><span>⚔ <b id="atkTxt"></b></span><span>💎 <b id="stoneTxt"></b></span><span>🧪 <b id="pillTxt"></b></span></div>
     </div>
-    <button id="reset">Chơi lại từ đầu</button>
+    <button id="btnSettings" class="corner">Cài đặt</button>
+
+    <div id="runHud">
+      <div id="runTop">
+        <div id="rLvBox" class="box">
+          <div class="row" style="margin:0"><span>Cấp chiến đấu <b id="rLevel">1</b></span><span>☠ <span id="rKills">0</span></span></div>
+          <div class="bar"><i id="rXpFill"></i></div>
+        </div>
+        <div id="rHpBox" class="box">
+          <div class="row" style="margin:0"><span>Khí huyết</span><span id="rHpTxt"></span></div>
+          <div class="bar"><i id="rHpFill"></i><i id="rShield"></i></div>
+        </div>
+        <div class="box"><span id="rTime">8:00</span></div>
+      </div>
+      <div id="rSkills"></div>
+      <button id="btnPause">Tạm dừng (Esc)</button>
+    </div>
+
     <div id="log"></div>
     <div id="actions">
       <button id="btnMed">Tọa thiền (T)</button>
       <button id="btnBreak">Đột phá (B)</button>
       <button id="btnPill">Dùng đan (1)</button>
       <button id="btnBuy">Mua đan · 25💎 (2)</button>
+      <button id="btnRun" hidden>Vào bí cảnh (E)</button>
     </div>
-    <div id="help">WASD / mũi tên: di chuyển · Space: phóng kiếm khí · T: tọa thiền · B: đột phá · 1: dùng đan · 2: mua đan</div>
+    <div id="help">WASD / mũi tên: di chuyển · Space: phóng kiếm khí · T: tọa thiền · B: đột phá · 1: dùng đan · 2: mua đan · E: bí cảnh</div>
+    <div id="modal" hidden></div>
   </div>
 </div>
-<script type="module" src="game.js"></script>
+<script type="module" src="src/main.js"></script>
 </body>
 </html>
