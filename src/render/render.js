@@ -136,7 +136,7 @@ function drawSkillsUnder(ctx, run, p, time) {
     }
   }
 }
-function drawSkillsOver(ctx, run, p, time) {
+function drawSkillsOver(ctx, run, p, time, vis) {
   for (const s of run.skills) {
     const k = skillKind(s), prm = skillParams(s), st = s.st;
     ctx.globalCompositeOperation = 'lighter';
@@ -150,6 +150,10 @@ function drawSkillsOver(ctx, run, p, time) {
       ctx.globalAlpha = 0.35 + 0.25 * (st.hp / (st.cap || 1));
       pxRing(ctx, p.x, p.y - 9, 13, 28, time, s.evolved ? '#d9c8ff' : '#ffd978', 1, 1.15);
       ctx.globalAlpha = 1;
+    } else if (k === 'tornado' && st.pos && vis.pfxSkills) {
+      ctx.globalCompositeOperation = 'source-over';
+      const f = vis.pfxSkills.tornado;
+      for (const [tx, ty] of st.pos) { f.x = Math.round(tx); f.y = Math.round(ty + 4); f.draw(ctx); }
     } else if (k === 'tornado' && st.pos) {
       for (const [tx, ty] of st.pos) for (let j = 0; j < 5; j++) pxRing(ctx, tx, ty - j * 6, prm.radius * (0.4 + j * 0.14), 10, time * 6 + j, j < 2 ? '#ff6a2a' : '#ffb070', 2, 0.45);
     }
@@ -227,7 +231,7 @@ export function render(ctx, g) {
     else drawPlayer(ctx, p, time, g.medFx, g.inForm);
   }
 
-  if (g.run) drawSkillsOver(ctx, g.run, p, time);
+  if (g.run) drawSkillsOver(ctx, g.run, p, time, vis);
   if (scene.projectiles) drawProjectiles(ctx, scene, vis.FX, g.dtWorld || 0);
   for (const s of g.hubShots || []) { s.fx.x = Math.round(s.x); s.fx.y = Math.round(s.y); s.fx.draw(ctx); }
   for (const fx of vis.fxs) fx.draw(ctx);

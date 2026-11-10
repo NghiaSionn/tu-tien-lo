@@ -31,6 +31,18 @@ Hạn chế khi ghép vào game:
 
 Ảnh trước/sau: `docs/pixelfx_truoc_sau.png`.
 
+## Tạo VFX mới bằng quy trình pixelfx (11/11/2026)
+
+pixelfx có skill tạo hiệu ứng: mô tả một câu → tìm mẫu gần nhất → phác → render → nhìn → sửa (≥3 vòng) → `check.mjs`.
+Kích thước khung tự đặt, nên vẽ được ở cỡ nhân vật 12×25 của game.
+
+Thử với **Hỏa Long Quyển** (`vfx/pixelfx/hoa-long-quyen.js`, tham khảo kỹ thuật của `fire/fire-tornado`, thiết kế riêng):
+3 vòng sửa, `check.mjs` pass sạch. Ảnh trước/sau: `docs/vfx_hoa_long_quyen.png`.
+
+Phát hiện: sheet gộp sẵn của pixelfx (`--sheet`) trộn ánh sáng vào ảnh nên chỉ đẹp trên nền tối. Với VFX chiêu thức,
+xuất **tách lớp màu + lớp sáng** bằng `tools/pixelfx_layers.mjs` (định dạng beanfx), vẽ lớp sáng cộng sáng.
+Cổng bí cảnh vẫn dùng sheet gộp (đã khử nhân alpha) vì trông ổn.
+
 ## Xuất thêm hiệu ứng
 
 Cần bản clone pixelfx và Node:

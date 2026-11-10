@@ -30,3 +30,17 @@ test('chuyển meta.pixelfx sang meta.beanfx: trình phát beanfx lặp đúng',
   assert.ok(fx.frame >= 0 && fx.frame < j.meta.pixelfx.frames);
   assert.deepEqual(asset.meta.pivot, j.meta.pixelfx.pivot);
 });
+
+test('VFX tự làm Hỏa Long Quyển: 2 lớp màu + sáng, lặp, khung nằm trong ảnh', () => {
+  const j = JSON.parse(readFileSync('fx/pixelfx/hoa-long-quyen.json', 'utf8'));
+  const m = j.meta.beanfx;
+  for (const f of [m.color, m.light]) assert.ok(existsSync('fx/pixelfx/' + f), 'thiếu ' + f);
+  assert.equal(m.blend_light, 'add');
+  assert.equal(m.loop, true);
+  assert.equal(j.frames.length, m.frames);
+  for (const f of j.frames) assert.ok(f.frame.x + f.frame.w <= j.meta.size.w && f.frame.y + f.frame.h <= j.meta.size.h);
+  const fx = createFx(fromJson(j, { color: [{}], light: [{}] }));
+  for (let i = 0; i < 200; i++) fx.update(1 / 60);
+  assert.equal(fx.done, false);
+  assert.ok(existsSync('vfx/pixelfx/hoa-long-quyen.js'), 'giữ mã nguồn hiệu ứng để vẽ lại');
+});

@@ -39,6 +39,10 @@ if (FEATURES.pixelfxAssets) {
   try {
     vis.pfx = { portal: createFx(await loadPixelfx('fx/pixelfx/portal.json')) };
   } catch (e) { console.warn('[pixelfx] dùng hình dự phòng:', e); }
+  // VFX tự làm bằng quy trình pixelfx, xuất 2 lớp màu + sáng (tools/pixelfx_layers.mjs)
+  try {
+    vis.pfxSkills = { tornado: createFx(await loadFx('fx/pixelfx/hoa-long-quyen.json')) };
+  } catch (e) { console.warn('[pixelfx] lốc lửa dùng hình dự phòng:', e); }
 }
 
 // ---------- thế giới động phủ ----------
@@ -367,6 +371,7 @@ function frame(now) {
   consumeEvents(vis, ev);
   updateVis(vis, worldDt);
   if (vis.pfx && view === 'HUB') vis.pfx.portal.update(dt);
+  if (vis.pfxSkills && view === 'RUN') vis.pfxSkills.tornado.update(worldDt);
   const scene = run && view !== 'HUB' ? run.scene : hub;
   render(ctx, { scene, player: p, time, vis, medFx, trib, inForm: p.inForm, portal: scene === hub ? PORTAL : null, run: scene === hub ? null : run, hubShots: scene === hub ? hubShots : null, dtWorld: worldDt });
   if ((hudT += dt) > 0.1) { hudT = 0; if (view === 'HUB' || !run) UI.hubHud(meta, p, trib, PORTAL.near); else UI.runHud(run); }
