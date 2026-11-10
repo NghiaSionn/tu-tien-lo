@@ -383,6 +383,7 @@ Tạo thư mục `docs/adr/` hoặc phần ghi chú khi có quyết định ản
 | 2026-11-11 | (ngoài backlog) | DONE | Thử pixelfx: cổng bí cảnh + viên chiến ý; nhặt chiến ý bằng phím thật PASS; 300 viên 60 FPS; `npm test` 44/44 | ADR 0004; sửa lỗi `dt` âm làm đứng game |
 | 2026-11-11 | (ngoài backlog, trước M5-03) | DONE | Bỏ viên chiến ý pixelfx theo yêu cầu, giữ cổng. VFX Hỏa Long Quyển tự làm bằng quy trình pixelfx: 3 vòng sửa, check.mjs pass, xem trong game (dựng tiến hóa bằng console), 60 FPS | ADR 0004; `docs/vfx_hoa_long_quyen.png` |
 | 2026-11-11 | (ngoài backlog, trước M5-03) | DONE | Chốt beanfx chính, pixelfx phụ. Chạy 2 draft tu tiên mẫu của beanfx; dùng lại Lôi aura thu nhỏ K=0,36 quanh nhân vật 25 px (chưa gắn vào game) | ADR 0005; `vfx/drafts/` |
+| 2026-11-11 | M1-06 / Gate M1 | PARTIAL | Chơi thật (127.0.0.1, phím thật): **Hỏa Long Quyển tiến hóa ở 2:14, cấp 10** (khởi đầu Hỏa Cầu). Lôi Cương Hộ Thể: lượt khởi đầu Lôi Kích **thua ở 2:19** (Hộ Thể mới cấp 3) — khởi đầu Lôi quá yếu ở Luyện Khí 1; đang thử lại với khởi đầu Kiếm Khí, chưa xong. Liệt Diễm Kiếm Trận chưa chơi tay. Bộ nhớ: dùng `performance.memory` không đo được (trình duyệt trả số làm tròn 3 MB); đếm đối tượng thay thế: sau mỗi lượt về động phủ, run=null, đạn/vùng/chiến ý/hiệu ứng đều về 0 | Còn: Lôi Cương, Liệt Diễm bằng chơi thật; cân nhắc buff khởi đầu Lôi Kích |
 
 ---
 
