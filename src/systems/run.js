@@ -77,7 +77,7 @@ export function updateRun(run, player, dt, ev, realmPowerOverride) {
   reapMonsters(sc, m => {
     run.kills++;
     ev.push({ type: 'death', x: m.x, y: m.y, tier: m.tier });
-    if (sc.orbs.length < RUN.MAX_ORBS) sc.orbs.push({ x: m.x, y: m.y - 2, v: m.xp, ph: Math.floor(run.rng() * 1000) });
+    if (sc.orbs.length < RUN.MAX_ORBS) sc.orbs.push({ x: m.x, y: m.y - 2, v: m.xp });
     else sc.orbs[run.kills % sc.orbs.length].v += m.xp;      // quá nhiều: gộp vào viên có sẵn
   });
   // chiến ý: hút về người chơi rồi nhặt

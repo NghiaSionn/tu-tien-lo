@@ -113,7 +113,9 @@ Chạy trên `http://127.0.0.1:8123` (bộ nhớ lưu riêng, không đụng sav
 | P5 | 300 viên chiến ý cùng lúc | thiết lập bằng console | PASS — khung trung vị 16,70 ms, p95 16,80 ms | không lỗi |
 | P6 | Tắt `FEATURES.pixelfxAssets` / tải sheet lỗi | — | NOT VERIFIED trong trình duyệt (đường dự phòng là hình vẽ bằng code cũ) | — |
 
-Test tự động: thêm `tests/pixelfx.test.js` (3 test). `npm test`: 44/44 PASS.
+Test tự động: thêm `tests/pixelfx.test.js`. Sau khi bỏ viên chiến ý pixelfx: `npm test` 43/43 PASS.
+
+**11/11/2026:** người chơi giữ cổng, bỏ viên chiến ý pixelfx; viên chiến ý về lại hình vẽ bằng code (giống commit `afd7e78`).
 
 Ảnh trước/sau: `docs/pixelfx_truoc_sau.png`.
 
@@ -138,7 +140,7 @@ Nhận xét: build Kiếm + Lôi vẫn mạnh hơn hẳn. Cân bằng chi tiết
 
 1. Cân bằng: Kiếm + Lôi vượt trội; Lôi + Thể yếu (số liệu bot). Chưa có playtest người thật.
 2. Chưa có boss, phần thưởng run (M2). "Thắng" hiện chỉ là sống đủ 8 phút.
-3. ~~Chiến ý (viên EXP) nhỏ và khó thấy trên nền cỏ.~~ Đã thay bằng sheet pixelfx (§3b).
+3. Chiến ý (viên EXP) nhỏ và khó thấy trên nền cỏ. Bản pixelfx (§3b) đã bị loại, trả về hình cũ.
 4. Chưa test bằng tay 3 tiến hóa còn lại, đổi tab thật, xuất/nhập/chơi lại từ giao diện.
 5. Không có điều khiển cảm ứng.
 6. Trình duyệt có thể giữ bản cũ trong bộ nhớ đệm nếu chạy bằng `python -m http.server`; nên dùng `python tools/serve.py` (tắt cache).

@@ -37,8 +37,7 @@ const medFx = createFx(FX.toa_thien);
 // Sheet pixelfx (tùy chọn): lỗi tải thì quay về hình vẽ bằng code, game vẫn chạy
 if (FEATURES.pixelfxAssets) {
   try {
-    const [portal, orbGreen, orbBlue, orbGold] = await Promise.all(['portal', 'xp-orb-green', 'xp-orb-blue', 'xp-orb-gold'].map(n => loadPixelfx(`fx/pixelfx/${n}.json`)));
-    vis.pfx = { portal: createFx(portal), orbs: [orbGreen, orbBlue, orbGold] };
+    vis.pfx = { portal: createFx(await loadPixelfx('fx/pixelfx/portal.json')) };
   } catch (e) { console.warn('[pixelfx] dùng hình dự phòng:', e); }
 }
 

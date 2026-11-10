@@ -7,7 +7,7 @@ Cập nhật: 2026-11-11, sau phiên M0 + M1 và thử pixelfx. Bản trước c
 | | |
 |---|---|
 | Trạng thái | M0 xong (gate đạt). M1 xong phần lớn; gate M1 **chưa đạt đủ** (xem §6) |
-| Test tự động | `npm test`: 44/44 PASS |
+| Test tự động | `npm test`: 43/43 PASS |
 | Kiểm thử tay | `TEST_REPORT.md` |
 | Quyết định kỹ thuật | `docs/adr/0001…0004` |
 | Rollback | `git checkout baseline-v0.1` (code v0.1 nguyên trạng) |
@@ -74,7 +74,7 @@ tests/                  node:test (realm, cultivation, save, run)
 tools/serve.py          Server dev không cache
 tools/sim.mjs           Bot mô phỏng run
 tools/pixelfx_import.py Nhập sheet pixelfx (khử nhân alpha, cắt viên chiến ý)
-fx/pixelfx/             Sheet pixelfx (cổng, 3 màu chiến ý) + LICENSE/NOTICE
+fx/pixelfx/             Sheet pixelfx (cổng) + LICENSE/NOTICE
 lib/beanfx.js, fx/, vfx/ Hiệu ứng beanfx (không đổi từ v0.1)
 legacy/game_v0.1.js     Code v0.1 một file, KHÔNG còn được nạp; giữ để đối chiếu
 docs/adr/               Quyết định kỹ thuật
@@ -104,7 +104,7 @@ Thêm: **cổng bí cảnh** phía bắc tụ linh trận; nút **Cài đặt** 
 Công pháp đã chạy: Kiếm Khí, Phi Kiếm Trận, Hỏa Cầu, Hỏa Luân, Lôi Kích, Lôi Vực, Phong Nhận, Hộ Thể Cương Khí. Chỉ có dữ liệu thiết kế, chưa vào pool: Phong Ảnh Bộ, Băng Châm, Hàn Khí, Linh Châu.
 
 ### 3.3 Hiệu ứng
-**pixelfx** (ADR 0004, cờ `FEATURES.pixelfxAssets`): cổng bí cảnh và viên chiến ý (3 màu theo giá trị) dùng sheet xuất từ pixelfx. Ảnh trước/sau: `docs/pixelfx_truoc_sau.png`.
+**pixelfx** (ADR 0004, cờ `FEATURES.pixelfxAssets`): cổng bí cảnh dùng sheet xuất từ pixelfx. Viên chiến ý đã thử pixelfx nhưng trả về hình cũ theo yêu cầu. Ảnh trước/sau: `docs/pixelfx_truoc_sau.png`.
 
 5 hiệu ứng beanfx cũ vẫn dùng (kiếm khí, kiếm trúng, lôi kiếp — cũng dùng cho Lôi Kích ở tỉ lệ 0,5 —, đột phá — cũng dùng khi tiến hóa —, tọa thiền). Các công pháp mới đang vẽ tạm bằng code (vòng lửa, lốc, khiên, phi kiếm, cầu lửa, lưỡi gió, sét nhảy).
 
@@ -139,7 +139,7 @@ Save trên trình duyệt của máy này lúc kết thúc phiên: đã đưa v�
 1. **Gate M1 chưa đạt đủ**: 3/4 tiến hóa chưa chơi tay; chưa đo rò bộ nhớ.
 2. Cân bằng chưa đều (bot): Kiếm + Lôi thắng 3/4 lượt; Lôi + Thể và Phi Kiếm + Hỏa thường chết ở phút 3–6. Chỉnh ở M2-04.
 3. Chưa có boss, mini-boss, phần thưởng run (M2). "Thắng" = sống 8 phút.
-4. ~~Viên chiến ý nhỏ, khó thấy trên cỏ.~~ Đã thay bằng pixelfx.
+4. Viên chiến ý nhỏ, khó thấy trên cỏ (bản pixelfx đã thử và bị loại; cần hướng khác).
 5. Không có điều khiển cảm ứng (M5-06).
 6. Chưa thử tay: xuất/nhập save và "Chơi lại" trong Cài đặt (có test logic), đổi tab thật khi đang run.
 7. Lôi kiếp vẫn là RNG 70% (sẽ thay ở M3-03).

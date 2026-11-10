@@ -4,7 +4,6 @@ import { WATER, STONE, TREE, ROCK } from '../world/map.js';
 import { SPR, TIERS, BEAST_WHITE, grassTiles, waterTiles, stoneTile, treeSprs, rockSpr, hash } from './sprites.js';
 import { createFx } from '../../lib/beanfx.js';
 import { skillKind, skillParams } from '../systems/combat.js';
-import { drawFrame } from './pixelfx.js';
 
 const { W, H } = VIEW;
 const rand = (a, b) => a + Math.random() * (b - a);
@@ -209,17 +208,9 @@ export function render(ctx, g) {
     ctx.globalCompositeOperation = 'lighter';
     for (const z of scene.zones) { ctx.globalAlpha = Math.min(1, z.t); pxRing(ctx, z.x, z.y, z.r, 16, time * 3, '#ff6a2a', 2, 0.5); }
     ctx.globalAlpha = 1;
-    ctx.globalCompositeOperation = 'source-over';
     for (const o of scene.orbs) {
-      if (vis.pfx) {
-        const a = vis.pfx.orbs[o.v >= 3 ? 2 : o.v >= 2 ? 1 : 0];
-        drawFrame(ctx, a, Math.floor(time * a.meta.fps) + (o.ph || 0), o.x, o.y - 2);
-        continue;
-      }
       const c = o.v >= 3 ? '#ffd978' : o.v >= 2 ? '#7fe3ff' : '#9cf2a0';
-      ctx.globalCompositeOperation = 'lighter';
       ctx.fillStyle = c; ctx.fillRect(Math.round(o.x) - 1, Math.round(o.y + Math.sin(time * 5 + o.x) * 1) - 1, 3, 3);
-      ctx.globalCompositeOperation = 'source-over';
     }
     ctx.globalCompositeOperation = 'source-over';
     if (g.run) drawSkillsUnder(ctx, g.run, p, time);

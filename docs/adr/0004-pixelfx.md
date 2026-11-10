@@ -1,6 +1,6 @@
 # ADR 0004 — Dùng pixelfx làm kho hiệu ứng phụ
 
-Ngày: 2026-11-11. Trạng thái: thử nghiệm (2 hiệu ứng).
+Ngày: 2026-11-11. Trạng thái: thử nghiệm (1 hiệu ứng: cổng bí cảnh).
 
 ## Bối cảnh
 
@@ -27,7 +27,7 @@ Hạn chế khi ghép vào game:
 | Sheet | Nguồn | Dùng cho |
 |---|---|---|
 | `portal` | `arcane/portal` | Cổng bí cảnh ở động phủ (vẽ theo thứ tự y cùng nhân vật) |
-| `xp-orb-green/blue/gold` | `pickups/xp-orb` với 3 bảng màu | Viên chiến ý giá trị 1 / 2 / ≥3; mỗi viên lệch pha riêng |
+| ~~`xp-orb-green/blue/gold`~~ | `pickups/xp-orb` | **Đã bỏ** 11/11/2026: người chơi không thích, viên chiến ý về lại hình vẽ bằng code. Bản pixelfx còn trong commit `8de085b` |
 
 Ảnh trước/sau: `docs/pixelfx_truoc_sau.png`.
 
