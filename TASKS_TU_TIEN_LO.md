@@ -382,6 +382,7 @@ Tạo thư mục `docs/adr/` hoặc phần ghi chú khi có quyết định ản
 | 2026-11-10 | M1-06 | PARTIAL | 4 tiến hóa có test + bot đạt được; 1/4 chơi tay (Lôi Đình Vạn Kiếm) | Còn chơi tay 3 tiến hóa |
 | 2026-11-11 | (ngoài backlog) | DONE | Thử pixelfx: cổng bí cảnh + viên chiến ý; nhặt chiến ý bằng phím thật PASS; 300 viên 60 FPS; `npm test` 44/44 | ADR 0004; sửa lỗi `dt` âm làm đứng game |
 | 2026-11-11 | (ngoài backlog, trước M5-03) | DONE | Bỏ viên chiến ý pixelfx theo yêu cầu, giữ cổng. VFX Hỏa Long Quyển tự làm bằng quy trình pixelfx: 3 vòng sửa, check.mjs pass, xem trong game (dựng tiến hóa bằng console), 60 FPS | ADR 0004; `docs/vfx_hoa_long_quyen.png` |
+| 2026-11-11 | (ngoài backlog, trước M5-03) | DONE | Chốt beanfx chính, pixelfx phụ. Chạy 2 draft tu tiên mẫu của beanfx; dùng lại Lôi aura thu nhỏ K=0,36 quanh nhân vật 25 px (chưa gắn vào game) | ADR 0005; `vfx/drafts/` |
 
 ---
 

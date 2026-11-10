@@ -9,7 +9,7 @@ Cập nhật: 2026-11-11, sau phiên M0 + M1 và thử pixelfx. Bản trước c
 | Trạng thái | M0 xong (gate đạt). M1 xong phần lớn; gate M1 **chưa đạt đủ** (xem §6) |
 | Test tự động | `npm test`: 44/44 PASS |
 | Kiểm thử tay | `TEST_REPORT.md` |
-| Quyết định kỹ thuật | `docs/adr/0001…0004` |
+| Quyết định kỹ thuật | `docs/adr/0001…0005` (0005: beanfx chính, pixelfx phụ) |
 | Rollback | `git checkout baseline-v0.1` (code v0.1 nguyên trạng) |
 
 ---
@@ -76,6 +76,7 @@ tools/sim.mjs           Bot mô phỏng run
 tools/pixelfx_import.py Nhập sheet gộp của pixelfx (khử nhân alpha)
 tools/pixelfx_layers.mjs Xuất hiệu ứng pixelfx thành 2 lớp màu + sáng (định dạng beanfx)
 vfx/pixelfx/            Mã nguồn VFX tự làm theo quy trình pixelfx
+vfx/drafts/             Draft beanfx tu tiên dùng lại, đã thu nhỏ theo nhân vật 25 px (chưa gắn vào game)
 fx/pixelfx/             Sheet pixelfx (cổng, Hỏa Long Quyển) + LICENSE/NOTICE
 lib/beanfx.js, fx/, vfx/ Hiệu ứng beanfx (không đổi từ v0.1)
 legacy/game_v0.1.js     Code v0.1 một file, KHÔNG còn được nạp; giữ để đối chiếu
