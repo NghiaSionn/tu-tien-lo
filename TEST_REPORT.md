@@ -100,6 +100,25 @@ Kết quả lần chạy cuối: **41 test, 41 PASS, 0 FAIL.**
 
 ---
 
+## 3b. Thử pixelfx (2026-11-11, ADR 0004)
+
+Chạy trên `http://127.0.0.1:8123` (bộ nhớ lưu riêng, không đụng save thật ở `localhost:8123`).
+
+| # | Bước | Cách | Kết quả | Console |
+|---|---|---|---|---|
+| P1 | Cổng bí cảnh dùng sheet pixelfx | đặt vị trí; quan sát | PASS — cổng tím xoáy, vẽ đúng thứ tự trước/sau nhân vật | — |
+| P2 | Lỗi vỡ vòng lặp khi tải trang | quan sát | **FAIL rồi PASS** — khung đầu có `dt` âm làm hiệu ứng nhảy về khung −1, game đứng hình. Sửa: kẹp `dt ≥ 0` trong `src/main.js` | hết lỗi sau khi sửa |
+| P3 | Viên chiến ý pixelfx trong bí cảnh | chơi thật | PASS — đốm sáng có đuôi, 3 màu theo giá trị, nhìn rõ trên cỏ | không lỗi |
+| P4 | Nhặt chiến ý sau khi đổi hình | phím thật S ×50, D ×40 | PASS — nhặt 3 viên, lên cấp 2, bảng thẻ mở | không lỗi |
+| P5 | 300 viên chiến ý cùng lúc | thiết lập bằng console | PASS — khung trung vị 16,70 ms, p95 16,80 ms | không lỗi |
+| P6 | Tắt `FEATURES.pixelfxAssets` / tải sheet lỗi | — | NOT VERIFIED trong trình duyệt (đường dự phòng là hình vẽ bằng code cũ) | — |
+
+Test tự động: thêm `tests/pixelfx.test.js` (3 test). `npm test`: 44/44 PASS.
+
+Ảnh trước/sau: `docs/pixelfx_truoc_sau.png`.
+
+---
+
 ## 4. Bot mô phỏng (`node tools/sim.mjs`) — không phải người chơi thật
 
 Bot né quái, nhặt chiến ý và chọn thẻ theo danh sách ưu tiên của từng build. Dùng để xem xu hướng cân bằng và xác minh tiến hóa đến được bằng bốc thẻ bình thường. Lần chạy cuối, cảnh giới 0, 4 seed mỗi build:
@@ -119,7 +138,7 @@ Nhận xét: build Kiếm + Lôi vẫn mạnh hơn hẳn. Cân bằng chi tiết
 
 1. Cân bằng: Kiếm + Lôi vượt trội; Lôi + Thể yếu (số liệu bot). Chưa có playtest người thật.
 2. Chưa có boss, phần thưởng run (M2). "Thắng" hiện chỉ là sống đủ 8 phút.
-3. Chiến ý (viên EXP) nhỏ và khó thấy trên nền cỏ.
+3. ~~Chiến ý (viên EXP) nhỏ và khó thấy trên nền cỏ.~~ Đã thay bằng sheet pixelfx (§3b).
 4. Chưa test bằng tay 3 tiến hóa còn lại, đổi tab thật, xuất/nhập/chơi lại từ giao diện.
 5. Không có điều khiển cảm ứng.
 6. Trình duyệt có thể giữ bản cũ trong bộ nhớ đệm nếu chạy bằng `python -m http.server`; nên dùng `python tools/serve.py` (tắt cache).

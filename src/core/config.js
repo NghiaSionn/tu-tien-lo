@@ -3,6 +3,7 @@
 export const FEATURES = {
   run: true,            // M1: cổng bí cảnh + vòng run roguelite. false = game chạy như v0.1
   manualAttackInRun: true,
+  pixelfxAssets: true,  // dùng sheet pixelfx (cổng bí cảnh, viên chiến ý). false = hình vẽ bằng code như cũ
 };
 
 export const VIEW = { W: 480, H: 270 };

@@ -4,6 +4,7 @@ import { WATER, STONE, TREE, ROCK } from '../world/map.js';
 import { SPR, TIERS, BEAST_WHITE, grassTiles, waterTiles, stoneTile, treeSprs, rockSpr, hash } from './sprites.js';
 import { createFx } from '../../lib/beanfx.js';
 import { skillKind, skillParams } from '../systems/combat.js';
+import { drawFrame } from './pixelfx.js';
 
 const { W, H } = VIEW;
 const rand = (a, b) => a + Math.random() * (b - a);
@@ -202,15 +203,23 @@ export function render(ctx, g) {
     pxRing(ctx, map.cx, map.cy, HUB.FORM_R * 0.62, 16, -time * 0.8, '#7fe3ff', 2);
     pxRing(ctx, map.cx, map.cy, HUB.FORM_R * 0.28, 8, time * 1.2, '#ffe08a', 2);
     ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
-    if (FEATURES.run && g.portal) drawPortal(ctx, g.portal.x, g.portal.y, time, g.portal.near);
+    if (FEATURES.run && g.portal && !vis.pfx) drawPortal(ctx, g.portal.x, g.portal.y, time, g.portal.near);
   } else {
     // chiến ý (EXP) và vùng lửa nằm dưới mặt đất
     ctx.globalCompositeOperation = 'lighter';
     for (const z of scene.zones) { ctx.globalAlpha = Math.min(1, z.t); pxRing(ctx, z.x, z.y, z.r, 16, time * 3, '#ff6a2a', 2, 0.5); }
     ctx.globalAlpha = 1;
+    ctx.globalCompositeOperation = 'source-over';
     for (const o of scene.orbs) {
+      if (vis.pfx) {
+        const a = vis.pfx.orbs[o.v >= 3 ? 2 : o.v >= 2 ? 1 : 0];
+        drawFrame(ctx, a, Math.floor(time * a.meta.fps) + (o.ph || 0), o.x, o.y - 2);
+        continue;
+      }
       const c = o.v >= 3 ? '#ffd978' : o.v >= 2 ? '#7fe3ff' : '#9cf2a0';
+      ctx.globalCompositeOperation = 'lighter';
       ctx.fillStyle = c; ctx.fillRect(Math.round(o.x) - 1, Math.round(o.y + Math.sin(time * 5 + o.x) * 1) - 1, 3, 3);
+      ctx.globalCompositeOperation = 'source-over';
     }
     ctx.globalCompositeOperation = 'source-over';
     if (g.run) drawSkillsUnder(ctx, g.run, p, time);
@@ -218,10 +227,12 @@ export function render(ctx, g) {
 
   for (const m of scene.monsters) objs.push({ y: m.y, m });
   objs.push({ y: p.y, player: true });
+  if (scene.kind === 'hub' && FEATURES.run && g.portal && vis.pfx) objs.push({ y: g.portal.y, portal: true });
   objs.sort((a, b) => a.y - b.y);
   for (const o of objs) {
     if (o.img) ctx.drawImage(o.img, o.x, o.dy);
     else if (o.m) drawMonster(ctx, o.m, time);
+    else if (o.portal) { const f = vis.pfx.portal; f.x = Math.round(g.portal.x); f.y = Math.round(g.portal.y); f.draw(ctx); }
     else drawPlayer(ctx, p, time, g.medFx, g.inForm);
   }
 

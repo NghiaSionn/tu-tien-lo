@@ -380,6 +380,7 @@ Tạo thư mục `docs/adr/` hoặc phần ghi chú khi có quyết định ản
 | 2026-11-10 | M1-04 | DONE | Bấm đúp chỉ nhận 1 thẻ; thế giới dừng khi chọn; pool cạn có thẻ dự phòng; tải lại và blur giữa bảng thẻ không kẹt | blur là sự kiện giả |
 | 2026-11-10 | M1-05 | DONE | 12 công pháp trong data, 8 đã chạy; test NaN/cap/cooldown PASS | Cân bằng chưa đều (bot) |
 | 2026-11-10 | M1-06 | PARTIAL | 4 tiến hóa có test + bot đạt được; 1/4 chơi tay (Lôi Đình Vạn Kiếm) | Còn chơi tay 3 tiến hóa |
+| 2026-11-11 | (ngoài backlog) | DONE | Thử pixelfx: cổng bí cảnh + viên chiến ý; nhặt chiến ý bằng phím thật PASS; 300 viên 60 FPS; `npm test` 44/44 | ADR 0004; sửa lỗi `dt` âm làm đứng game |
 
 ---
 

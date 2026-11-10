@@ -10,6 +10,7 @@ import { runStats } from './systems/combat.js';
 import { spawnHubMonster, updateMonsters, reapMonsters, damageMonster, moveEntity } from './entities/monsters.js';
 import { loadSave, writeSave, commitMigration, exportSave, importSave, defaultMeta, KEYS } from './persistence/save.js';
 import { loadFx, createFx } from '../lib/beanfx.js';
+import { loadPixelfx } from './render/pixelfx.js';
 import { makeVis, consumeEvents, updateVis, clearVis, render, spawnFx, burst, floatText, addShake, addFlash, part } from './render/render.js';
 import * as UI from './ui/ui.js';
 import { EVOLUTIONS } from './data/skills.js';
@@ -33,6 +34,13 @@ const FX = {};
 for (const name of ['kiem_khi', 'kiem_trung', 'loi_kiep', 'dot_pha', 'toa_thien']) FX[name] = await loadFx(`fx/${name}.json`);
 const vis = makeVis(FX);
 const medFx = createFx(FX.toa_thien);
+// Sheet pixelfx (tùy chọn): lỗi tải thì quay về hình vẽ bằng code, game vẫn chạy
+if (FEATURES.pixelfxAssets) {
+  try {
+    const [portal, orbGreen, orbBlue, orbGold] = await Promise.all(['portal', 'xp-orb-green', 'xp-orb-blue', 'xp-orb-gold'].map(n => loadPixelfx(`fx/pixelfx/${n}.json`)));
+    vis.pfx = { portal: createFx(portal), orbs: [orbGreen, orbBlue, orbGold] };
+  } catch (e) { console.warn('[pixelfx] dùng hình dự phòng:', e); }
+}
 
 // ---------- thế giới động phủ ----------
 const hubMap = makeHubMap();
@@ -352,12 +360,14 @@ document.addEventListener('visibilitychange', () => { if (document.hidden && vie
 // ---------- vòng lặp ----------
 let last = performance.now(), hudT = 0;
 function frame(now) {
-  const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  // dấu thời gian rAF có thể sớm hơn `last` ở khung đầu -> dt âm làm hiệu ứng nhảy về khung -1
+  const dt = Math.max(0, Math.min(0.05, (now - last) / 1000)); last = now;
   let worldDt = 0;
   if (view === 'HUB') { time += dt; worldDt = dt; updateHub(dt); }
   else if (view === 'RUN' && !paused) { time += dt; worldDt = dt; updateRunView(dt); }
   consumeEvents(vis, ev);
   updateVis(vis, worldDt);
+  if (vis.pfx && view === 'HUB') vis.pfx.portal.update(dt);
   const scene = run && view !== 'HUB' ? run.scene : hub;
   render(ctx, { scene, player: p, time, vis, medFx, trib, inForm: p.inForm, portal: scene === hub ? PORTAL : null, run: scene === hub ? null : run, hubShots: scene === hub ? hubShots : null, dtWorld: worldDt });
   if ((hudT += dt) > 0.1) { hudT = 0; if (view === 'HUB' || !run) UI.hubHud(meta, p, trib, PORTAL.near); else UI.runHud(run); }
@@ -375,6 +385,6 @@ UI.hubHud(meta, p, trib, false);
 // Gỡ lỗi (console): __game.meta, __game.p, __game.run, __game.view ...
 window.__game = {
   get meta() { return meta; }, get run() { return run; }, get view() { return view; }, get paused() { return paused; },
-  p, hub, keys, KEYS, save, get trib() { return trib; }, PORTAL,
+  p, hub, keys, KEYS, save, get trib() { return trib; }, PORTAL, vis,
 };
 requestAnimationFrame(frame);
