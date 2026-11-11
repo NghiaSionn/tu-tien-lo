@@ -62,7 +62,7 @@ function dodge(run, p) {
 
 export function simulate(buildName, L, seed, maxTime = 720) {
   const b = BUILDS[buildName];
-  const run = createRun({ seed, startSkill: b.start, realmLevel: L });
+  const run = createRun({ seed, startSkill: b.start, realmLevel: L, difficulty: +(process.env.DIFF || 0) });
   const p = { x: run.scene.map.cx, y: run.scene.map.cy, fx: 1, fy: 0, inv: 0, dead: false };
   const ev = [], dt = 1 / 30;
   const evoAt = {};

@@ -33,8 +33,15 @@ export const REALM = {
   DEATH_KEEP: 0.9,
 };
 
-export const MEDITATION = { BASE: 2, PER_L: 0.15, FORMATION_MULT: 3, HEAL: 0.05, IDLE_HEAL: 0.008 };
+// M3-01: tọa thiền CHUYỂN HÓA linh khí (mang về từ bí cảnh) thành tu vi. Hết linh khí thì chỉ còn dòng rất nhỏ trong tụ linh trận.
+export const MEDITATION = {
+  BASE: 2, PER_L: 0.15, FORMATION_MULT: 3, HEAL: 0.05, IDLE_HEAL: 0.008,
+  CONVERT: 4,                 // linh khí chuyển hóa mỗi giây ×(1 + PER_L·L), ×FORMATION_MULT trong tụ linh trận [THỬ NGHIỆM]
+  YIELD: 1.5, YIELD_OUTSIDE: 0.8,   // tu vi nhận được trên 1 linh khí: trong trận / ngoài trận
+  TRICKLE: 0.1,               // hết linh khí: tu vi = TRICKLE × tốc độ cũ (BASE…), CHỈ trong tụ linh trận (chống AFK vô hạn)
+};
 
+// Tụ Khí Đan (M3-01): ngưng tụ linh khí — dùng thì +linh khí, đủ để thiền trong tụ linh trận được PILL_FRACTION ngưỡng tu vi bậc hiện tại
 export const ITEMS = { PILL_COST: 25, PILL_FRACTION: 0.25, START_PILLS: 1 };
 
 export const BASIC_ATTACK = { CD: 0.35, SPEED: 230, RANGE: 150, AIM_RANGE: 130 };
@@ -124,9 +131,9 @@ export const BOSS = {
   FINAL: {
     AT: 360, name: 'Ma Ảnh Yêu Vương', tier: 3, hp: 70, dmg: 1.6, speed: 0.8, xp: 0, size: 3,
     GAP: 1.3, RECOVER: 1.3, ORDER: ['burst', 'zones'],
-    SLAM: { WINDUP: 1.1, R: 64, DMG: 2.4, TRIGGER: 70 },
+    SLAM: { WINDUP: 1.25, R: 48, DMG: 2.0, TRIGGER: 55 },   // M2-04: R64 gần như không chạy kịp khi boss áp sát
     BURST: { WINDUP: 0.85, N: 12, N2: 16, SPEED: 80, LIFE: 3, DMG: 1.2 },
-    ZONES: { WINDUP: 1.2, N: 3, N2: 4, R: 30, SPREAD: 55, DMG: 1.6 },
+    ZONES: { WINDUP: 1.4, N: 3, N2: 4, R: 26, SPREAD: 55, DMG: 1.6 },   // M2-04: chơi thử chết nhiều nhất vì chiêu này -> gồng lâu hơn, vùng nhỏ hơn
     PHASE2: 0.5, PHASE2_GAP: 0.7,            // dưới 50% máu: nghỉ ngắn hơn, nhiều đạn/vùng hơn
     ENRAGE_AFTER: 150, ENRAGE_GAP: 0.5, ENRAGE_DMG: 1.5, MAX_HAZARDS: 12,
   },
@@ -147,3 +154,35 @@ export const REWARD = {
   REALM_MULT: 0.1,                                          // +10% mỗi tầng cảnh giới
   LOG_KEEP: 30,                                             // nhớ id các run đã nhận gần nhất (chống nhận trùng)
 };
+
+// ---------- Thiên kiếp tương tác (M3-03) [THỬ NGHIỆM] ----------
+// Khoảng 24 giây, 3 nhịp. dmg = tỉ lệ khí huyết tối đa mỗi đòn trúng. Thua: giữ cảnh giới, mất FAIL_KEEP tu vi như cũ.
+export const TRIBULATION = {
+  ENABLED: true,             // false = quay về lôi kiếp xổ số cũ (REALM.MAJOR_CHANCE) — đường rollback
+  ARENA_R: 96,               // trận thử thách quanh tụ linh trận; người chơi bị giữ trong vòng
+  PHASES: [
+    { name: 'Lôi ấn',   kind: 'marks', dur: 8, every: 1.1, n: 3, r: 22, windup: 1.2, dmg: 0.16 },
+    { name: 'Lôi xà',   kind: 'lines', dur: 8, every: 1.5, lines: 2, w: 16, windup: 1.2, dmg: 0.18 },
+    { name: 'Thiên lôi', kind: 'storm', dur: 8, every: 2.4, gaps: 3, safeR: 22, reach: 80, windup: 1.6, dmg: 0.28 },
+  ],
+  FAIL_KEEP: 0.7, FAIL_HP: 0.3,
+};
+
+// ---------- Mở khóa theo đại cảnh giới + độ khó bí cảnh (M3-02) [THỬ NGHIỆM] ----------
+// Đại cảnh giới mở biến thể (công pháp khởi đầu mới) và độ khó bí cảnh mới — không khóa lối chơi đầu.
+export const REALM_UNLOCKS = {
+  9:  { skills: ['sword_array'], tier: 1, text: 'Khởi đầu bằng Phi Kiếm Trận · bí cảnh độ khó Linh' },
+  12: { skills: ['body_aura'],   tier: 2, text: 'Khởi đầu bằng Hộ Thể Cương Khí · bí cảnh độ khó Huyền' },
+  15: { skills: ['fire_ring'],   tier: 3, text: 'Khởi đầu bằng Hỏa Luân · bí cảnh độ khó Thiên' },
+};
+// enemy: nhân máu/sát thương quái + boss; reward: nhân linh thạch/linh khí/luyện liệu
+export const DIFFICULTY = [
+  { name: 'Phàm',  enemy: 1,   reward: 1 },
+  { name: 'Linh',  enemy: 1.3, reward: 1.5 },
+  { name: 'Huyền', enemy: 1.6, reward: 2.0 },
+  { name: 'Thiên', enemy: 1.8, reward: 2.8 },
+];
+
+// ---------- Linh Mạch — điểm nghỉ trong bí cảnh (M3-04) [THỬ NGHIỆM] ----------
+// Hiện ra khi hạ Lang Vương. Một lần mỗi run, chọn 1 trong 3; bị phong ấn (không dùng được) khi có boss đang sống.
+export const SHRINE = { R: 20, HEAL: 0.5, DMG_BUFF: 0.2, QI: 60 };

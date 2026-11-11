@@ -22,8 +22,10 @@ export function defaultMeta(hubSpawn) {
     realmLevel: 0, cultivationXp: 0, hp: maxHp(0), linhThach: 0, pills: ITEMS.START_PILLS,
     lingQi: 0, craftMats: 0, coDuyenTicket: 0, firstClear: false,     // M2-03
     pendingReward: null, rewardLog: [],                                 // phần thưởng run chờ nhận / id run đã nhận
+    tribPending: false,                                                 // M3-03: đang độ kiếp (tải lại giữa chừng = thất bại)
     hubPos: { x: hubSpawn.x, y: hubSpawn.y },
-    unlocks: { skills: [] },
+    unlocks: { skills: [], tier: 0 },
+    lastDifficulty: 0,
     settings: { reduceEffects: false, screenShake: true },
     stats: { runs: 0, wins: 0, bestTime: 0, bestLevel: 0 },
   };
@@ -52,12 +54,14 @@ export function sanitizeMeta(src, ctx, warnings = []) {
   out.craftMats = int(src.craftMats, 0, MAX_MONEY, 0);
   out.coDuyenTicket = int(src.coDuyenTicket, 0, MAX_PILLS, 0);
   out.firstClear = src.firstClear === true;
+  out.tribPending = src.tribPending === true;
   if (Array.isArray(src.rewardLog)) out.rewardLog = src.rewardLog.filter(s => typeof s === 'string' && s.length <= 64).slice(-REWARD.LOG_KEEP);
   out.pendingReward = sanitizeReward(src.pendingReward, warnings);
   const pos = src.hubPos;
   if (pos && ctx.canStand(num(pos.x), num(pos.y))) out.hubPos = { x: pos.x, y: pos.y };
   else if (pos) warnings.push('vị trí không hợp lệ, đưa về tụ linh trận');
-  if (src.unlocks && Array.isArray(src.unlocks.skills)) out.unlocks = { skills: src.unlocks.skills.filter(s => typeof s === 'string').slice(0, 64) };
+  if (src.unlocks && Array.isArray(src.unlocks.skills)) out.unlocks = { skills: src.unlocks.skills.filter(s => typeof s === 'string').slice(0, 64), tier: int(src.unlocks.tier, 0, 3, 0) };
+  out.lastDifficulty = int(src.lastDifficulty, 0, 3, 0);
   if (src.settings && typeof src.settings === 'object') {
     out.settings = { reduceEffects: src.settings.reduceEffects === true, screenShake: src.settings.screenShake !== false };
   }

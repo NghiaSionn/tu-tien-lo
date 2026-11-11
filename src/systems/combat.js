@@ -13,6 +13,7 @@ export function runStats(run) {
     if (p.stat === 'cooldown') st.cooldown *= Math.max(0.4, 1 - p.per * lv);
     else st[p.stat] += p.per * lv;
   }
+  st.damage += run.shrineDmg || 0;            // M3-04: Linh Mạch
   return st;
 }
 

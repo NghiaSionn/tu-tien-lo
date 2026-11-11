@@ -1,8 +1,8 @@
 // Giao diện DOM: HUD động phủ, HUD bí cảnh, các bảng (chuẩn bị, chọn thẻ, kết quả, tạm dừng, cài đặt), nhật ký.
-import { RUN, ITEMS, BOSS } from '../core/config.js';
+import { RUN, ITEMS, BOSS, TRIBULATION, DIFFICULTY, REALM_UNLOCKS } from '../core/config.js';
 import { levelName, maxHp, atk, need, isMajor, MAX_L } from '../progression/realm.js';
 import { xpToNext } from '../progression/runxp.js';
-import { medRate, canBreak, isFull } from '../systems/cultivation.js';
+import { canBreak, isFull, convertRate, yieldOf, trickleRate, pillQi } from '../systems/cultivation.js';
 import { SKILLS, ELEMENTS, PASSIVES } from '../data/skills.js';
 import { elementName, evolutionHint } from '../progression/draft.js';
 import { skillName, skillElement, skillKind, skillParams } from '../systems/combat.js';
@@ -28,19 +28,21 @@ export function hubHud(meta, p, trib, nearPortal) {
   $('realm').textContent = levelName(L);
   $('hpTxt').textContent = `${Math.ceil(meta.hp)} / ${mh}`;
   $('hpFill').style.width = meta.hp / mh * 100 + '%';
-  $('tvTxt').textContent = `${Math.floor(meta.cultivationXp)} / ${n}` + (p.med ? `  (+${medRate(L, p.inForm).toFixed(1)}/s)` : '');
+  const rate = p.med && !full ? (meta.lingQi > 0 ? convertRate(L, p.inForm) * yieldOf(p.inForm) : trickleRate(L, p.inForm)) : 0;
+  $('tvTxt').textContent = `${Math.floor(meta.cultivationXp)} / ${n}` + (p.med ? `  (+${rate.toFixed(1)}/s${meta.lingQi > 0 ? '' : ', hết linh khí'})` : '');
   $('tvFill').style.width = meta.cultivationXp / n * 100 + '%';
   $('tvFill').classList.toggle('full', full);
   $('atkTxt').textContent = atk(L);
   $('stoneTxt').textContent = meta.linhThach;
   $('pillTxt').textContent = meta.pills;
-  $('lqTxt').textContent = meta.lingQi; $('matTxt').textContent = meta.craftMats; $('ticketTxt').textContent = meta.coDuyenTicket;
+  $('lqTxt').textContent = Math.floor(meta.lingQi); $('matTxt').textContent = meta.craftMats; $('ticketTxt').textContent = meta.coDuyenTicket;
   $('btnMed').classList.toggle('on', p.med);
   const ok = canBreak(meta) && !trib;
   $('btnBreak').classList.toggle('ready', ok);
   $('btnBreak').disabled = !ok;
-  $('btnBreak').textContent = isMajor(L) ? `Độ kiếp ${Math.round(REALM.MAJOR_CHANCE * 100)}% (B)` : 'Đột phá (B)';
-  $('btnPill').disabled = meta.pills <= 0 || full || L >= MAX_L;
+  $('btnBreak').textContent = isMajor(L) ? (TRIBULATION.ENABLED ? 'Độ thiên kiếp (B)' : `Độ kiếp ${Math.round(REALM.MAJOR_CHANCE * 100)}% (B)`) : 'Đột phá (B)';
+  $('btnPill').disabled = meta.pills <= 0 || L >= MAX_L;
+  $('btnPill').textContent = `Dùng đan (1) · +${pillQi(L)}✨`;
   $('btnBuy').disabled = meta.linhThach < ITEMS.PILL_COST;
   $('btnRun').hidden = !nearPortal;
 }
@@ -90,24 +92,46 @@ function open(html, keys) {
 }
 export function closeModal() { $('modal').hidden = true; $('modal').innerHTML = ''; modalKeys = null; }
 
+// M3-02: công pháp khởi đầu = mặc định + đã mở khóa theo đại cảnh giới; độ khó tới mức đã mở (phím D đổi)
+export const startSkillIds = meta => [...RUN.START_SKILLS, ...meta.unlocks.skills.filter(id => SKILLS[id] && SKILLS[id].implemented && !RUN.START_SKILLS.includes(id))].slice(0, 6);
 export function showPrepare(meta, onPick, onCancel) {
-  const opts = RUN.START_SKILLS.map(id => SKILLS[id]);
+  const ids = startSkillIds(meta), opts = ids.map(id => SKILLS[id]);
+  const maxTier = meta.unlocks.tier || 0;
+  let diff = Math.min(meta.lastDifficulty || 0, maxTier);
+  const nextLock = Object.entries(REALM_UNLOCKS).find(([L]) => meta.realmLevel < +L);
+  const diffHtml = () => DIFFICULTY.map((d, i) => `<button class="${i === diff ? '' : 'ghost'}" data-diff="${i}" ${i > maxTier ? 'disabled' : ''}>${esc(d.name)}${i ? ` · quái ×${d.enemy} · thưởng ×${d.reward}` : ''}</button>`).join('');
   open(`<h2>Bí Cảnh · Rừng Linh Thú</h2>
     <p class="sub">${esc(levelName(meta.realmLevel))} · Công ${atk(meta.realmLevel)} · Khí huyết ${maxHp(meta.realmLevel)}</p>
     <p class="sub">${esc(BOSS.MINI.name)} chặn đường lúc ${fmtTime(BOSS.MINI.AT)}; ${esc(BOSS.FINAL.name)} xuất hiện lúc ${fmtTime(BOSS.FINAL.AT)} — hạ nó để vượt bí cảnh. Đánh yêu thú lấy chiến ý, đủ thì chọn công pháp mới. Chết trong bí cảnh không mất tu vi hay cảnh giới.</p>
+    <h3>Độ khó (D)</h3><div class="row diff">${diffHtml()}</div>
+    ${nextLock ? `<p class="sub">Đột phá ${esc(levelName(+nextLock[0]))} để mở: ${esc(nextLock[1].text)}.</p>` : ''}
     <h3>Chọn công pháp khởi đầu</h3>
     <div class="cards">${opts.map((d, i) => `<button class="card" data-i="${i}" style="--c:${ELEMENTS[d.element].color}">
       <span class="key">${i + 1}</span><span class="ic">${d.icon}</span><b>${esc(d.name)}</b><em>${esc(ELEMENTS[d.element].name)}</em><p>${esc(d.desc)}</p></button>`).join('')}</div>
     <div class="row"><button class="ghost" data-act="cancel">Hủy (Esc)</button></div>`,
   code => {
-    const i = { Digit1: 0, Digit2: 1, Digit3: 2 }[code];
-    if (i != null) { pick(i); return true; }
+    const i = { Digit1: 0, Digit2: 1, Digit3: 2, Digit4: 3, Digit5: 4, Digit6: 5 }[code];
+    if (i != null && i < ids.length) { pick(i); return true; }
+    if (code === 'KeyD') { setDiff(diff >= maxTier ? 0 : diff + 1); return true; }
     if (code === 'Escape') { closeModal(); onCancel(); return true; }
     return false;
   });
-  const pick = i => { closeModal(); onPick(RUN.START_SKILLS[i]); };
+  const pick = i => { closeModal(); onPick(ids[i], diff); };
+  const setDiff = d => { diff = d; const row = $('modal').querySelector('.diff'); row.innerHTML = diffHtml(); bindDiff(); };
+  const bindDiff = () => $('modal').querySelectorAll('[data-diff]').forEach(b => b.addEventListener('click', () => { if (+b.dataset.diff <= maxTier) setDiff(+b.dataset.diff); }));
+  bindDiff();
   $('modal').querySelectorAll('.card').forEach(b => b.addEventListener('click', () => pick(+b.dataset.i)));
   $('modal').querySelector('[data-act=cancel]').addEventListener('click', () => { closeModal(); onCancel(); });
+}
+
+// M3-04: Linh Mạch — chọn 1 trong 3, một lần
+export function showShrine(choices, onPick) {
+  let done = false;
+  const pick = i => { if (done || !choices[i]) return; done = true; closeModal(); onPick(choices[i].id); };
+  open(`<h2>Linh Mạch</h2><p class="sub">Linh khí trào lên từ lòng đất. Chỉ hấp thu được một lần.</p>
+    <div class="cards">${choices.map((c, i) => `<button class="card" data-i="${i}" style="--c:#7fe3ff"><span class="key">${i + 1}</span><span class="ic">${['✚', '⚔', '✨'][i]}</span><b>${esc(c.name)}</b><p>${esc(c.text())}</p></button>`).join('')}</div>`,
+  code => { const i = { Digit1: 0, Digit2: 1, Digit3: 2 }[code]; if (i != null) { pick(i); return true; } return false; });
+  $('modal').querySelectorAll('.card').forEach(b => b.addEventListener('click', () => pick(+b.dataset.i)));
 }
 
 // Bảng chọn thẻ: một lần chọn duy nhất; khóa input ngắn khi vừa mở để không bấm nhầm/bấm đúp.

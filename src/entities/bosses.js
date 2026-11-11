@@ -54,7 +54,7 @@ export function bossAI(m, player, dx, dy, d, dt, io) {
   else if (pat === 'howl') windup(m, B.HOWL.WINDUP);
   else if (pat === 'slam') {
     windup(m, B.SLAM.WINDUP);
-    addHazard(io, B, { x: m.x, y: m.y, r: B.SLAM.R, t: B.SLAM.WINDUP, dmg: m.dmg * B.SLAM.DMG, owner: m });
+    addHazard(io, B, { x: m.x, y: m.y, r: B.SLAM.R, t: B.SLAM.WINDUP, dmg: m.dmg * B.SLAM.DMG, owner: m, src: 'boss:slam' });
   } else if (pat === 'burst') {
     windup(m, B.BURST.WINDUP);
     m.burstN = phase2 ? B.BURST.N2 : B.BURST.N; m.burstA0 = io.rng() * Math.PI * 2 / m.burstN;
@@ -63,7 +63,7 @@ export function bossAI(m, player, dx, dy, d, dt, io) {
     const n = phase2 ? B.ZONES.N2 : B.ZONES.N;
     for (let i = 0; i < n; i++) {
       const a = io.rng() * Math.PI * 2, r = i === 0 ? 0 : B.ZONES.SPREAD * (0.5 + io.rng() * 0.6);
-      addHazard(io, B, { x: player.x + Math.cos(a) * r, y: player.y + Math.sin(a) * r, r: B.ZONES.R, t: B.ZONES.WINDUP, dmg: m.dmg * B.ZONES.DMG, owner: m });
+      addHazard(io, B, { x: player.x + Math.cos(a) * r, y: player.y + Math.sin(a) * r, r: B.ZONES.R, t: B.ZONES.WINDUP, dmg: m.dmg * B.ZONES.DMG, owner: m, src: 'boss:zone' });
     }
   }
   return true;
@@ -137,7 +137,7 @@ export function updateHazards(scene, player, dt, ev, onHit) {
     if (h.t > 0) continue;
     hz.splice(i, 1);
     ev.push({ type: 'boom', x: h.x, y: h.y, r: h.r, color: '#c070ff' });
-    if (!player.dead && Math.hypot(player.x - h.x, player.y - h.y) < h.r) { onHit(h.dmg); if (hz.length === 0) return; }   // chết -> endRun đã dọn mảng
+    if (!player.dead && Math.hypot(player.x - h.x, player.y - h.y) < h.r) { onHit(h.dmg, h); if (hz.length === 0) return; }   // chết -> endRun đã dọn mảng
   }
 }
 

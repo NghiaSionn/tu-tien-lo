@@ -1,4 +1,28 @@
-# Nhật ký cân bằng M2-04 (2026-11-11)
+# Nhật ký cân bằng M2-04 (2026-11-11, cập nhật 2026-11-12)
+
+## Playtest trong trình duyệt (2026-11-12)
+
+**Cách chơi:** trang game thật trên `127.0.0.1:8123/?loop=timer` (`?loop=timer` chỉ đổi cái gọi vòng lặp sang `setInterval`,
+vì môi trường hãm `requestAnimationFrame` còn 2–5 khung/giây; logic/dt/input không đổi). Các bước luồng (vào cổng E, chọn công
+pháp, nhận thưởng Enter, cài đặt bằng chuột) bấm bằng **phím/chuột thật**. Di chuyển + chọn thẻ trong trận do
+`tools/autopilot.js` **phát sự kiện bàn phím** (WASD, phím số) qua đúng đường input của game; autopilot chỉ đọc trạng thái,
+không sửa state. Đây là bot điều khiển bằng phím, **không phải người chơi thật**.
+
+| # | Build (khởi đầu) | Kết quả | Thời gian | Cấp | Lang Vương | Tiến hóa | Lý do / ghi chú |
+|---|---|---|---|---|---|---|---|
+| 1 | Kiếm + Lôi (Kiếm Khí) | **THẮNG** | 6:39 | 32 | hạ trước 4:01 | Lôi Đình Vạn Kiếm, Lôi Cương Hộ Thể | +382💎 +180✨ +15🔩 +2🎫 (lần đầu); vùng hắc diễm bị **tán cây che** → đã thêm lớp viền cảnh báo trên cây |
+| 2 | Phi Kiếm + Hỏa (Hỏa Cầu), **bật Giảm hiệu ứng** | THUA | 6:35 | 31 | hạ | Liệt Diễm, Hỏa Long Quyển | chết vì "vùng" của Yêu Vương (112 sát thương) — tách nhãn thì là **đập đất R64** → giảm còn R48, gồng 1,25 s. Cảnh báo vẫn rõ khi giảm hiệu ứng (`docs/m2_04_giam_hieu_ung_lang_vuong.jpg`); **thanh máu boss che boss** ở mép dưới → làm mờ |
+| 3 | Hỏa + Phong (Hỏa Cầu) | **THẮNG** | 8:39 | 35 | hạ | Hỏa Long Quyển | trận boss 2:39 (kịp cuồng nộ) — build đánh boss chậm nhất |
+| 4 | Lôi + Thể (Lôi Kích) | THUA | 4:29 | 22 | chết khi đánh | Lôi Cương Hộ Thể | đầu run rất yếu (2:04 mới cấp 7, 9 máu); chết vì đuổi vây + đòn lao Lang Vương |
+| 5 | — | chưa chơi | | | | | trang bị ẩn (cửa sổ không hiển thị) nên game tự dừng |
+
+Mỗi lượt: hub → cổng → chọn công pháp → chọn thẻ → (tiến hóa) → boss → bảng kết quả → nhận thưởng → hub → lượt sau.
+Không sửa state bằng console (console chỉ nạp autopilot và đọc trạng thái). Lưu/tải lại giữa các lượt ổn.
+
+**Cảm giác chơi (ghi theo quan sát màn hình + số liệu):** nhịp 6–8 phút vừa; đợt vây và Hỏa Hồ lao tạo áp lực rõ; Lang Vương
+đọc được; Yêu Vương là điểm khó nhất, cảnh báo đọc được nhưng dễ bị che (cây, thanh máu) — đã sửa hai chỗ đó. Lôi + Thể đầu run
+yếu, Hỏa + Phong đánh boss chậm.
+
 
 ## Hạn chế — đọc trước
 

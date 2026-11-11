@@ -1,6 +1,6 @@
 // Director bí cảnh (M2-01): quyết định sinh quái gì, ở đâu, khi nào. Thuần logic, chỉ dùng run.rng -> cùng seed + cùng
 // input thì cùng kết quả. Thông số ở DIRECTOR / ARCH trong config.
-import { TILE as T, RUN, DIRECTOR as D, ARCH, BOSS } from '../core/config.js';
+import { TILE as T, RUN, DIRECTOR as D, ARCH, BOSS, DIFFICULTY } from '../core/config.js';
 import { makeMonster } from '../entities/monsters.js';
 import { initBoss } from '../entities/bosses.js';
 
@@ -36,7 +36,7 @@ export function validSpawn(map, player, x, y) {
 export function makeRunEnemy(run, arch, x, y, realmPower) {
   const A = ARCH[arch], E = RUN.ENEMY, t = run.time, rng = run.rng;
   const grade = Math.max(0, Math.min(3, Math.floor(t / 120) - (rng() < 0.35 ? 1 : 0)));
-  const scale = Math.pow(realmPower, E.REALM_SCALE);
+  const scale = Math.pow(realmPower, E.REALM_SCALE) * DIFFICULTY[run.diff || 0].enemy;
   const hp = Math.round(E.HP_BASE * (1 + t * E.HP_TIME) * (1 + grade * 0.6) * scale * A.hp);
   const dmg = Math.max(1, Math.round(E.DMG_BASE * (1 + t * E.DMG_TIME) * (1 + grade * 0.4) * scale * A.dmg));
   const lvl = 1 + grade * 3 + Math.floor(t / 60);
@@ -55,7 +55,7 @@ function spawnAt(run, player, arch, x, y, power) {
 // Boss: sức mạnh theo công thức quái thường ở grade 2, nhân hệ số BOSS[kind]
 export function makeBoss(run, kind, x, y, realmPower) {
   const B = BOSS[kind], E = RUN.ENEMY, t = run.time;
-  const scale = Math.pow(realmPower, E.REALM_SCALE);
+  const scale = Math.pow(realmPower, E.REALM_SCALE) * DIFFICULTY[run.diff || 0].enemy;
   const hp = Math.round(E.HP_BASE * (1 + t * E.HP_TIME) * 2.2 * scale * B.hp);
   const dmg = Math.max(1, Math.round(E.DMG_BASE * (1 + t * E.DMG_TIME) * 1.8 * scale * B.dmg));
   const m = makeMonster(x, y, 10 + Math.floor(t / 60), { tier: B.tier, hp, dmg, speed: (E.SPEED + t * E.SPEED_TIME) * B.speed, aggro: true, xp: B.xp, ph: 0 });

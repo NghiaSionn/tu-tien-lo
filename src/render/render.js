@@ -1,5 +1,5 @@
 // Vẽ một khung: bản đồ, vật thể sắp theo y, yêu thú, người chơi, công pháp, hiệu ứng beanfx và hạt sáng.
-import { VIEW, TILE as T, HUB, FEATURES, ARCH, BOSS } from '../core/config.js';
+import { VIEW, TILE as T, HUB, FEATURES, ARCH, BOSS, TRIBULATION, SHRINE } from '../core/config.js';
 import { WATER, STONE, TREE, ROCK } from '../world/map.js';
 import { SPR, TIERS, BEAST_WHITE, BOSS_SPR, grassTiles, waterTiles, stoneTile, treeSprs, rockSpr, hash } from './sprites.js';
 import { createFx } from '../../lib/beanfx.js';
@@ -129,6 +129,20 @@ function drawMonster(ctx, m, time) {
 }
 
 // Cảnh báo đòn (dưới chân quái, vẽ đúng hình học của vùng/đường trúng). Không nhấp nháy mạnh; phần sáng lấp dần = sắp đánh.
+// Lớp trên (sau cây/sprite): chỉ viền cảnh báo, mờ hơn — để tán cây không che mất vùng nguy hiểm (M2-04, chơi thử)
+function drawTelegraphsTop(ctx, scene) {
+  for (const h of scene.hazards || []) { ctx.globalAlpha = 0.5; pxRing(ctx, h.x, h.y, h.r, Math.max(40, Math.round(h.r * 1.8)), 0, '#ff4a3a', 1, 1); }
+  for (const m of scene.monsters) {
+    if (m.dead || m.st !== 'windup') continue;
+    let L = 0;
+    if (m.arch === 'charger') L = ARCH.charger.DASH_SPEED * ARCH.charger.DASH_TIME;
+    else if (m.boss && m.pat === 'dash') L = BOSS.MINI.DASH.SPEED * BOSS.MINI.DASH.TIME;
+    else if (m.arch === 'elite') { ctx.globalAlpha = 0.5; pxRing(ctx, m.x, m.y, ARCH.elite.SLAM_R, 60, 0, '#ff4a3a', 1, 1); }
+    if (L) { ctx.globalAlpha = 0.35; pxLine(ctx, m.x, m.y - 3, m.x + m.dirX * L, m.y - 3 + m.dirY * L, '#ff4a3a', 1); }
+  }
+  ctx.globalAlpha = 1;
+}
+
 function drawTelegraphs(ctx, scene) {
   // vùng nguy hiểm của boss (đập đất, hắc diễm): vòng đỏ đúng bán kính trúng + lấp tím dần tới lúc nổ
   for (const h of scene.hazards || []) {
@@ -181,10 +195,64 @@ function drawBossTelegraph(ctx, m) {
   ctx.globalAlpha = 1;
 }
 
+// Linh Mạch (M3-04): cột linh quang; mờ + vòng đỏ khi bị phong ấn (boss sống); chữ "E" khi đứng gần
+function drawShrine(ctx, run, p, time) {
+  const s = run.shrine, sealed = run.scene.monsters.some(m => m.boss && !m.dead);
+  const x = Math.round(s.x), y = Math.round(s.y);
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.globalAlpha = sealed ? 0.35 : 0.9;
+  pxRing(ctx, x, y, SHRINE.R, 30, time, sealed ? '#ff6a6a' : '#7fe3ff', 1, 0.6);
+  for (let i = 0; i < 18; i++) { ctx.fillStyle = i % 3 ? '#7fe3ff' : '#e8fbff'; ctx.fillRect(x - 1 + Math.round(Math.sin(time * 4 + i) * 1.5), y - 2 - i * 2 - ((time * 20) % 2), 2, 2); }
+  ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
+  if (Math.hypot(p.x - s.x, p.y - s.y) < SHRINE.R + 6) {
+    ctx.font = '8px monospace'; ctx.textAlign = 'center'; ctx.fillStyle = '#000'; ctx.fillText(sealed ? 'phong ấn' : 'E: Linh Mạch', x + 1, y - 42);
+    ctx.fillStyle = sealed ? '#ff8f8a' : '#e8fbff'; ctx.fillText(sealed ? 'phong ấn' : 'E: Linh Mạch', x, y - 43);
+  }
+}
+
+// Thiên kiếp tương tác (M3-03): trận thử thách + cảnh báo đúng hình học vùng trúng; lấp dần = sắp đánh
+function drawTribulation(ctx, tr, time, top) {
+  if (!top) { ctx.globalAlpha = 0.7; pxRing(ctx, tr.cx, tr.cy, TRIBULATION.ARENA_R, 90, time * 0.3, '#9a7bff', 2, 1); }
+  for (const h of tr.hazards) {
+    const prog = 1 - Math.max(0, h.t) / (h.max || 1);
+    if (h.kind === 'circle') {
+      if (!top) { ctx.globalAlpha = 0.22; ctx.fillStyle = '#c070ff'; ctx.beginPath(); ctx.arc(h.x, h.y, h.r * prog, 0, 6.283); ctx.fill(); }
+      ctx.globalAlpha = top ? 0.5 : 0.9; pxRing(ctx, h.x, h.y, h.r, 44, 0, '#ff4a3a', top ? 1 : 2, 1);
+    } else if (h.kind === 'line') {
+      const dx = h.x1 - h.x0, dy = h.y1 - h.y0, l = Math.hypot(dx, dy), nx = -dy / l * h.w / 2, ny = dx / l * h.w / 2;
+      if (!top) {
+        ctx.globalAlpha = 0.12 + 0.18 * prog; ctx.fillStyle = '#c070ff';
+        ctx.beginPath(); ctx.moveTo(h.x0 + nx, h.y0 + ny); ctx.lineTo(h.x1 + nx, h.y1 + ny); ctx.lineTo(h.x1 - nx, h.y1 - ny); ctx.lineTo(h.x0 - nx, h.y0 - ny); ctx.fill();
+      }
+      ctx.globalAlpha = top ? 0.45 : 0.9;
+      pxLine(ctx, h.x0 + nx, h.y0 + ny, h.x1 + nx, h.y1 + ny, '#ff4a3a', 1); pxLine(ctx, h.x0 - nx, h.y0 - ny, h.x1 - nx, h.y1 - ny, '#ff4a3a', 1);
+    } else if (h.kind === 'storm') {
+      if (!top) { ctx.globalAlpha = 0.1 + 0.2 * prog; ctx.fillStyle = '#c070ff'; ctx.beginPath(); ctx.arc(h.x, h.y, h.r, 0, 6.283); ctx.fill(); }
+      for (const s of h.safe) {   // ô an toàn: vòng xanh sáng, đứng vào đây
+        if (!top) { ctx.globalAlpha = 0.35; ctx.fillStyle = '#9cf2a0'; ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, 6.283); ctx.fill(); }
+        ctx.globalAlpha = top ? 0.6 : 1; pxRing(ctx, s.x, s.y, s.r, 36, -time * 2, '#e6ffe8', 2, 1);
+      }
+    }
+  }
+  ctx.globalAlpha = 1;
+}
+function drawTribHud(ctx, tr) {
+  const total = TRIBULATION.PHASES.reduce((a, p) => a + p.dur, 0), w = 200, x = Math.round((W - w) / 2), y = 56;
+  ctx.fillStyle = 'rgba(10,6,20,.7)'; ctx.fillRect(x - 3, y - 10, w + 6, 17);
+  ctx.font = '8px monospace'; ctx.textAlign = 'center'; ctx.fillStyle = '#e6dcff';
+  const ph = TRIBULATION.PHASES[Math.min(tr.phase, TRIBULATION.PHASES.length - 1)];
+  ctx.fillText(`Thiên kiếp · ${ph.name} (${Math.min(tr.phase + 1, TRIBULATION.PHASES.length)}/${TRIBULATION.PHASES.length})`, W / 2, y - 2);
+  ctx.fillStyle = '#2a1830'; ctx.fillRect(x, y + 1, w, 3);
+  ctx.fillStyle = '#b48cff'; ctx.fillRect(x, y + 1, Math.round(w * Math.min(1, tr.t / total)), 3);
+}
+
 // Thanh máu boss (màn hình, cạnh dưới): tên, máu, vạch pha 2
-function drawBossBar(ctx, scene) {
+function drawBossBar(ctx, scene, camX, camY) {
   const m = scene.monsters.find(q => q.boss && !q.dead);
   if (!m) return;
+  // boss hoặc người chơi đứng sát mép dưới -> thanh mờ đi để không che (M2-04, chơi thử)
+  const sy = m.y - camY, sx = m.x - camX;
+  ctx.globalAlpha = sy > H - 48 && sx > (W - 260) / 2 && sx < (W + 260) / 2 ? 0.35 : 1;
   const B = BOSS[m.bossKind], w = 220, x = Math.round((W - w) / 2), y = H - 20;
   ctx.fillStyle = 'rgba(10,6,20,.75)'; ctx.fillRect(x - 3, y - 11, w + 6, 19);
   ctx.font = '8px monospace'; ctx.textAlign = 'center';
@@ -192,6 +260,7 @@ function drawBossBar(ctx, scene) {
   ctx.fillStyle = '#2a1830'; ctx.fillRect(x, y, w, 5);
   ctx.fillStyle = m.bossKind === 'FINAL' ? '#c040ff' : '#e2584f'; ctx.fillRect(x, y, Math.max(0, Math.round(w * m.hp / m.max)), 5);
   if (B.PHASE2) { ctx.fillStyle = '#fff'; ctx.fillRect(x + Math.round(w * B.PHASE2), y - 1, 1, 7); }
+  ctx.globalAlpha = 1;
 }
 
 function drawEnemyShots(ctx, shots) {
@@ -314,6 +383,7 @@ export function render(ctx, g) {
     pxRing(ctx, map.cx, map.cy, HUB.FORM_R * 0.28, 8, time * 1.2, '#ffe08a', 2);
     ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
     if (FEATURES.run && g.portal && !vis.pfx) drawPortal(ctx, g.portal.x, g.portal.y, time, g.portal.near);
+    if (g.trib && g.trib.interactive) drawTribulation(ctx, g.trib, time, false);
   } else {
     // chiến ý (EXP) và vùng lửa nằm dưới mặt đất
     ctx.globalCompositeOperation = 'lighter';
@@ -326,6 +396,7 @@ export function render(ctx, g) {
     ctx.globalCompositeOperation = 'source-over';
     if (g.run) drawSkillsUnder(ctx, g.run, p, time);
     drawTelegraphs(ctx, scene);
+    if (g.run && g.run.shrine && !g.run.shrine.used) drawShrine(ctx, g.run, p, time);
   }
 
   for (const m of scene.monsters) objs.push({ y: m.y, m });
@@ -340,6 +411,8 @@ export function render(ctx, g) {
   }
 
   if (g.run) drawSkillsOver(ctx, g.run, p, time, vis);
+  if (scene.kind !== 'hub') drawTelegraphsTop(ctx, scene);
+  else if (g.trib && g.trib.interactive) drawTribulation(ctx, g.trib, time, true);
   if (scene.enemyShots) drawEnemyShots(ctx, scene.enemyShots);
   if (scene.projectiles) drawProjectiles(ctx, scene, vis.FX, g.dtWorld || 0);
   for (const s of g.hubShots || []) { s.fx.x = Math.round(s.x); s.fx.y = Math.round(s.y); s.fx.draw(ctx); }
@@ -366,7 +439,7 @@ export function render(ctx, g) {
   ctx.globalAlpha = 1;
 
   ctx.setTransform(1, 0, 0, 1, 0, 0);
-  drawBossBar(ctx, scene);
+  drawBossBar(ctx, scene, camX, camY);
   if (vis.banner) {
     const b = vis.banner; ctx.globalAlpha = Math.min(1, b.life * 2);
     ctx.font = '9px monospace'; ctx.textAlign = 'center';
@@ -375,6 +448,7 @@ export function render(ctx, g) {
     ctx.fillStyle = b.color; ctx.fillText(b.text, W / 2, 47);
     ctx.globalAlpha = 1;
   }
-  if (g.trib) { ctx.fillStyle = 'rgba(20,10,50,.35)'; ctx.fillRect(0, 0, W, H); }
+  if (g.trib && g.trib.interactive) { ctx.fillStyle = 'rgba(20,10,50,.12)'; ctx.fillRect(0, 0, W, H); drawTribHud(ctx, g.trib); }
+  else if (g.trib) { ctx.fillStyle = 'rgba(20,10,50,.35)'; ctx.fillRect(0, 0, W, H); }
   if (vis.flash > 0) { ctx.fillStyle = `rgba(230,220,255,${Math.min(0.7, vis.flash * 3)})`; ctx.fillRect(0, 0, W, H); }
 }

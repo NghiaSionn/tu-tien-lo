@@ -129,14 +129,14 @@ export const EVOLUTIONS = {
     name: 'Lôi Đình Vạn Kiếm', base: 'sword_qi', needAny: ['thunder_strike', 'thunder_field'], minRunTime: 90,
     element: 'loi', kind: 'bolt', icon: '⚡',
     desc: 'Kiếm khí mang sét: trúng mục tiêu thì sét nhảy sang yêu thú gần đó.',
-    params: { cd: 0.7, dmg: 1.25, count: 3, pierce: 1, speed: 280, range: 170, chains: 2, chainRange: 70, chainDmg: 0.6, slow: 0.3, slowTime: 0.8 },
+    params: { cd: 0.78, dmg: 1.2, count: 3, pierce: 1, speed: 280, range: 170, chains: 2, chainRange: 70, chainDmg: 0.6, slow: 0.3, slowTime: 0.8 },
     hint: 'Kiếm Khí cấp tối đa + một công pháp hệ Lôi',
   },
   hoa_long_quyen: {
     name: 'Hỏa Long Quyển', base: 'fire_ring', needAny: ['wind_blade'], minRunTime: 90,
     element: 'hoa', kind: 'tornado', icon: '🌪',
     desc: 'Ba cột lốc lửa quay quanh người, hút yêu thú vào và đốt theo nhịp.',
-    params: { count: 3, orbit: 66, spin: 1.3, radius: 26, pull: 34, pullRadius: 58, tick: 0.35, dmg: 1.0, burn: 0.6, burnTime: 2 },
+    params: { count: 3, orbit: 66, spin: 1.3, radius: 26, pull: 34, pullRadius: 58, tick: 0.35, dmg: 1.2, burn: 0.7, burnTime: 2 },
     hint: 'Hỏa Luân cấp tối đa + Phong Nhận',
   },
   loi_cuong_ho_the: {

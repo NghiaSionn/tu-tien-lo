@@ -2,9 +2,11 @@
 import { VIEW, HUB, PLAYER, BASIC_ATTACK, MEDITATION, HUB_MONSTER as HM, REALM, FEATURES, ITEMS } from './core/config.js';
 import { makeInput } from './core/input.js';
 import { makeHubMap } from './world/map.js';
-import { levelName, maxHp, atk, need, isMajor, realmOf, REALMS, MAX_L } from './progression/realm.js';
+import { levelName, maxHp, atk, need, isMajor, realmOf, REALMS, MAX_L, grantUnlocks } from './progression/realm.js';
 import { drawCards, applyCard } from './progression/draft.js';
 import * as C from './systems/cultivation.js';
+import { createTrib, updateTrib, clampToArena, phaseDef } from './systems/tribulation.js';
+import { TRIBULATION } from './core/config.js';
 import { createRun, updateRun, endRun, refreshMaxHp } from './systems/run.js';
 import { runStats } from './systems/combat.js';
 import { spawnHubMonster, updateMonsters, reapMonsters, damageMonster, moveEntity } from './entities/monsters.js';
@@ -15,6 +17,7 @@ import { makeVis, consumeEvents, updateVis, clearVis, render, spawnFx, burst, fl
 import * as UI from './ui/ui.js';
 import { EVOLUTIONS } from './data/skills.js';
 import { computeRunReward, stageReward, claimReward, rewardText } from './progression/rewards.js';
+import { shrineReady, useShrine, nearShrine, shrineSealed, CHOICES as SHRINE_CHOICES } from './systems/shrine.js';
 
 const { W, H } = VIEW;
 const $ = id => document.getElementById(id);
@@ -69,6 +72,14 @@ if (loaded.source === 'v1') {
   startNotes.push(ok ? ['Đã chuyển save cũ sang định dạng mới (bản cũ vẫn được giữ).', 'good'] : ['Không xác minh được save mới; bản cũ vẫn giữ nguyên.', 'bad']);
 }
 if (loaded.recovered) startNotes.push(['Save hiện tại bị hỏng, đã khôi phục bản trước đó.', 'bad']);
+// M3-02: save cũ đã ở đại cảnh giới cao vẫn nhận đủ mở khóa
+grantUnlocks(meta);
+// M3-03: tải lại/đóng trang giữa lúc độ kiếp -> tính là thất bại (không né được hình phạt bằng cách tải lại)
+if (meta.tribPending) {
+  C.failTribulation(meta);
+  writeSave(storage, meta);
+  startNotes.push(['Độ kiếp bị gián đoạn — tính là thất bại: giữ cảnh giới, tu vi hao tổn 30%.', 'bad']);
+}
 // M2-03: phần thưởng run còn treo (đóng/tải lại trang lúc đang ở bảng kết quả) -> nhận ngay, đúng một lần
 if (meta.pendingReward) {
   const got = claimReward(meta);
@@ -84,7 +95,7 @@ function save() {
 // ---------- người chơi ----------
 const p = { x: meta.hubPos.x, y: meta.hubPos.y, face: 'down', flip: false, fx: 0, fy: 1, moving: false, anim: 0, med: false, cd: 0, inv: 0, inForm: false, dead: false };
 let view = 'HUB', paused = false, run = null, hubPosBeforeRun = null;
-let time = 0, trib = null, readyNotified = C.isFull(meta), saveT = 0;
+let time = 0, trib = null, readyNotified = C.isFull(meta), saveT = 0, dryNotified = false;
 const hubShots = [], ev = [];
 const applySettings = () => { vis.reduce = meta.settings.reduceEffects; vis.noShake = !meta.settings.screenShake; };
 applySettings();
@@ -99,20 +110,41 @@ function gainTuvi(v) {
     UI.log(meta.realmLevel >= MAX_L ? 'Đã tới đỉnh phong của bản thử nghiệm này.' : 'Tu vi viên mãn! Nhấn B để đột phá.', 'gold');
   }
 }
+function notifyFull() {
+  if (!C.isFull(meta) || readyNotified) return;
+  readyNotified = true;
+  UI.log(meta.realmLevel >= MAX_L ? 'Đã tới đỉnh phong của bản thử nghiệm này.' : isMajor(meta.realmLevel) ? 'Tu vi viên mãn! Nhấn B để độ thiên kiếp.' : 'Tu vi viên mãn! Nhấn B để đột phá.', 'gold');
+}
 function toggleMed() {
   if (trib || view !== 'HUB') return;
   p.med = !p.med;
-  if (p.med) UI.log(inForm() ? 'Tọa thiền trong tụ linh trận — tốc độ tu luyện ×3.' : 'Tọa thiền. (Vào tụ linh trận giữa bản đồ sẽ nhanh gấp 3.)');
+  if (!p.med) return;
+  dryNotified = false;
+  if (meta.lingQi <= 0) UI.log(inForm() ? 'Không còn linh khí — chỉ hấp thu được rất chậm. Vào bí cảnh (E) mang linh khí về, hoặc dùng Tụ Khí Đan.' : 'Không còn linh khí. Vào bí cảnh mang linh khí về; thiền trong tụ linh trận mới hấp thu được.', 'bad');
+  else UI.log(inForm() ? `Tọa thiền trong tụ linh trận — chuyển hóa ${Math.floor(meta.lingQi)} linh khí, nhanh ×3 và lời hơn.` : `Tọa thiền — chuyển hóa linh khí. (Trong tụ linh trận nhanh ×3, mỗi linh khí cho nhiều tu vi hơn.)`);
+}
+// M3-02: nêu chỉ số và tính năng mới sau đột phá (một dòng, không chuỗi popup)
+function realmUpNotes(r) {
+  UI.log(`Công ${atk(r.from)} → ${atk(r.to)} · Khí huyết ${maxHp(r.from)} → ${maxHp(r.to)}.`, 'good');
+  for (const u of r.granted) UI.log(`Mở khóa: ${u.text}.`, 'gold');
 }
 function levelUp() {
-  C.levelUp(meta); readyNotified = false;
+  const r = C.levelUp(meta); readyNotified = false;
   spawnFx(vis, 'dot_pha', p.x, p.y, { onHit: () => { addFlash(vis, 0.18); addShake(vis, 0.3); } });
   UI.log(`Đột phá thành công: ${levelName(meta.realmLevel)}!`, 'gold');
+  realmUpNotes(r);
   save();
 }
 function tryBreak() {
   if (view !== 'HUB' || trib || !C.canBreak(meta)) return;
-  if (isMajor(meta.realmLevel)) {
+  if (isMajor(meta.realmLevel) && TRIBULATION.ENABLED) {
+    // M3-03: thiên kiếp tương tác trong trận quanh tụ linh trận. Đánh dấu trước khi bắt đầu: tải lại giữa chừng = thất bại
+    p.med = false; p.x = CX; p.y = CY + 12;
+    trib = createTrib((meta.realmLevel * 7919 + meta.stats.runs * 104729 + Math.floor(meta.cultivationXp)) >>> 0, CX, CY);
+    trib.interactive = true; trib.shownPhase = -1;
+    meta.tribPending = true; save();
+    UI.log(`Thiên kiếp giáng xuống! Xung kích ${REALMS[realmOf(meta.realmLevel + 1)]} — né các vùng sét đã đánh dấu, đứng vào ô an toàn khi Thiên lôi phủ trận.`, 'bad');
+  } else if (isMajor(meta.realmLevel)) {
     p.med = false;
     trib = { t: 0, next: 0.2 };
     UI.log(`Lôi kiếp giáng xuống! Xung kích ${REALMS[realmOf(meta.realmLevel + 1)]}...`, 'bad');
@@ -122,8 +154,8 @@ function usePill() {
   if (view !== 'HUB') return;
   const v = C.usePill(meta);
   if (!v) return;
-  if (C.isFull(meta) && !readyNotified) { readyNotified = true; UI.log('Tu vi viên mãn! Nhấn B để đột phá.', 'gold'); }
-  floatText(vis, p.x, p.y - 20, '+' + v, '#7fe3ff');
+  UI.log(`Tụ Khí Đan hóa thành ${v} linh khí — tọa thiền (T) để chuyển hóa thành tu vi.`, 'good');
+  floatText(vis, p.x, p.y - 20, '+' + v + ' ✨', '#7fe3ff');
   burst(vis, p.x, p.y - 8, 12, 50, '#7fe3ff');
 }
 function buyPill() { if (view === 'HUB' && C.buyPill(meta)) UI.log('Mua 1 Tụ Khí Đan.'); }
@@ -151,8 +183,8 @@ function hurtHubPlayer(d) {
 }
 function killHubMonster(m) {
   const tv = Math.round(HM.TUVI_BASE * Math.pow(HM.TUVI_GROWTH, m.lvl - 1)), st = 1 + m.lvl;
-  gainTuvi(tv); meta.linhThach += st;
-  floatText(vis, m.x, m.y - 14, '+' + tv, '#7fe3ff');
+  meta.lingQi += tv; meta.linhThach += st;      // M3-01: yêu thú động phủ cho linh khí (thiền mới thành tu vi)
+  floatText(vis, m.x, m.y - 14, '+' + tv + ' ✨', '#7fe3ff');
   burst(vis, m.x, m.y - 4, 16, 70, ['#9aa0b4', '#f08a3c', '#7fdcec', '#a468e0'][m.tier], 0.6, 2);
   if (Math.random() < HM.PILL_DROP) { meta.pills++; UI.log(`${['Dã Lang', 'Hỏa Hồ', 'Huyền Băng Thú', 'Ma Ảnh'][m.tier]} rơi ra 1 Tụ Khí Đan.`, 'good'); }
 }
@@ -172,7 +204,8 @@ function movePlayer(map, dt, speedMult) {
 
 function updateHub(dt) {
   p.cd -= dt; p.inv -= dt;
-  if (trib) {
+  if (trib && trib.interactive) updateInteractiveTrib(dt);
+  else if (trib) {
     trib.t += dt; trib.next -= dt;
     if (trib.next <= 0 && trib.t < REALM.TRIB_DURATION - 0.3) {
       const tx = p.x, ty = p.y;
@@ -191,7 +224,9 @@ function updateHub(dt) {
   p.inForm = inForm();
   const mh = maxHp(meta.realmLevel);
   if (p.med) {
-    gainTuvi(C.medRate(meta.realmLevel, p.inForm) * dt);
+    const r = C.meditateTick(meta, dt, p.inForm);
+    if (r.gained > 0) notifyFull();
+    if (meta.lingQi <= 0 && r.used > 0 && !dryNotified) { dryNotified = true; UI.log('Linh khí đã cạn. Vào bí cảnh để mang thêm về.', 'bad'); }
     meta.hp = Math.min(mh, meta.hp + mh * MEDITATION.HEAL * dt);
     medFx.speed = p.inForm ? 1.6 : 1;
     medFx.update(dt);
@@ -219,6 +254,31 @@ function updateHub(dt) {
   PORTAL.near = FEATURES.run && Math.hypot(p.x - PORTAL.x, p.y - PORTAL.y) < HUB.PORTAL.r;
   if ((saveT += dt) > 3) { saveT = 0; save(); }
 }
+function updateInteractiveTrib(dt) {
+  movePlayer(hubMap, dt, 1);
+  clampToArena(trib, p);
+  const mh = maxHp(meta.realmLevel);
+  const strikes = updateTrib(trib, p, dt, f => {
+    meta.hp -= f * mh; p.inv = 0.3; addShake(vis, 0.2);
+    floatText(vis, p.x, p.y - 20, '-' + Math.round(f * mh), '#ff8f8a');
+    if (meta.hp <= 0) { meta.hp = 0; trib.done = 'LOSE'; }
+  });
+  for (const { h } of strikes) {
+    const pts = h.kind === 'circle' ? [[h.x, h.y]] : h.kind === 'line' ? [[h.x0 * 0.7 + h.x1 * 0.3, h.y0 * 0.7 + h.y1 * 0.3], [(h.x0 + h.x1) / 2, (h.y0 + h.y1) / 2], [h.x0 * 0.3 + h.x1 * 0.7, h.y0 * 0.3 + h.y1 * 0.7]]
+      : [0, 1, 2, 3, 4].map(i => [CX + Math.cos(i * 1.257) * 55, CY + Math.sin(i * 1.257) * 40]);
+    for (const [x, y] of pts) spawnFx(vis, 'loi_kiep', x, y, { flip: Math.random() < 0.5 });
+    addFlash(vis, h.kind === 'storm' ? 0.2 : 0.08);
+  }
+  if (!trib.done && trib.phase !== trib.shownPhase) {
+    trib.shownPhase = trib.phase;
+    ev.push({ type: 'announce', x: p.x, y: p.y, text: `Thiên kiếp · ${phaseDef(trib).name} (${trib.phase + 1}/${TRIBULATION.PHASES.length})`, color: '#d9c8ff' });
+  }
+  if (!trib.done) return;
+  const won = trib.done === 'WIN';
+  trib = null; meta.tribPending = false; readyNotified = false;
+  if (won) { const r = C.levelUp(meta); afterMajor(); realmUpNotes(r); }
+  else { C.failTribulation(meta); UI.log('Độ kiếp thất bại — giữ cảnh giới, tu vi hao tổn 30%. Hồi phục rồi thử lại.', 'bad'); save(); }
+}
 function afterMajor() {
   spawnFx(vis, 'dot_pha', p.x, p.y, { onHit: () => { addFlash(vis, 0.18); addShake(vis, 0.3); } });
   UI.log(`Đột phá thành công: ${levelName(meta.realmLevel)}!`, 'gold');
@@ -231,11 +291,12 @@ function openPrepare() {
   view = 'PREPARE'; p.med = false; input.clear();
   UI.showPrepare(meta, startRun, () => { view = 'HUB'; });
 }
-function startRun(skill) {
+function startRun(skill, difficulty = 0) {
+  meta.lastDifficulty = difficulty;
   hubPosBeforeRun = { x: p.x, y: p.y };
   meta.hubPos = { ...hubPosBeforeRun };
   save();
-  run = createRun({ seed: (Date.now() ^ Math.floor(Math.random() * 0x7fffffff)) >>> 0, startSkill: skill, realmLevel: meta.realmLevel });
+  run = createRun({ seed: (Date.now() ^ Math.floor(Math.random() * 0x7fffffff)) >>> 0, startSkill: skill, realmLevel: meta.realmLevel, difficulty });
   p.x = run.scene.map.cx; p.y = run.scene.map.cy; p.inv = 1; p.med = false; p.cd = 0;
   hubShots.length = 0; clearVis(vis); input.clear(); ev.length = 0;
   view = 'RUN'; paused = false;
@@ -257,6 +318,7 @@ function updateRunView(dt) {
   movePlayer(run.scene.map, dt, runStats(run).moveSpeed);
   if (FEATURES.manualAttackInRun && keys.attack && p.cd <= 0) runShoot();
   updateRun(run, p, dt, ev);
+  if (run.shrine && !run.shrineLogged) { run.shrineLogged = true; UI.log('Linh Mạch hiện ra nơi Lang Vương ngã xuống — đứng gần và nhấn E (một lần, chọn 1 trong 3).', 'gold'); }
   if (run.status === 'ENDED') { finishRun(); return; }
   if (run.pendingDrafts > 0) openDraft();
 }
@@ -276,6 +338,19 @@ function openDraft() {
       spawnFx(vis, 'dot_pha', p.x, p.y, { onHit: () => { addFlash(vis, 0.15); addShake(vis, 0.2); } });
       UI.log(`Tiến hóa: ${EVOLUTIONS[card.id].name}!`, 'gold');
     }
+    view = 'RUN'; input.clear();
+  });
+}
+// M3-04: Linh Mạch — thế giới dừng khi đang chọn (như bảng thẻ); một lần mỗi run
+function openShrine() {
+  if (view !== 'RUN' || paused || !run) return;
+  if (nearShrine(run, p) && shrineSealed(run)) { UI.log('Linh Mạch bị phong ấn khi yêu vương còn sống.', 'bad'); return; }
+  if (!shrineReady(run, p)) return;
+  view = 'SHRINE'; input.clear();
+  const r = run;
+  UI.showShrine(SHRINE_CHOICES, id => {
+    if (run !== r || view !== 'SHRINE') return;
+    if (useShrine(r, id)) UI.log(`Linh Mạch: ${SHRINE_CHOICES.find(c => c.id === id).name}.`, 'gold');
     view = 'RUN'; input.clear();
   });
 }
@@ -357,6 +432,7 @@ function onAction(code) {
   if (UI.modalOpen()) return UI.modalKey(code);
   if (view === 'RUN') {
     if (code === 'Escape' || code === 'KeyP') { pauseRun(); return true; }
+    if (code === 'KeyE') { openShrine(); return true; }
     return false;
   }
   if (view !== 'HUB') return false;
@@ -379,6 +455,7 @@ addEventListener('blur', () => { if (view === 'RUN') pauseRun(); });
 document.addEventListener('visibilitychange', () => { if (document.hidden && view === 'RUN') pauseRun(); });
 
 // ---------- vòng lặp ----------
+const TIMER_LOOP = new URLSearchParams(location.search).get('loop') === 'timer';
 let last = performance.now(), hudT = 0;
 function frame(now) {
   // dấu thời gian rAF có thể sớm hơn `last` ở khung đầu -> dt âm làm hiệu ứng nhảy về khung -1
@@ -395,7 +472,7 @@ function frame(now) {
   render(ctx, { scene, player: p, time, vis, medFx, trib, inForm: p.inForm, portal: scene === hub ? PORTAL : null, run: scene === hub ? null : run, hubShots: scene === hub ? hubShots : null, dtWorld: worldDt });
   if ((hudT += dt) > 0.1) { hudT = 0; if (view === 'HUB' || !run) UI.hubHud(meta, p, trib, PORTAL.near); else UI.runHud(run); }
   input.endFrame();
-  requestAnimationFrame(frame);
+  if (!TIMER_LOOP) requestAnimationFrame(frame);
 }
 
 for (let i = 0; i < HUB.MAX_MONSTERS; i++) spawnHubMonster(hub, p, Math.random);
@@ -410,4 +487,7 @@ window.__game = {
   get meta() { return meta; }, get run() { return run; }, get view() { return view; }, get paused() { return paused; },
   p, hub, keys, KEYS, save, get trib() { return trib; }, PORTAL, vis,
 };
-requestAnimationFrame(frame);
+// Dev: ?loop=timer chạy vòng lặp bằng setInterval thay cho requestAnimationFrame (môi trường test hãm rAF còn 2–5 khung/giây).
+// Logic, dt (kẹp 0,05 s) và input giữ nguyên — chỉ đổi cái gọi frame(). Không dùng khi chơi bình thường.
+if (TIMER_LOOP) setInterval(() => frame(performance.now()), 1000 / 60);
+else requestAnimationFrame(frame);

@@ -1,5 +1,5 @@
 // Một lượt bí cảnh (runState). Tạo mới mỗi lượt, không bao giờ được lưu; metaState chỉ được đọc (cảnh giới -> sức mạnh).
-import { RUN, PLAYER, BOSS } from '../core/config.js';
+import { RUN, PLAYER, BOSS, DIFFICULTY } from '../core/config.js';
 import { mulberry32 } from '../core/rng.js';
 import { makeArenaMap } from '../world/map.js';
 import { power, atk, maxHp } from '../progression/realm.js';
@@ -8,13 +8,15 @@ import { updateMonsters, reapMonsters } from '../entities/monsters.js';
 import { archetypeAI, updateEnemyShots } from '../entities/archetypes.js';
 import { createDirector, updateDirector, summonAround } from './director.js';
 import { updateHazards } from '../entities/bosses.js';
+import { placeShrine } from './shrine.js';
 import { runStats, updateSkills, updateProjectiles, updateZones, absorbDamage } from './combat.js';
 
 let runCounter = 0;
 
-export function createRun({ seed, startSkill, realmLevel }) {
+export function createRun({ seed, startSkill, realmLevel, difficulty = 0 }) {
   const map = makeArenaMap(RUN.ARENA_W, RUN.ARENA_H, seed);
   const run = {
+    diff: Math.max(0, Math.min(DIFFICULTY.length - 1, difficulty | 0)),   // M3-02: độ khó bí cảnh
     id: ++runCounter, uid: `${Date.now().toString(36)}-${seed}-${runCounter}`, seed, eliteKills: 0, rng: mulberry32(seed), status: 'RUNNING', time: 0,
     level: 1, xp: 0, pendingDrafts: 0, skills: [{ id: startSkill, level: 1, evolved: null, st: {} }],
     passives: {}, evolutions: [], kills: 0, damageTaken: 0, dmgBy: {}, dir: createDirector(), outcome: null,
@@ -80,7 +82,7 @@ export function updateRun(run, player, dt, ev, realmPowerOverride) {
     summon: (m, n, r) => summonAround(run, player, m.x, m.y, n, r, pw) };
   updateMonsters(sc, player, dt, ev, { safe: null, onAttack, ai: (m, pl, dx, dy, d, t) => archetypeAI(m, pl, dx, dy, d, t, io) });
   updateEnemyShots(sc, player, dt, dmg => hurtRunPlayer(run, player, dmg, ev, 'shot'));
-  updateHazards(sc, player, dt, ev, dmg => hurtRunPlayer(run, player, dmg, ev, 'boss:zone'));
+  updateHazards(sc, player, dt, ev, (dmg, h) => hurtRunPlayer(run, player, dmg, ev, h.src || 'boss:zone'));
   if (run.status !== 'RUNNING') return;
   let finalDown = false;
   reapMonsters(sc, m => {
@@ -94,6 +96,7 @@ export function updateRun(run, player, dt, ev, realmPowerOverride) {
       for (let i = sc.enemyShots.length - 1; i >= 0; i--) if (sc.enemyShots[i].kind === 'dark') sc.enemyShots.splice(i, 1);
       ev.push({ type: 'announce', x: m.x, y: m.y, text: `Đã hạ ${B.name}!`, color: '#ffd978' }, { type: 'boom', x: m.x, y: m.y, r: 50, color: '#ffd978' }, { type: 'shake', t: 0.3 });
       if (m.bossKind === 'FINAL') finalDown = true;
+      else { placeShrine(run, m.x, m.y); ev.push({ type: 'text', x: m.x, y: m.y - 30, text: 'Linh Mạch hiện ra — đứng gần, nhấn E', color: '#7fe3ff' }); }
     }
     ev.push({ type: 'death', x: m.x, y: m.y, tier: m.tier });
     if (sc.orbs.length < RUN.MAX_ORBS) sc.orbs.push({ x: m.x, y: m.y - 2, v: m.xp });
