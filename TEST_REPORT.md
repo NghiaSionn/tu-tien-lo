@@ -84,7 +84,7 @@ Kết quả lần chạy cuối: **41 test, 41 PASS, 0 FAIL.**
 | M9 | Rời bí cảnh → kết quả → Enter ×2 | click + phím thật | PASS — bảng kết quả đúng; về động phủ đúng vị trí cũ (640, 412); Enter thứ hai không gây gì | không lỗi |
 | M10 | Chết trong bí cảnh | chơi thật ở Luyện Khí 1 (trước khi chỉnh độ khó) | PASS về luồng — "Trọng thương, rời bí cảnh"; cảnh giới, tu vi không đổi. Độ khó lúc đó quá cao (chết ở 0:45), đã chỉnh | không lỗi |
 | M11 | **Tiến hóa Lôi Đình Vạn Kiếm bằng chơi bình thường** | chơi thật 3 phút 10 giây, mọi lựa chọn thẻ bằng phím thật | PASS — Kiếm Khí cấp 5 lúc 2:26, thẻ TIẾN HÓA hiện lúc 2:56, chọn được, log "Tiến hóa: Lôi Đình Vạn Kiếm!", sét nhảy hoạt động | không lỗi |
-| M12 | 3 tiến hóa còn lại bằng chơi thật | — | NOT VERIFIED bằng tay. Đã xác minh bằng test tự động và bot mô phỏng (mục 4) | — |
+| M12 | 3 tiến hóa còn lại bằng chơi thật | chơi thật, mọi lựa chọn thẻ bằng phím thật, 127.0.0.1 | PASS — Hỏa Long Quyển 2:14 (cấp 10, khởi đầu Hỏa Cầu); Liệt Diễm Kiếm Trận 2:38 (cấp 9, sau khi thêm `EVO_BASE_UPGRADE_MULT`); Lôi Cương Hộ Thể 4:30 (cấp 16, khởi đầu Kiếm Khí, khiên 45/45). Hai lượt Lôi Cương trước đó thua (2:19; 4:22 với Hộ Thể 4/5) vì thẻ nâng Hộ Thể quá hiếm → đã chỉnh trọng số | không lỗi; console sạch |
 | M13 | Tự tạm dừng khi mất tiêu điểm | sự kiện giả `blur` khi đang RUN | PASS — hiện bảng "Tạm dừng"; Esc chơi tiếp. Rời tab thật (đổi tab) NOT VERIFIED | không lỗi |
 | M13b | Mất tiêu điểm khi đang chọn thẻ | sự kiện giả `blur` + `visibilitychange`, rồi phím thật "2" | PASS — bảng thẻ vẫn dùng được, chọn đúng 1 thẻ, chơi tiếp | không lỗi |
 | M14 | Tải lại trang khi đang ở bảng chọn thẻ | điều hướng lại trang giữa bảng thẻ | PASS — về động phủ, không còn bảng nào mở, điều khiển dùng được ngay (S ×20 đi 22 px), meta giữ. Run không được lưu (theo thiết kế, ADR 0001) | không lỗi |
@@ -123,14 +123,14 @@ Test tự động: thêm `tests/pixelfx.test.js`. Sau khi bỏ viên chiến ý 
 
 ## 4. Bot mô phỏng (`node tools/sim.mjs`) — không phải người chơi thật
 
-Bot né quái, nhặt chiến ý và chọn thẻ theo danh sách ưu tiên của từng build. Dùng để xem xu hướng cân bằng và xác minh tiến hóa đến được bằng bốc thẻ bình thường. Lần chạy cuối, cảnh giới 0, 4 seed mỗi build:
+Bot né quái, nhặt chiến ý và chọn thẻ theo danh sách ưu tiên của từng build. Dùng để xem xu hướng cân bằng và xác minh tiến hóa đến được bằng bốc thẻ bình thường. Lần chạy cuối (2026-11-11, sau khi thêm `EVO_BASE_UPGRADE_MULT = 3`), cảnh giới 0, 4 seed mỗi build:
 
 | Build | Thắng (sống 8 phút) | Thời gian sống | Tiến hóa đạt được |
 |---|---|---|---|
-| Kiếm + Lôi | 3/4 | 393–480 s | Lôi Đình Vạn Kiếm 3/4 (100–117 s), Lôi Cương Hộ Thể 1/4 |
-| Phi Kiếm + Hỏa | 0/4 | 268–382 s | Liệt Diễm Kiếm Trận 4/4 (123–215 s) |
-| Hỏa + Phong | 1/4 | 346–480 s | Hỏa Long Quyển 4/4 (169–398 s) |
-| Lôi + Thể | 0/4 | 189–389 s | Lôi Cương Hộ Thể 2/4 (132–263 s) |
+| Kiếm + Lôi | 3/4 | 393–480 s | Lôi Đình Vạn Kiếm 3/4 (100–103 s), Lôi Cương Hộ Thể 2/4 (424–438 s) |
+| Phi Kiếm + Hỏa | 0/4 | 303–372 s | Liệt Diễm Kiếm Trận 4/4 (145–160 s) |
+| Hỏa + Phong | 1/4 | 291–480 s | Hỏa Long Quyển 4/4 (147–398 s) |
+| Lôi + Thể | 0/4 | 156–433 s | Lôi Cương Hộ Thể 3/4 (118–197 s) |
 
 Nhận xét: build Kiếm + Lôi vẫn mạnh hơn hẳn. Cân bằng chi tiết thuộc M2-04.
 

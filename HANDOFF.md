@@ -6,8 +6,8 @@ Cập nhật: 2026-11-11, sau phiên M0 + M1 và thử pixelfx. Bản trước c
 
 | | |
 |---|---|
-| Trạng thái | M0 xong (gate đạt). M1 xong phần lớn; gate M1 **chưa đạt đủ** (xem §6) |
-| Test tự động | `npm test`: 44/44 PASS |
+| Trạng thái | M0 xong (gate đạt). M1 xong, **gate M1 đạt** (4/4 tiến hóa bằng chơi thật). Chờ chỉ đạo trước M2 |
+| Test tự động | `npm test`: 45/45 PASS |
 | Kiểm thử tay | `TEST_REPORT.md` |
 | Quyết định kỹ thuật | `docs/adr/0001…0005` (0005: beanfx chính, pixelfx phụ) |
 | Rollback | `git checkout baseline-v0.1` (code v0.1 nguyên trạng) |
@@ -131,16 +131,16 @@ Save trên trình duyệt của máy này lúc kết thúc phiên: đã đưa v�
 
 - Baseline v0.1: đi, va chạm, T, B, 1, 2, Space, **chết → hồi sinh, mua đan, tải lại trang** đều PASS.
 - Bản mới, bằng phím thật: migrate save, đi, tọa thiền, đột phá, lôi kiếp, đánh quái, chết, mua/dùng đan, cài đặt, tải lại trang.
-- Bí cảnh, bằng phím thật: vào/hủy/vào lại, tự đánh, chọn thẻ (bấm đúp chỉ nhận 1), thế giới dừng khi chọn, tạm dừng, rời bí cảnh, chết trong bí cảnh, tải lại giữa bảng thẻ, Space tay, **tiến hóa Lôi Đình Vạn Kiếm bằng một lượt chơi 3 phút**.
-- 3 tiến hóa còn lại: test tự động + bot mô phỏng đạt được bằng bốc thẻ bình thường; **chưa chơi tay**.
+- Bí cảnh, bằng phím thật: vào/hủy/vào lại, tự đánh, chọn thẻ (bấm đúp chỉ nhận 1), thế giới dừng khi chọn, tạm dừng, rời bí cảnh, chết trong bí cảnh, tải lại giữa bảng thẻ, Space tay, **cả 4 tiến hóa bằng chơi thật**: Lôi Đình Vạn Kiếm 2:56, Hỏa Long Quyển 2:14, Liệt Diễm Kiếm Trận 2:38, Lôi Cương Hộ Thể 4:30.
+- Bộ nhớ: sau mỗi lượt về động phủ, run=null, đạn/vùng/chiến ý/hiệu ứng về 0 (đếm đối tượng).
 - FPS: 60 (16,7 ms/khung) ở động phủ và đầu bí cảnh. Stress test 100 quái/200 đạn/300 hạt **chưa đo**.
 
 ---
 
 ## 6. Hạn chế và lỗi còn mở
 
-1. **Gate M1 chưa đạt đủ**: 3/4 tiến hóa chưa chơi tay; chưa đo rò bộ nhớ.
-2. Cân bằng chưa đều (bot): Kiếm + Lôi thắng 3/4 lượt; Lôi + Thể và Phi Kiếm + Hỏa thường chết ở phút 3–6. Chỉnh ở M2-04.
+1. Trọng số `EVO_BASE_UPGRADE_MULT = 3` (thẻ nâng công pháp gốc khi đã có công pháp phụ) là [THỬ NGHIỆM]; xem lại ở M2-04. Khởi đầu Lôi Kích yếu ở Luyện Khí 1.
+2. Cân bằng chưa đều (bot): Kiếm + Lôi thắng 3/4 lượt; Lôi + Thể và Phi Kiếm + Hỏa 0/4, thường chết ở phút 3–7. Chỉnh ở M2-04.
 3. Chưa có boss, mini-boss, phần thưởng run (M2). "Thắng" = sống 8 phút.
 4. Viên chiến ý nhỏ, khó thấy trên cỏ (bản pixelfx đã thử và bị loại; cần hướng khác).
 5. Không có điều khiển cảm ứng (M5-06).
@@ -153,11 +153,10 @@ Save trên trình duyệt của máy này lúc kết thúc phiên: đã đưa v�
 
 ## 7. Bước tiếp theo (theo `TASKS_TU_TIEN_LO.md`)
 
-1. Đóng gate M1: chơi tay 3 tiến hóa còn lại (Phi Kiếm + Hỏa, Hỏa Luân + Phong Nhận, Hộ Thể + Lôi), đo bộ nhớ sau vài lượt.
-2. M2-01: director thời gian, 3–4 kiểu quái (đuổi, lao, bắn xa, tinh anh) có cảnh báo.
-3. M2-02: mini-boss + boss cuối.
-4. M2-03: phần thưởng run commit một lần.
-5. M2-04: cân bằng một run hoàn chỉnh.
+1. M2-01: director thời gian, 3–4 kiểu quái (đuổi, lao, bắn xa, tinh anh) có cảnh báo.
+2. M2-02: mini-boss + boss cuối.
+3. M2-03: phần thưởng run commit một lần.
+4. M2-04: cân bằng một run hoàn chỉnh.
 
 ---
 

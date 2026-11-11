@@ -124,7 +124,7 @@
 - Không có NaN/Infinity, projectiles không trôi vô hạn, trạng thái đốt/giật không stack vô hạn.
 - Có automated tests cho cooldown, damage, effect cap.
 
-### M1-06 [~] Tiến hóa công pháp theo công thức (L)
+### M1-06 [x] Tiến hóa công pháp theo công thức (L)
 **Phụ thuộc:** M1-05.  
 **Làm:** resolver cho 4 combo thiết kế: Liệt Diễm Kiếm Trận, Lôi Đình Vạn Kiếm, Hỏa Long Quyển, Lôi Cương Hộ Thể; nếu skill phụ chưa có thì làm đủ logic để evolution test end-to-end. Art placeholder cho combo chưa có VFX.
 
@@ -135,7 +135,9 @@
 
 **GATE M1:** Có thể vào run, di chuyển, đánh, lên cấp, chọn thẻ, tạo ít nhất 3 build, tiến hóa 4 combo, thoát run; không có softlock hoặc memory leak rõ ràng.
 
-> **Kết quả 10/11/2026: CHƯA ĐẠT ĐỦ.** Vào run, đánh, lên cấp, chọn thẻ, thoát run, chết, tải lại giữa bảng thẻ đều đã thử bằng phím thật. Lôi Đình Vạn Kiếm đã tiến hóa bằng chơi thật (TEST_REPORT M11). 3 tiến hóa còn lại mới xác minh bằng test tự động + bot mô phỏng (`tools/sim.mjs`), **chưa chơi tay**. Chưa đo memory leak. Cân bằng: build Kiếm+Lôi vượt trội.
+> **Kết quả 11/11/2026: ĐẠT.** Cả 4 tiến hóa đã kích hoạt bằng chơi thật, phím thật, trên 127.0.0.1: Lôi Đình Vạn Kiếm (2:56), Hỏa Long Quyển (2:14), Liệt Diễm Kiếm Trận (2:38), Lôi Cương Hộ Thể (4:30). Bộ nhớ: sau mỗi lượt về động phủ, run=null và đạn/vùng/chiến ý/hiệu ứng về 0 (đếm đối tượng; `performance.memory` không đo được). Không softlock. Còn tồn: cân bằng lệch (Kiếm+Lôi vượt trội, khởi đầu Lôi Kích yếu) → M2-04.
+>
+> *Kết quả 10/11/2026 (cũ): CHƯA ĐẠT ĐỦ.* Vào run, đánh, lên cấp, chọn thẻ, thoát run, chết, tải lại giữa bảng thẻ đều đã thử bằng phím thật. Lôi Đình Vạn Kiếm đã tiến hóa bằng chơi thật (TEST_REPORT M11). 3 tiến hóa còn lại mới xác minh bằng test tự động + bot mô phỏng (`tools/sim.mjs`), **chưa chơi tay**. Chưa đo memory leak. Cân bằng: build Kiếm+Lôi vượt trội.
 
 ---
 
@@ -385,6 +387,7 @@ Tạo thư mục `docs/adr/` hoặc phần ghi chú khi có quyết định ản
 | 2026-11-11 | (ngoài backlog, trước M5-03) | DONE | Chốt beanfx chính, pixelfx phụ. Chạy 2 draft tu tiên mẫu của beanfx; dùng lại Lôi aura thu nhỏ K=0,36 quanh nhân vật 25 px (chưa gắn vào game) | ADR 0005; `vfx/drafts/` |
 | 2026-11-11 | M1-06 / Gate M1 | PARTIAL | Chơi thật (127.0.0.1, phím thật): **Hỏa Long Quyển tiến hóa ở 2:14, cấp 10** (khởi đầu Hỏa Cầu). Lôi Cương Hộ Thể: lượt khởi đầu Lôi Kích **thua ở 2:19** (Hộ Thể mới cấp 3) — khởi đầu Lôi quá yếu ở Luyện Khí 1; đang thử lại với khởi đầu Kiếm Khí, chưa xong. Liệt Diễm Kiếm Trận chưa chơi tay. Bộ nhớ: dùng `performance.memory` không đo được (trình duyệt trả số làm tròn 3 MB); đếm đối tượng thay thế: sau mỗi lượt về động phủ, run=null, đạn/vùng/chiến ý/hiệu ứng đều về 0 | Còn: Lôi Cương, Liệt Diễm bằng chơi thật; cân nhắc buff khởi đầu Lôi Kích |
 | 2026-11-11 | M1-06 / Gate M1 | PARTIAL | Lôi Cương Hộ Thể, lượt chơi thật thứ 2 (khởi đầu Kiếm Khí): thua ở 4:22, cấp 18, **Hộ Thể dừng ở cấp 4/5**. Đủ 4 ô công pháp thì thẻ nâng Hộ Thể phải tranh với 3 công pháp khác và bị động, nên ra rất thưa (4 lần trong 17 lần lên cấp). Liệt Diễm Kiếm Trận vẫn chưa chơi tay | Đề xuất: tăng trọng số thẻ nâng cấp cho công pháp gốc khi đã có công pháp phụ của một công thức tiến hóa (cân bằng M2-04) |
+| 2026-11-11 | M1-06 / Gate M1 | DONE | Thêm `EVO_BASE_UPGRADE_MULT = 3` (draft.js, [THỬ NGHIỆM]): thẻ nâng công pháp gốc nặng ×3 khi đã có công pháp phụ của công thức; test mới, 45/45 PASS. Chơi thật lại: **Liệt Diễm Kiếm Trận tiến hóa ở 2:38, cấp 9**; **Lôi Cương Hộ Thể tiến hóa ở 4:30, cấp 16** (khởi đầu Kiếm Khí, đã có Lôi Đình Vạn Kiếm; khiên 45/45 hoạt động), rời bí cảnh ở 4:54 bình thường. Bot sau chỉnh: Lôi Cương 2/4 (Kiếm+Lôi) và 3/4 (Lôi+Thể, trước 1/4 và 2/4); Liệt Diễm 4/4 ở 145–160 s | Gate M1 ĐẠT. Còn: cân bằng (M2-04) |
 
 ---
 
