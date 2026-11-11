@@ -143,7 +143,7 @@
 
 ## M2 — COMPLETE RUN VERTICAL SLICE (P1)
 
-### M2-01 [ ] Director thời gian và wave/quái (L)
+### M2-01 [x] Director thời gian và wave/quái (L)
 **Phụ thuộc:** M1 Gate.  
 **Làm:** sinh quái theo nhịp khó tăng dần, phân 3–4 archetype (chaser, charger, ranged, elite); giữ 4 yêu thú cũ khi phù hợp, thêm warning cho địch lao/bắn.
 
@@ -151,6 +151,8 @@
 - Wave tăng độ khó nhờ hành vi + bố cục, không chỉ tăng HP.
 - Không spawn địch ngay trên người chơi/điểm không đi được; cap số enemy và cost.
 - Run dễ tái hiện bằng seed để debug.
+
+> **Kết quả 11/11/2026: XONG.** `src/systems/director.js` (giai đoạn + đợt + tinh anh + ngân sách cost) và `src/entities/archetypes.js` (lao/bắn xa/tinh anh có pha gồng + cảnh báo). Thông số ở `DIRECTOR`/`ARCH` trong config. 4 loài cũ giữ lại, mỗi loài một kiểu: Dã Lang đuổi, Hỏa Hồ lao, Huyền Băng Thú bắn, Ma Ảnh tinh anh (sprite x2). 13 test mới (tái hiện theo seed, chỗ sinh, ngân sách, né được từng đòn). Chơi thật tới 3:07: thấy đủ 4 kiểu, thông báo đợt, cảnh báo lao/bắn/đập; né được đòn đập tinh anh. Cân bằng: run khó hơn với build yếu -> M2-04.
 
 ### M2-02 [ ] Mini-boss, boss cuối, telegraph (L)
 **Phụ thuộc:** M2-01.  
@@ -388,6 +390,7 @@ Tạo thư mục `docs/adr/` hoặc phần ghi chú khi có quyết định ản
 | 2026-11-11 | M1-06 / Gate M1 | PARTIAL | Chơi thật (127.0.0.1, phím thật): **Hỏa Long Quyển tiến hóa ở 2:14, cấp 10** (khởi đầu Hỏa Cầu). Lôi Cương Hộ Thể: lượt khởi đầu Lôi Kích **thua ở 2:19** (Hộ Thể mới cấp 3) — khởi đầu Lôi quá yếu ở Luyện Khí 1; đang thử lại với khởi đầu Kiếm Khí, chưa xong. Liệt Diễm Kiếm Trận chưa chơi tay. Bộ nhớ: dùng `performance.memory` không đo được (trình duyệt trả số làm tròn 3 MB); đếm đối tượng thay thế: sau mỗi lượt về động phủ, run=null, đạn/vùng/chiến ý/hiệu ứng đều về 0 | Còn: Lôi Cương, Liệt Diễm bằng chơi thật; cân nhắc buff khởi đầu Lôi Kích |
 | 2026-11-11 | M1-06 / Gate M1 | PARTIAL | Lôi Cương Hộ Thể, lượt chơi thật thứ 2 (khởi đầu Kiếm Khí): thua ở 4:22, cấp 18, **Hộ Thể dừng ở cấp 4/5**. Đủ 4 ô công pháp thì thẻ nâng Hộ Thể phải tranh với 3 công pháp khác và bị động, nên ra rất thưa (4 lần trong 17 lần lên cấp). Liệt Diễm Kiếm Trận vẫn chưa chơi tay | Đề xuất: tăng trọng số thẻ nâng cấp cho công pháp gốc khi đã có công pháp phụ của một công thức tiến hóa (cân bằng M2-04) |
 | 2026-11-11 | M1-06 / Gate M1 | DONE | Thêm `EVO_BASE_UPGRADE_MULT = 3` (draft.js, [THỬ NGHIỆM]): thẻ nâng công pháp gốc nặng ×3 khi đã có công pháp phụ của công thức; test mới, 45/45 PASS. Chơi thật lại: **Liệt Diễm Kiếm Trận tiến hóa ở 2:38, cấp 9**; **Lôi Cương Hộ Thể tiến hóa ở 4:30, cấp 16** (khởi đầu Kiếm Khí, đã có Lôi Đình Vạn Kiếm; khiên 45/45 hoạt động), rời bí cảnh ở 4:54 bình thường. Bot sau chỉnh: Lôi Cương 2/4 (Kiếm+Lôi) và 3/4 (Lôi+Thể, trước 1/4 và 2/4); Liệt Diễm 4/4 ở 145–160 s | Gate M1 ĐẠT. Còn: cân bằng (M2-04) |
+| 2026-11-11 | M2-01 | DONE | Director thời gian: 5 giai đoạn (nhịp sinh 1,3 → 0,32 s/con, tỉ lệ kiểu quái đổi dần), 7 đợt đội hình (vây tròn / bầy lao / hàng cung bắn xa) có thông báo trên màn và log, tinh anh từ 3:00 rồi mỗi 90 s (tối đa 2), ngân sách cost 18 + 0,3/s (trần 150) + trần cứng 90 con. Kiểu quái: Hỏa Hồ gồng 0,75 s (đường đỏ tới điểm cuối) rồi lao; Huyền Băng Thú giữ khoảng cách, gồng 0,6 s (đường ngắm) rồi bắn băng tiễn — chỉ bắn khi đang trong màn, cây/đá chặn; Ma Ảnh tinh anh x10 máu, gồng 1 s (vòng đỏ + lấp tím đúng bán kính trúng) rồi đập. Hướng/vùng đòn khóa khi bắt đầu gồng. Thêm thống kê `run.dmgBy` theo nguồn sát thương (`DMG=1 node tools/sim.mjs`). Bot tìm ra lỗi: băng tiễn hạ gục người chơi làm mảng đạn bị dọn giữa vòng lặp → đã sửa + test. Chơi thật (127.0.0.1, phím thật) tới 3:07, cấp 15, Lôi Đình Vạn Kiếm 2:16; console sạch. 58/58 test PASS | Bot sau M2-01: Kiếm+Lôi 3/4 thắng; 3 build còn lại 0/4, chết 188–394 s (trước 156–480 s). Bot không biết né cảnh báo nên đánh giá thấp người chơi; cân bằng ở M2-04 |
 
 ---
 

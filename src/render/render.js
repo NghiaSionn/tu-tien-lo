@@ -1,5 +1,5 @@
 // Vẽ một khung: bản đồ, vật thể sắp theo y, yêu thú, người chơi, công pháp, hiệu ứng beanfx và hạt sáng.
-import { VIEW, TILE as T, HUB, FEATURES } from '../core/config.js';
+import { VIEW, TILE as T, HUB, FEATURES, ARCH } from '../core/config.js';
 import { WATER, STONE, TREE, ROCK } from '../world/map.js';
 import { SPR, TIERS, BEAST_WHITE, grassTiles, waterTiles, stoneTile, treeSprs, rockSpr, hash } from './sprites.js';
 import { createFx } from '../../lib/beanfx.js';
@@ -11,7 +11,7 @@ const MAX_PARTS = 400, MAX_TEXTS = 60;
 
 // ---------- hiệu ứng tạm (chỉ để nhìn, không ảnh hưởng logic) ----------
 export function makeVis(FX) {
-  return { FX, parts: [], texts: [], fxs: [], chains: [], rings: [], flash: 0, shake: 0, reduce: false };
+  return { FX, parts: [], texts: [], fxs: [], chains: [], rings: [], flash: 0, shake: 0, reduce: false, banner: null };
 }
 
 export function part(vis, x, y, vx, vy, life, color, size = 1) {
@@ -47,6 +47,7 @@ export function consumeEvents(vis, ev) {
       case 'boom': vis.rings.push({ x: e.x, y: e.y, r: e.r * 0.4, to: e.r, life: 0.3, max: 0.3, color: e.color, fill: true }); burst(vis, e.x, e.y, 10, 60, e.color, 0.4); break;
       case 'pulse': vis.rings.push({ x: e.x, y: e.y - 4, r: 6, to: e.r, life: 0.35, max: 0.35, color: e.color }); break;
       case 'death': burst(vis, e.x, e.y - 4, 12, 70, TIER_COLORS[e.tier] || '#fff', 0.6, 2); break;
+      case 'announce': vis.banner = { text: e.text, color: e.color || '#ffd978', life: 2.6 }; break;
       case 'shieldBreak': burst(vis, e.x, e.y - 8, 18, 80, '#ffd978', 0.5, 2); addShake(vis, 0.15); break;
     }
   }
@@ -55,6 +56,7 @@ export function consumeEvents(vis, ev) {
 
 export function updateVis(vis, dt) {
   vis.flash -= dt; vis.shake -= dt;
+  if (vis.banner && (vis.banner.life -= dt) <= 0) vis.banner = null;
   for (let i = vis.parts.length - 1; i >= 0; i--) { const q = vis.parts[i]; q.x += q.vx * dt; q.y += q.vy * dt; if ((q.life -= dt) <= 0) vis.parts.splice(i, 1); }
   for (let i = vis.texts.length - 1; i >= 0; i--) { const q = vis.texts[i]; q.y -= 18 * dt; if ((q.life -= dt) <= 0) vis.texts.splice(i, 1); }
   for (let i = vis.fxs.length - 1; i >= 0; i--) if (vis.fxs[i].update(dt).done) vis.fxs.splice(i, 1);
@@ -62,7 +64,7 @@ export function updateVis(vis, dt) {
   for (let i = vis.rings.length - 1; i >= 0; i--) { const r = vis.rings[i]; r.r += (r.to - r.r) * Math.min(1, dt * 12); if ((r.life -= dt) <= 0) vis.rings.splice(i, 1); }
 }
 
-export function clearVis(vis) { vis.parts.length = vis.texts.length = vis.fxs.length = vis.chains.length = vis.rings.length = 0; vis.flash = vis.shake = 0; }
+export function clearVis(vis) { vis.parts.length = vis.texts.length = vis.fxs.length = vis.chains.length = vis.rings.length = 0; vis.flash = vis.shake = 0; vis.banner = null; }
 
 // ---------- vẽ ----------
 function pxRing(ctx, x, y, r, n, rot, col, size, flat = 0.6) {
@@ -90,15 +92,57 @@ function drawMap(ctx, map, camX, camY, time, objs) {
 }
 
 function drawMonster(ctx, m, time) {
-  const hop = (m.vx || m.vy) ? Math.abs(Math.sin(time * 9 + m.ph)) * 2 : 0;
+  const hop = (m.vx || m.vy) && m.st !== 'dash' ? Math.abs(Math.sin(time * 9 + m.ph)) * 2 : 0;
+  if (m.elite) {
+    // tinh anh: sprite x2, bóng lớn, thanh máu luôn hiện
+    const ex = Math.round(m.x - 12), ey = Math.round(m.y - 18 - hop);
+    ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.fillRect(ex + 2, Math.round(m.y) - 2, 20, 3);
+    ctx.drawImage(m.hit > 0 ? BEAST_WHITE : TIERS[m.tier].spr, ex, ey, 24, 18);
+    ctx.fillStyle = '#1a1423'; ctx.fillRect(ex - 2, ey - 5, 28, 3);
+    ctx.fillStyle = '#c070ff'; ctx.fillRect(ex - 1, ey - 4, Math.max(1, Math.round(26 * m.hp / m.max)), 1);
+    return;
+  }
   const mx = Math.round(m.x - 6), my = Math.round(m.y - 9 - hop);
   ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.fillRect(mx + 1, Math.round(m.y) - 1, 10, 2);
   ctx.drawImage(m.hit > 0 ? BEAST_WHITE : TIERS[m.tier].spr, mx, my);
+  if (m.st === 'windup') { ctx.fillStyle = '#ff4a3a'; ctx.fillRect(mx + 5, my - 8, 2, 4); ctx.fillRect(mx + 5, my - 3, 2, 1); }
   if (m.burn && m.burn.t > 0 && Math.floor(time * 10 + m.ph) % 3 === 0) { ctx.fillStyle = '#ffb070'; ctx.fillRect(mx + 2 + Math.floor(m.ph * 3) % 8, my - 1, 1, 2); }
   if (m.slow && m.slow.t > 0) { ctx.fillStyle = '#b48cff'; ctx.fillRect(mx, my + 9, 12, 1); }
   if (m.hp < m.max) {
     ctx.fillStyle = '#1a1423'; ctx.fillRect(mx, my - 4, 12, 3);
     ctx.fillStyle = '#e2584f'; ctx.fillRect(mx + 1, my - 3, Math.max(1, Math.round(10 * m.hp / m.max)), 1);
+  }
+}
+
+// Cảnh báo đòn (dưới chân quái, vẽ đúng hình học của vùng/đường trúng). Không nhấp nháy mạnh; phần sáng lấp dần = sắp đánh.
+function drawTelegraphs(ctx, scene) {
+  for (const m of scene.monsters) {
+    if (m.dead || m.st !== 'windup') continue;
+    const A = ARCH[m.arch], prog = 1 - Math.max(0, m.stT) / (m.stMax || 1);
+    if (m.arch === 'charger') {
+      const L = A.DASH_SPEED * A.DASH_TIME, x0 = m.x, y0 = m.y - 3;
+      ctx.globalAlpha = 0.45; pxLine(ctx, x0, y0, x0 + m.dirX * L, y0 + m.dirY * L, '#ff4a3a', 2);
+      ctx.globalAlpha = 0.9; pxLine(ctx, x0, y0, x0 + m.dirX * L * prog, y0 + m.dirY * L * prog, '#ffb070', 1);
+      ctx.fillStyle = '#ff4a3a'; ctx.fillRect(Math.round(x0 + m.dirX * L) - 2, Math.round(y0 + m.dirY * L) - 2, 4, 4);
+    } else if (m.arch === 'ranged') {
+      const L = A.SHOT_SPEED * A.SHOT_LIFE * 0.6, x0 = m.x, y0 = m.y - 6;
+      ctx.globalAlpha = 0.6; pxLine(ctx, x0, y0, x0 + m.dirX * L, y0 + m.dirY * L, '#9fe8ff', 1);
+      ctx.globalAlpha = 0.95; pxLine(ctx, x0, y0, x0 + m.dirX * L * prog, y0 + m.dirY * L * prog, '#e8fbff', 1);
+      ctx.fillStyle = '#e8fbff'; const g = 1 + Math.round(prog * 2); ctx.fillRect(Math.round(x0) - g, Math.round(y0) - g, g * 2, g * 2);
+    } else if (m.arch === 'elite') {
+      ctx.globalAlpha = 0.25; ctx.fillStyle = '#c070ff';
+      ctx.beginPath(); ctx.arc(m.x, m.y, A.SLAM_R * prog, 0, 6.283); ctx.fill();
+      ctx.globalAlpha = 0.85; pxRing(ctx, m.x, m.y, A.SLAM_R, 80, 0, '#ff4a3a', 2, 1);
+    }
+    ctx.globalAlpha = 1;
+  }
+}
+function drawEnemyShots(ctx, shots) {
+  for (const s of shots) {
+    const x = Math.round(s.x), y = Math.round(s.y);
+    ctx.fillStyle = '#1a1423'; ctx.fillRect(x - 3, y - 2, 6, 4); ctx.fillRect(x - 2, y - 3, 4, 6);
+    ctx.fillStyle = '#7fdcec'; ctx.fillRect(x - 2, y - 1, 4, 2); ctx.fillRect(x - 1, y - 2, 2, 4);
+    ctx.fillStyle = '#fff'; ctx.fillRect(x - 1, y - 1, 2, 2);
   }
 }
 
@@ -218,6 +262,7 @@ export function render(ctx, g) {
     }
     ctx.globalCompositeOperation = 'source-over';
     if (g.run) drawSkillsUnder(ctx, g.run, p, time);
+    drawTelegraphs(ctx, scene);
   }
 
   for (const m of scene.monsters) objs.push({ y: m.y, m });
@@ -232,6 +277,7 @@ export function render(ctx, g) {
   }
 
   if (g.run) drawSkillsOver(ctx, g.run, p, time, vis);
+  if (scene.enemyShots) drawEnemyShots(ctx, scene.enemyShots);
   if (scene.projectiles) drawProjectiles(ctx, scene, vis.FX, g.dtWorld || 0);
   for (const s of g.hubShots || []) { s.fx.x = Math.round(s.x); s.fx.y = Math.round(s.y); s.fx.draw(ctx); }
   for (const fx of vis.fxs) fx.draw(ctx);
@@ -257,6 +303,14 @@ export function render(ctx, g) {
   ctx.globalAlpha = 1;
 
   ctx.setTransform(1, 0, 0, 1, 0, 0);
+  if (vis.banner) {
+    const b = vis.banner; ctx.globalAlpha = Math.min(1, b.life * 2);
+    ctx.font = '9px monospace'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'rgba(10,6,20,.6)'; ctx.fillRect(W / 2 - b.text.length * 3 - 6, 38, b.text.length * 6 + 12, 13);
+    ctx.fillStyle = '#000'; ctx.fillText(b.text, W / 2 + 1, 48);
+    ctx.fillStyle = b.color; ctx.fillText(b.text, W / 2, 47);
+    ctx.globalAlpha = 1;
+  }
   if (g.trib) { ctx.fillStyle = 'rgba(20,10,50,.35)'; ctx.fillRect(0, 0, W, H); }
   if (vis.flash > 0) { ctx.fillStyle = `rgba(230,220,255,${Math.min(0.7, vis.flash * 3)})`; ctx.fillRect(0, 0, W, H); }
 }

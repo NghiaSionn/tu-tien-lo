@@ -368,6 +368,7 @@ function frame(now) {
   let worldDt = 0;
   if (view === 'HUB') { time += dt; worldDt = dt; updateHub(dt); }
   else if (view === 'RUN' && !paused) { time += dt; worldDt = dt; updateRunView(dt); }
+  for (const e of ev) if (e.type === 'announce') UI.log(e.text, 'bad');
   consumeEvents(vis, ev);
   updateVis(vis, worldDt);
   if (vis.pfx && view === 'HUB') vis.pfx.portal.update(dt);

@@ -6,8 +6,8 @@ Cập nhật: 2026-11-11, sau phiên M0 + M1 và thử pixelfx. Bản trước c
 
 | | |
 |---|---|
-| Trạng thái | M0 xong (gate đạt). M1 xong, **gate M1 đạt** (4/4 tiến hóa bằng chơi thật). Chờ chỉ đạo trước M2 |
-| Test tự động | `npm test`: 45/45 PASS |
+| Trạng thái | M0 xong (gate đạt). M1 xong, **gate M1 đạt**. **M2-01 xong** (director + 4 kiểu quái có cảnh báo). Tiếp: M2-02 boss |
+| Test tự động | `npm test`: 58/58 PASS |
 | Kiểm thử tay | `TEST_REPORT.md` |
 | Quyết định kỹ thuật | `docs/adr/0001…0005` (0005: beanfx chính, pixelfx phụ) |
 | Rollback | `git checkout baseline-v0.1` (code v0.1 nguyên trạng) |
@@ -61,16 +61,18 @@ src/
   progression/runxp.js  EXP trong run, hàng đợi lượt chọn thẻ
   progression/draft.js  Bốc 1/3 thẻ, áp thẻ đúng 1 lần, điều kiện tiến hóa
   systems/cultivation.js Tu vi, đột phá, lôi kiếp kiểu cũ, đan, chết (thuần logic)
-  systems/run.js        Một lượt bí cảnh: sinh quái, chiến ý, máu, kết thúc
+  systems/run.js        Một lượt bí cảnh: chiến ý, máu, kết thúc, thống kê sát thương theo nguồn (dmgBy)
+  systems/director.js   M2-01: sinh quái theo giai đoạn/đợt/tinh anh, ngân sách cost, chỗ sinh hợp lệ
   systems/combat.js     8 công pháp + 4 tiến hóa: hồi chiêu, mục tiêu, đạn, vùng, khiên, sét nhảy
-  entities/monsters.js  Yêu thú: sinh, AI, thiêu đốt/làm chậm
+  entities/monsters.js  Yêu thú: sinh (động phủ), AI đuổi, thiêu đốt/làm chậm
+  entities/archetypes.js M2-01: Hỏa Hồ lao, Huyền Băng Thú bắn, Ma Ảnh tinh anh đập; pha gồng + băng tiễn
   data/skills.js        Dữ liệu 12 công pháp, 4 tiến hóa, 6 bị động, thẻ dự phòng
   persistence/save.js   Save v2, migrate v1, sao lưu, xuất/nhập
   render/sprites.js     Sprite vẽ bằng code (giữ nguyên v0.1)
   render/render.js      Vẽ khung + hiệu ứng tạm
   render/pixelfx.js     Nạp sheet pixelfx, phát bằng trình phát beanfx
   ui/ui.js              HUD, bảng chuẩn bị/thẻ/tạm dừng/kết quả/cài đặt
-tests/                  node:test (realm, cultivation, save, run)
+tests/                  node:test (realm, cultivation, save, run, director)
 tools/serve.py          Server dev không cache
 tools/sim.mjs           Bot mô phỏng run
 tools/pixelfx_import.py Nhập sheet gộp của pixelfx (khử nhân alpha)
@@ -83,7 +85,7 @@ legacy/game_v0.1.js     Code v0.1 một file, KHÔNG còn được nạp; giữ 
 docs/adr/               Quyết định kỹ thuật
 ```
 
-Không có dependency, không bundler. 18 module, không có vòng import.
+Không có dependency, không bundler. 20 module, không có vòng import.
 
 ---
 
@@ -96,7 +98,8 @@ Thêm: **cổng bí cảnh** phía bắc tụ linh trận; nút **Cài đặt** 
 
 ### 3.2 Bí cảnh (mới, M1)
 - Đứng gần cổng → E → chọn công pháp khởi đầu (Kiếm Khí / Hỏa Cầu / Lôi Kích) → vào đấu trường 44×44 ô.
-- Quái sinh quanh người chơi, mạnh dần theo thời gian và theo cảnh giới. Sống đủ **8 phút** = thắng (tạm, M2 sẽ thay bằng boss).
+- Quái do **director** sinh (M2-01, `DIRECTOR` trong config): nhịp nhanh dần qua 5 giai đoạn; đợt đội hình có thông báo (1:00 vây tròn, 1:50 bầy Hỏa Hồ, 2:50 hàng cung Huyền Băng Thú, 3:50, 4:50, 5:50, 6:50 "Yêu triều"); Ma Ảnh tinh anh từ 3:00 rồi mỗi 90 s. Không sinh trong 150 px quanh người chơi; ngân sách cost + trần 90 con. Mạnh dần theo thời gian và cảnh giới. Sống đủ **8 phút** = thắng (tạm, M2-02 sẽ thay bằng boss).
+- 4 kiểu quái, mỗi loài một kiểu (màu = hành vi): **Dã Lang** đuổi cắn; **Hỏa Hồ** gồng 0,75 s (đường đỏ tới điểm cuối) rồi lao; **Huyền Băng Thú** giữ khoảng cách, gồng 0,6 s (đường ngắm) rồi bắn băng tiễn (cây/đá chặn, chỉ bắn khi trong màn); **Ma Ảnh tinh anh** to x2, máu x10, gồng 1 s (vòng đỏ đúng bán kính) rồi đập đất. Hướng/vùng khóa khi bắt đầu gồng → né bằng cách rời đường/vòng.
 - Công pháp tự thi triển khi có mục tiêu trong tầm và trong tầm nhìn (cây/đá chặn).
 - Quái chết rơi **chiến ý**; đủ EXP → game dừng, bảng **chọn 1 trong 3 thẻ**. Lên nhiều cấp cùng lúc thì lần lượt chọn đủ.
 - Tối đa 4 công pháp chủ động + 4 bị động.
@@ -133,6 +136,7 @@ Save trên trình duyệt của máy này lúc kết thúc phiên: đã đưa v�
 - Bản mới, bằng phím thật: migrate save, đi, tọa thiền, đột phá, lôi kiếp, đánh quái, chết, mua/dùng đan, cài đặt, tải lại trang.
 - Bí cảnh, bằng phím thật: vào/hủy/vào lại, tự đánh, chọn thẻ (bấm đúp chỉ nhận 1), thế giới dừng khi chọn, tạm dừng, rời bí cảnh, chết trong bí cảnh, tải lại giữa bảng thẻ, Space tay, **cả 4 tiến hóa bằng chơi thật**: Lôi Đình Vạn Kiếm 2:56, Hỏa Long Quyển 2:14, Liệt Diễm Kiếm Trận 2:38, Lôi Cương Hộ Thể 4:30.
 - Bộ nhớ: sau mỗi lượt về động phủ, run=null, đạn/vùng/chiến ý/hiệu ứng về 0 (đếm đối tượng).
+- M2-01, chơi thật tới 3:07: đủ 4 kiểu quái, thông báo đợt, cảnh báo lao/bắn/đập, né được đòn đập tinh anh (TEST_REPORT §3c).
 - FPS: 60 (16,7 ms/khung) ở động phủ và đầu bí cảnh. Stress test 100 quái/200 đạn/300 hạt **chưa đo**.
 
 ---
@@ -140,7 +144,7 @@ Save trên trình duyệt của máy này lúc kết thúc phiên: đã đưa v�
 ## 6. Hạn chế và lỗi còn mở
 
 1. Trọng số `EVO_BASE_UPGRADE_MULT = 3` (thẻ nâng công pháp gốc khi đã có công pháp phụ) là [THỬ NGHIỆM]; xem lại ở M2-04. Khởi đầu Lôi Kích yếu ở Luyện Khí 1.
-2. Cân bằng chưa đều (bot): Kiếm + Lôi thắng 3/4 lượt; Lôi + Thể và Phi Kiếm + Hỏa 0/4, thường chết ở phút 3–7. Chỉnh ở M2-04.
+2. Cân bằng chưa đều (bot, sau M2-01): Kiếm + Lôi thắng 3/4 lượt; 3 build còn lại 0/4, chết ở phút 3–6,5. Đuổi vây vẫn là nguồn sát thương chính. Chỉnh ở M2-04 (`DMG=1 node tools/sim.mjs` để xem nguồn). Chỉnh ở M2-04.
 3. Chưa có boss, mini-boss, phần thưởng run (M2). "Thắng" = sống 8 phút.
 4. Viên chiến ý nhỏ, khó thấy trên cỏ (bản pixelfx đã thử và bị loại; cần hướng khác).
 5. Không có điều khiển cảm ứng (M5-06).
@@ -153,10 +157,9 @@ Save trên trình duyệt của máy này lúc kết thúc phiên: đã đưa v�
 
 ## 7. Bước tiếp theo (theo `TASKS_TU_TIEN_LO.md`)
 
-1. M2-01: director thời gian, 3–4 kiểu quái (đuổi, lao, bắn xa, tinh anh) có cảnh báo.
-2. M2-02: mini-boss + boss cuối.
-3. M2-03: phần thưởng run commit một lần.
-4. M2-04: cân bằng một run hoàn chỉnh.
+1. M2-02: mini-boss + boss cuối.
+2. M2-03: phần thưởng run commit một lần.
+3. M2-04: cân bằng một run hoàn chỉnh.
 
 ---
 

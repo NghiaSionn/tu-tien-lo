@@ -30,26 +30,7 @@ export function spawnHubMonster(scene, player, rng) {
   return false;
 }
 
-// Bí cảnh: sinh quanh người chơi, ngoài tầm nhìn gần; sức mạnh tăng theo thời gian và cảnh giới
-export function spawnRunMonster(scene, player, run, rng, realmPower) {
-  const map = scene.map, S = RUN.SPAWN, E = RUN.ENEMY;
-  for (let i = 0; i < 16; i++) {
-    const a = rng() * Math.PI * 2, r = S.DIST_MIN + rng() * (S.DIST_MAX - S.DIST_MIN);
-    const x = player.x + Math.cos(a) * r, y = player.y + Math.sin(a) * r;
-    if (x < T * 2 || y < T * 2 || x > map.pw - T * 2 || y > map.ph - T * 2 || !map.canStand(x, y)) continue;
-    const t = run.time;
-    const roll = rng();
-    const tier = Math.min(3, Math.floor(t / 120) - (roll < 0.35 ? 1 : 0));
-    const tr = Math.max(0, tier);
-    const scale = Math.pow(realmPower, E.REALM_SCALE);
-    const hp = Math.round(E.HP_BASE * (1 + t * E.HP_TIME) * (1 + tr * 0.6) * scale);
-    const dmg = Math.round(E.DMG_BASE * (1 + t * E.DMG_TIME) * (1 + tr * 0.4) * scale);
-    const lvl = 1 + tr * 3 + Math.floor(t / 60);
-    scene.monsters.push(makeMonster(x, y, lvl, { tier: tr, hp, dmg, speed: E.SPEED + t * E.SPEED_TIME + tr * 3, aggro: true, xp: 1 + tr, ph: rng() * 6 }));
-    return true;
-  }
-  return false;
-}
+// Sinh quái trong bí cảnh: xem systems/director.js (M2-01)
 
 export function moveEntity(map, e, dx, dy, safe) {
   const ok = (x, y) => map.canStand(x, y) && !(safe && Math.hypot(x - safe.x, y - safe.y) < safe.r);
@@ -80,7 +61,7 @@ export function damageMonster(m, dmg, ev, color = '#fff') {
   return false;
 }
 
-// AI + trạng thái. opts: { safe, onAttack(m) }
+// AI + trạng thái. opts: { safe, onAttack(m, dmg), ai?(m, player, dx, dy, d, dt) -> true nếu đã tự xử lý }
 export function updateMonsters(scene, player, dt, ev, opts) {
   const map = scene.map, safe = opts.safe;
   const playerSafe = safe && Math.hypot(player.x - safe.x, player.y - safe.y) < safe.r;
@@ -96,9 +77,10 @@ export function updateMonsters(scene, player, dt, ev, opts) {
     const dx = player.x - m.x, dy = player.y - m.y, d = Math.hypot(dx, dy) || 1;
     if (m.alwaysAggro) m.aggro = !player.dead;
     else if (playerSafe || d > HM.AGGRO_OUT) m.aggro = false; else if (d < HM.AGGRO_IN) m.aggro = true;
-    if (m.aggro) {
+    if (m.aggro && opts.ai && opts.ai(m, player, dx, dy, d, dt)) { /* kiểu quái tự xử lý (archetypes.js) */ }
+    else if (m.aggro) {
       m.vx = dx / d * m.speed; m.vy = dy / d * m.speed;
-      if (d < HM.ATTACK_RANGE) { m.vx = m.vy = 0; if (m.atkCd <= 0) { m.atkCd = HM.ATTACK_CD; opts.onAttack(m); } }
+      if (d < HM.ATTACK_RANGE) { m.vx = m.vy = 0; if (m.atkCd <= 0) { m.atkCd = HM.ATTACK_CD; opts.onAttack(m, m.dmg); } }
     } else if (m.think <= 0) {
       m.think = 1 + Math.random() * 2;
       if (Math.random() < 0.5) m.vx = m.vy = 0; else { const a = Math.random() * 6.283; m.vx = Math.cos(a) * HM.WANDER; m.vy = Math.sin(a) * HM.WANDER; }

@@ -121,6 +121,22 @@ Test tự động: thêm `tests/pixelfx.test.js`. Sau khi bỏ viên chiến ý 
 
 ---
 
+## 3c. M2-01 — Director + kiểu quái (2026-11-11)
+
+Test tự động mới: `tests/director.test.js` (13 test): nhịp/ngân sách đơn điệu; cùng seed + cùng input → cùng diễn biến; quái mới đứng được và cách người chơi ≥ 150 px; không vượt trần; cả 4 kiểu xuất hiện đúng thời điểm; đợt vây phủ nhiều hướng; Hỏa Hồ/Huyền Băng Thú/tinh anh không gây sát thương trong lúc cảnh báo, né thì không trúng, đứng yên thì trúng; cây chặn băng tiễn; quái bắn xa ngoài màn không bắn; chết vì băng tiễn không lỗi.
+
+| # | Hạng mục | Cách test | Kết quả |
+|---|---|---|---|
+| D1 | Một run có director, chơi thật | 127.0.0.1, phím thật, khởi đầu Kiếm Khí, tới 3:07 (cấp 15) rồi rời bí cảnh | PASS — 1:00 thông báo "Bầy Dã Lang vây quanh!" + vòng 8 con; Hỏa Hồ gồng lao thấy lúc 1:14, Huyền Băng Thú từ ~2:00, Ma Ảnh tinh anh 3:00. Console sạch. Về động phủ đúng |
+| D2 | Cảnh báo Hỏa Hồ | ảnh chụp lúc gồng (`docs/m2_01_canh_bao_hoa_ho.jpg`) | PASS — đường đỏ cam tới điểm cuối đường lao, dấu "!" trên đầu |
+| D3 | Cảnh báo Huyền Băng Thú | ảnh lúc gồng | PASS sau khi chỉnh — bản đầu đường ngắm quá mờ và quái có thể bắn từ gần mép màn (cách 134 px theo chiều dọc). Đã làm đường ngắm sáng hơn + lấp dần và chỉ cho bắn khi ở trong khung nhìn |
+| D4 | Cảnh báo + né đòn đập tinh anh | chơi thật: thấy vòng, chạy ra ngoài bằng phím thật | PASS — không nhận sát thương từ tinh anh (`dmgBy` không có `elite`). Ảnh vòng mới: `docs/m2_01_canh_bao_tinh_anh_bang_tien.png` (lượt thử ngắn, quái được sinh bằng console chỉ để chụp hình) |
+| D5 | Sát thương theo nguồn tới 3:07 | `run.dmgBy` | đuổi 102, Hỏa Hồ lao 24, băng tiễn 6, tinh anh 0 — đuổi vây vẫn là nguồn chính |
+
+Chưa test: sống qua các đợt sau 3:07 (yêu triều 6:50), 2 tinh anh cùng lúc, FPS khi 90 quái + băng tiễn.
+
+---
+
 ## 4. Bot mô phỏng (`node tools/sim.mjs`) — không phải người chơi thật
 
 Bot né quái, nhặt chiến ý và chọn thẻ theo danh sách ưu tiên của từng build. Dùng để xem xu hướng cân bằng và xác minh tiến hóa đến được bằng bốc thẻ bình thường. Lần chạy cuối (2026-11-11, sau khi thêm `EVO_BASE_UPGRADE_MULT = 3`), cảnh giới 0, 4 seed mỗi build:
@@ -133,6 +149,17 @@ Bot né quái, nhặt chiến ý và chọn thẻ theo danh sách ưu tiên củ
 | Lôi + Thể | 0/4 | 156–433 s | Lôi Cương Hộ Thể 3/4 (118–197 s) |
 
 Nhận xét: build Kiếm + Lôi vẫn mạnh hơn hẳn. Cân bằng chi tiết thuộc M2-04.
+
+**Sau M2-01** (director + kiểu quái), cùng cấu hình:
+
+| Build | Thắng | Thời gian sống |
+|---|---|---|
+| Kiếm + Lôi | 3/4 | 428–480 s |
+| Phi Kiếm + Hỏa | 0/4 | 249–301 s |
+| Hỏa + Phong | 0/4 | 188–394 s |
+| Lôi + Thể | 0/4 | 208–292 s |
+
+Bot không đọc cảnh báo (chỉ né theo khoảng cách) nên chết sớm hơn người chơi biết né. Xem nguồn sát thương: `DMG=1 node tools/sim.mjs <build> 0 4`.
 
 ---
 
