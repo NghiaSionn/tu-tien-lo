@@ -246,3 +246,16 @@ test('thông số công pháp hợp lệ', () => {
   }
   for (const e of Object.values(EVOLUTIONS)) { assert.ok(SKILLS[e.base].implemented); for (const n of e.needAny) assert.ok(SKILLS[n].implemented); assert.ok(skillParams({ id: e.base, level: 5, evolved: Object.keys(EVOLUTIONS).find(k => EVOLUTIONS[k] === e) })); }
 });
+
+test('thẻ nâng công pháp gốc nặng hơn khi đã có công pháp phụ của công thức tiến hóa', async () => {
+  const { EVO_BASE_UPGRADE_MULT, WEIGHTS } = await import('../src/progression/draft.js');
+  const r = newRun('sword_qi');
+  r.skills.push({ id: 'body_aura', level: 2, evolved: null, st: {} });
+  const w0 = candidates(r).find(c => c.key === 'up:body_aura').w;
+  assert.equal(w0, WEIGHTS.UPGRADE_SKILL, 'chưa có công pháp Lôi: trọng số thường');
+  r.skills.push({ id: 'thunder_strike', level: 1, evolved: null, st: {} });
+  const w1 = candidates(r).find(c => c.key === 'up:body_aura').w;
+  assert.equal(w1, WEIGHTS.UPGRADE_SKILL * EVO_BASE_UPGRADE_MULT);
+  assert.equal(candidates(r).find(c => c.key === 'up:sword_qi').w, WEIGHTS.UPGRADE_SKILL * EVO_BASE_UPGRADE_MULT, 'Kiếm Khí cũng là gốc (Lôi Đình Vạn Kiếm)');
+  assert.equal(candidates(r).find(c => c.key === 'up:thunder_strike').w, WEIGHTS.UPGRADE_SKILL, 'công pháp phụ không được nhân');
+});

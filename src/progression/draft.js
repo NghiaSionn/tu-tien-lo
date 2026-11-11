@@ -3,8 +3,15 @@ import { RUN } from '../core/config.js';
 import { SKILLS, EVOLUTIONS, PASSIVES, ELEMENTS, FALLBACK_CARD } from '../data/skills.js';
 
 export const WEIGHTS = { NEW_SKILL: 1.0, UPGRADE_SKILL: 2.0, PASSIVE: 0.7, EVOLUTION: 100 };   // [THỬ NGHIỆM]
+// Công pháp gốc của một công thức tiến hóa mà người chơi đã có công pháp phụ: thẻ nâng cấp của nó nặng gấp bấy nhiêu lần,
+// để đã chọn đúng nguyên liệu thì tiến hóa không còn quá phụ thuộc may rủi. [THỬ NGHIỆM]
+export const EVO_BASE_UPGRADE_MULT = 3;
 
 export const owns = (run, id) => run.skills.some(s => s.id === id);
+
+// Công pháp gốc nào đang "trên đường tiến hóa" (đã có ít nhất một công pháp phụ của công thức)
+export const evolutionPathBase = (run, skillId) =>
+  Object.values(EVOLUTIONS).some(e => e.base === skillId && e.needAny.some(id => owns(run, id)));
 
 export function evolutionReady(run, evoId) {
   const e = EVOLUTIONS[evoId];
@@ -27,7 +34,7 @@ export function candidates(run) {
       if (run.skills.length < RUN.MAX_ACTIVE)
         out.push({ key: 'new:' + id, type: 'NEW_SKILL', id, name: def.name, icon: def.icon, element: def.element, level: 1, desc: def.levelText[0] + '. ' + def.desc, hint: evolutionHint(id), w: WEIGHTS.NEW_SKILL });
     } else if (!s.evolved && s.level < def.maxLevel) {
-      out.push({ key: 'up:' + id, type: 'UPGRADE_SKILL', id, name: def.name, icon: def.icon, element: def.element, level: s.level + 1, desc: def.levelText[s.level], hint: evolutionHint(id), w: WEIGHTS.UPGRADE_SKILL });
+      out.push({ key: 'up:' + id, type: 'UPGRADE_SKILL', id, name: def.name, icon: def.icon, element: def.element, level: s.level + 1, desc: def.levelText[s.level], hint: evolutionHint(id), w: WEIGHTS.UPGRADE_SKILL * (evolutionPathBase(run, id) ? EVO_BASE_UPGRADE_MULT : 1) });
     }
   }
   const passiveCount = Object.keys(run.passives).length;
