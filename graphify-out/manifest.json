@@ -1,0 +1,500 @@
+{
+  ".claude/launch.json": {
+    "mtime": 1794327946.0511343,
+    "seen": 1794394896.9813445,
+    "ast_hash": "6219c63fe1092160ecc8b62aea403171",
+    "semantic_hash": "6219c63fe1092160ecc8b62aea403171"
+  },
+  "fx/dot_pha.json": {
+    "mtime": 1794315005.6825562,
+    "seen": 1794394896.9813445,
+    "ast_hash": "0608e3a4ba8db887bdb5cd92d140a72f",
+    "semantic_hash": "0608e3a4ba8db887bdb5cd92d140a72f"
+  },
+  "fx/kiem_khi.json": {
+    "mtime": 1794314983.9207456,
+    "seen": 1794394896.9813445,
+    "ast_hash": "be835298798bb10071afe773b0ae3497",
+    "semantic_hash": "be835298798bb10071afe773b0ae3497"
+  },
+  "fx/kiem_trung.json": {
+    "mtime": 1794314983.9530005,
+    "seen": 1794394896.9813445,
+    "ast_hash": "45cbe346e5c1eb599eb36d9fba31a532",
+    "semantic_hash": "45cbe346e5c1eb599eb36d9fba31a532"
+  },
+  "fx/loi_kiep.json": {
+    "mtime": 1794315005.1993878,
+    "seen": 1794394896.9813445,
+    "ast_hash": "c0b0a711c966fe4971113c79866e0f3d",
+    "semantic_hash": "c0b0a711c966fe4971113c79866e0f3d"
+  },
+  "fx/pixelfx/hoa-long-quyen.json": {
+    "mtime": 1794331354.8382337,
+    "seen": 1794394896.9813445,
+    "ast_hash": "60b5585aa4d84f598b9cf6c118d63b0d",
+    "semantic_hash": "60b5585aa4d84f598b9cf6c118d63b0d"
+  },
+  "fx/pixelfx/portal.json": {
+    "mtime": 1794330606.4112785,
+    "seen": 1794394896.9813445,
+    "ast_hash": "7e65aa6d71c9fa8a764246626f540dfb",
+    "semantic_hash": "7e65aa6d71c9fa8a764246626f540dfb"
+  },
+  "fx/toa_thien.json": {
+    "mtime": 1794314985.0511675,
+    "seen": 1794394896.9813445,
+    "ast_hash": "dbb56910b87121d5fd196c3ddca97138",
+    "semantic_hash": "dbb56910b87121d5fd196c3ddca97138"
+  },
+  "legacy/game_v0.1.js": {
+    "mtime": 1794315041.3492248,
+    "seen": 1794394896.9813445,
+    "ast_hash": "54cd9ee5b4c2273b8e6bceee38b29b19",
+    "semantic_hash": "54cd9ee5b4c2273b8e6bceee38b29b19"
+  },
+  "lib/beanfx.js": {
+    "mtime": 1794314796.5212302,
+    "seen": 1794394896.9813445,
+    "ast_hash": "394df3e921e6bbc93c9f622b35eee366",
+    "semantic_hash": "394df3e921e6bbc93c9f622b35eee366"
+  },
+  "package.json": {
+    "mtime": 1794327946.1204202,
+    "seen": 1794394896.9813445,
+    "ast_hash": "56c82e1b2ef7e950bb218cc5c2d80493",
+    "semantic_hash": "56c82e1b2ef7e950bb218cc5c2d80493"
+  },
+  "src/core/config.js": {
+    "mtime": 1794330938.5974913,
+    "seen": 1794394896.9813445,
+    "ast_hash": "1ff05e138905c562d43baa5dfe1209d3",
+    "semantic_hash": "1ff05e138905c562d43baa5dfe1209d3"
+  },
+  "src/core/input.js": {
+    "mtime": 1794328500.9553635,
+    "seen": 1794394896.9813445,
+    "ast_hash": "a311a7a0f7648ae69734dc656a0599d9",
+    "semantic_hash": "a311a7a0f7648ae69734dc656a0599d9"
+  },
+  "src/core/rng.js": {
+    "mtime": 1794327031.0004025,
+    "seen": 1794394896.9813445,
+    "ast_hash": "e168723840c84575770d724f8954c2df",
+    "semantic_hash": "e168723840c84575770d724f8954c2df"
+  },
+  "src/data/skills.js": {
+    "mtime": 1794328001.8187516,
+    "seen": 1794394896.9813445,
+    "ast_hash": "0f2cb1351f6d02fdac485a8c5a8d0c0d",
+    "semantic_hash": "0f2cb1351f6d02fdac485a8c5a8d0c0d"
+  },
+  "src/entities/monsters.js": {
+    "mtime": 1794327200.2851384,
+    "seen": 1794394896.9813445,
+    "ast_hash": "9b75dc576b41cd8818ef3d4dab25847f",
+    "semantic_hash": "9b75dc576b41cd8818ef3d4dab25847f"
+  },
+  "src/main.js": {
+    "mtime": 1794331375.3184907,
+    "seen": 1794394896.9813445,
+    "ast_hash": "698e2495c86fc862a90b692abce27af4",
+    "semantic_hash": "698e2495c86fc862a90b692abce27af4"
+  },
+  "src/persistence/save.js": {
+    "mtime": 1794327059.4217901,
+    "seen": 1794394896.9813445,
+    "ast_hash": "adbe257c6312c2de438ff8db18dc967f",
+    "semantic_hash": "adbe257c6312c2de438ff8db18dc967f"
+  },
+  "src/progression/draft.js": {
+    "mtime": 1794328520.4181404,
+    "seen": 1794394896.9813445,
+    "ast_hash": "71f5eea25d775812e77cfb99ab41e660",
+    "semantic_hash": "71f5eea25d775812e77cfb99ab41e660"
+  },
+  "src/progression/realm.js": {
+    "mtime": 1794327031.2637002,
+    "seen": 1794394896.9813445,
+    "ast_hash": "c9c050cfdfdfdf74f271b7af1fbb9261",
+    "semantic_hash": "c9c050cfdfdfdf74f271b7af1fbb9261"
+  },
+  "src/progression/runxp.js": {
+    "mtime": 1794327129.74148,
+    "seen": 1794394896.9813445,
+    "ast_hash": "f9f55ab9a30c97367ee29a0bcd04a1cc",
+    "semantic_hash": "f9f55ab9a30c97367ee29a0bcd04a1cc"
+  },
+  "src/render/pixelfx.js": {
+    "mtime": 1794330621.0936277,
+    "seen": 1794394896.9813445,
+    "ast_hash": "d7655ebde57204a7edbde68036345add",
+    "semantic_hash": "d7655ebde57204a7edbde68036345add"
+  },
+  "src/render/render.js": {
+    "mtime": 1794331375.319489,
+    "seen": 1794394896.9813445,
+    "ast_hash": "e19eae3d5c4d42cc9e38d922b6e7f8fd",
+    "semantic_hash": "e19eae3d5c4d42cc9e38d922b6e7f8fd"
+  },
+  "src/render/sprites.js": {
+    "mtime": 1794327448.1465285,
+    "seen": 1794394896.9813445,
+    "ast_hash": "d218a61cbf9db73eaba24dabd2f71dc5",
+    "semantic_hash": "d218a61cbf9db73eaba24dabd2f71dc5"
+  },
+  "src/systems/combat.js": {
+    "mtime": 1794327253.405788,
+    "seen": 1794394896.9813445,
+    "ast_hash": "fdee714bc318fe4de956c8e1e4bd7ff6",
+    "semantic_hash": "fdee714bc318fe4de956c8e1e4bd7ff6"
+  },
+  "src/systems/cultivation.js": {
+    "mtime": 1794327031.3908463,
+    "seen": 1794394896.9813445,
+    "ast_hash": "c25c50e4c0591c2838f545dfe8b589a1",
+    "semantic_hash": "c25c50e4c0591c2838f545dfe8b589a1"
+  },
+  "src/systems/run.js": {
+    "mtime": 1794330938.5988953,
+    "seen": 1794394896.9813445,
+    "ast_hash": "a2f0caa2a87dea1838d92635a674f1f2",
+    "semantic_hash": "a2f0caa2a87dea1838d92635a674f1f2"
+  },
+  "src/ui/ui.js": {
+    "mtime": 1794327791.8197625,
+    "seen": 1794394896.9813445,
+    "ast_hash": "57e137700bad45c82cdeae2a642173e8",
+    "semantic_hash": "57e137700bad45c82cdeae2a642173e8"
+  },
+  "src/world/map.js": {
+    "mtime": 1794327031.1582615,
+    "seen": 1794394896.9813445,
+    "ast_hash": "01261a20ac27a1d00f672e4c98958eda",
+    "semantic_hash": "01261a20ac27a1d00f672e4c98958eda"
+  },
+  "tests/cultivation.test.js": {
+    "mtime": 1794327347.5302613,
+    "seen": 1794394896.9813445,
+    "ast_hash": "b78d55d90a265c07d1daaef374ce73ba",
+    "semantic_hash": "b78d55d90a265c07d1daaef374ce73ba"
+  },
+  "tests/pixelfx.test.js": {
+    "mtime": 1794331475.8468325,
+    "seen": 1794394896.9813445,
+    "ast_hash": "1849a9be2b0b70824f35ba86a4df3f7d",
+    "semantic_hash": "1849a9be2b0b70824f35ba86a4df3f7d"
+  },
+  "tests/realm.test.js": {
+    "mtime": 1794327347.4561963,
+    "seen": 1794394896.9813445,
+    "ast_hash": "e9c76607d85d192159e503e5f9563bb6",
+    "semantic_hash": "e9c76607d85d192159e503e5f9563bb6"
+  },
+  "tests/run.test.js": {
+    "mtime": 1794328016.4337308,
+    "seen": 1794394896.9813445,
+    "ast_hash": "bf4646b251b87d7ae4f75e1e7a379d6d",
+    "semantic_hash": "bf4646b251b87d7ae4f75e1e7a379d6d"
+  },
+  "tests/save.test.js": {
+    "mtime": 1794327347.6212595,
+    "seen": 1794394896.9813445,
+    "ast_hash": "7c8b0a4f474cb7610a0a2c87c8c49ec2",
+    "semantic_hash": "7c8b0a4f474cb7610a0a2c87c8c49ec2"
+  },
+  "tools/pixelfx_import.py": {
+    "mtime": 1794330604.4830358,
+    "seen": 1794394896.9813445,
+    "ast_hash": "af521b687cd64b70e40b553e051463a4",
+    "semantic_hash": "af521b687cd64b70e40b553e051463a4"
+  },
+  "tools/pixelfx_layers.mjs": {
+    "mtime": 1794331353.9104805,
+    "seen": 1794394896.9813445,
+    "ast_hash": "2b852bcc2b2a911db344bbb12ef0cadf",
+    "semantic_hash": "2b852bcc2b2a911db344bbb12ef0cadf"
+  },
+  "tools/serve.py": {
+    "mtime": 1794328031.316105,
+    "seen": 1794394896.9813445,
+    "ast_hash": "6181289e2f0b2bc86604e76a214e5b16",
+    "semantic_hash": "6181289e2f0b2bc86604e76a214e5b16"
+  },
+  "tools/sim.mjs": {
+    "mtime": 1794327968.5422976,
+    "seen": 1794394896.9813445,
+    "ast_hash": "a51b4f4630ac7e53dbf624320338f3c1",
+    "semantic_hash": "a51b4f4630ac7e53dbf624320338f3c1"
+  },
+  "vfx/drafts/loi_cuong_ho_the/kit/caster.py": {
+    "mtime": 1794331997.82489,
+    "seen": 1794394896.9813445,
+    "ast_hash": "39c2186b6b34f02a0595f0d7449385dd",
+    "semantic_hash": "39c2186b6b34f02a0595f0d7449385dd"
+  },
+  "vfx/drafts/loi_cuong_ho_the/kit/derive.py": {
+    "mtime": 1794331997.805125,
+    "seen": 1794394896.9813445,
+    "ast_hash": "f94f127bb6db8166de8c4d78504044a5",
+    "semantic_hash": "f94f127bb6db8166de8c4d78504044a5"
+  },
+  "vfx/drafts/loi_cuong_ho_the/kit/export.py": {
+    "mtime": 1794331997.8066041,
+    "seen": 1794394896.9813445,
+    "ast_hash": "aaf5c30dee27a68a240ac19ddc996f7f",
+    "semantic_hash": "aaf5c30dee27a68a240ac19ddc996f7f"
+  },
+  "vfx/drafts/loi_cuong_ho_the/kit/facing.py": {
+    "mtime": 1794331997.8046112,
+    "seen": 1794394896.9813445,
+    "ast_hash": "b090215902a564f5266e24394a14749d",
+    "semantic_hash": "b090215902a564f5266e24394a14749d"
+  },
+  "vfx/drafts/loi_cuong_ho_the/kit/fxkit.py": {
+    "mtime": 1794331997.8161576,
+    "seen": 1794394896.9813445,
+    "ast_hash": "4d6849f2bc2b5fd3ab8019d944c8cfec",
+    "semantic_hash": "4d6849f2bc2b5fd3ab8019d944c8cfec"
+  },
+  "vfx/drafts/loi_cuong_ho_the/kit/fxlib.py": {
+    "mtime": 1794331997.8091197,
+    "seen": 1794394896.9813445,
+    "ast_hash": "216f340abc7ad706ac924ddc57418c3d",
+    "semantic_hash": "216f340abc7ad706ac924ddc57418c3d"
+  },
+  "vfx/drafts/loi_cuong_ho_the/kit/light.py": {
+    "mtime": 1794331997.8111238,
+    "seen": 1794394896.9813445,
+    "ast_hash": "33d7bd4ae23347e46d5efc61fc9e369d",
+    "semantic_hash": "33d7bd4ae23347e46d5efc61fc9e369d"
+  },
+  "vfx/drafts/loi_cuong_ho_the/kit/pfx.py": {
+    "mtime": 1794331997.8021061,
+    "seen": 1794394896.9813445,
+    "ast_hash": "67387f00c45bf87b9994debf4a73c896",
+    "semantic_hash": "67387f00c45bf87b9994debf4a73c896"
+  },
+  "vfx/drafts/loi_cuong_ho_the/kit/ref.py": {
+    "mtime": 1794331997.8146431,
+    "seen": 1794394896.9813445,
+    "ast_hash": "379aa8a93fec3aa55a542cb9b580db84",
+    "semantic_hash": "379aa8a93fec3aa55a542cb9b580db84"
+  },
+  "vfx/drafts/loi_cuong_ho_the/kit/target.py": {
+    "mtime": 1794331997.803102,
+    "seen": 1794394896.9813445,
+    "ast_hash": "2ab7589488eab2d2668f69e45ebf47be",
+    "semantic_hash": "2ab7589488eab2d2668f69e45ebf47be"
+  },
+  "vfx/drafts/loi_cuong_ho_the/loi_cuong_ho_the.py": {
+    "mtime": 1794331997.7511978,
+    "seen": 1794394896.9813445,
+    "ast_hash": "b21e02f33d4d02baa15a0a3fb59ac287",
+    "semantic_hash": "b21e02f33d4d02baa15a0a3fb59ac287"
+  },
+  "vfx/kit/caster.py": {
+    "mtime": 1794314796.2175112,
+    "seen": 1794394896.9813445,
+    "ast_hash": "39c2186b6b34f02a0595f0d7449385dd",
+    "semantic_hash": "39c2186b6b34f02a0595f0d7449385dd"
+  },
+  "vfx/kit/derive.py": {
+    "mtime": 1794314796.2344055,
+    "seen": 1794394896.9813445,
+    "ast_hash": "f94f127bb6db8166de8c4d78504044a5",
+    "semantic_hash": "f94f127bb6db8166de8c4d78504044a5"
+  },
+  "vfx/kit/export.py": {
+    "mtime": 1794314796.2506125,
+    "seen": 1794394896.9813445,
+    "ast_hash": "ba6aef1b0adfd099e6a4680683b81194",
+    "semantic_hash": "ba6aef1b0adfd099e6a4680683b81194"
+  },
+  "vfx/kit/facing.py": {
+    "mtime": 1794314796.273119,
+    "seen": 1794394896.9813445,
+    "ast_hash": "6e472073ae5f384bac9f598644754323",
+    "semantic_hash": "6e472073ae5f384bac9f598644754323"
+  },
+  "vfx/kit/fxkit.py": {
+    "mtime": 1794314796.2877772,
+    "seen": 1794394896.9813445,
+    "ast_hash": "4d6849f2bc2b5fd3ab8019d944c8cfec",
+    "semantic_hash": "4d6849f2bc2b5fd3ab8019d944c8cfec"
+  },
+  "vfx/kit/fxlib.py": {
+    "mtime": 1794314796.3008854,
+    "seen": 1794394896.9813445,
+    "ast_hash": "216f340abc7ad706ac924ddc57418c3d",
+    "semantic_hash": "216f340abc7ad706ac924ddc57418c3d"
+  },
+  "vfx/kit/light.py": {
+    "mtime": 1794314796.3132458,
+    "seen": 1794394896.9813445,
+    "ast_hash": "f4204a759408928ccc7ed084df28fbb7",
+    "semantic_hash": "f4204a759408928ccc7ed084df28fbb7"
+  },
+  "vfx/kit/pfx.py": {
+    "mtime": 1794314796.3241298,
+    "seen": 1794394896.9813445,
+    "ast_hash": "c66444b1bba6362fb49716dbb8418829",
+    "semantic_hash": "c66444b1bba6362fb49716dbb8418829"
+  },
+  "vfx/kit/ref.py": {
+    "mtime": 1794314796.3391626,
+    "seen": 1794394896.9813445,
+    "ast_hash": "379aa8a93fec3aa55a542cb9b580db84",
+    "semantic_hash": "379aa8a93fec3aa55a542cb9b580db84"
+  },
+  "vfx/kit/rig.py": {
+    "mtime": 1794314796.352084,
+    "seen": 1794394896.9813445,
+    "ast_hash": "4809f04daee7de9b8a4c0189ace712e6",
+    "semantic_hash": "4809f04daee7de9b8a4c0189ace712e6"
+  },
+  "vfx/kit/sfx.py": {
+    "mtime": 1794314796.366204,
+    "seen": 1794394896.9813445,
+    "ast_hash": "ccf48beb75b09a1b8600415c30d11990",
+    "semantic_hash": "ccf48beb75b09a1b8600415c30d11990"
+  },
+  "vfx/kit/target.py": {
+    "mtime": 1794314796.382733,
+    "seen": 1794394896.9813445,
+    "ast_hash": "2ab7589488eab2d2668f69e45ebf47be",
+    "semantic_hash": "2ab7589488eab2d2668f69e45ebf47be"
+  },
+  "vfx/make_fx.py": {
+    "mtime": 1794315004.4612713,
+    "seen": 1794394896.9813445,
+    "ast_hash": "4e627b47f788255b4136949bc2b725f0",
+    "semantic_hash": "4e627b47f788255b4136949bc2b725f0"
+  },
+  "vfx/pixelfx/hoa-long-quyen.js": {
+    "mtime": 1794331298.1443624,
+    "seen": 1794394896.9823465,
+    "ast_hash": "8f723e84baf902495e6f1f00567384a8",
+    "semantic_hash": "8f723e84baf902495e6f1f00567384a8"
+  },
+  "CLAUDE.md": {
+    "mtime": 1794322427.9138105,
+    "seen": 1794394896.9823465,
+    "ast_hash": "7d0a2f662c4dcd27c5e8be2dff65b21c",
+    "semantic_hash": "7d0a2f662c4dcd27c5e8be2dff65b21c"
+  },
+  "GDD_TU_TIEN_LO.md": {
+    "mtime": 1794322415.68999,
+    "seen": 1794394896.9823465,
+    "ast_hash": "52a3a971ef6d26e0fa33ff4953299d4a",
+    "semantic_hash": "52a3a971ef6d26e0fa33ff4953299d4a"
+  },
+  "HANDOFF.md": {
+    "mtime": 1794332022.7981513,
+    "seen": 1794394896.9823465,
+    "ast_hash": "e4aa6a8330a14884be09520ff49a4306",
+    "semantic_hash": "e4aa6a8330a14884be09520ff49a4306"
+  },
+  "README.md": {
+    "mtime": 1794328694.0138245,
+    "seen": 1794394896.9823465,
+    "ast_hash": "aa4a0360af31bbedcd285ae341991367",
+    "semantic_hash": "aa4a0360af31bbedcd285ae341991367"
+  },
+  "TASKS_TU_TIEN_LO.md": {
+    "mtime": 1794333080.717015,
+    "seen": 1794394896.9823465,
+    "ast_hash": "5bfe5e0e99a8ec32233cb74631c5332d",
+    "semantic_hash": "5bfe5e0e99a8ec32233cb74631c5332d"
+  },
+  "TEST_REPORT.md": {
+    "mtime": 1794330955.5888798,
+    "seen": 1794394896.9823465,
+    "ast_hash": "923bcad9a701fab063f2d21d62abcfae",
+    "semantic_hash": "923bcad9a701fab063f2d21d62abcfae"
+  },
+  "docs/adr/0001-state-va-save.md": {
+    "mtime": 1794328693.6455588,
+    "seen": 1794394896.9823465,
+    "ast_hash": "95c204173f9cfbed4a84eeaf2f81f01d",
+    "semantic_hash": "95c204173f9cfbed4a84eeaf2f81f01d"
+  },
+  "docs/adr/0002-tan-cong-tu-dong.md": {
+    "mtime": 1794328693.7634187,
+    "seen": 1794394896.9823465,
+    "ast_hash": "7dab294d2a3b9e0a23dc9db6e13443c8",
+    "semantic_hash": "7dab294d2a3b9e0a23dc9db6e13443c8"
+  },
+  "docs/adr/0003-exp-the-tien-hoa.md": {
+    "mtime": 1794328693.897078,
+    "seen": 1794394896.9823465,
+    "ast_hash": "208051f1643252771371b68b9aa471c0",
+    "semantic_hash": "208051f1643252771371b68b9aa471c0"
+  },
+  "docs/adr/0004-pixelfx.md": {
+    "mtime": 1794331475.8478458,
+    "seen": 1794394896.9823465,
+    "ast_hash": "e4684d1bcaa66ef4ecfdbe4a57af78f7",
+    "semantic_hash": "e4684d1bcaa66ef4ecfdbe4a57af78f7"
+  },
+  "docs/adr/0005-beanfx-chinh-pixelfx-phu.md": {
+    "mtime": 1794332022.2499201,
+    "seen": 1794394896.9823465,
+    "ast_hash": "64b4f89047128a40afeb2a2f20915481",
+    "semantic_hash": "64b4f89047128a40afeb2a2f20915481"
+  },
+  "fx/pixelfx/NOTICE.md": {
+    "mtime": 1794330545.4936538,
+    "seen": 1794394896.9823465,
+    "ast_hash": "ddd87625636aef229ba2f9f32e472e7e",
+    "semantic_hash": "ddd87625636aef229ba2f9f32e472e7e"
+  },
+  "fx/pixelfx/README.md": {
+    "mtime": 1794330955.5729618,
+    "seen": 1794394896.9823465,
+    "ast_hash": "a42d4c1c89061cab9cfc91417bc0a412",
+    "semantic_hash": "a42d4c1c89061cab9cfc91417bc0a412"
+  },
+  "index.html": {
+    "mtime": 1794327698.6838906,
+    "seen": 1794394896.9823465,
+    "ast_hash": "4ebedbacc4810b44090d3c54c69e8d00",
+    "semantic_hash": "4ebedbacc4810b44090d3c54c69e8d00"
+  },
+  "vfx/drafts/README.md": {
+    "mtime": 1794331997.9112482,
+    "seen": 1794394896.9823465,
+    "ast_hash": "0ae631cb2c472da9bdc7a1829c464794",
+    "semantic_hash": "0ae631cb2c472da9bdc7a1829c464794"
+  },
+  "vfx/pixelfx/README.md": {
+    "mtime": 1794331475.8468325,
+    "seen": 1794394896.9823465,
+    "ast_hash": "eefa52a92c38900163d420ee2806792d",
+    "semantic_hash": "eefa52a92c38900163d420ee2806792d"
+  },
+  "docs/beanfx_loi_cuong_thu_nho.png": {
+    "mtime": 1794331974.3215504,
+    "seen": 1794394896.9823465,
+    "ast_hash": "9ae18383cfd784222ce0b15a4505491a",
+    "semantic_hash": "9ae18383cfd784222ce0b15a4505491a"
+  },
+  "docs/beanfx_mau_trong_game.png": {
+    "mtime": 1794331845.3688276,
+    "seen": 1794394896.9823465,
+    "ast_hash": "768a2b6a0db62fad0f9d229ccd63b99b",
+    "semantic_hash": "768a2b6a0db62fad0f9d229ccd63b99b"
+  },
+  "docs/pixelfx_truoc_sau.png": {
+    "mtime": 1794330772.5997949,
+    "seen": 1794394896.9823465,
+    "ast_hash": "f31007ebf7fb232f6dc3628aa9f70b6c",
+    "semantic_hash": "f31007ebf7fb232f6dc3628aa9f70b6c"
+  },
+  "docs/vfx_hoa_long_quyen.png": {
+    "mtime": 1794331446.675054,
+    "seen": 1794394896.9823465,
+    "ast_hash": "8e54f372e00bb35a53f9e77d6d9e31f9",
+    "semantic_hash": "8e54f372e00bb35a53f9e77d6d9e31f9"
+  }
+}
