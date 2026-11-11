@@ -131,3 +131,19 @@ export const BOSS = {
     ENRAGE_AFTER: 150, ENRAGE_GAP: 0.5, ENRAGE_DMG: 1.5, MAX_HAZARDS: 12,
   },
 };
+
+// ---------- Phần thưởng run (M2-03) [THỬ NGHIỆM] ----------
+// Thua/rời vẫn nhận theo tiến độ (quái, cấp, thời gian, boss đã hạ); thắng nhân WIN_MULT + vé. Nhân thêm theo cảnh giới.
+export const REWARD = {
+  STONE: { PER_KILL: 0.1, PER_LEVEL: 2, PER_MIN: 3 },      // linh thạch (1 viên đan = 25)
+  LINGQI_PER_MIN: 6,                                        // linh khí (sẽ đổi ra tu vi khi tọa thiền, M3)
+  MATS_PER_ELITE: 1,                                        // luyện liệu (luyện khí, M4)
+  BOSS: {
+    MINI:  { linhThach: 25,  lingQi: 20, craftMats: 2, tickets: 0 },
+    FINAL: { linhThach: 80,  lingQi: 60, craftMats: 5, tickets: 1 },
+  },
+  WIN_MULT: 1.5,
+  FIRST_CLEAR_TICKETS: 1,                                   // lần đầu hạ Yêu Vương
+  REALM_MULT: 0.1,                                          // +10% mỗi tầng cảnh giới
+  LOG_KEEP: 30,                                             // nhớ id các run đã nhận gần nhất (chống nhận trùng)
+};

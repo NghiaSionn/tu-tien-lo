@@ -15,7 +15,7 @@ let runCounter = 0;
 export function createRun({ seed, startSkill, realmLevel }) {
   const map = makeArenaMap(RUN.ARENA_W, RUN.ARENA_H, seed);
   const run = {
-    id: ++runCounter, seed, rng: mulberry32(seed), status: 'RUNNING', time: 0,
+    id: ++runCounter, uid: `${Date.now().toString(36)}-${seed}-${runCounter}`, seed, eliteKills: 0, rng: mulberry32(seed), status: 'RUNNING', time: 0,
     level: 1, xp: 0, pendingDrafts: 0, skills: [{ id: startSkill, level: 1, evolved: null, st: {} }],
     passives: {}, evolutions: [], kills: 0, damageTaken: 0, dmgBy: {}, dir: createDirector(), outcome: null,
     rewards: [],                 // M2-02 reward hook: { kind: 'MINI' | 'FINAL', t } — M2-03 trao thưởng một lần
@@ -85,6 +85,7 @@ export function updateRun(run, player, dt, ev, realmPowerOverride) {
   let finalDown = false;
   reapMonsters(sc, m => {
     run.kills++;
+    if (m.elite) run.eliteKills++;
     if (m.boss) {
       const B = BOSS[m.bossKind];
       run.dir[m.bossKind === 'MINI' ? 'mini' : 'final'] = 'DEAD';

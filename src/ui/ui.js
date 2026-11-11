@@ -34,6 +34,7 @@ export function hubHud(meta, p, trib, nearPortal) {
   $('atkTxt').textContent = atk(L);
   $('stoneTxt').textContent = meta.linhThach;
   $('pillTxt').textContent = meta.pills;
+  $('lqTxt').textContent = meta.lingQi; $('matTxt').textContent = meta.craftMats; $('ticketTxt').textContent = meta.coDuyenTicket;
   $('btnMed').classList.toggle('on', p.med);
   const ok = canBreak(meta) && !trib;
   $('btnBreak').classList.toggle('ready', ok);
@@ -143,7 +144,7 @@ export function showPause(onResume, onLeave) {
   $('modal').querySelector('[data-act=leave]').addEventListener('click', () => { closeModal(); onLeave(); });
 }
 
-export function showResults(run, onClose) {
+export function showResults(run, reward, onClose) {
   const title = { WIN: `Hạ ${BOSS.FINAL.name}, vượt qua bí cảnh!`, LOSE: 'Trọng thương, rời bí cảnh', ABANDON: 'Đã rời bí cảnh', TIMEOUT: 'Hết thời gian, bí cảnh khép lại' }[run.outcome];
   const downs = run.rewards.map(r => BOSS[r.kind].name);
   const skills = run.skills.map(s => `${SKILLS[s.id].icon} ${esc(skillName(s))}${s.evolved ? ' ★' : ' cấp ' + s.level}`).join('<br>');
@@ -154,8 +155,12 @@ export function showResults(run, onClose) {
     <div class="stats"><div><b>${fmtTime(run.time)}</b>thời gian</div><div><b>${run.level}</b>cấp chiến đấu</div><div><b>${run.kills}</b>yêu thú</div><div><b>${run.evolutions.length}</b>tiến hóa</div></div>
     ${downs.length ? `<p class="sub">Đã hạ: ${downs.map(esc).join(', ')}</p>` : ''}
     <h3>Công pháp</h3><p>${skills}</p>${pas ? `<p class="sub">${pas}</p>` : ''}
-    <p class="sub">Phần thưởng mang về động phủ sẽ có ở bản sau (M2). Cảnh giới và tu vi không đổi.</p>
-    <div class="row"><button data-act="close">Về động phủ (Enter)</button></div>`,
+    <h3>Mang về động phủ</h3>
+    <div class="stats reward">${[['💎', 'linhThach', 'linh thạch'], ['✨', 'lingQi', 'linh khí'], ['🔩', 'craftMats', 'luyện liệu'], ['🎫', 'tickets', 'vé Cơ Duyên']]
+      .map(([ic, k, name]) => `<div><b>${ic} +${reward ? reward[k] : 0}</b>${name}</div>`).join('')}</div>
+    ${reward && reward.firstClear ? '<p class="sub">Lần đầu hạ Yêu Vương: thêm vé Cơ Duyên.</p>' : ''}
+    <p class="sub">${run.outcome === 'WIN' ? 'Thắng: thưởng ×1,5.' : 'Thưởng theo tiến độ đã đạt.'} Cảnh giới, tu vi, đồ không đổi. Linh khí và luyện liệu sẽ dùng ở bản sau.</p>
+    <div class="row"><button data-act="close">Nhận thưởng · về động phủ (Enter)</button></div>`,
   code => { if (code === 'Enter' || code === 'Escape' || code === 'Space') { close(); return true; } return false; });
   $('modal').querySelector('[data-act=close]').addEventListener('click', close);
 }

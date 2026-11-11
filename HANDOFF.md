@@ -6,10 +6,10 @@ Cập nhật: 2026-11-11, sau phiên M0 + M1 và thử pixelfx. Bản trước c
 
 | | |
 |---|---|
-| Trạng thái | M0 xong (gate đạt). M1 xong, **gate M1 đạt**. **M2-01 xong**; **M2-02 xong code** (2 boss), còn thiếu chơi thật trọn run tới boss. Tiếp: M2-03 |
-| Test tự động | `npm test`: 70/70 PASS |
+| Trạng thái | M0 xong (gate đạt). M1 xong, **gate M1 đạt**. **M2-01 xong**; **M2-02 xong code** (2 boss), còn thiếu chơi thật trọn run tới boss. **M2-03 xong** (thưởng run nhận một lần). Tiếp: M2-04 |
+| Test tự động | `npm test`: 80/80 PASS |
 | Kiểm thử tay | `TEST_REPORT.md` |
-| Quyết định kỹ thuật | `docs/adr/0001…0005` (0005: beanfx chính, pixelfx phụ) |
+| Quyết định kỹ thuật | `docs/adr/0001…0006` (0005: beanfx chính, pixelfx phụ; 0006: thưởng run nhận một lần) |
 | Rollback | `git checkout baseline-v0.1` (code v0.1 nguyên trạng) |
 
 ---
@@ -60,6 +60,7 @@ src/
   progression/realm.js  18 bậc cảnh giới, công thức baseline
   progression/runxp.js  EXP trong run, hàng đợi lượt chọn thẻ
   progression/draft.js  Bốc 1/3 thẻ, áp thẻ đúng 1 lần, điều kiện tiến hóa
+  progression/rewards.js M2-03: tính thưởng run, chờ nhận -> nhận đúng 1 lần
   systems/cultivation.js Tu vi, đột phá, lôi kiếp kiểu cũ, đan, chết (thuần logic)
   systems/run.js        Một lượt bí cảnh: chiến ý, máu, kết thúc, thống kê sát thương theo nguồn (dmgBy)
   systems/director.js   M2-01: sinh quái theo giai đoạn/đợt/tinh anh, ngân sách cost, chỗ sinh hợp lệ
@@ -73,7 +74,7 @@ src/
   render/render.js      Vẽ khung + hiệu ứng tạm
   render/pixelfx.js     Nạp sheet pixelfx, phát bằng trình phát beanfx
   ui/ui.js              HUD, bảng chuẩn bị/thẻ/tạm dừng/kết quả/cài đặt
-tests/                  node:test (realm, cultivation, save, run, director, boss)
+tests/                  node:test (realm, cultivation, save, run, director, boss, rewards)
 tools/serve.py          Server dev không cache
 tools/sim.mjs           Bot mô phỏng run
 tools/pixelfx_import.py Nhập sheet gộp của pixelfx (khử nhân alpha)
@@ -86,7 +87,7 @@ legacy/game_v0.1.js     Code v0.1 một file, KHÔNG còn được nạp; giữ 
 docs/adr/               Quyết định kỹ thuật
 ```
 
-Không có dependency, không bundler. 21 module, không có vòng import.
+Không có dependency, không bundler. 22 module, không có vòng import.
 
 ---
 
@@ -106,7 +107,7 @@ Thêm: **cổng bí cảnh** phía bắc tụ linh trận; nút **Cài đặt** 
 - Quái chết rơi **chiến ý**; đủ EXP → game dừng, bảng **chọn 1 trong 3 thẻ**. Lên nhiều cấp cùng lúc thì lần lượt chọn đủ.
 - Tối đa 4 công pháp chủ động + 4 bị động.
 - **Tiến hóa** khi công pháp chính cấp 5 + có công pháp phụ + đã sống 90 s: Lôi Đình Vạn Kiếm, Liệt Diễm Kiếm Trận, Hỏa Long Quyển, Lôi Cương Hộ Thể (bảng chi tiết ở ADR 0003).
-- Chết hoặc rời bí cảnh → bảng kết quả → về đúng chỗ cũ ở động phủ. **Cảnh giới, tu vi, đồ không đổi; chưa có phần thưởng** (M2-03).
+- Chết, rời, thắng hay hết giờ → bảng kết quả có mục **Mang về động phủ** (M2-03, `REWARD` trong config): linh thạch, linh khí, luyện liệu theo tiến độ (quái, cấp, thời gian, tinh anh, boss); thắng ×1,5 + vé Cơ Duyên, lần đầu hạ Yêu Vương thêm 1 vé. Nút "Nhận thưởng" cộng đúng một lần rồi về chỗ cũ ở động phủ. Cảnh giới, tu vi, đan không đổi. Linh khí/luyện liệu/vé **chưa có chỗ dùng** (M3/M4/M6).
 - Run không được lưu: tải lại trang giữa run = về động phủ.
 
 Công pháp đã chạy: Kiếm Khí, Phi Kiếm Trận, Hỏa Cầu, Hỏa Luân, Lôi Kích, Lôi Vực, Phong Nhận, Hộ Thể Cương Khí. Chỉ có dữ liệu thiết kế, chưa vào pool: Phong Ảnh Bộ, Băng Châm, Hàn Khí, Linh Châu.
@@ -125,7 +126,7 @@ Chi tiết: ADR 0001.
 - `tutien_save_v1`: **chỉ đọc**, không bao giờ ghi/xóa.
 - Lần đầu mở bản mới: đọc v1 → migrate → ghi `tutien_save_v2`, đọc lại để xác minh, chép v1 nguyên văn sang `tutien_save_v1_backup`.
 - Mỗi lần lưu: bản v2 trước xoay sang `tutien_save_v2_bak`. v2 hỏng → giữ ở `tutien_save_v2_corrupt` và phục hồi từ bak, rồi tới v1.
-- Chỉ lưu metaState: cảnh giới, tu vi, máu, linh thạch, đan, vị trí động phủ, cài đặt, thống kê run.
+- Chỉ lưu metaState: cảnh giới, tu vi, máu, linh thạch, đan, vị trí động phủ, cài đặt, thống kê run; từ M2-03 thêm linh khí, luyện liệu, vé Cơ Duyên, `pendingReward` (thưởng chờ nhận) và `rewardLog` (id run đã nhận). Vẫn là v2 (chỉ thêm trường, save cũ đọc được). Thưởng nhận một lần: ADR 0006.
 - Quay về code v0.1 vẫn chạy với v1 nhưng mất tiến độ kể từ lúc migrate.
 
 Save trên trình duyệt của máy này lúc kết thúc phiên: đã đưa về đúng giá trị v1 gốc (Luyện Khí 1, 0 linh thạch, 1 đan). Bản sao v1 gốc: `backups/browser_save_v1_2026-11-10.json` (không có trong git).
@@ -138,6 +139,7 @@ Save trên trình duyệt của máy này lúc kết thúc phiên: đã đưa v�
 - Bản mới, bằng phím thật: migrate save, đi, tọa thiền, đột phá, lôi kiếp, đánh quái, chết, mua/dùng đan, cài đặt, tải lại trang.
 - Bí cảnh, bằng phím thật: vào/hủy/vào lại, tự đánh, chọn thẻ (bấm đúp chỉ nhận 1), thế giới dừng khi chọn, tạm dừng, rời bí cảnh, chết trong bí cảnh, tải lại giữa bảng thẻ, Space tay, **cả 4 tiến hóa bằng chơi thật**: Lôi Đình Vạn Kiếm 2:56, Hỏa Long Quyển 2:14, Liệt Diễm Kiếm Trận 2:38, Lôi Cương Hộ Thể 4:30.
 - Bộ nhớ: sau mỗi lượt về động phủ, run=null, đạn/vùng/chiến ý/hiệu ứng về 0 (đếm đối tượng).
+- M2-03: 10 test thưởng; trình duyệt: tải lại giữa bảng kết quả và bấm nhận nhiều lần đều chỉ cộng 1 lần.
 - M2-02: 12 test boss; cảnh báo 5 chiêu đã xem trong trình duyệt. **Chưa chơi thật trọn run tới boss** (trình duyệt phiên 11/11 chỉ 2–5 khung/giây).
 - M2-01, chơi thật tới 3:07: đủ 4 kiểu quái, thông báo đợt, cảnh báo lao/bắn/đập, né được đòn đập tinh anh (TEST_REPORT §3c).
 - FPS: 60 (16,7 ms/khung) ở động phủ và đầu bí cảnh. Stress test 100 quái/200 đạn/300 hạt **chưa đo**.
@@ -148,7 +150,7 @@ Save trên trình duyệt của máy này lúc kết thúc phiên: đã đưa v�
 
 1. Trọng số `EVO_BASE_UPGRADE_MULT = 3` (thẻ nâng công pháp gốc khi đã có công pháp phụ) là [THỬ NGHIỆM]; xem lại ở M2-04. Khởi đầu Lôi Kích yếu ở Luyện Khí 1.
 2. Cân bằng chưa đều (bot, sau M2-01): Kiếm + Lôi thắng 3/4 lượt; 3 build còn lại 0/4, chết ở phút 3–6,5. Đuổi vây vẫn là nguồn sát thương chính. Chỉnh ở M2-04 (`DMG=1 node tools/sim.mjs` để xem nguồn). Chỉnh ở M2-04.
-3. Boss chưa được chơi thật trọn run (cần: thắng và thua boss bằng phím thật, thử giảm hiệu ứng). Chưa có phần thưởng run (M2-03).
+3. Boss chưa được chơi thật trọn run (cần: thắng và thua boss bằng phím thật, thử giảm hiệu ứng).
 4. Viên chiến ý nhỏ, khó thấy trên cỏ (bản pixelfx đã thử và bị loại; cần hướng khác).
 5. Không có điều khiển cảm ứng (M5-06).
 6. Chưa thử tay: xuất/nhập save và "Chơi lại" trong Cài đặt (có test logic), đổi tab thật khi đang run.
@@ -161,8 +163,7 @@ Save trên trình duyệt của máy này lúc kết thúc phiên: đã đưa v�
 ## 7. Bước tiếp theo (theo `TASKS_TU_TIEN_LO.md`)
 
 1. Đóng M2-02: chơi thật một run tới Yêu Vương (thắng + thua), bật giảm hiệu ứng xem cảnh báo.
-2. M2-03: phần thưởng run commit một lần.
-3. M2-04: cân bằng một run hoàn chỉnh.
+2. M2-04: cân bằng một run hoàn chỉnh (độ khó sau M2-01/02, kinh tế thưởng: thua 60–200💎, thắng ~450💎 so với đan 25💎).
 
 ---
 

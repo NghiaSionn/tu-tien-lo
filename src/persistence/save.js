@@ -6,7 +6,8 @@
 //   tutien_save_v2          bản hiện hành
 //   tutien_save_v2_bak      bản v2 tốt liền trước (xoay vòng mỗi lần lưu)
 //   tutien_save_v2_corrupt  bản v2 hỏng gần nhất, giữ lại để cứu dữ liệu
-import { REALM, ITEMS } from '../core/config.js';
+import { REALM, ITEMS, REWARD } from '../core/config.js';
+import { OUTCOMES, AMOUNT_KEYS } from '../progression/rewards.js';
 import { maxHp, need } from '../progression/realm.js';
 
 export const KEYS = {
@@ -19,6 +20,8 @@ const MAX_MONEY = 1e9, MAX_PILLS = 1e6;
 export function defaultMeta(hubSpawn) {
   return {
     realmLevel: 0, cultivationXp: 0, hp: maxHp(0), linhThach: 0, pills: ITEMS.START_PILLS,
+    lingQi: 0, craftMats: 0, coDuyenTicket: 0, firstClear: false,     // M2-03
+    pendingReward: null, rewardLog: [],                                 // phần thưởng run chờ nhận / id run đã nhận
     hubPos: { x: hubSpawn.x, y: hubSpawn.y },
     unlocks: { skills: [] },
     settings: { reduceEffects: false, screenShake: true },
@@ -45,6 +48,12 @@ export function sanitizeMeta(src, ctx, warnings = []) {
     linhThach: int(src.linhThach, 0, MAX_MONEY, 0),
     pills: int(src.pills, 0, MAX_PILLS, 0),
   };
+  out.lingQi = int(src.lingQi, 0, MAX_MONEY, 0);
+  out.craftMats = int(src.craftMats, 0, MAX_MONEY, 0);
+  out.coDuyenTicket = int(src.coDuyenTicket, 0, MAX_PILLS, 0);
+  out.firstClear = src.firstClear === true;
+  if (Array.isArray(src.rewardLog)) out.rewardLog = src.rewardLog.filter(s => typeof s === 'string' && s.length <= 64).slice(-REWARD.LOG_KEEP);
+  out.pendingReward = sanitizeReward(src.pendingReward, warnings);
   const pos = src.hubPos;
   if (pos && ctx.canStand(num(pos.x), num(pos.y))) out.hubPos = { x: pos.x, y: pos.y };
   else if (pos) warnings.push('vị trí không hợp lệ, đưa về tụ linh trận');
@@ -58,6 +67,17 @@ export function sanitizeMeta(src, ctx, warnings = []) {
       bestTime: Math.max(0, num(src.stats.bestTime) || 0), bestLevel: int(src.stats.bestLevel, 0, 1e6, 0),
     };
   }
+  return out;
+}
+
+function sanitizeReward(r, warnings) {
+  if (r == null) return null;
+  if (typeof r !== 'object' || typeof r.id !== 'string' || !r.id || r.id.length > 64 || !OUTCOMES.includes(r.outcome)) {
+    warnings.push('phần thưởng chờ nhận không hợp lệ, bỏ qua'); return null;
+  }
+  const out = { id: r.id, outcome: r.outcome, firstClear: r.firstClear === true,
+    bosses: Array.isArray(r.bosses) ? r.bosses.filter(b => b === 'MINI' || b === 'FINAL').slice(0, 4) : [] };
+  for (const k of AMOUNT_KEYS) out[k] = int(r[k], 0, 1e6, 0);
   return out;
 }
 

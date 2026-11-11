@@ -14,6 +14,7 @@ import { loadPixelfx } from './render/pixelfx.js';
 import { makeVis, consumeEvents, updateVis, clearVis, render, spawnFx, burst, floatText, addShake, addFlash, part } from './render/render.js';
 import * as UI from './ui/ui.js';
 import { EVOLUTIONS } from './data/skills.js';
+import { computeRunReward, stageReward, claimReward, rewardText } from './progression/rewards.js';
 
 const { W, H } = VIEW;
 const $ = id => document.getElementById(id);
@@ -68,6 +69,12 @@ if (loaded.source === 'v1') {
   startNotes.push(ok ? ['Đã chuyển save cũ sang định dạng mới (bản cũ vẫn được giữ).', 'good'] : ['Không xác minh được save mới; bản cũ vẫn giữ nguyên.', 'bad']);
 }
 if (loaded.recovered) startNotes.push(['Save hiện tại bị hỏng, đã khôi phục bản trước đó.', 'bad']);
+// M2-03: phần thưởng run còn treo (đóng/tải lại trang lúc đang ở bảng kết quả) -> nhận ngay, đúng một lần
+if (meta.pendingReward) {
+  const got = claimReward(meta);
+  writeSave(storage, meta);
+  if (got) startNotes.push([`Đã nhận phần thưởng bí cảnh còn treo: ${rewardText(got)}.`, 'good']);
+}
 function save() {
   if (view !== 'HUB' && run) meta.hubPos = { ...hubPosBeforeRun };
   else meta.hubPos = { x: p.x, y: p.y };
@@ -284,8 +291,19 @@ function finishRun() {
   if (r.outcome === 'WIN') meta.stats.wins++;
   meta.stats.bestTime = Math.max(meta.stats.bestTime, Math.floor(r.time));
   meta.stats.bestLevel = Math.max(meta.stats.bestLevel, r.level);
+  // REWARD_PENDING: ghi phần thưởng chờ nhận vào save trước khi hiện bảng
+  const reward = computeRunReward(r, meta);
+  if (meta.pendingReward && meta.pendingReward.id !== reward.id) claimReward(meta);   // phòng hờ: không để mất phần cũ
+  stageReward(meta, reward);
   save();
-  UI.showResults(r, returnToHub);
+  UI.showResults(r, reward, claimAndReturn);
+}
+// REWARDED -> HUB: cộng tài nguyên + xóa pending trong cùng một lần lưu; gọi lại lần nữa không cộng thêm
+function claimAndReturn() {
+  if (view !== 'RESULTS') return;
+  const got = claimReward(meta);
+  if (got) UI.log(`Mang về: ${rewardText(got)}.`, 'good');
+  returnToHub();
 }
 function returnToHub() {
   if (view !== 'RESULTS') return;

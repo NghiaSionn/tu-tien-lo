@@ -8,6 +8,7 @@ import { drawCards, applyCard } from '../src/progression/draft.js';
 import { runStats } from '../src/systems/combat.js';
 import { moveEntity } from '../src/entities/monsters.js';
 import { PLAYER, RUN } from '../src/core/config.js';
+import { computeRunReward } from '../src/progression/rewards.js';
 
 const BUILDS = {
   kiem_loi: { start: 'sword_qi', want: ['evo:loi_dinh_van_kiem', 'up:sword_qi', 'new:thunder_strike', 'new:sword_qi', 'up:thunder_strike', 'pas:linh_luc', 'pas:ngung_than', 'new:body_aura'] },
@@ -15,6 +16,8 @@ const BUILDS = {
   hoa_phong: { start: 'fire_orb', want: ['evo:hoa_long_quyen', 'new:fire_ring', 'up:fire_ring', 'new:wind_blade', 'up:fire_orb', 'pas:tu_khi', 'pas:linh_luc'] },
   loi_the: { start: 'thunder_strike', want: ['evo:loi_cuong_ho_the', 'new:body_aura', 'up:body_aura', 'new:thunder_field', 'up:thunder_strike', 'up:thunder_field', 'pas:ho_mach'] },
 };
+
+const endRunForReward = run => { run.outcome = 'TIMEOUT'; };
 
 export function simulate(buildName, L, seed, maxTime = 720) {
   const b = BUILDS[buildName];
@@ -51,7 +54,8 @@ export function simulate(buildName, L, seed, maxTime = 720) {
       run.pendingDrafts--;
     }
   }
-  return { build: buildName, L, seed, outcome: run.outcome || 'TIMEOUT', time: Math.round(run.time), level: run.level, kills: run.kills, evo: evoAt, skills: run.skills.map(s => (s.evolved || s.id) + ':' + s.level).join(' '), dmgBy: run.dmgBy, bosses: run.rewards.map(x => x.kind + '@' + x.t).join(' ') };
+  return { build: buildName, L, seed, outcome: run.outcome || 'TIMEOUT', time: Math.round(run.time), level: run.level, kills: run.kills, evo: evoAt, skills: run.skills.map(s => (s.evolved || s.id) + ':' + s.level).join(' '), dmgBy: run.dmgBy, bosses: run.rewards.map(x => x.kind + '@' + x.t).join(' '),
+    reward: (run.outcome || endRunForReward(run), computeRunReward(run, { realmLevel: L, firstClear: false })) };
 }
 
 if (import.meta.url === `file://${process.argv[1].replace(/\\/g, '/')}` || process.argv[1].endsWith('sim.mjs')) {
@@ -61,6 +65,6 @@ if (import.meta.url === `file://${process.argv[1].replace(/\\/g, '/')}` || proce
   const n = +(nArg || 3);
   for (const bn of builds) for (const L of Ls) for (let s = 1; s <= n; s++) {
     const r = simulate(bn, L, 1000 + s);
-    console.log(`${bn.padEnd(13)} L${String(L).padEnd(2)} seed${s} ${r.outcome.padEnd(7)} ${String(r.time).padStart(3)}s  cấp ${String(r.level).padStart(2)}  giết ${String(r.kills).padStart(4)}  boss ${r.bosses || '-'}  tiến hóa ${JSON.stringify(r.evo)}  | ${r.skills}` + (process.env.DMG ? '\n    dmg ' + JSON.stringify(Object.fromEntries(Object.entries(r.dmgBy).map(([k, v]) => [k, Math.round(v)]))) : ''));
+    console.log(`${bn.padEnd(13)} L${String(L).padEnd(2)} seed${s} ${r.outcome.padEnd(7)} ${String(r.time).padStart(3)}s  cấp ${String(r.level).padStart(2)}  giết ${String(r.kills).padStart(4)}  boss ${r.bosses || '-'}  thưởng ${r.reward.linhThach}💎 ${r.reward.lingQi}✨ ${r.reward.craftMats}🔩 ${r.reward.tickets}🎫  tiến hóa ${JSON.stringify(r.evo)}  | ${r.skills}` + (process.env.DMG ? '\n    dmg ' + JSON.stringify(Object.fromEntries(Object.entries(r.dmgBy).map(([k, v]) => [k, Math.round(v)]))) : ''));
   }
 }

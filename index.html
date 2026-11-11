@@ -23,7 +23,8 @@
   #tvFill { background: linear-gradient(#7fe3ff, #3b86d6); }
   #tvFill.full { background: linear-gradient(#fff0a0, #e0a020); }
   #rXpFill { background: linear-gradient(#9cf2a0, #3fa060); }
-  #stats { display: flex; gap: 1em; font-size: .85em; margin-top: .55em; }
+  #stats, #stats2 { display: flex; gap: 1em; font-size: .85em; margin-top: .55em; }
+  #stats2 { margin-top: .3em; opacity: .85; }
 
   #log { position: absolute; left: .7em; bottom: 4.6em; width: 24em; font-size: .88em;
          text-shadow: 0 1px 2px #000, 0 0 3px #000; line-height: 1.45; }
@@ -98,6 +99,7 @@
       <div class="row"><span>Tu vi</span><span id="tvTxt"></span></div>
       <div class="bar"><i id="tvFill"></i></div>
       <div id="stats"><span>⚔ <b id="atkTxt"></b></span><span>💎 <b id="stoneTxt"></b></span><span>🧪 <b id="pillTxt"></b></span></div>
+      <div id="stats2"><span title="Linh khí">✨ <b id="lqTxt"></b></span><span title="Luyện liệu">🔩 <b id="matTxt"></b></span><span title="Vé Cơ Duyên">🎫 <b id="ticketTxt"></b></span></div>
     </div>
     <button id="btnSettings" class="corner">Cài đặt</button>
 

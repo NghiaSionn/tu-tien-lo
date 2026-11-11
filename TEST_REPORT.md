@@ -152,6 +152,21 @@ Ghi chú: thanh máu boss nằm sát dòng hướng dẫn phím ở cạnh dư�
 
 ---
 
+## 3e. M2-03 — Phần thưởng run (2026-11-11)
+
+Test tự động mới: `tests/rewards.test.js` (10 test): thua có thưởng theo tiến độ; thắng > thua, boss cộng thêm, vé lần đầu chỉ 1 lần; cảnh giới cao nhiều hơn; nhận nhiều lần chỉ cộng 1 lần, stage lại run đã nhận bị từ chối; không đụng cảnh giới/tu vi/đan/công pháp; tải lại giữa trao thưởng không nhân đôi; bản dự phòng cũ không nhận lại; save sửa bậy bị kẹp; save cũ đọc được; run thứ hai sạch nhưng meta giữ thưởng.
+
+| # | Hạng mục | Cách test | Kết quả |
+|---|---|---|---|
+| R1 | Pending được lưu trước khi hiện bảng | 127.0.0.1, vào run, rời bằng nút | PASS — `tutien_save_v2.meta.pendingReward` có id run, +3 linh thạch; bảng hiện "Mang về động phủ" |
+| R2 | Tải lại giữa bảng kết quả | điều hướng lại trang khi đang ở bảng | PASS — mở lại ở động phủ, log "Đã nhận phần thưởng bí cảnh còn treo: 💎 3 linh thạch", 0 → 3; tải lại lần 2: vẫn 3, không còn pending |
+| R3 | Bấm nhận nhiều lần | bấm đúp nút "Nhận thưởng" + Enter ×2 | PASS — 3 → 6 (đúng +3 một lần), save khớp, `rewardLog` 2 id, console sạch |
+| R4 | HUD tài nguyên mới | nhìn HUD động phủ | PASS — ✨ 🔩 🎫 hiện số. (HUD cập nhật chậm vài giây vì trình duyệt phiên này chỉ 2–5 khung/giây) |
+
+Chưa test bằng tay: thắng run thật để thấy vé Cơ Duyên (chưa chơi tới boss, xem §3d B3).
+
+---
+
 ## 4. Bot mô phỏng (`node tools/sim.mjs`) — không phải người chơi thật
 
 Bot né quái, nhặt chiến ý và chọn thẻ theo danh sách ưu tiên của từng build. Dùng để xem xu hướng cân bằng và xác minh tiến hóa đến được bằng bốc thẻ bình thường. Lần chạy cuối (2026-11-11, sau khi thêm `EVO_BASE_UPGRADE_MULT = 3`), cảnh giới 0, 4 seed mỗi build:
