@@ -1,5 +1,5 @@
 // Yêu thú: sinh, AI đuổi/lang thang, trạng thái thiêu đốt/làm chậm. Dùng chung cho động phủ và bí cảnh.
-import { TILE as T, HUB, HUB_MONSTER as HM, RUN } from '../core/config.js';
+import { TILE as T, HUB, HUB_MONSTER as HM, RUN, BOSS } from '../core/config.js';
 
 export const TIER_NAMES = ['Dã Lang', 'Hỏa Hồ', 'Huyền Băng Thú', 'Ma Ảnh'];
 export const tierOfLvl = lvl => lvl <= 3 ? 0 : lvl <= 6 ? 1 : lvl <= 10 ? 2 : 3;
@@ -46,7 +46,7 @@ export function applyBurn(m, dps, time) {
 
 export function applySlow(m, f, time) {
   if (!(f > 0) || !(time > 0)) return;
-  const v = Math.min(RUN.SLOW_MAX, f);
+  const v = Math.min(RUN.SLOW_MAX, m.boss ? f * 0.5 : f);   // boss chỉ chịu nửa hiệu lực làm chậm
   if (m.slow && m.slow.t > 0) { m.slow.f = Math.max(m.slow.f, v); m.slow.t = Math.max(m.slow.t, time); }
   else m.slow = { f: v, t: time };
 }
@@ -54,7 +54,8 @@ export function applySlow(m, f, time) {
 // Gây sát thương; đánh dấu chết (dọn ở cuối khung để không xóa mảng khi đang duyệt)
 export function damageMonster(m, dmg, ev, color = '#fff') {
   if (m.dead || !(dmg > 0) || !Number.isFinite(dmg)) return false;
-  const d = Math.max(1, Math.round(dmg));
+  let d = Math.max(1, Math.round(dmg * (m.vuln > 0 ? BOSS.VULN_MULT : 1)));
+  if (m.hitCap) d = Math.min(d, m.hitCap);           // boss: một đòn không quá HIT_CAP máu tối đa
   m.hp -= d; m.hit = 0.12; m.aggro = true;
   if (ev) ev.push({ type: 'text', x: m.x, y: m.y - 12, text: '-' + d, color });
   if (m.hp <= 0) { m.dead = true; return true; }
@@ -85,6 +86,7 @@ export function updateMonsters(scene, player, dt, ev, opts) {
       m.think = 1 + Math.random() * 2;
       if (Math.random() < 0.5) m.vx = m.vy = 0; else { const a = Math.random() * 6.283; m.vx = Math.cos(a) * HM.WANDER; m.vy = Math.sin(a) * HM.WANDER; }
     }
+    if (m.boss) m.kx = m.ky = 0;                       // boss không bị đẩy lùi
     moveEntity(map, m, (m.vx * slowF + m.kx) * dt, (m.vy * slowF + m.ky) * dt, safe);
     m.kx *= 0.85; m.ky *= 0.85;
   }

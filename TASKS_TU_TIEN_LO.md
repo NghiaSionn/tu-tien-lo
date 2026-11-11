@@ -154,7 +154,7 @@
 
 > **Kết quả 11/11/2026: XONG.** `src/systems/director.js` (giai đoạn + đợt + tinh anh + ngân sách cost) và `src/entities/archetypes.js` (lao/bắn xa/tinh anh có pha gồng + cảnh báo). Thông số ở `DIRECTOR`/`ARCH` trong config. 4 loài cũ giữ lại, mỗi loài một kiểu: Dã Lang đuổi, Hỏa Hồ lao, Huyền Băng Thú bắn, Ma Ảnh tinh anh (sprite x2). 13 test mới (tái hiện theo seed, chỗ sinh, ngân sách, né được từng đòn). Chơi thật tới 3:07: thấy đủ 4 kiểu, thông báo đợt, cảnh báo lao/bắn/đập; né được đòn đập tinh anh. Cân bằng: run khó hơn với build yếu -> M2-04.
 
-### M2-02 [ ] Mini-boss, boss cuối, telegraph (L)
+### M2-02 [~] Mini-boss, boss cuối, telegraph (L)
 **Phụ thuộc:** M2-01.  
 **Làm:** mini-boss giữa run, boss cuối 2–3 mẫu đòn, HP bar, vùng cảnh báo rõ, reward hook.
 
@@ -162,6 +162,9 @@
 - Có thể thắng **bằng thao tác thật** và có thể thua; không cần debug cheat.
 - Cảnh báo xuất hiện trước hit đủ lâu, giữ rõ khi bật nhiều VFX; thử giảm hiệu ứng.
 - Boss không kẹt map, không tung chiêu ngoài state và không spam spawn sau chết.
+
+> **Kết quả 11/11/2026: XONG CODE, CHƯA ĐỦ NGHIỆM THU.** `src/entities/bosses.js`, thông số `BOSS` trong config. Lang Vương (4:00): lao 3 lần có cảnh báo + tru gọi bầy. Ma Ảnh Yêu Vương (7:00): đạn tỏa tròn (tia báo hướng), vùng hắc diễm quanh người chơi, đập đất khi áp sát; pha 2 dưới 50% máu, cuồng nộ sau 2:30. Thanh máu boss ở cạnh dưới màn, sơ hở sau mỗi chiêu (+50% sát thương), chặn one-shot (1 đòn ≤ 3% máu), chống kẹt (dịch chuyển), boss chết dọn vùng/đạn, mỗi boss sinh 1 lần. Thắng = hạ boss cuối; quá 15 phút = TIMEOUT. Reward hook: `run.rewards`. 12 test mới. Cảnh báo cả 5 chiêu đã xem trong trình duyệt (`docs/m2_02_*.png`, boss sinh bằng console để chụp). Bot hạ được cả 2 boss (Kiếm+Lôi, 8:32).
+> **Chưa:** thắng/thua boss bằng **chơi thật trọn một run** — trình duyệt trong phiên này chỉ chạy 2–5 khung/giây (luồng chính rảnh, không có long task; do môi trường), không chơi được 7+ phút. Giảm hiệu ứng: chỉ kiểm bằng đọc code (cảnh báo không phụ thuộc `vis.reduce`), chưa bật thử trong trình duyệt.
 
 ### M2-03 [ ] Kết quả run + phần thưởng commit một lần (L)
 **Phụ thuộc:** M2-02, M0-04.  
@@ -391,6 +394,7 @@ Tạo thư mục `docs/adr/` hoặc phần ghi chú khi có quyết định ản
 | 2026-11-11 | M1-06 / Gate M1 | PARTIAL | Lôi Cương Hộ Thể, lượt chơi thật thứ 2 (khởi đầu Kiếm Khí): thua ở 4:22, cấp 18, **Hộ Thể dừng ở cấp 4/5**. Đủ 4 ô công pháp thì thẻ nâng Hộ Thể phải tranh với 3 công pháp khác và bị động, nên ra rất thưa (4 lần trong 17 lần lên cấp). Liệt Diễm Kiếm Trận vẫn chưa chơi tay | Đề xuất: tăng trọng số thẻ nâng cấp cho công pháp gốc khi đã có công pháp phụ của một công thức tiến hóa (cân bằng M2-04) |
 | 2026-11-11 | M1-06 / Gate M1 | DONE | Thêm `EVO_BASE_UPGRADE_MULT = 3` (draft.js, [THỬ NGHIỆM]): thẻ nâng công pháp gốc nặng ×3 khi đã có công pháp phụ của công thức; test mới, 45/45 PASS. Chơi thật lại: **Liệt Diễm Kiếm Trận tiến hóa ở 2:38, cấp 9**; **Lôi Cương Hộ Thể tiến hóa ở 4:30, cấp 16** (khởi đầu Kiếm Khí, đã có Lôi Đình Vạn Kiếm; khiên 45/45 hoạt động), rời bí cảnh ở 4:54 bình thường. Bot sau chỉnh: Lôi Cương 2/4 (Kiếm+Lôi) và 3/4 (Lôi+Thể, trước 1/4 và 2/4); Liệt Diễm 4/4 ở 145–160 s | Gate M1 ĐẠT. Còn: cân bằng (M2-04) |
 | 2026-11-11 | M2-01 | DONE | Director thời gian: 5 giai đoạn (nhịp sinh 1,3 → 0,32 s/con, tỉ lệ kiểu quái đổi dần), 7 đợt đội hình (vây tròn / bầy lao / hàng cung bắn xa) có thông báo trên màn và log, tinh anh từ 3:00 rồi mỗi 90 s (tối đa 2), ngân sách cost 18 + 0,3/s (trần 150) + trần cứng 90 con. Kiểu quái: Hỏa Hồ gồng 0,75 s (đường đỏ tới điểm cuối) rồi lao; Huyền Băng Thú giữ khoảng cách, gồng 0,6 s (đường ngắm) rồi bắn băng tiễn — chỉ bắn khi đang trong màn, cây/đá chặn; Ma Ảnh tinh anh x10 máu, gồng 1 s (vòng đỏ + lấp tím đúng bán kính trúng) rồi đập. Hướng/vùng đòn khóa khi bắt đầu gồng. Thêm thống kê `run.dmgBy` theo nguồn sát thương (`DMG=1 node tools/sim.mjs`). Bot tìm ra lỗi: băng tiễn hạ gục người chơi làm mảng đạn bị dọn giữa vòng lặp → đã sửa + test. Chơi thật (127.0.0.1, phím thật) tới 3:07, cấp 15, Lôi Đình Vạn Kiếm 2:16; console sạch. 58/58 test PASS | Bot sau M2-01: Kiếm+Lôi 3/4 thắng; 3 build còn lại 0/4, chết 188–394 s (trước 156–480 s). Bot không biết né cảnh báo nên đánh giá thấp người chơi; cân bằng ở M2-04 |
+| 2026-11-11 | M2-02 | PARTIAL | Boss: Lang Vương 4:00 (lao ×3 có đường cảnh báo, nhắm lại mỗi lần; tru gọi 4 Dã Lang) và Ma Ảnh Yêu Vương 7:00 (đạn tỏa 12/16 tia có tia báo hướng; 3/5 vùng hắc diễm R30 quanh người chơi; đập đất R64 khi áp sát). Sơ hở 1,3–1,4 s sau mỗi chiêu (+50% sát thương, sao vàng + chữ "sơ hở"), 1 đòn ≤ 3% máu, boss không bị đẩy lùi, chỉ chịu nửa làm chậm, kẹt 2 s thì dịch chuyển. Khi boss sống: quái thường sinh thưa ×2, không có tinh anh. Thắng = hạ boss cuối (không còn thắng theo đồng hồ); trần 15 phút → TIMEOUT. Thanh máu boss + vạch pha 2. Reward hook `run.rewards` cho M2-03; bảng kết quả ghi "Đã hạ: …". 70/70 test PASS. Bot: Lang Vương bị hạ sau 35–118 s; Kiếm+Lôi hạ Yêu Vương 1/4 lượt (8:32) | Chưa chơi thật trọn run tới boss (trình duyệt phiên này 2–5 khung/giây); chưa bật thử giảm hiệu ứng; cân bằng (bot chết nhiều vì băng tiễn) → M2-04 |
 
 ---
 

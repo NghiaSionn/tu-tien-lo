@@ -137,6 +137,21 @@ Chưa test: sống qua các đợt sau 3:07 (yêu triều 6:50), 2 tinh anh cùn
 
 ---
 
+## 3d. M2-02 — Boss (2026-11-11)
+
+Test tự động mới: `tests/boss.test.js` (12 test): mini-boss ra đúng giờ, một lần, hạ rồi không sinh lại, reward hook ghi 1 lần; hạ boss cuối → WIN một lần, dọn vùng/đạn, vùng đang gồng không nổ sau khi boss chết; TIMEOUT không phải WIN; chặn one-shot + sơ hở; Lang Vương lao 3 lần, không đánh lúc cảnh báo; tru gọi bầy; đạn tỏa chỉ bắn sau gồng, đúng số tia, pha 2 nhiều hơn; vùng hắc diễm: đứng yên trúng, rời vùng không trúng; đập đất khi áp sát; không ra chiêu khi đang sơ hở; bị cây vây kín thì dịch chuyển; không bị đẩy lùi, nửa làm chậm.
+
+| # | Hạng mục | Cách test | Kết quả |
+|---|---|---|---|
+| B1 | Màn chuẩn bị, đồng hồ | trình duyệt 127.0.0.1 | PASS — mô tả "Lang Vương chặn đường lúc 4:00; Ma Ảnh Yêu Vương xuất hiện lúc 7:00 — hạ nó để vượt bí cảnh"; đồng hồ đếm tới 7:00 |
+| B2 | Cảnh báo 5 chiêu + thanh máu | boss sinh bằng console (chỉ để chụp), tạm dừng đúng lúc gồng | PASS — lao (`docs/m2_02_lang_vuong_lao.png`), tru (`…_tru.png`), đạn tỏa (`docs/m2_02_yeu_vuong_dan_toa.png`), hắc diễm (`…_hac_diem.png`), sơ hở (`…_so_ho.png`); thanh máu dưới màn có tên + vạch 50% |
+| B3 | Thắng/thua boss bằng chơi thật trọn run | — | **NOT VERIFIED** — trình duyệt trong phiên chỉ chạy 2–5 khung/giây (đo bằng requestAnimationFrame, cả ở động phủ; không có long task), nên không chơi được 7+ phút. Đã xác minh bằng test + bot (bot Kiếm+Lôi hạ Yêu Vương lúc 8:32; các bot khác chết → thua được) |
+| B4 | Giảm hiệu ứng | đọc code | Cảnh báo không phụ thuộc `vis.reduce` (chỉ giảm hạt và chớp sáng). **Chưa bật thử trong trình duyệt** |
+
+Ghi chú: thanh máu boss nằm sát dòng hướng dẫn phím ở cạnh dưới; đọc được nhưng nên xem lại khi làm UI (M5).
+
+---
+
 ## 4. Bot mô phỏng (`node tools/sim.mjs`) — không phải người chơi thật
 
 Bot né quái, nhặt chiến ý và chọn thẻ theo danh sách ưu tiên của từng build. Dùng để xem xu hướng cân bằng và xác minh tiến hóa đến được bằng bốc thẻ bình thường. Lần chạy cuối (2026-11-11, sau khi thêm `EVO_BASE_UPGRADE_MULT = 3`), cảnh giới 0, 4 seed mỗi build:
@@ -166,7 +181,7 @@ Bot không đọc cảnh báo (chỉ né theo khoảng cách) nên chết sớm 
 ## 5. Lỗi và giới hạn còn lại
 
 1. Cân bằng: Kiếm + Lôi vượt trội; Lôi + Thể yếu (số liệu bot). Chưa có playtest người thật.
-2. Chưa có boss, phần thưởng run (M2). "Thắng" hiện chỉ là sống đủ 8 phút.
+2. Có boss (M2-02) nhưng chưa chơi thật trọn run tới boss; chưa có phần thưởng run (M2-03).
 3. Chiến ý (viên EXP) nhỏ và khó thấy trên nền cỏ. Bản pixelfx (§3b) đã bị loại, trả về hình cũ.
 4. Chưa test bằng tay 3 tiến hóa còn lại, đổi tab thật, xuất/nhập/chơi lại từ giao diện.
 5. Không có điều khiển cảm ứng.

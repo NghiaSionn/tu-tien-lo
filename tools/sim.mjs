@@ -16,7 +16,7 @@ const BUILDS = {
   loi_the: { start: 'thunder_strike', want: ['evo:loi_cuong_ho_the', 'new:body_aura', 'up:body_aura', 'new:thunder_field', 'up:thunder_strike', 'up:thunder_field', 'pas:ho_mach'] },
 };
 
-export function simulate(buildName, L, seed, maxTime = RUN.DURATION) {
+export function simulate(buildName, L, seed, maxTime = 720) {
   const b = BUILDS[buildName];
   const run = createRun({ seed, startSkill: b.start, realmLevel: L });
   const p = { x: run.scene.map.cx, y: run.scene.map.cy, fx: 1, fy: 0, inv: 0, dead: false };
@@ -51,7 +51,7 @@ export function simulate(buildName, L, seed, maxTime = RUN.DURATION) {
       run.pendingDrafts--;
     }
   }
-  return { build: buildName, L, seed, outcome: run.outcome || 'TIMEOUT', time: Math.round(run.time), level: run.level, kills: run.kills, evo: evoAt, skills: run.skills.map(s => (s.evolved || s.id) + ':' + s.level).join(' '), dmgBy: run.dmgBy };
+  return { build: buildName, L, seed, outcome: run.outcome || 'TIMEOUT', time: Math.round(run.time), level: run.level, kills: run.kills, evo: evoAt, skills: run.skills.map(s => (s.evolved || s.id) + ':' + s.level).join(' '), dmgBy: run.dmgBy, bosses: run.rewards.map(x => x.kind + '@' + x.t).join(' ') };
 }
 
 if (import.meta.url === `file://${process.argv[1].replace(/\\/g, '/')}` || process.argv[1].endsWith('sim.mjs')) {
@@ -61,6 +61,6 @@ if (import.meta.url === `file://${process.argv[1].replace(/\\/g, '/')}` || proce
   const n = +(nArg || 3);
   for (const bn of builds) for (const L of Ls) for (let s = 1; s <= n; s++) {
     const r = simulate(bn, L, 1000 + s);
-    console.log(`${bn.padEnd(13)} L${String(L).padEnd(2)} seed${s} ${r.outcome.padEnd(7)} ${String(r.time).padStart(3)}s  cấp ${String(r.level).padStart(2)}  giết ${String(r.kills).padStart(4)}  tiến hóa ${JSON.stringify(r.evo)}  | ${r.skills}` + (process.env.DMG ? '\n    dmg ' + JSON.stringify(Object.fromEntries(Object.entries(r.dmgBy).map(([k, v]) => [k, Math.round(v)]))) : ''));
+    console.log(`${bn.padEnd(13)} L${String(L).padEnd(2)} seed${s} ${r.outcome.padEnd(7)} ${String(r.time).padStart(3)}s  cấp ${String(r.level).padStart(2)}  giết ${String(r.kills).padStart(4)}  boss ${r.bosses || '-'}  tiến hóa ${JSON.stringify(r.evo)}  | ${r.skills}` + (process.env.DMG ? '\n    dmg ' + JSON.stringify(Object.fromEntries(Object.entries(r.dmgBy).map(([k, v]) => [k, Math.round(v)]))) : ''));
   }
 }

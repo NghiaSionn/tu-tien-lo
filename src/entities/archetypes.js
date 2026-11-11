@@ -2,10 +2,12 @@
 // trước khi đánh; hướng/vùng đòn khóa lúc bắt đầu gồng nên người chơi né được bằng cách rời khỏi đường/vùng đó.
 // Không dùng Math.random: chạy lại cùng seed cho cùng kết quả.
 import { RUN, ARCH, HUB_MONSTER as HM } from '../core/config.js';
+import { bossAI } from './bosses.js';
 
 // Trả về true nếu đã tự xử lý vận tốc/tấn công (updateMonsters bỏ qua AI đuổi mặc định).
 // io: { map, onAttack(m, dmg), shots }
 export function archetypeAI(m, player, dx, dy, d, dt, io) {
+  if (m.boss) return bossAI(m, player, dx, dy, d, dt, io);
   const A = ARCH[m.arch];
   if (!A || m.arch === 'chaser') return false;
   m.skCd -= dt;

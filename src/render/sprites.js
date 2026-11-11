@@ -53,6 +53,12 @@ export const TIERS = [
 ];
 TIERS.forEach(t => { t.spr = makeSprite(BEAST, { k: '#1a1423', c: t.c, d: t.d, w: '#ffffff' }); });
 export const BEAST_WHITE = makeSprite(BEAST, { k: '#fff', c: '#fff', d: '#fff', w: '#fff' });
+// Boss (M2-02): cùng dáng yêu thú, vẽ phóng ×3; Lang Vương bạc có vương miện vàng, Ma Ảnh Yêu Vương đen tím mắt đỏ
+const CROWN = ['..y.y.y.y...', '..yyyyyyy...'];
+export const BOSS_SPR = {
+  MINI: makeSprite([...CROWN, ...BEAST].map(r => r.padEnd(12, '.')), { k: '#1a1423', c: '#d6d9e6', d: '#7a7f96', w: '#ffe066', y: '#ffd040' }),
+  FINAL: makeSprite(['............', '............', ...BEAST], { k: '#0c0614', c: '#4a2a6a', d: '#22103a', w: '#ff4040' }),
+};
 
 // Ô nền
 export const grassTiles = [0, 1, 2, 3].map(v => makeCanvas(T, T, px => {

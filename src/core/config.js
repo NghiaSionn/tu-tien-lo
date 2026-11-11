@@ -49,7 +49,7 @@ export const HUB_MONSTER = {
 // ---------- Run (bí cảnh) [THỬ NGHIỆM] ----------
 export const RUN = {
   ARENA_W: 44, ARENA_H: 44,
-  DURATION: 480,                // 8 phút sống sót = thắng (placeholder tới khi M2 có boss)
+  TIME_LIMIT: 900,              // trần an toàn: chưa hạ boss cuối sau 15 phút -> kết thúc 'TIMEOUT' (thắng = hạ boss, BOSS.FINAL)
   START_SKILLS: ['sword_qi', 'fire_orb', 'thunder_strike'],
   MAX_ACTIVE: 4, MAX_PASSIVE: 4,
   XP_BASE: 4, XP_GROWTH: 1.13, XP_LINEAR: 1,
@@ -107,4 +107,27 @@ export const ARCH = {
   // tinh anh: trâu, đập đất vùng tròn sau khi gồng (vòng cảnh báo lớn dần)
   elite:   { tier: 3, cost: 8, hp: 10,  dmg: 1.5, speed: 0.9,  xp: 12,
     TRIGGER: 50, WINDUP: 1.0, SLAM_R: 46, SLAM_DMG: 2.2, RECOVER: 0.5, CD: 4.5 },
+};
+
+// ---------- Boss (M2-02) [THỬ NGHIỆM] ----------
+// hp/dmg/speed nhân trên công thức quái thường tại thời điểm xuất hiện (RUN.ENEMY, grade 2). Mọi chiêu có pha gồng + cảnh báo;
+// sau mỗi chiêu boss "sơ hở" RECOVER giây, nhận thêm sát thương VULN_MULT. Một đòn không quá HIT_CAP máu tối đa.
+export const BOSS = {
+  HIT_CAP: 0.03, VULN_MULT: 1.5, STUCK_TIME: 2, TELEPORT_R: 110,
+  TRICKLE_MULT: 2,              // khi boss còn sống, quái thường sinh thưa hơn bấy nhiêu lần; không có tinh anh
+  MINI: {
+    AT: 240, name: 'Lang Vương', tier: 0, hp: 40, dmg: 1.4, speed: 0.95, xp: 40, size: 3,
+    GAP: 1.6, RECOVER: 1.4, ORDER: ['dash', 'dash', 'howl'],
+    DASH: { WINDUP: 0.65, SPEED: 260, TIME: 0.42, REST: 0.3, COUNT: 3, DMG: 1.6, HIT_R: 16 },
+    HOWL: { WINDUP: 0.9, N: 4, R: 40 },
+  },
+  FINAL: {
+    AT: 420, name: 'Ma Ảnh Yêu Vương', tier: 3, hp: 110, dmg: 1.6, speed: 0.8, xp: 0, size: 3,
+    GAP: 1.3, RECOVER: 1.3, ORDER: ['burst', 'zones'],
+    SLAM: { WINDUP: 1.1, R: 64, DMG: 2.4, TRIGGER: 70 },
+    BURST: { WINDUP: 0.85, N: 12, N2: 16, SPEED: 80, LIFE: 3, DMG: 1.2 },
+    ZONES: { WINDUP: 1.2, N: 3, N2: 5, R: 30, SPREAD: 55, DMG: 2.0 },
+    PHASE2: 0.5, PHASE2_GAP: 0.7,            // dưới 50% máu: nghỉ ngắn hơn, nhiều đạn/vùng hơn
+    ENRAGE_AFTER: 150, ENRAGE_GAP: 0.5, ENRAGE_DMG: 1.5, MAX_HAZARDS: 12,
+  },
 };

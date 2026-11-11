@@ -54,6 +54,7 @@ test('quái mới sinh: đứng được, không sát người chơi, không vư
       for (let i = Math.max(0, before - 0); i < ms.length; i++) {
         const m = ms[i];
         if (m._seen) continue; m._seen = true; checked++;
+        if (m.summoned) { assert.ok(Math.hypot(m.x - p.x, m.y - p.y) >= 40 - 1, 'quái được gọi không sát người chơi'); continue; }
         assert.ok(r.scene.map.canStand(m.x, m.y), 'đứng được');
         assert.ok(Math.hypot(m.x - p.x, m.y - p.y) >= DIRECTOR.SAFE_R - 1, 'không sát người chơi');
       }
@@ -71,7 +72,7 @@ test('cả 4 kiểu quái xuất hiện theo thời gian; tinh anh có giới h�
   const r = newRun(9), p = player(r);
   const seen = {}, firstAt = {};
   script(r, p, 330, r => {
-    for (const m of r.scene.monsters) { seen[m.arch] = 1; firstAt[m.arch] ??= r.time; }
+    for (const m of r.scene.monsters) { if (m.boss) continue; seen[m.arch] = 1; firstAt[m.arch] ??= r.time; }
     assert.ok(r.scene.monsters.filter(m => m.elite).length <= DIRECTOR.ELITE.MAX_ALIVE);
   });
   assert.deepEqual(Object.keys(seen).sort(), ['charger', 'chaser', 'elite', 'ranged']);
@@ -175,7 +176,7 @@ test('Ma Ảnh tinh anh: đập đất sau khi gồng; ngoài vòng cảnh báo 
 test('kết thúc run thì dọn đạn của quái', () => {
   const r = newRun(), p = player(r);
   r.scene.enemyShots.push({ x: 0, y: 0, vx: 0, vy: 0, life: 9, dmg: 1 });
-  r.time = RUN.DURATION; updateRun(r, p, 0.01, []);
+  r.time = RUN.TIME_LIMIT; updateRun(r, p, 0.01, []);
   assert.equal(r.status, 'ENDED'); assert.equal(r.scene.enemyShots.length, 0);
 });
 

@@ -1,12 +1,13 @@
 // Một lượt bí cảnh (runState). Tạo mới mỗi lượt, không bao giờ được lưu; metaState chỉ được đọc (cảnh giới -> sức mạnh).
-import { RUN, PLAYER } from '../core/config.js';
+import { RUN, PLAYER, BOSS } from '../core/config.js';
 import { mulberry32 } from '../core/rng.js';
 import { makeArenaMap } from '../world/map.js';
 import { power, atk, maxHp } from '../progression/realm.js';
 import { addRunXp } from '../progression/runxp.js';
 import { updateMonsters, reapMonsters } from '../entities/monsters.js';
 import { archetypeAI, updateEnemyShots } from '../entities/archetypes.js';
-import { createDirector, updateDirector } from './director.js';
+import { createDirector, updateDirector, summonAround } from './director.js';
+import { updateHazards } from '../entities/bosses.js';
 import { runStats, updateSkills, updateProjectiles, updateZones, absorbDamage } from './combat.js';
 
 let runCounter = 0;
@@ -17,9 +18,10 @@ export function createRun({ seed, startSkill, realmLevel }) {
     id: ++runCounter, seed, rng: mulberry32(seed), status: 'RUNNING', time: 0,
     level: 1, xp: 0, pendingDrafts: 0, skills: [{ id: startSkill, level: 1, evolved: null, st: {} }],
     passives: {}, evolutions: [], kills: 0, damageTaken: 0, dmgBy: {}, dir: createDirector(), outcome: null,
+    rewards: [],                 // M2-02 reward hook: { kind: 'MINI' | 'FINAL', t } — M2-03 trao thưởng một lần
     realmLevel, baseMaxHp: maxHp(realmLevel), hp: 0, maxHp: 0,
   };
-  run.scene = { kind: 'run', map, monsters: [], projectiles: [], zones: [], orbs: [], enemyShots: [] };
+  run.scene = { kind: 'run', map, monsters: [], projectiles: [], zones: [], orbs: [], enemyShots: [], hazards: [] };
   refreshMaxHp(run, true);
   return run;
 }
@@ -57,6 +59,7 @@ export function endRun(run, outcome) {
   run.outcome = outcome;
   run.scene.projectiles.length = 0;
   run.scene.enemyShots.length = 0;
+  run.scene.hazards.length = 0;
   return true;
 }
 
@@ -72,12 +75,25 @@ export function updateRun(run, player, dt, ev, realmPowerOverride) {
   updateProjectiles(ctx, dt);
   updateZones(ctx, dt);
   const onAttack = (m, dmg) => hurtRunPlayer(run, player, dmg, ev, (m.arch || 'chaser') + (m.st === 'move' ? '' : ':' + m.st));
-  const io = { map: sc.map, shots: sc.enemyShots, ev, onAttack };
+  const pw = realmPowerOverride ?? power(run.realmLevel);
+  const io = { map: sc.map, shots: sc.enemyShots, hazards: sc.hazards, ev, onAttack, rng: run.rng,
+    summon: (m, n, r) => summonAround(run, player, m.x, m.y, n, r, pw) };
   updateMonsters(sc, player, dt, ev, { safe: null, onAttack, ai: (m, pl, dx, dy, d, t) => archetypeAI(m, pl, dx, dy, d, t, io) });
-  updateEnemyShots(sc, player, dt, dmg => hurtRunPlayer(run, player, dmg, ev, 'ranged:shot'));
+  updateEnemyShots(sc, player, dt, dmg => hurtRunPlayer(run, player, dmg, ev, 'shot'));
+  updateHazards(sc, player, dt, ev, dmg => hurtRunPlayer(run, player, dmg, ev, 'boss:zone'));
   if (run.status !== 'RUNNING') return;
+  let finalDown = false;
   reapMonsters(sc, m => {
     run.kills++;
+    if (m.boss) {
+      const B = BOSS[m.bossKind];
+      run.dir[m.bossKind === 'MINI' ? 'mini' : 'final'] = 'DEAD';
+      run.rewards.push({ kind: m.bossKind, t: Math.round(run.time) });
+      sc.hazards.length = 0;                               // boss chết: không còn vùng nào nổ sau đó
+      for (let i = sc.enemyShots.length - 1; i >= 0; i--) if (sc.enemyShots[i].kind === 'dark') sc.enemyShots.splice(i, 1);
+      ev.push({ type: 'announce', x: m.x, y: m.y, text: `Đã hạ ${B.name}!`, color: '#ffd978' }, { type: 'boom', x: m.x, y: m.y, r: 50, color: '#ffd978' }, { type: 'shake', t: 0.3 });
+      if (m.bossKind === 'FINAL') finalDown = true;
+    }
     ev.push({ type: 'death', x: m.x, y: m.y, tier: m.tier });
     if (sc.orbs.length < RUN.MAX_ORBS) sc.orbs.push({ x: m.x, y: m.y - 2, v: m.xp });
     else sc.orbs[run.kills % sc.orbs.length].v += m.xp;      // quá nhiều: gộp vào viên có sẵn
@@ -89,5 +105,6 @@ export function updateRun(run, player, dt, ev, realmPowerOverride) {
     if (d < RUN.PICKUP) { addRunXp(run, o.v); sc.orbs.splice(i, 1); continue; }
     if (d < mag) { const sp = RUN.ORB_SPEED * dt * (1.5 - d / mag); o.x += dx / d * sp; o.y += dy / d * sp; }
   }
-  if (run.time >= RUN.DURATION) endRun(run, 'WIN');
+  if (finalDown) { endRun(run, 'WIN'); return; }
+  if (run.time >= RUN.TIME_LIMIT) endRun(run, 'TIMEOUT');
 }

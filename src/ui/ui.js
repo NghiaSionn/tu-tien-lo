@@ -1,5 +1,5 @@
 // Giao diện DOM: HUD động phủ, HUD bí cảnh, các bảng (chuẩn bị, chọn thẻ, kết quả, tạm dừng, cài đặt), nhật ký.
-import { RUN, ITEMS } from '../core/config.js';
+import { RUN, ITEMS, BOSS } from '../core/config.js';
 import { levelName, maxHp, atk, need, isMajor, MAX_L } from '../progression/realm.js';
 import { xpToNext } from '../progression/runxp.js';
 import { medRate, canBreak, isFull } from '../systems/cultivation.js';
@@ -57,7 +57,8 @@ export function runHud(run) {
   $('rLevel').textContent = run.level;
   const n = xpToNext(run.level);
   $('rXpFill').style.width = Math.min(100, run.xp / n * 100) + '%';
-  $('rTime').textContent = fmtTime(RUN.DURATION - run.time);
+  // đếm ngược tới boss cuối; khi boss đã ra thì hiện tên
+  $('rTime').textContent = run.dir.final === 'PENDING' ? fmtTime(Math.max(0, BOSS.FINAL.AT - run.time)) : '☠ Yêu Vương';
   $('rHpTxt').textContent = `${Math.ceil(run.hp)} / ${run.maxHp}`;
   $('rHpFill').style.width = run.hp / run.maxHp * 100 + '%';
   const sh = run.skills.find(s => skillKind(s) === 'shield');
@@ -92,7 +93,7 @@ export function showPrepare(meta, onPick, onCancel) {
   const opts = RUN.START_SKILLS.map(id => SKILLS[id]);
   open(`<h2>Bí Cảnh · Rừng Linh Thú</h2>
     <p class="sub">${esc(levelName(meta.realmLevel))} · Công ${atk(meta.realmLevel)} · Khí huyết ${maxHp(meta.realmLevel)}</p>
-    <p class="sub">Sống sót ${fmtTime(RUN.DURATION)}. Đánh yêu thú lấy chiến ý, đủ thì chọn công pháp mới. Chết trong bí cảnh không mất tu vi hay cảnh giới.</p>
+    <p class="sub">${esc(BOSS.MINI.name)} chặn đường lúc ${fmtTime(BOSS.MINI.AT)}; ${esc(BOSS.FINAL.name)} xuất hiện lúc ${fmtTime(BOSS.FINAL.AT)} — hạ nó để vượt bí cảnh. Đánh yêu thú lấy chiến ý, đủ thì chọn công pháp mới. Chết trong bí cảnh không mất tu vi hay cảnh giới.</p>
     <h3>Chọn công pháp khởi đầu</h3>
     <div class="cards">${opts.map((d, i) => `<button class="card" data-i="${i}" style="--c:${ELEMENTS[d.element].color}">
       <span class="key">${i + 1}</span><span class="ic">${d.icon}</span><b>${esc(d.name)}</b><em>${esc(ELEMENTS[d.element].name)}</em><p>${esc(d.desc)}</p></button>`).join('')}</div>
@@ -143,13 +144,15 @@ export function showPause(onResume, onLeave) {
 }
 
 export function showResults(run, onClose) {
-  const title = { WIN: 'Vượt qua bí cảnh!', LOSE: 'Trọng thương, rời bí cảnh', ABANDON: 'Đã rời bí cảnh' }[run.outcome];
+  const title = { WIN: `Hạ ${BOSS.FINAL.name}, vượt qua bí cảnh!`, LOSE: 'Trọng thương, rời bí cảnh', ABANDON: 'Đã rời bí cảnh', TIMEOUT: 'Hết thời gian, bí cảnh khép lại' }[run.outcome];
+  const downs = run.rewards.map(r => BOSS[r.kind].name);
   const skills = run.skills.map(s => `${SKILLS[s.id].icon} ${esc(skillName(s))}${s.evolved ? ' ★' : ' cấp ' + s.level}`).join('<br>');
   const pas = Object.entries(run.passives).map(([id, lv]) => `${PASSIVES[id].icon} ${esc(PASSIVES[id].name)} ${lv}`).join(' · ');
   let closed = false;
   const close = () => { if (closed) return; closed = true; closeModal(); onClose(); };
   open(`<h2 class="${run.outcome === 'WIN' ? 'win' : 'lose'}">${title}</h2>
     <div class="stats"><div><b>${fmtTime(run.time)}</b>thời gian</div><div><b>${run.level}</b>cấp chiến đấu</div><div><b>${run.kills}</b>yêu thú</div><div><b>${run.evolutions.length}</b>tiến hóa</div></div>
+    ${downs.length ? `<p class="sub">Đã hạ: ${downs.map(esc).join(', ')}</p>` : ''}
     <h3>Công pháp</h3><p>${skills}</p>${pas ? `<p class="sub">${pas}</p>` : ''}
     <p class="sub">Phần thưởng mang về động phủ sẽ có ở bản sau (M2). Cảnh giới và tu vi không đổi.</p>
     <div class="row"><button data-act="close">Về động phủ (Enter)</button></div>`,

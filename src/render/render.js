@@ -1,7 +1,7 @@
 // Vẽ một khung: bản đồ, vật thể sắp theo y, yêu thú, người chơi, công pháp, hiệu ứng beanfx và hạt sáng.
-import { VIEW, TILE as T, HUB, FEATURES, ARCH } from '../core/config.js';
+import { VIEW, TILE as T, HUB, FEATURES, ARCH, BOSS } from '../core/config.js';
 import { WATER, STONE, TREE, ROCK } from '../world/map.js';
-import { SPR, TIERS, BEAST_WHITE, grassTiles, waterTiles, stoneTile, treeSprs, rockSpr, hash } from './sprites.js';
+import { SPR, TIERS, BEAST_WHITE, BOSS_SPR, grassTiles, waterTiles, stoneTile, treeSprs, rockSpr, hash } from './sprites.js';
 import { createFx } from '../../lib/beanfx.js';
 import { skillKind, skillParams } from '../systems/combat.js';
 
@@ -91,7 +91,21 @@ function drawMap(ctx, map, camX, camY, time, objs) {
   }
 }
 
+function drawBoss(ctx, m, time) {
+  const spr = BOSS_SPR[m.bossKind], S = 3, w = spr.width * S, h = spr.height * S;
+  const hop = (m.vx || m.vy) && m.st === 'move' ? Math.abs(Math.sin(time * 6)) * 3 : 0;
+  const bx = Math.round(m.x - w / 2), by = Math.round(m.y - h + 3 - hop);
+  ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(Math.round(m.x - w / 2 + 4), Math.round(m.y) - 3, w - 8, 5);
+  if (m.st === 'windup') { ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 0.35; ctx.drawImage(BEAST_WHITE, bx - 3, by + 6 - 3, w + 6, h - 6 + 6); ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over'; }
+  ctx.drawImage(m.hit > 0 ? BEAST_WHITE : spr, bx, by, w, h);
+  if (m.vuln > 0) {   // sơ hở: 3 sao vàng xoay trên đầu
+    ctx.fillStyle = '#ffe066';
+    for (let i = 0; i < 3; i++) { const a = time * 5 + i * 2.094; ctx.fillRect(Math.round(m.x + Math.cos(a) * 12) - 1, Math.round(by - 4 + Math.sin(a) * 3) - 1, 3, 3); }
+  }
+}
+
 function drawMonster(ctx, m, time) {
+  if (m.boss) return drawBoss(ctx, m, time);
   const hop = (m.vx || m.vy) && m.st !== 'dash' ? Math.abs(Math.sin(time * 9 + m.ph)) * 2 : 0;
   if (m.elite) {
     // tinh anh: sprite x2, bóng lớn, thanh máu luôn hiện
@@ -116,8 +130,18 @@ function drawMonster(ctx, m, time) {
 
 // Cảnh báo đòn (dưới chân quái, vẽ đúng hình học của vùng/đường trúng). Không nhấp nháy mạnh; phần sáng lấp dần = sắp đánh.
 function drawTelegraphs(ctx, scene) {
+  // vùng nguy hiểm của boss (đập đất, hắc diễm): vòng đỏ đúng bán kính trúng + lấp tím dần tới lúc nổ
+  for (const h of scene.hazards || []) {
+    const prog = 1 - Math.max(0, h.t) / (h.max || 1);
+    ctx.globalAlpha = 0.22; ctx.fillStyle = '#c070ff';
+    ctx.beginPath(); ctx.arc(h.x, h.y, h.r * prog, 0, 6.283); ctx.fill();
+    ctx.globalAlpha = 0.9; pxRing(ctx, h.x, h.y, h.r, Math.max(40, Math.round(h.r * 1.8)), 0, '#ff4a3a', 2, 1);
+    ctx.globalAlpha = 1;
+  }
   for (const m of scene.monsters) {
-    if (m.dead || m.st !== 'windup') continue;
+    if (m.dead || (m.st !== 'windup' && m.st !== 'rest')) continue;
+    if (m.boss) { drawBossTelegraph(ctx, m); continue; }
+    if (m.st !== 'windup') continue;
     const A = ARCH[m.arch], prog = 1 - Math.max(0, m.stT) / (m.stMax || 1);
     if (m.arch === 'charger') {
       const L = A.DASH_SPEED * A.DASH_TIME, x0 = m.x, y0 = m.y - 3;
@@ -137,9 +161,48 @@ function drawTelegraphs(ctx, scene) {
     ctx.globalAlpha = 1;
   }
 }
+function drawBossTelegraph(ctx, m) {
+  const B = BOSS[m.bossKind], prog = m.st === 'rest' ? 0 : 1 - Math.max(0, m.stT) / (m.stMax || 1);
+  if (m.pat === 'dash') {
+    const L = B.DASH.SPEED * B.DASH.TIME, x0 = m.x, y0 = m.y - 4;
+    ctx.globalAlpha = 0.5; pxLine(ctx, x0, y0, x0 + m.dirX * L, y0 + m.dirY * L, '#ff4a3a', 3);
+    ctx.globalAlpha = 0.95; pxLine(ctx, x0, y0, x0 + m.dirX * L * prog, y0 + m.dirY * L * prog, '#ffd978', 1);
+    ctx.fillStyle = '#ff4a3a'; ctx.fillRect(Math.round(x0 + m.dirX * L) - 3, Math.round(y0 + m.dirY * L) - 3, 6, 6);
+  } else if (m.pat === 'howl') {
+    ctx.globalAlpha = 0.8; pxRing(ctx, m.x, m.y - 10, 16 + prog * 30, 36, 0, '#ffd978', 2, 1);
+  } else if (m.pat === 'burst') {
+    // từng hướng đạn sẽ bay: đứng giữa hai tia là né được
+    for (let i = 0; i < m.burstN; i++) {
+      const a = m.burstA0 + i * 6.283 / m.burstN, c = Math.cos(a), s = Math.sin(a), y0 = m.y - 10;
+      ctx.globalAlpha = 0.65; pxLine(ctx, m.x + c * 16, y0 + s * 16, m.x + c * 70, y0 + s * 70, '#d070ff', 1);
+      ctx.globalAlpha = 0.95; pxLine(ctx, m.x + c * 16, y0 + s * 16, m.x + c * (16 + 54 * prog), y0 + s * (16 + 54 * prog), '#f4d8ff', 1);
+    }
+  }
+  ctx.globalAlpha = 1;
+}
+
+// Thanh máu boss (màn hình, cạnh dưới): tên, máu, vạch pha 2
+function drawBossBar(ctx, scene) {
+  const m = scene.monsters.find(q => q.boss && !q.dead);
+  if (!m) return;
+  const B = BOSS[m.bossKind], w = 220, x = Math.round((W - w) / 2), y = H - 20;
+  ctx.fillStyle = 'rgba(10,6,20,.75)'; ctx.fillRect(x - 3, y - 11, w + 6, 19);
+  ctx.font = '8px monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = m.enraged ? '#ff6a6a' : '#f4e6ff'; ctx.fillText(B.name + (m.enraged ? ' · cuồng nộ' : m.vuln > 0 ? ' · sơ hở' : ''), W / 2, y - 3);
+  ctx.fillStyle = '#2a1830'; ctx.fillRect(x, y, w, 5);
+  ctx.fillStyle = m.bossKind === 'FINAL' ? '#c040ff' : '#e2584f'; ctx.fillRect(x, y, Math.max(0, Math.round(w * m.hp / m.max)), 5);
+  if (B.PHASE2) { ctx.fillStyle = '#fff'; ctx.fillRect(x + Math.round(w * B.PHASE2), y - 1, 1, 7); }
+}
+
 function drawEnemyShots(ctx, shots) {
   for (const s of shots) {
     const x = Math.round(s.x), y = Math.round(s.y);
+    if (s.kind === 'dark') {
+      ctx.fillStyle = '#0c0614'; ctx.fillRect(x - 3, y - 3, 7, 7);
+      ctx.fillStyle = '#c040ff'; ctx.fillRect(x - 2, y - 2, 5, 5);
+      ctx.fillStyle = '#ffd0ff'; ctx.fillRect(x - 1, y - 1, 3, 3);
+      continue;
+    }
     ctx.fillStyle = '#1a1423'; ctx.fillRect(x - 3, y - 2, 6, 4); ctx.fillRect(x - 2, y - 3, 4, 6);
     ctx.fillStyle = '#7fdcec'; ctx.fillRect(x - 2, y - 1, 4, 2); ctx.fillRect(x - 1, y - 2, 2, 4);
     ctx.fillStyle = '#fff'; ctx.fillRect(x - 1, y - 1, 2, 2);
@@ -303,6 +366,7 @@ export function render(ctx, g) {
   ctx.globalAlpha = 1;
 
   ctx.setTransform(1, 0, 0, 1, 0, 0);
+  drawBossBar(ctx, scene);
   if (vis.banner) {
     const b = vis.banner; ctx.globalAlpha = Math.min(1, b.life * 2);
     ctx.font = '9px monospace'; ctx.textAlign = 'center';

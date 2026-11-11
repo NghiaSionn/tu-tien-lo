@@ -232,7 +232,7 @@ const KINDS = {
       for (const m of ctx.scene.monsters) {
         if (m.dead) continue;
         const dx = tx - m.x, dy = ty - m.y, d = Math.hypot(dx, dy);
-        if (d < pr && d > 3) moveEntity(ctx.scene.map, m, dx / d * p.pull * dt, dy / d * p.pull * dt, null);
+        if (d < pr && d > 3 && !m.boss) moveEntity(ctx.scene.map, m, dx / d * p.pull * dt, dy / d * p.pull * dt, null);
         if (tick && d < r + 4) { hitMonster(ctx, m, p.dmg * ctx.atk, '#ffb070'); applyBurn(m, p.burn * ctx.atk * ctx.stats.damage, p.burnTime); }
       }
     }
