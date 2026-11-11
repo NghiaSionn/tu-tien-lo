@@ -154,7 +154,7 @@
 
 > **Kết quả 11/11/2026: XONG.** `src/systems/director.js` (giai đoạn + đợt + tinh anh + ngân sách cost) và `src/entities/archetypes.js` (lao/bắn xa/tinh anh có pha gồng + cảnh báo). Thông số ở `DIRECTOR`/`ARCH` trong config. 4 loài cũ giữ lại, mỗi loài một kiểu: Dã Lang đuổi, Hỏa Hồ lao, Huyền Băng Thú bắn, Ma Ảnh tinh anh (sprite x2). 13 test mới (tái hiện theo seed, chỗ sinh, ngân sách, né được từng đòn). Chơi thật tới 3:07: thấy đủ 4 kiểu, thông báo đợt, cảnh báo lao/bắn/đập; né được đòn đập tinh anh. Cân bằng: run khó hơn với build yếu -> M2-04.
 
-### M2-02 [~] Mini-boss, boss cuối, telegraph (L)
+### M2-02 [x] Mini-boss, boss cuối, telegraph (L)
 **Phụ thuộc:** M2-01.  
 **Làm:** mini-boss giữa run, boss cuối 2–3 mẫu đòn, HP bar, vùng cảnh báo rõ, reward hook.
 
@@ -164,7 +164,8 @@
 - Boss không kẹt map, không tung chiêu ngoài state và không spam spawn sau chết.
 
 > **Kết quả 11/11/2026: XONG CODE, CHƯA ĐỦ NGHIỆM THU.** `src/entities/bosses.js`, thông số `BOSS` trong config. Lang Vương (4:00): lao 3 lần có cảnh báo + tru gọi bầy. Ma Ảnh Yêu Vương (7:00): đạn tỏa tròn (tia báo hướng), vùng hắc diễm quanh người chơi, đập đất khi áp sát; pha 2 dưới 50% máu, cuồng nộ sau 2:30. Thanh máu boss ở cạnh dưới màn, sơ hở sau mỗi chiêu (+50% sát thương), chặn one-shot (1 đòn ≤ 3% máu), chống kẹt (dịch chuyển), boss chết dọn vùng/đạn, mỗi boss sinh 1 lần. Thắng = hạ boss cuối; quá 15 phút = TIMEOUT. Reward hook: `run.rewards`. 12 test mới. Cảnh báo cả 5 chiêu đã xem trong trình duyệt (`docs/m2_02_*.png`, boss sinh bằng console để chụp). Bot hạ được cả 2 boss (Kiếm+Lôi, 8:32).
-> **Chưa:** thắng/thua boss bằng **chơi thật trọn một run** — trình duyệt trong phiên này chỉ chạy 2–5 khung/giây (luồng chính rảnh, không có long task; do môi trường), không chơi được 7+ phút. Giảm hiệu ứng: chỉ kiểm bằng đọc code (cảnh báo không phụ thuộc `vis.reduce`), chưa bật thử trong trình duyệt.
+> **12/11: ĐÓNG.** Chơi trọn run trong trình duyệt (phím thật cho luồng, autopilot phát phím cho di chuyển — xem `docs/playtest_M2-04.md`): thắng Yêu Vương 2 lượt (6:39, 8:39), thua 1 lượt ở boss + 1 lượt trước boss; bật Giảm hiệu ứng bằng chuột thật, cảnh báo vẫn rõ. Sửa từ chơi thử: viền cảnh báo vẽ thêm trên tán cây; thanh máu boss mờ khi che boss; đập đất R64 → R48. Hạn chế: chưa có người thật.
+> *(11/11)* **Chưa:** thắng/thua boss bằng **chơi thật trọn một run** — trình duyệt trong phiên này chỉ chạy 2–5 khung/giây (luồng chính rảnh, không có long task; do môi trường), không chơi được 7+ phút. Giảm hiệu ứng: chỉ kiểm bằng đọc code (cảnh báo không phụ thuộc `vis.reduce`), chưa bật thử trong trình duyệt.
 
 ### M2-03 [x] Kết quả run + phần thưởng commit một lần (L)
 **Phụ thuộc:** M2-02, M0-04.  
@@ -189,13 +190,14 @@
 **GATE v0.2:** Từ khởi động game -> hub -> run -> chọn thẻ -> tiến hóa -> boss -> thưởng -> hub -> run lại; không sửa state bằng console; save/reload ổn; ghi review cảm giác chơi.
 
 > **Kết quả 11/11/2026: CÂN BẰNG BẰNG BOT XONG, CHƯA CÓ PLAYTEST NGƯỜI THẬT.** Chi tiết `docs/playtest_M2-04.md`. Run 6–8 phút (Lang Vương 3:30, Yêu Vương 6:00). Bot biết né cảnh báo (12 seed/build): Kiếm+Lôi thắng 10/12, Phi Kiếm+Hỏa 7/12, Lôi+Thể 8/12, Hỏa+Phong 4/12 → **3 build hoàn tất được**, Kiếm+Lôi mạnh nhất nhưng không tuyệt đối. Sửa 2 lỗi gameplay (đạn nhiều tia trượt mục tiêu đơn; Phong Nhận bắn ngược khi chạy). Bảng kết quả có "Bước tiếp theo". Nhật ký 12 lượt bot có build/thời gian/cấp/lý do.
-> **Chưa:** ≥ 5 lượt playtest **người thật** (trình duyệt phiên này 2–5 khung/giây); **GATE v0.2 chưa xác minh** bằng chơi thật trọn vòng (hub → run → boss → thưởng → run lại); chưa mở run 12–15 phút.
+> **12/11:** 4 lượt chơi trong trình duyệt (2 thắng, 2 thua; 4 build) có nhật ký, GATE v0.2 đi trọn vòng hub → run → thẻ → tiến hóa → boss → thưởng → hub → run lại **không sửa state bằng console**. Còn lượt thứ 5 (trình duyệt bị ẩn giữa chừng) và **chưa có người thật**.
+> *(11/11)* **Chưa:** ≥ 5 lượt playtest **người thật** (trình duyệt phiên này 2–5 khung/giây); **GATE v0.2 chưa xác minh** bằng chơi thật trọn vòng (hub → run → boss → thưởng → run lại); chưa mở run 12–15 phút.
 
 ---
 
 ## M3 — META TU TIÊN: THIỀN, CẢNH GIỚI, THIÊN KIẾP (P2)
 
-### M3-01 [ ] Hệ `lingQi` -> `cultivationXp` qua tọa thiền (M)
+### M3-01 [~] Hệ `lingQi` -> `cultivationXp` qua tọa thiền (M)
 **Phụ thuộc:** M2 Gate.  
 **Làm:** tách linh khí từ rewards, chuyển hóa khi thiền, hiệu suất tụ linh trận, thông báo tiến độ và giới hạn AFK, giữ VFX cũ.
 
@@ -204,7 +206,7 @@
 - Di chuyển ngắt thiền, safe zone làm việc, reload không nhân đôi chuyển hóa.
 - Dùng Tụ Khí Đan trong hệ mới có mô tả/giá/phí nhất quán.
 
-### M3-02 [ ] Cảnh giới, ngưỡng và phần thưởng mở khóa (M)
+### M3-02 [~] Cảnh giới, ngưỡng và phần thưởng mở khóa (M)
 **Phụ thuộc:** M3-01.  
 **Làm:** giữ đúng 18 bậc, đột phá bậc nhỏ, UI nêu chỉ số/tính năng mới, chỉnh power scaling nếu cần theo playtest.
 
@@ -213,7 +215,7 @@
 - Realm giữ khi kết thúc run/thua/reload, không lẫn runLevel.
 - Người mới vẫn build được ít nhất một lối chơi hấp dẫn.
 
-### M3-03 [ ] Thiên kiếp tương tác 3 giai đoạn (L)
+### M3-03 [~] Thiên kiếp tương tác 3 giai đoạn (L)
 **Phụ thuộc:** M3-02.  
 **Làm:** thay random 70% thuần bằng arena thử thách có telegraph, né, phòng thủ, kết quả; dùng `loi_kiep` và `dot_pha`; có toggle reduced effects.
 
@@ -222,7 +224,7 @@
 - Thua không tụt cảnh giới đang có; thưởng/phạt chính xác; không spam phím để đột phá trùng.
 - Không phá save cũ, không gây flashing quá mạnh khi chọn giảm hiệu ứng.
 
-### M3-04 [ ] Nút nghỉ/thiền trong bí cảnh [THỬ NGHIỆM] (M)
+### M3-04 [~] Nút nghỉ/thiền trong bí cảnh [THỬ NGHIỆM] (M)
 **Phụ thuộc:** M3-01, M2 Gate.  
 **Làm:** 1 điểm linh mạch/đợt nghỉ có lựa chọn trade-off: hồi máu, buff hoặc lấy tài nguyên; không cho người chơi spam hồi máu ngay giữa combat.
 
@@ -231,6 +233,13 @@
 - Không làm gián đoạn wave/boss sai trạng thái.
 
 **GATE v0.3a:** Sau một hoặc vài run, người chơi có thể tọa thiền -> đột phá -> độ kiếp bằng tương tác -> mở khóa tính năng -> thử run khác.
+
+> **Kết quả 12/11/2026: XONG CODE + TEST TỰ ĐỘNG, CHƯA KIỂM TRA TRÌNH DUYỆT** (trang bị ẩn nên game tự dừng).
+> - M3-01: tọa thiền chuyển hóa linh khí (4/s ×(1+0,15L), ×3 trong trận; 1 linh khí = 1,5 tu vi trong trận, 0,8 ngoài); hết linh khí chỉ còn 10% tốc độ cũ và chỉ trong trận; đầy thì ngừng tiêu. Yêu thú động phủ cho linh khí thay vì tu vi. Tụ Khí Đan = +linh khí (đủ 25% ngưỡng khi thiền trong trận), nút ghi rõ "+N✨". Sửa lỗi báo "viên mãn" không bao giờ hiện.
+> - M3-02: 18 bậc giữ nguyên; đột phá ghi "Công a → b · Khí huyết c → d" và mở khóa; Trúc Cơ/Kim Đan/Nguyên Anh mở công pháp khởi đầu mới (Phi Kiếm Trận / Hộ Thể / Hỏa Luân) và độ khó bí cảnh Linh/Huyền/Thiên (quái ×1,3/1,6/1,8, thưởng ×1,5/2/2,8; phím D ở màn chuẩn bị). Save cũ ở cảnh giới cao tự nhận mở khóa. Test biên 8→9, 11→12, 14→15, max 17.
+> - M3-03: thiên kiếp ~24 s, 3 nhịp (Lôi ấn: vòng sét; Lôi xà: dải sét; Thiên lôi: phủ trận trừ ô an toàn — luôn có 1 ô trong tầm 80 px), mọi đòn có cảnh báo lấp dần, giữ trong trận quanh tụ linh trận; khí huyết về 0 = thua (giữ cảnh giới, mất 30% tu vi); tải lại giữa chừng = thua (cờ `tribPending`). Seed cố định → kỹ năng quyết định: đứng yên thua mọi seed, bot né theo cảnh báo mất < 0,2 máu ở 20/20 seed. `TRIBULATION.ENABLED=false` quay về lôi kiếp cũ.
+> - M3-04: Linh Mạch hiện khi hạ Lang Vương; đứng gần + E: Dưỡng thương (+50% máu) / Hấp thu (+20% sát thương tới hết lượt) / Thu linh khí (+60); một lần; phong ấn khi boss sống; thế giới dừng khi chọn.
+> - Test: 102/102 (thêm tribulation, shrine, realm biên, cultivation linh khí).
 
 ---
 
@@ -402,6 +411,8 @@ Tạo thư mục `docs/adr/` hoặc phần ghi chú khi có quyết định ản
 | 2026-11-11 | M2-02 | PARTIAL | Boss: Lang Vương 4:00 (lao ×3 có đường cảnh báo, nhắm lại mỗi lần; tru gọi 4 Dã Lang) và Ma Ảnh Yêu Vương 7:00 (đạn tỏa 12/16 tia có tia báo hướng; 3/5 vùng hắc diễm R30 quanh người chơi; đập đất R64 khi áp sát). Sơ hở 1,3–1,4 s sau mỗi chiêu (+50% sát thương, sao vàng + chữ "sơ hở"), 1 đòn ≤ 3% máu, boss không bị đẩy lùi, chỉ chịu nửa làm chậm, kẹt 2 s thì dịch chuyển. Khi boss sống: quái thường sinh thưa ×2, không có tinh anh. Thắng = hạ boss cuối (không còn thắng theo đồng hồ); trần 15 phút → TIMEOUT. Thanh máu boss + vạch pha 2. Reward hook `run.rewards` cho M2-03; bảng kết quả ghi "Đã hạ: …". 70/70 test PASS. Bot: Lang Vương bị hạ sau 35–118 s; Kiếm+Lôi hạ Yêu Vương 1/4 lượt (8:32) | Chưa chơi thật trọn run tới boss (trình duyệt phiên này 2–5 khung/giây); chưa bật thử giảm hiệu ứng; cân bằng (bot chết nhiều vì băng tiễn) → M2-04 |
 | 2026-11-11 | M2-03 | DONE | Thưởng theo tiến độ: linh thạch = 0,1/quái + 2/cấp + 3/phút; linh khí 6/phút; luyện liệu 1/tinh anh; boss: Lang Vương +25💎 +20✨ +2🔩, Yêu Vương +80💎 +60✨ +5🔩 +1🎫; thắng ×1,5; lần đầu thắng +1🎫; +10%/tầng cảnh giới. Giao dịch REWARD_PENDING → REWARDED idempotent (id run + rewardLog 30), save vẫn v2 (chỉ thêm trường, sanitize kẹp giá trị). Bảng kết quả có mục "Mang về động phủ"; HUD động phủ thêm ✨ 🔩 🎫. 80/80 test PASS. Trình duyệt 127.0.0.1: pending được lưu trước khi hiện bảng; tải lại giữa bảng → tự nhận 1 lần + log; tải lại lần 2 không đổi; bấm đúp + Enter ×2 → +3 đúng 1 lần, save khớp, console sạch. Bot: thua 61–196💎, thắng 453💎 + 2🎫 (bản đầu 150–1000💎, quá nhiều so với đan 25💎 → đã giảm) | Linh khí/luyện liệu/vé chưa có chỗ dùng (M3/M4/M6). Cân bằng kinh tế xem lại ở M2-04 |
 | 2026-11-11 | M2-04 | PARTIAL | Bot mới biết né cảnh báo + `--summary`; công cụ `tools/dps.mjs`. Sửa lỗi: Kiếm Khí cấp 3+ / Hỏa Cầu cấp 4+ tỏa quạt góc cố định nên trượt khi chỉ 1 mục tiêu (boss: 1/3 lưỡi, 0/2 cầu) → góc thu hẹp theo khoảng cách + test; Phong Nhận ngắm yêu thú gần nhất. Chỉnh số: Kiếm Khí cấp 5 giảm, Phi Kiếm Trận nạp nhanh, Lôi Kích mạnh hơn, Hỏa Luân rộng hơn, Liệt Diễm/Hỏa Long/Lôi Cương tăng, Lôi Đình giảm nhẹ; run 6–8 phút (boss 3:30/6:00, đợt dồn trước 5:30); Lang Vương lao nhẹ hơn + gồng 0,75 s; Yêu Vương máu ×70, hắc diễm ×1,6. Bảng kết quả thêm "Bước tiếp theo". Bot né (12 seed): 10/12 · 7/12 · 4/12 · 8/12 (trước 4/8 · 1/8 · 1/8 · 0/8). 81/81 test PASS | Chưa playtest người thật (trình duyệt 2–5 khung/giây), GATE v0.2 chưa xác minh; Hỏa+Phong yếu nhất; cảnh giới 9 quá dễ (7–8/8) |
+| 2026-11-12 | M2-02 / M2-04 / GATE v0.2 | DONE (M2-02), PARTIAL (M2-04) | `?loop=timer` (vòng lặp setInterval khi môi trường hãm rAF) + `tools/autopilot.js` (phát phím). 4 lượt trong trình duyệt: Kiếm+Lôi thắng 6:39; Phi Kiếm+Hỏa (giảm hiệu ứng) thua 6:35 vì đập đất; Hỏa+Phong thắng 8:39; Lôi+Thể thua 4:29. Sửa: viền cảnh báo trên tán cây, thanh máu boss mờ khi che, đập đất R48/gồng 1,25 s, hắc diễm gồng 1,4 s R26, nhãn sát thương tách `boss:slam`, Lôi Đình giảm nhẹ, Hỏa Long tăng. Bot (16 seed): 15/16 · 14/16 · 8/16 · 11/16 | Lượt 5 chưa chơi (trang bị ẩn); chưa người thật |
+| 2026-11-12 | M3-01..04 | PARTIAL | Linh khí → tu vi khi thiền; thiên kiếp tương tác 3 nhịp; mở khóa đại cảnh giới + độ khó bí cảnh; Linh Mạch. 102/102 test PASS. Bot độ khó: cảnh giới 9 Linh thắng 1–5/6, 12 Huyền 0–5/6 | Chưa kiểm tra trong trình duyệt (trang bị ẩn); GATE v0.3a chưa xác minh |
 
 ---
 

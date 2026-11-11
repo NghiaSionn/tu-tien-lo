@@ -3,7 +3,9 @@
 // Chỉ ĐỌC trạng thái (__game) và phát sự kiện bàn phím (keydown/keyup) qua đúng đường input của game — không sửa state.
 // Di chuyển: né quái gần + né cảnh báo (đường lao, vùng nổ, đạn bay tới) + nhặt chiến ý (giống tools/sim.mjs).
 // Chọn thẻ: bấm phím số theo ưu tiên của build (đọc tên thẻ trên bảng). Không tự vào/rời run, không tự nhận thưởng.
-import { ARCH, BOSS } from '../src/core/config.js';
+// Thiên kiếp ở động phủ: né bằng WASD (opts.trib). Không tự bấm B để bắt đầu.
+import { ARCH, BOSS, TRIBULATION as TB, PLAYER } from '../src/core/config.js';
+import { hazardHits } from '../src/systems/tribulation.js';
 
 const PRIORITY = {
   kiem_loi: ['Lôi Đình Vạn Kiếm', 'Kiếm Khí', 'Lôi Kích', 'Linh Lực', 'Ngưng Thần', 'Hộ Thể Cương Khí', 'Lôi Cương Hộ Thể'],
@@ -81,9 +83,37 @@ function pickCard() {
   picks++;
 }
 
+// Thiên kiếp ở động phủ (M3-03): chọn điểm an toàn mà đường đi không cắt vùng sắp nổ, giữ mục tiêu tới khi tới
+let tribGoal = null;
+function steerTrib(tr, p) {
+  const unsafeAt = (x, y, h) => h.kind === 'circle' ? Math.hypot(x - h.x, y - h.y) < h.r + 4
+    : h.kind === 'storm' ? !h.safe.some(s => Math.hypot(x - s.x, y - s.y) < s.r - 4) : hazardHits({ ...h, w: h.w + 8 }, x, y);
+  const risk = (x, y) => {
+    const d = Math.hypot(x - p.x, y - p.y), arrive = d / PLAYER.SPEED;
+    let s = Math.hypot(x - tr.cx, y - tr.cy) > TB.ARENA_R - 8 ? 100 : 0;
+    for (const h of tr.hazards) {
+      if (unsafeAt(x, y, h)) s += 10;
+      for (const f of [0.33, 0.66]) { const tx = p.x + (x - p.x) * f, ty = p.y + (y - p.y) * f; if (Math.abs(h.t - arrive * f) < 0.15 && unsafeAt(tx, ty, h)) s += 10; }
+    }
+    return s + d * 0.01;
+  };
+  if (!tr.hazards.some(h => unsafeAt(p.x, p.y, h))) { tribGoal = null; return releaseAll(); }
+  if (!tribGoal || risk(tribGoal[0], tribGoal[1]) >= 5) {
+    let bs = Infinity;
+    for (const R of [15, 30, 45, 65, 85]) for (let k = 0; k < 32; k++) {
+      const a = k / 32 * Math.PI * 2, x = p.x + Math.cos(a) * R, y = p.y + Math.sin(a) * R, sc = risk(x, y);
+      if (sc < bs) { bs = sc; tribGoal = [x, y]; }
+    }
+  }
+  const dx = tribGoal[0] - p.x, dy = tribGoal[1] - p.y, d = Math.hypot(dx, dy);
+  if (d < 2) return releaseAll();
+  hold('right', dx / d > 0.38); hold('left', dx / d < -0.38); hold('down', dy / d > 0.38); hold('up', dy / d < -0.38);
+}
+
 let draftSeenAt = 0;
 function tick() {
   const g = window.__game;
+  if (g && g.view === 'HUB' && g.trib && g.trib.interactive && opts.trib) { steerTrib(g.trib, g.p); return; }
   if (!g || !g.run || g.view === 'HUB' || g.view === 'RESULTS') { releaseAll(); return; }
   if (g.view === 'CARD_DRAFT') {
     releaseAll();
@@ -100,7 +130,7 @@ function tick() {
 
 export function start(o = {}) {
   stop();
-  opts = { build: 'kiem_loi', naive: false, pickCards: true, ...o };
+  opts = { build: 'kiem_loi', naive: false, pickCards: true, trib: true, ...o };
   picks = 0;
   timer = setInterval(tick, 50);
   return opts;
