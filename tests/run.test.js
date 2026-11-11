@@ -259,3 +259,21 @@ test('thẻ nâng công pháp gốc nặng hơn khi đã có công pháp phụ c
   assert.equal(candidates(r).find(c => c.key === 'up:sword_qi').w, WEIGHTS.UPGRADE_SKILL * EVO_BASE_UPGRADE_MULT, 'Kiếm Khí cũng là gốc (Lôi Đình Vạn Kiếm)');
   assert.equal(candidates(r).find(c => c.key === 'up:thunder_strike').w, WEIGHTS.UPGRADE_SKILL, 'công pháp phụ không được nhân');
 });
+
+test('một mục tiêu (boss): mọi lưỡi Kiếm Khí cấp 5 và cả 2 Hỏa Cầu cấp 5 đều trúng', () => {
+  for (const [id, n] of [['sword_qi', 3], ['fire_orb', 2]]) {
+    for (const dist of [40, 90, 140]) {
+      const r = newRun(); r.scene.map.tiles.fill(0);
+      r.skills = [{ id, level: 5, evolved: null, st: {} }];
+      const p = player(r);
+      const m = makeMonster(p.x + dist, p.y, 1, { hp: 1e9 }); m.speed = 0; r.scene.monsters.push(m);
+      const ev = [];
+      const ctx = makeCtx(r, p, ev);
+      updateSkills(ctx, 1 / 60);
+      assert.equal(r.scene.projectiles.length, n);
+      for (let i = 0; i < 120; i++) updateProjectiles(makeCtx(r, p, ev), 1 / 60);
+      const hits = ev.filter(e => e.type === 'text' && e.y < m.y).length;
+      assert.ok(hits >= n, `${id} ở ${dist}px: ${hits}/${n} trúng`);
+    }
+  }
+});

@@ -144,7 +144,17 @@ export function showPause(onResume, onLeave) {
   $('modal').querySelector('[data-act=leave]').addEventListener('click', () => { closeModal(); onLeave(); });
 }
 
-export function showResults(run, reward, onClose) {
+// M2-04: kết thúc lượt luôn chỉ ra mục tiêu tiếp theo
+export function nextGoal(run, reward, meta) {
+  const down = new Set(run.rewards.map(r => r.kind)), out = [];
+  if (run.outcome === 'WIN') out.push(meta && meta.stats.wins > 1 ? 'Thử build khác, hoặc thắng nhanh hơn.' : 'Lần đầu vượt bí cảnh! Thử build khác ở lượt sau.');
+  else if (down.has('MINI') || run.time >= BOSS.MINI.AT) out.push(`Lần sau: trụ tới ${fmtTime(BOSS.FINAL.AT)} và hạ ${BOSS.FINAL.name} (thưởng ×1,5 + vé Cơ Duyên).`);
+  else out.push(`Lần sau: trụ tới ${fmtTime(BOSS.MINI.AT)} để gặp ${BOSS.MINI.name}.`);
+  if (meta && meta.linhThach + (reward ? reward.linhThach : 0) >= ITEMS.PILL_COST) out.push('Đủ linh thạch mua Tụ Khí Đan (phím 2) để tu luyện nhanh hơn — cảnh giới cao vào bí cảnh mạnh hơn.');
+  return out;
+}
+
+export function showResults(run, reward, onClose, meta) {
   const title = { WIN: `Hạ ${BOSS.FINAL.name}, vượt qua bí cảnh!`, LOSE: 'Trọng thương, rời bí cảnh', ABANDON: 'Đã rời bí cảnh', TIMEOUT: 'Hết thời gian, bí cảnh khép lại' }[run.outcome];
   const downs = run.rewards.map(r => BOSS[r.kind].name);
   const skills = run.skills.map(s => `${SKILLS[s.id].icon} ${esc(skillName(s))}${s.evolved ? ' ★' : ' cấp ' + s.level}`).join('<br>');
@@ -160,6 +170,7 @@ export function showResults(run, reward, onClose) {
       .map(([ic, k, name]) => `<div><b>${ic} +${reward ? reward[k] : 0}</b>${name}</div>`).join('')}</div>
     ${reward && reward.firstClear ? '<p class="sub">Lần đầu hạ Yêu Vương: thêm vé Cơ Duyên.</p>' : ''}
     <p class="sub">${run.outcome === 'WIN' ? 'Thắng: thưởng ×1,5.' : 'Thưởng theo tiến độ đã đạt.'} Cảnh giới, tu vi, đồ không đổi. Linh khí và luyện liệu sẽ dùng ở bản sau.</p>
+    <h3>Bước tiếp theo</h3><p class="sub">${nextGoal(run, reward, meta).map(esc).join('<br>')}</p>
     <div class="row"><button data-act="close">Nhận thưởng · về động phủ (Enter)</button></div>`,
   code => { if (code === 'Enter' || code === 'Escape' || code === 'Space') { close(); return true; } return false; });
   $('modal').querySelector('[data-act=close]').addEventListener('click', close);

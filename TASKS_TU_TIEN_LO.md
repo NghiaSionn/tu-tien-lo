@@ -177,7 +177,7 @@
 
 > **Kết quả 11/11/2026: XONG.** `src/progression/rewards.js`, `REWARD` trong config, ADR 0006. Kết thúc run → `meta.pendingReward` (lưu ngay) → nút "Nhận thưởng" cộng + ghi `rewardLog` + xóa pending trong một lần lưu; mở trang còn pending thì tự nhận. Tài nguyên mới: linh khí, luyện liệu, vé Cơ Duyên (HUD động phủ). 10 test mới. Trình duyệt: tải lại giữa bảng kết quả → nhận đúng 1 lần, tải lại tiếp không đổi; bấm đúp + Enter ×2 → cộng 1 lần.
 
-### M2-04 [ ] Cân bằng một run hoàn chỉnh (M)
+### M2-04 [~] Cân bằng một run hoàn chỉnh (M)
 **Phụ thuộc:** M2-01..03.  
 **Làm:** run đầu 6–8 phút để test nhanh, sau đó mở mục tiêu 12–15 phút nếu nhịp chơi tốt; điều chỉnh XP, spawn, sát thương, reward, tỷ lệ xuất hiện combo.
 
@@ -187,6 +187,9 @@
 - Kết thúc lượt thấy được mục tiêu/lựa chọn tiếp theo.
 
 **GATE v0.2:** Từ khởi động game -> hub -> run -> chọn thẻ -> tiến hóa -> boss -> thưởng -> hub -> run lại; không sửa state bằng console; save/reload ổn; ghi review cảm giác chơi.
+
+> **Kết quả 11/11/2026: CÂN BẰNG BẰNG BOT XONG, CHƯA CÓ PLAYTEST NGƯỜI THẬT.** Chi tiết `docs/playtest_M2-04.md`. Run 6–8 phút (Lang Vương 3:30, Yêu Vương 6:00). Bot biết né cảnh báo (12 seed/build): Kiếm+Lôi thắng 10/12, Phi Kiếm+Hỏa 7/12, Lôi+Thể 8/12, Hỏa+Phong 4/12 → **3 build hoàn tất được**, Kiếm+Lôi mạnh nhất nhưng không tuyệt đối. Sửa 2 lỗi gameplay (đạn nhiều tia trượt mục tiêu đơn; Phong Nhận bắn ngược khi chạy). Bảng kết quả có "Bước tiếp theo". Nhật ký 12 lượt bot có build/thời gian/cấp/lý do.
+> **Chưa:** ≥ 5 lượt playtest **người thật** (trình duyệt phiên này 2–5 khung/giây); **GATE v0.2 chưa xác minh** bằng chơi thật trọn vòng (hub → run → boss → thưởng → run lại); chưa mở run 12–15 phút.
 
 ---
 
@@ -398,6 +401,7 @@ Tạo thư mục `docs/adr/` hoặc phần ghi chú khi có quyết định ản
 | 2026-11-11 | M2-01 | DONE | Director thời gian: 5 giai đoạn (nhịp sinh 1,3 → 0,32 s/con, tỉ lệ kiểu quái đổi dần), 7 đợt đội hình (vây tròn / bầy lao / hàng cung bắn xa) có thông báo trên màn và log, tinh anh từ 3:00 rồi mỗi 90 s (tối đa 2), ngân sách cost 18 + 0,3/s (trần 150) + trần cứng 90 con. Kiểu quái: Hỏa Hồ gồng 0,75 s (đường đỏ tới điểm cuối) rồi lao; Huyền Băng Thú giữ khoảng cách, gồng 0,6 s (đường ngắm) rồi bắn băng tiễn — chỉ bắn khi đang trong màn, cây/đá chặn; Ma Ảnh tinh anh x10 máu, gồng 1 s (vòng đỏ + lấp tím đúng bán kính trúng) rồi đập. Hướng/vùng đòn khóa khi bắt đầu gồng. Thêm thống kê `run.dmgBy` theo nguồn sát thương (`DMG=1 node tools/sim.mjs`). Bot tìm ra lỗi: băng tiễn hạ gục người chơi làm mảng đạn bị dọn giữa vòng lặp → đã sửa + test. Chơi thật (127.0.0.1, phím thật) tới 3:07, cấp 15, Lôi Đình Vạn Kiếm 2:16; console sạch. 58/58 test PASS | Bot sau M2-01: Kiếm+Lôi 3/4 thắng; 3 build còn lại 0/4, chết 188–394 s (trước 156–480 s). Bot không biết né cảnh báo nên đánh giá thấp người chơi; cân bằng ở M2-04 |
 | 2026-11-11 | M2-02 | PARTIAL | Boss: Lang Vương 4:00 (lao ×3 có đường cảnh báo, nhắm lại mỗi lần; tru gọi 4 Dã Lang) và Ma Ảnh Yêu Vương 7:00 (đạn tỏa 12/16 tia có tia báo hướng; 3/5 vùng hắc diễm R30 quanh người chơi; đập đất R64 khi áp sát). Sơ hở 1,3–1,4 s sau mỗi chiêu (+50% sát thương, sao vàng + chữ "sơ hở"), 1 đòn ≤ 3% máu, boss không bị đẩy lùi, chỉ chịu nửa làm chậm, kẹt 2 s thì dịch chuyển. Khi boss sống: quái thường sinh thưa ×2, không có tinh anh. Thắng = hạ boss cuối (không còn thắng theo đồng hồ); trần 15 phút → TIMEOUT. Thanh máu boss + vạch pha 2. Reward hook `run.rewards` cho M2-03; bảng kết quả ghi "Đã hạ: …". 70/70 test PASS. Bot: Lang Vương bị hạ sau 35–118 s; Kiếm+Lôi hạ Yêu Vương 1/4 lượt (8:32) | Chưa chơi thật trọn run tới boss (trình duyệt phiên này 2–5 khung/giây); chưa bật thử giảm hiệu ứng; cân bằng (bot chết nhiều vì băng tiễn) → M2-04 |
 | 2026-11-11 | M2-03 | DONE | Thưởng theo tiến độ: linh thạch = 0,1/quái + 2/cấp + 3/phút; linh khí 6/phút; luyện liệu 1/tinh anh; boss: Lang Vương +25💎 +20✨ +2🔩, Yêu Vương +80💎 +60✨ +5🔩 +1🎫; thắng ×1,5; lần đầu thắng +1🎫; +10%/tầng cảnh giới. Giao dịch REWARD_PENDING → REWARDED idempotent (id run + rewardLog 30), save vẫn v2 (chỉ thêm trường, sanitize kẹp giá trị). Bảng kết quả có mục "Mang về động phủ"; HUD động phủ thêm ✨ 🔩 🎫. 80/80 test PASS. Trình duyệt 127.0.0.1: pending được lưu trước khi hiện bảng; tải lại giữa bảng → tự nhận 1 lần + log; tải lại lần 2 không đổi; bấm đúp + Enter ×2 → +3 đúng 1 lần, save khớp, console sạch. Bot: thua 61–196💎, thắng 453💎 + 2🎫 (bản đầu 150–1000💎, quá nhiều so với đan 25💎 → đã giảm) | Linh khí/luyện liệu/vé chưa có chỗ dùng (M3/M4/M6). Cân bằng kinh tế xem lại ở M2-04 |
+| 2026-11-11 | M2-04 | PARTIAL | Bot mới biết né cảnh báo + `--summary`; công cụ `tools/dps.mjs`. Sửa lỗi: Kiếm Khí cấp 3+ / Hỏa Cầu cấp 4+ tỏa quạt góc cố định nên trượt khi chỉ 1 mục tiêu (boss: 1/3 lưỡi, 0/2 cầu) → góc thu hẹp theo khoảng cách + test; Phong Nhận ngắm yêu thú gần nhất. Chỉnh số: Kiếm Khí cấp 5 giảm, Phi Kiếm Trận nạp nhanh, Lôi Kích mạnh hơn, Hỏa Luân rộng hơn, Liệt Diễm/Hỏa Long/Lôi Cương tăng, Lôi Đình giảm nhẹ; run 6–8 phút (boss 3:30/6:00, đợt dồn trước 5:30); Lang Vương lao nhẹ hơn + gồng 0,75 s; Yêu Vương máu ×70, hắc diễm ×1,6. Bảng kết quả thêm "Bước tiếp theo". Bot né (12 seed): 10/12 · 7/12 · 4/12 · 8/12 (trước 4/8 · 1/8 · 1/8 · 0/8). 81/81 test PASS | Chưa playtest người thật (trình duyệt 2–5 khung/giây), GATE v0.2 chưa xác minh; Hỏa+Phong yếu nhất; cảnh giới 9 quá dễ (7–8/8) |
 
 ---
 

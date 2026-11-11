@@ -6,8 +6,8 @@ Cập nhật: 2026-11-11, sau phiên M0 + M1 và thử pixelfx. Bản trước c
 
 | | |
 |---|---|
-| Trạng thái | M0 xong (gate đạt). M1 xong, **gate M1 đạt**. **M2-01 xong**; **M2-02 xong code** (2 boss), còn thiếu chơi thật trọn run tới boss. **M2-03 xong** (thưởng run nhận một lần). Tiếp: M2-04 |
-| Test tự động | `npm test`: 80/80 PASS |
+| Trạng thái | M0 xong (gate đạt). M1 xong, **gate M1 đạt**. **M2-01 xong**; **M2-02 xong code** (2 boss), còn thiếu chơi thật trọn run tới boss. **M2-03 xong**. **M2-04 cân bằng bằng bot xong**, chưa playtest người thật; GATE v0.2 chưa xác minh |
+| Test tự động | `npm test`: 81/81 PASS |
 | Kiểm thử tay | `TEST_REPORT.md` |
 | Quyết định kỹ thuật | `docs/adr/0001…0006` (0005: beanfx chính, pixelfx phụ; 0006: thưởng run nhận một lần) |
 | Rollback | `git checkout baseline-v0.1` (code v0.1 nguyên trạng) |
@@ -76,7 +76,8 @@ src/
   ui/ui.js              HUD, bảng chuẩn bị/thẻ/tạm dừng/kết quả/cài đặt
 tests/                  node:test (realm, cultivation, save, run, director, boss, rewards)
 tools/serve.py          Server dev không cache
-tools/sim.mjs           Bot mô phỏng run
+tools/sim.mjs           Bot mô phỏng run (biết né cảnh báo; --summary; NAIVE=1; DMG=1)
+tools/dps.mjs           Đo sát thương/giây từng công pháp lên bia đứng yên
 tools/pixelfx_import.py Nhập sheet gộp của pixelfx (khử nhân alpha)
 tools/pixelfx_layers.mjs Xuất hiệu ứng pixelfx thành 2 lớp màu + sáng (định dạng beanfx)
 vfx/pixelfx/            Mã nguồn VFX tự làm theo quy trình pixelfx
@@ -100,8 +101,8 @@ Thêm: **cổng bí cảnh** phía bắc tụ linh trận; nút **Cài đặt** 
 
 ### 3.2 Bí cảnh (mới, M1)
 - Đứng gần cổng → E → chọn công pháp khởi đầu (Kiếm Khí / Hỏa Cầu / Lôi Kích) → vào đấu trường 44×44 ô.
-- Quái do **director** sinh (M2-01, `DIRECTOR` trong config): nhịp nhanh dần qua 5 giai đoạn; đợt đội hình có thông báo (1:00 vây tròn, 1:50 bầy Hỏa Hồ, 2:50 hàng cung Huyền Băng Thú, 3:50, 4:50, 5:50, 6:50 "Yêu triều"); Ma Ảnh tinh anh từ 3:00 rồi mỗi 90 s. Không sinh trong 150 px quanh người chơi; ngân sách cost + trần 90 con. Mạnh dần theo thời gian và cảnh giới.
-- **Boss** (M2-02, `BOSS` trong config): **Lang Vương** lúc 4:00 (lao 3 lần, mỗi lần có đường cảnh báo; tru gọi 4 Dã Lang). **Ma Ảnh Yêu Vương** lúc 7:00 (đạn tỏa tròn có tia báo hướng — đứng giữa hai tia; vùng hắc diễm quanh người chơi; đập đất khi áp sát; pha 2 dưới 50% máu; cuồng nộ sau 2:30). **Hạ Yêu Vương = thắng.** Quá 15 phút = "hết thời gian". Sau mỗi chiêu boss sơ hở 1,3 s (sao vàng, +50% sát thương). 1 đòn ≤ 3% máu boss. Thanh máu boss ở cạnh dưới màn. Khi boss sống, quái thường thưa hơn, không có tinh anh. `run.rewards` ghi boss đã hạ (hook cho M2-03).
+- Quái do **director** sinh (M2-01, `DIRECTOR` trong config): nhịp nhanh dần qua 5 giai đoạn; đợt đội hình có thông báo (0:55 vây tròn, 1:40 bầy Hỏa Hồ, 2:30 hàng cung Huyền Băng Thú, 4:10, 4:50, 5:30); Ma Ảnh tinh anh từ 2:45 rồi mỗi 90 s (M2-04: run 6–8 phút). Không sinh trong 150 px quanh người chơi; ngân sách cost + trần 90 con. Mạnh dần theo thời gian và cảnh giới.
+- **Boss** (M2-02, `BOSS` trong config): **Lang Vương** lúc 3:30 (lao 3 lần, mỗi lần có đường cảnh báo; tru gọi 4 Dã Lang). **Ma Ảnh Yêu Vương** lúc 6:00 (đạn tỏa tròn có tia báo hướng — đứng giữa hai tia; vùng hắc diễm quanh người chơi; đập đất khi áp sát; pha 2 dưới 50% máu; cuồng nộ sau 2:30). **Hạ Yêu Vương = thắng.** Quá 15 phút = "hết thời gian". Sau mỗi chiêu boss sơ hở 1,3 s (sao vàng, +50% sát thương). 1 đòn ≤ 3% máu boss. Thanh máu boss ở cạnh dưới màn. Khi boss sống, quái thường thưa hơn, không có tinh anh. `run.rewards` ghi boss đã hạ (hook cho M2-03).
 - 4 kiểu quái, mỗi loài một kiểu (màu = hành vi): **Dã Lang** đuổi cắn; **Hỏa Hồ** gồng 0,75 s (đường đỏ tới điểm cuối) rồi lao; **Huyền Băng Thú** giữ khoảng cách, gồng 0,6 s (đường ngắm) rồi bắn băng tiễn (cây/đá chặn, chỉ bắn khi trong màn); **Ma Ảnh tinh anh** to x2, máu x10, gồng 1 s (vòng đỏ đúng bán kính) rồi đập đất. Hướng/vùng khóa khi bắt đầu gồng → né bằng cách rời đường/vòng.
 - Công pháp tự thi triển khi có mục tiêu trong tầm và trong tầm nhìn (cây/đá chặn).
 - Quái chết rơi **chiến ý**; đủ EXP → game dừng, bảng **chọn 1 trong 3 thẻ**. Lên nhiều cấp cùng lúc thì lần lượt chọn đủ.
@@ -148,8 +149,8 @@ Save trên trình duyệt của máy này lúc kết thúc phiên: đã đưa v�
 
 ## 6. Hạn chế và lỗi còn mở
 
-1. Trọng số `EVO_BASE_UPGRADE_MULT = 3` (thẻ nâng công pháp gốc khi đã có công pháp phụ) là [THỬ NGHIỆM]; xem lại ở M2-04. Khởi đầu Lôi Kích yếu ở Luyện Khí 1.
-2. Cân bằng chưa đều (bot, sau M2-01): Kiếm + Lôi thắng 3/4 lượt; 3 build còn lại 0/4, chết ở phút 3–6,5. Đuổi vây vẫn là nguồn sát thương chính. Chỉnh ở M2-04 (`DMG=1 node tools/sim.mjs` để xem nguồn). Chỉnh ở M2-04.
+1. **Chưa có playtest người thật cho M2-02/M2-04**; GATE v0.2 chưa xác minh. Trình duyệt trong phiên 11/11 chỉ 2–5 khung/giây nên không chơi trọn run được. Cần: ≥ 5 lượt chơi tay với build khác nhau (ghi vào `docs/playtest_M2-04.md`).
+2. Cân bằng (bot biết né, sau M2-04): Kiếm + Lôi 10/12, Phi Kiếm + Hỏa 7/12, Lôi + Thể 8/12, Hỏa + Phong 4/12. Vùng hắc diễm Yêu Vương là nguồn chết số 1. Cảnh giới 9 thắng 7–8/8 (quá dễ, cần bí cảnh khó theo cảnh giới). `EVO_BASE_UPGRADE_MULT = 3` vẫn [THỬ NGHIỆM].
 3. Boss chưa được chơi thật trọn run (cần: thắng và thua boss bằng phím thật, thử giảm hiệu ứng).
 4. Viên chiến ý nhỏ, khó thấy trên cỏ (bản pixelfx đã thử và bị loại; cần hướng khác).
 5. Không có điều khiển cảm ứng (M5-06).
@@ -162,8 +163,8 @@ Save trên trình duyệt của máy này lúc kết thúc phiên: đã đưa v�
 
 ## 7. Bước tiếp theo (theo `TASKS_TU_TIEN_LO.md`)
 
-1. Đóng M2-02: chơi thật một run tới Yêu Vương (thắng + thua), bật giảm hiệu ứng xem cảnh báo.
-2. M2-04: cân bằng một run hoàn chỉnh (độ khó sau M2-01/02, kinh tế thưởng: thua 60–200💎, thắng ~450💎 so với đan 25💎).
+1. Playtest người thật (cửa sổ trình duyệt phải chạy đủ khung hình): ≥ 5 run với 4 build; thắng + thua Yêu Vương; bật giảm hiệu ứng; đi trọn GATE v0.2 (hub → run → tiến hóa → boss → thưởng → hub → run lại). Đóng M2-02 và M2-04.
+2. Sau GATE v0.2: M3 (meta tu tiên: thiền dùng linh khí, cảnh giới, thiên kiếp) — chờ chỉ đạo.
 
 ---
 

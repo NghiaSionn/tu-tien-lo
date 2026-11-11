@@ -167,6 +167,18 @@ Chưa test bằng tay: thắng run thật để thấy vé Cơ Duyên (chưa ch�
 
 ---
 
+## 3f. M2-04 — Cân bằng (2026-11-11)
+
+Chi tiết và nhật ký 12 lượt: `docs/playtest_M2-04.md`. Test mới trong `tests/run.test.js`: một mục tiêu thì mọi lưỡi Kiếm Khí cấp 5 và cả 2 Hỏa Cầu cấp 5 đều trúng (ở 40/90/140 px).
+
+| # | Hạng mục | Cách test | Kết quả |
+|---|---|---|---|
+| C1 | Bảng kết quả có bước tiếp theo | trình duyệt 127.0.0.1, vào run Lôi Kích rồi rời | PASS — "Bước tiếp theo: Lần sau: trụ tới 3:30 để gặp Lang Vương"; màn chuẩn bị ghi mốc 3:30/6:00 |
+| C2 | ≥ 5 lượt playtest người thật | — | **NOT DONE** — trình duyệt phiên này 2–5 khung/giây; thay bằng 12 lượt bot có nhật ký (có ghi hạn chế) |
+| C3 | GATE v0.2 trọn vòng bằng chơi thật | — | **NOT VERIFIED** |
+
+---
+
 ## 4. Bot mô phỏng (`node tools/sim.mjs`) — không phải người chơi thật
 
 Bot né quái, nhặt chiến ý và chọn thẻ theo danh sách ưu tiên của từng build. Dùng để xem xu hướng cân bằng và xác minh tiến hóa đến được bằng bốc thẻ bình thường. Lần chạy cuối (2026-11-11, sau khi thêm `EVO_BASE_UPGRADE_MULT = 3`), cảnh giới 0, 4 seed mỗi build:

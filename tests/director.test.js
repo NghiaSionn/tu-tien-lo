@@ -54,7 +54,7 @@ test('quái mới sinh: đứng được, không sát người chơi, không vư
       for (let i = Math.max(0, before - 0); i < ms.length; i++) {
         const m = ms[i];
         if (m._seen) continue; m._seen = true; checked++;
-        if (m.summoned) { assert.ok(Math.hypot(m.x - p.x, m.y - p.y) >= 40 - 1, 'quái được gọi không sát người chơi'); continue; }
+        if (m.summoned) { assert.ok(Math.hypot(m.x - p.x, m.y - p.y) >= 40 - 5, 'quái được gọi không sát người chơi'); continue; }   // sinh cách ≥40, có thể đã đi 1 bước trong khung
         assert.ok(r.scene.map.canStand(m.x, m.y), 'đứng được');
         assert.ok(Math.hypot(m.x - p.x, m.y - p.y) >= DIRECTOR.SAFE_R - 1, 'không sát người chơi');
       }
@@ -76,7 +76,8 @@ test('cả 4 kiểu quái xuất hiện theo thời gian; tinh anh có giới h�
     assert.ok(r.scene.monsters.filter(m => m.elite).length <= DIRECTOR.ELITE.MAX_ALIVE);
   });
   assert.deepEqual(Object.keys(seen).sort(), ['charger', 'chaser', 'elite', 'ranged']);
-  assert.ok(firstAt.charger >= 60 - 1 && firstAt.ranged >= 110 - 1 && firstAt.elite >= DIRECTOR.ELITE.FIRST - 1, JSON.stringify(firstAt));
+  const tOf = a => DIRECTOR.PHASES.find(ph => ph.mix[a]).t;
+  assert.ok(firstAt.charger >= tOf('charger') - 1 && firstAt.ranged >= tOf('ranged') - 1 && firstAt.elite >= DIRECTOR.ELITE.FIRST - 1, JSON.stringify(firstAt));
 });
 
 test('đợt vây tròn sinh đủ con quanh người chơi', () => {

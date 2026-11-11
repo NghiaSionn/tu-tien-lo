@@ -24,6 +24,10 @@ export const skillName = s => s.evolved ? EVOLUTIONS[s.evolved].name : SKILLS[s.
 export const skillElement = s => s.evolved ? EVOLUTIONS[s.evolved].element : SKILLS[s.id].element;
 
 // Mục tiêu hợp lệ gần nhất trong tầm (và trong tầm nhìn nếu los)
+// Ít mục tiêu hơn số đạn: tỏa quạt nhưng thu hẹp theo khoảng cách để mọi viên vẫn trúng (lệch ngang tối đa ~5 px tại mục tiêu).
+// Trước đây góc tỏa cố định làm 2/3 lưỡi Kiếm Khí và cả 2 Hỏa Cầu trượt khi chỉ có 1 mục tiêu (boss).
+export const fanStep = (dist, maxStep) => Math.min(maxStep, 5 / Math.max(dist, 1));
+
 export function nearestTargets(ctx, x, y, range, n, los = true, exclude = null) {
   const list = [];
   for (const m of ctx.scene.monsters) {
@@ -89,7 +93,7 @@ const KINDS = {
     for (let i = 0; i < p.count; i++) {
       const m = ts[i % ts.length];
       let dx = m.x - pl.x, dy = (m.y - 4) - (pl.y - 8);
-      const spread = ts.length < p.count ? (i - (p.count - 1) / 2) * 0.22 : 0;
+      const spread = ts.length < p.count ? (i - (p.count - 1) / 2) * fanStep(Math.hypot(dx, dy), 0.22) : 0;
       const a = Math.atan2(dy, dx) + spread;
       dx = Math.cos(a); dy = Math.sin(a);
       pushProjectile(ctx, { kind: 'bolt', x: pl.x, y: pl.y - 8, vx: dx * p.speed, vy: dy * p.speed, life: p.range / p.speed * 1.4, dmg: p.dmg, pierce: p.pierce, hits: new Set(), fx: 'kiem_khi', heading: a, evo: s.evolved ? p : null });
@@ -137,7 +141,7 @@ const KINDS = {
     if (!ts.length) { s.st.cd = 0; return; }
     for (let i = 0; i < p.count; i++) {
       const m = ts[i % ts.length];
-      const a = Math.atan2((m.y - 4) - (pl.y - 8), m.x - pl.x) + (ts.length < p.count ? (i - 0.5) * 0.3 : 0);
+      const a = Math.atan2((m.y - 4) - (pl.y - 8), m.x - pl.x) + (ts.length < p.count ? (i - (p.count - 1) / 2) * fanStep(Math.hypot(m.x - pl.x, m.y - pl.y), 0.3) : 0);
       pushProjectile(ctx, { kind: 'orb', x: pl.x, y: pl.y - 8, vx: Math.cos(a) * p.speed, vy: Math.sin(a) * p.speed, life: p.range / p.speed * 1.2, p, hits: new Set() });
     }
     s.st.cd = p.cd * ctx.stats.cooldown;
@@ -193,8 +197,10 @@ const KINDS = {
     if (s.st.cd > 0) return;
     const pl = ctx.player;
     // chỉ bắn khi có yêu thú trong tầm (không bắn vào khoảng không ở động phủ/đầu run)
-    if (!nearestTargets(ctx, pl.x, pl.y, p.range, 1, false).length) { s.st.cd = 0; return; }
-    const base = Math.atan2(pl.fy, pl.fx);
+    const near = nearestTargets(ctx, pl.x, pl.y, p.range, 1, false);
+    if (!near.length) { s.st.cd = 0; return; }
+    // M2-04: ngắm về yêu thú gần nhất (trước đây theo hướng đi -> khi vừa chạy vừa đánh thì bắn ngược ra sau)
+    const base = Math.atan2((near[0].y - 4) - (pl.y - 8), near[0].x - pl.x);
     const dirs = p.count >= 4 ? [0, 1, 2, 3].map(i => base + i * TAU / 4) : p.count >= 2 ? [base, base + Math.PI] : [base];
     for (const a of dirs) pushProjectile(ctx, { kind: 'blade', x: pl.x, y: pl.y - 8, vx: Math.cos(a) * p.speed, vy: Math.sin(a) * p.speed, life: p.range / p.speed, dmg: p.dmg, pierce: p.pierce, hits: new Set(), heading: a });
     s.st.cd = p.cd * ctx.stats.cooldown;

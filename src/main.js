@@ -296,7 +296,7 @@ function finishRun() {
   if (meta.pendingReward && meta.pendingReward.id !== reward.id) claimReward(meta);   // phòng hờ: không để mất phần cũ
   stageReward(meta, reward);
   save();
-  UI.showResults(r, reward, claimAndReturn);
+  UI.showResults(r, reward, claimAndReturn, meta);
 }
 // REWARDED -> HUB: cộng tài nguyên + xóa pending trong cùng một lần lưu; gọi lại lần nữa không cộng thêm
 function claimAndReturn() {

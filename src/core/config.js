@@ -72,24 +72,24 @@ export const DIRECTOR = {
   // giai đoạn: nhịp sinh (giây/con, nội suy tới giai đoạn sau) và tỉ lệ kiểu quái
   PHASES: [
     { t: 0,   every: 1.3,  mix: { chaser: 1 } },
-    { t: 60,  every: 1.05, mix: { chaser: 0.8, charger: 0.2 } },
-    { t: 120, every: 0.8,  mix: { chaser: 0.6, charger: 0.25, ranged: 0.15 } },
-    { t: 240, every: 0.5,  mix: { chaser: 0.5, charger: 0.25, ranged: 0.25 } },
-    { t: 360, every: 0.32, mix: { chaser: 0.45, charger: 0.25, ranged: 0.3 } },
+    { t: 55,  every: 1.05, mix: { chaser: 0.8, charger: 0.2 } },
+    { t: 110, every: 0.8,  mix: { chaser: 0.6, charger: 0.25, ranged: 0.15 } },
+    { t: 210, every: 0.55, mix: { chaser: 0.5, charger: 0.25, ranged: 0.25 } },
+    { t: 300, every: 0.4,  mix: { chaser: 0.45, charger: 0.25, ranged: 0.3 } },
   ],
   // ngân sách: tổng "cost" quái đang sống không vượt quá BASE + t*PER_SEC (tối đa MAX); MAX_ALIVE là trần cứng
   BUDGET: { BASE: 18, PER_SEC: 0.3, MAX: 150 },
-  // đợt sự kiện; form: ring = vây tròn, pack = một bầy từ một hướng, arc = hàng cung trước mặt
+  // đợt sự kiện; form: ring = vây tròn, pack = một bầy từ một hướng, arc = hàng cung trước mặt.
+  // M2-04: run 6–8 phút (Lang Vương 3:30, Yêu Vương 6:00) nên các đợt dồn về trước 6:00
   WAVES: [
-    { t: 60,  arch: 'chaser',  n: 8,  form: 'ring', text: 'Bầy Dã Lang vây quanh!' },
-    { t: 110, arch: 'charger', n: 4,  form: 'pack', text: 'Hỏa Hồ kéo đến — coi chừng chúng lao!' },
-    { t: 170, arch: 'ranged',  n: 5,  form: 'arc',  text: 'Huyền Băng Thú dàn hàng bắn băng tiễn!' },
-    { t: 230, arch: 'chaser',  n: 16, form: 'ring', text: 'Vòng vây thứ hai!' },
+    { t: 55,  arch: 'chaser',  n: 8,  form: 'ring', text: 'Bầy Dã Lang vây quanh!' },
+    { t: 100, arch: 'charger', n: 4,  form: 'pack', text: 'Hỏa Hồ kéo đến — coi chừng chúng lao!' },
+    { t: 150, arch: 'ranged',  n: 5,  form: 'arc',  text: 'Huyền Băng Thú dàn hàng bắn băng tiễn!' },
+    { t: 250, arch: 'chaser',  n: 14, form: 'ring', text: 'Vòng vây thứ hai!' },
     { t: 290, arch: 'charger', n: 6,  form: 'pack', text: 'Bầy Hỏa Hồ!' },
-    { t: 350, arch: 'ranged',  n: 8,  form: 'arc',  text: 'Mưa băng tiễn!' },
-    { t: 410, arch: 'chaser',  n: 22, form: 'ring', text: 'Yêu triều!' },
+    { t: 330, arch: 'ranged',  n: 7,  form: 'arc',  text: 'Mưa băng tiễn — Yêu Vương sắp tới!' },
   ],
-  ELITE: { FIRST: 180, EVERY: 90, MAX_ALIVE: 2, TEXT: 'Ma Ảnh tinh anh xuất hiện!' },
+  ELITE: { FIRST: 165, EVERY: 90, MAX_ALIVE: 2, TEXT: 'Ma Ảnh tinh anh xuất hiện!' },
   RING_R: 175, PACK_R: 200, ARC_R: 170,
 };
 
@@ -116,17 +116,17 @@ export const BOSS = {
   HIT_CAP: 0.03, VULN_MULT: 1.5, STUCK_TIME: 2, TELEPORT_R: 110,
   TRICKLE_MULT: 2,              // khi boss còn sống, quái thường sinh thưa hơn bấy nhiêu lần; không có tinh anh
   MINI: {
-    AT: 240, name: 'Lang Vương', tier: 0, hp: 40, dmg: 1.4, speed: 0.95, xp: 40, size: 3,
+    AT: 210, name: 'Lang Vương', tier: 0, hp: 40, dmg: 1.4, speed: 0.95, xp: 40, size: 3,
     GAP: 1.6, RECOVER: 1.4, ORDER: ['dash', 'dash', 'howl'],
-    DASH: { WINDUP: 0.65, SPEED: 260, TIME: 0.42, REST: 0.3, COUNT: 3, DMG: 1.6, HIT_R: 16 },
+    DASH: { WINDUP: 0.75, SPEED: 260, TIME: 0.42, REST: 0.35, COUNT: 3, DMG: 1.3, HIT_R: 16 },
     HOWL: { WINDUP: 0.9, N: 4, R: 40 },
   },
   FINAL: {
-    AT: 420, name: 'Ma Ảnh Yêu Vương', tier: 3, hp: 110, dmg: 1.6, speed: 0.8, xp: 0, size: 3,
+    AT: 360, name: 'Ma Ảnh Yêu Vương', tier: 3, hp: 70, dmg: 1.6, speed: 0.8, xp: 0, size: 3,
     GAP: 1.3, RECOVER: 1.3, ORDER: ['burst', 'zones'],
     SLAM: { WINDUP: 1.1, R: 64, DMG: 2.4, TRIGGER: 70 },
     BURST: { WINDUP: 0.85, N: 12, N2: 16, SPEED: 80, LIFE: 3, DMG: 1.2 },
-    ZONES: { WINDUP: 1.2, N: 3, N2: 5, R: 30, SPREAD: 55, DMG: 2.0 },
+    ZONES: { WINDUP: 1.2, N: 3, N2: 4, R: 30, SPREAD: 55, DMG: 1.6 },
     PHASE2: 0.5, PHASE2_GAP: 0.7,            // dưới 50% máu: nghỉ ngắn hơn, nhiều đạn/vùng hơn
     ENRAGE_AFTER: 150, ENRAGE_GAP: 0.5, ENRAGE_DMG: 1.5, MAX_HAZARDS: 12,
   },
