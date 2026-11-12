@@ -75,6 +75,8 @@ if (vis.congTrinh) {
 }
 // biểu tượng công pháp cho UI (thay emoji); thiếu sheet thì UI giữ emoji
 if (vis.icons) UI.setIcons('sprites/' + vis.icons.meta.image, vis.icons.meta, vis.icons.img.width, vis.icons.img.height);
+// lần đầu mở trên web (GitHub Pages) mất vài giây tải ~130 file: chữ "Đang tải…" che màn đen tới đây
+document.getElementById('loading')?.remove();
 // M5-01: vật thể rừng (cây, đá, cỏ hoa...) cắt thành canvas riêng: vật che nhân vật dùng kích thước ảnh để làm mờ
 if (vis.rung) {
   // cây vẽ ×2 (pixel gấp đôi): chơi tay thấy cây ngang nhân vật là sai tỉ lệ -> cây ~70 px, gấp đôi người
