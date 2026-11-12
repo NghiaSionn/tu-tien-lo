@@ -1,0 +1,806 @@
+{
+ "frames": [
+  {
+   "filename": "bang_cham east 0",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 24,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 24,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 24,
+    "h": 24
+   },
+   "duration": 42
+  },
+  {
+   "filename": "bang_cham east 1",
+   "frame": {
+    "x": 24,
+    "y": 0,
+    "w": 24,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 24,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 24,
+    "h": 24
+   },
+   "duration": 42
+  },
+  {
+   "filename": "bang_cham east 2",
+   "frame": {
+    "x": 48,
+    "y": 0,
+    "w": 24,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 24,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 24,
+    "h": 24
+   },
+   "duration": 42
+  },
+  {
+   "filename": "bang_cham east 3",
+   "frame": {
+    "x": 72,
+    "y": 0,
+    "w": 24,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 24,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 24,
+    "h": 24
+   },
+   "duration": 42
+  },
+  {
+   "filename": "bang_cham south-east 0",
+   "frame": {
+    "x": 96,
+    "y": 0,
+    "w": 24,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 24,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 24,
+    "h": 24
+   },
+   "duration": 42
+  },
+  {
+   "filename": "bang_cham south-east 1",
+   "frame": {
+    "x": 120,
+    "y": 0,
+    "w": 24,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 24,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 24,
+    "h": 24
+   },
+   "duration": 42
+  },
+  {
+   "filename": "bang_cham south-east 2",
+   "frame": {
+    "x": 0,
+    "y": 24,
+    "w": 24,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 24,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 24,
+    "h": 24
+   },
+   "duration": 42
+  },
+  {
+   "filename": "bang_cham south-east 3",
+   "frame": {
+    "x": 24,
+    "y": 24,
+    "w": 24,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 24,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 24,
+    "h": 24
+   },
+   "duration": 42
+  },
+  {
+   "filename": "bang_cham south 0",
+   "frame": {
+    "x": 48,
+    "y": 24,
+    "w": 24,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 24,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 24,
+    "h": 24
+   },
+   "duration": 42
+  },
+  {
+   "filename": "bang_cham south 1",
+   "frame": {
+    "x": 72,
+    "y": 24,
+    "w": 24,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 24,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 24,
+    "h": 24
+   },
+   "duration": 42
+  },
+  {
+   "filename": "bang_cham south 2",
+   "frame": {
+    "x": 96,
+    "y": 24,
+    "w": 24,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 24,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 24,
+    "h": 24
+   },
+   "duration": 42
+  },
+  {
+   "filename": "bang_cham south 3",
+   "frame": {
+    "x": 120,
+    "y": 24,
+    "w": 24,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 24,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 24,
+    "h": 24
+   },
+   "duration": 42
+  },
+  {
+   "filename": "bang_cham south-west 0",
+   "frame": {
+    "x": 0,
+    "y": 48,
+    "w": 24,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 24,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 24,
+    "h": 24
+   },
+   "duration": 42
+  },
+  {
+   "filename": "bang_cham south-west 1",
+   "frame": {
+    "x": 24,
+    "y": 48,
+    "w": 24,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 24,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 24,
+    "h": 24
+   },
+   "duration": 42
+  },
+  {
+   "filename": "bang_cham south-west 2",
+   "frame": {
+    "x": 48,
+    "y": 48,
+    "w": 24,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 24,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 24,
+    "h": 24
+   },
+   "duration": 42
+  },
+  {
+   "filename": "bang_cham south-west 3",
+   "frame": {
+    "x": 72,
+    "y": 48,
+    "w": 24,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 24,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 24,
+    "h": 24
+   },
+   "duration": 42
+  },
+  {
+   "filename": "bang_cham west 0",
+   "frame": {
+    "x": 96,
+    "y": 48,
+    "w": 24,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 24,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 24,
+    "h": 24
+   },
+   "duration": 42
+  },
+  {
+   "filename": "bang_cham west 1",
+   "frame": {
+    "x": 120,
+    "y": 48,
+    "w": 24,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 24,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 24,
+    "h": 24
+   },
+   "duration": 42
+  },
+  {
+   "filename": "bang_cham west 2",
+   "frame": {
+    "x": 0,
+    "y": 72,
+    "w": 24,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 24,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 24,
+    "h": 24
+   },
+   "duration": 42
+  },
+  {
+   "filename": "bang_cham west 3",
+   "frame": {
+    "x": 24,
+    "y": 72,
+    "w": 24,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 24,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 24,
+    "h": 24
+   },
+   "duration": 42
+  },
+  {
+   "filename": "bang_cham north-west 0",
+   "frame": {
+    "x": 48,
+    "y": 72,
+    "w": 24,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 24,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 24,
+    "h": 24
+   },
+   "duration": 42
+  },
+  {
+   "filename": "bang_cham north-west 1",
+   "frame": {
+    "x": 72,
+    "y": 72,
+    "w": 24,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 24,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 24,
+    "h": 24
+   },
+   "duration": 42
+  },
+  {
+   "filename": "bang_cham north-west 2",
+   "frame": {
+    "x": 96,
+    "y": 72,
+    "w": 24,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 24,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 24,
+    "h": 24
+   },
+   "duration": 42
+  },
+  {
+   "filename": "bang_cham north-west 3",
+   "frame": {
+    "x": 120,
+    "y": 72,
+    "w": 24,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 24,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 24,
+    "h": 24
+   },
+   "duration": 42
+  },
+  {
+   "filename": "bang_cham north 0",
+   "frame": {
+    "x": 0,
+    "y": 96,
+    "w": 24,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 24,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 24,
+    "h": 24
+   },
+   "duration": 42
+  },
+  {
+   "filename": "bang_cham north 1",
+   "frame": {
+    "x": 24,
+    "y": 96,
+    "w": 24,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 24,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 24,
+    "h": 24
+   },
+   "duration": 42
+  },
+  {
+   "filename": "bang_cham north 2",
+   "frame": {
+    "x": 48,
+    "y": 96,
+    "w": 24,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 24,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 24,
+    "h": 24
+   },
+   "duration": 42
+  },
+  {
+   "filename": "bang_cham north 3",
+   "frame": {
+    "x": 72,
+    "y": 96,
+    "w": 24,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 24,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 24,
+    "h": 24
+   },
+   "duration": 42
+  },
+  {
+   "filename": "bang_cham north-east 0",
+   "frame": {
+    "x": 96,
+    "y": 96,
+    "w": 24,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 24,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 24,
+    "h": 24
+   },
+   "duration": 42
+  },
+  {
+   "filename": "bang_cham north-east 1",
+   "frame": {
+    "x": 120,
+    "y": 96,
+    "w": 24,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 24,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 24,
+    "h": 24
+   },
+   "duration": 42
+  },
+  {
+   "filename": "bang_cham north-east 2",
+   "frame": {
+    "x": 0,
+    "y": 120,
+    "w": 24,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 24,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 24,
+    "h": 24
+   },
+   "duration": 42
+  },
+  {
+   "filename": "bang_cham north-east 3",
+   "frame": {
+    "x": 24,
+    "y": 120,
+    "w": 24,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 24,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 24,
+    "h": 24
+   },
+   "duration": 42
+  }
+ ],
+ "meta": {
+  "app": "beanfx",
+  "version": "1",
+  "image": "bang_cham.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 144,
+   "h": 144
+  },
+  "scale": "1",
+  "frameTags": [
+   {
+    "name": "east",
+    "from": 0,
+    "to": 3,
+    "direction": "forward"
+   },
+   {
+    "name": "south-east",
+    "from": 4,
+    "to": 7,
+    "direction": "forward"
+   },
+   {
+    "name": "south",
+    "from": 8,
+    "to": 11,
+    "direction": "forward"
+   },
+   {
+    "name": "south-west",
+    "from": 12,
+    "to": 15,
+    "direction": "forward"
+   },
+   {
+    "name": "west",
+    "from": 16,
+    "to": 19,
+    "direction": "forward"
+   },
+   {
+    "name": "north-west",
+    "from": 20,
+    "to": 23,
+    "direction": "forward"
+   },
+   {
+    "name": "north",
+    "from": 24,
+    "to": 27,
+    "direction": "forward"
+   },
+   {
+    "name": "north-east",
+    "from": 28,
+    "to": 31,
+    "direction": "forward"
+   }
+  ],
+  "beanfx": {
+   "name": "bang_cham",
+   "fps": 24,
+   "loop": true,
+   "end": "loop",
+   "frames": 4,
+   "rows": 8,
+   "frameSize": [
+    24,
+    24
+   ],
+   "pivot": [
+    12,
+    12
+   ],
+   "columns": 6,
+   "blend_light": "add",
+   "light_gain": 1.0,
+   "view": "3/4",
+   "directions": 8,
+   "row_rule": "row k faces tau * k / n, y down: 0 east, n/4 south, n/2 west, 3n/4 north",
+   "row_of": "round(atan2(dy, dx) / tau * n) mod n",
+   "row_names": [
+    "east",
+    "south-east",
+    "south",
+    "south-west",
+    "west",
+    "north-west",
+    "north",
+    "north-east"
+   ],
+   "glow": "medium",
+   "sheet": "bang_cham.png",
+   "light": "bang_cham_light.png",
+   "color": "bang_cham_color.png"
+  }
+ }
+}

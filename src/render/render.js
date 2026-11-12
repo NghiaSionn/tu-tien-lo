@@ -38,6 +38,19 @@ export function addFlash(vis, t) { vis.flash = Math.max(vis.flash, vis.reduce ? 
 
 const TIER_COLORS = TIERS.map(t => t.c);
 
+// M5-03: một fx dùng chung cho nhiều thứ cùng loại (kiếm xoay, vùng lửa, đạn boss) theo (tên, hàng hướng);
+// cập nhật đúng một lần mỗi khung. null khi đồ họa Thấp hoặc chưa nạp -> nơi gọi vẽ hình code.
+function sharedFx(vis, name, row = 0) {
+  if (vis.quality === 'low' || !vis.FX[name]) return null;
+  vis.shared = vis.shared || {};
+  const key = name + ':' + row;
+  let e = vis.shared[key];
+  if (!e) e = vis.shared[key] = { fx: createFx(vis.FX[name], { row }), at: -1 };
+  if (e.at !== vis.frameNo) { e.at = vis.frameNo; e.fx.update(vis.frameDt || 0); }
+  return e.fx;
+}
+const rowFor = (heading, n) => ((Math.round(heading / 6.283185307 * n) % n) + n) % n;
+
 // Biến sự kiện từ logic thành hình
 export function consumeEvents(vis, ev) {
   for (const e of ev) {
@@ -46,7 +59,8 @@ export function consumeEvents(vis, ev) {
       case 'fx': spawnFx(vis, e.name, e.x, e.y, { scale: e.scale || 1, flip: !!e.flip }); break;
       case 'shake': addShake(vis, e.t); break;
       case 'chain': vis.chains.push({ pts: e.pts, life: 0.18 }); break;
-      case 'boom': if (e.fx && vis.FX[e.fx] && vis.quality !== 'low') { spawnFx(vis, e.fx, e.x, e.y, { scale: e.r / e.fxR }); break; }
+      case 'boom': if (!e.fx && e.color === '#c070ff') { e.fx = 'hac_diem_no'; e.fxR = 30; }
+        if (e.fx && vis.FX[e.fx] && vis.quality !== 'low') { spawnFx(vis, e.fx, e.x, e.y, { scale: e.r / e.fxR }); break; }
         vis.rings.push({ x: e.x, y: e.y, r: e.r * 0.4, to: e.r, life: 0.3, max: 0.3, color: e.color, fill: true }); burst(vis, e.x, e.y, 10, 60, e.color, 0.4); break;
       case 'pulse': if (e.fx && vis.FX[e.fx] && vis.quality !== 'low') { spawnFx(vis, e.fx, e.x, e.y, { scale: e.r / e.fxR }); break; }
         vis.rings.push({ x: e.x, y: e.y - 4, r: 6, to: e.r, life: 0.35, max: 0.35, color: e.color }); break;
@@ -267,9 +281,11 @@ function drawBossBar(ctx, scene, camX, camY) {
   ctx.globalAlpha = 1;
 }
 
-function drawEnemyShots(ctx, shots) {
+function drawEnemyShots(ctx, shots, vis) {
+  const dark = sharedFx(vis, 'hac_diem_dan');
   for (const s of shots) {
     const x = Math.round(s.x), y = Math.round(s.y);
+    if (s.kind === 'dark' && dark) { dark.x = x; dark.y = y; dark.draw(ctx); continue; }
     if (s.kind === 'dark') {
       ctx.fillStyle = '#0c0614'; ctx.fillRect(x - 3, y - 3, 7, 7);
       ctx.fillStyle = '#c040ff'; ctx.fillRect(x - 2, y - 2, 5, 5);
@@ -318,7 +334,9 @@ function drawSkillsUnder(ctx, run, p, time, vis, dt) {
       if (f) { f.back.update(dt); f.front.update(dt); f.back.x = f.front.x = Math.round(p.x); f.back.y = f.front.y = Math.round(p.y); f.back.draw(ctx); }
     }
     const k = skillKind(s), prm = skillParams(s);
-    if (k === 'ring') {
+    const rf = k === 'ring' ? sharedFx(vis, 'hoa_luan') : null;
+    if (rf) { rf.x = Math.round(p.x); rf.y = Math.round(p.y); rf.scale = prm.radius / 40; rf.draw(ctx); rf.scale = 1; }
+    else if (k === 'ring') {
       ctx.globalCompositeOperation = 'lighter';
       pxRing(ctx, p.x, p.y - 2, prm.radius, 26, time * 2.5, '#ff8a3c', 2, 0.55);
       pxRing(ctx, p.x, p.y - 2, prm.radius - 3, 18, -time * 3, '#ffd06a', 1, 0.55);
@@ -333,6 +351,8 @@ function drawSkillsOver(ctx, run, p, time, vis) {
     if (k === 'orbit' && st.ready > 0) {
       for (let i = 0; i < st.ready; i++) {
         const a = st.angle + i * 6.283 / st.ready, bx = p.x + Math.cos(a) * 18, by = p.y - 8 + Math.sin(a) * 12;
+        const sw = sharedFx(vis, s.evolved ? 'liet_diem_kiem' : 'phi_kiem', rowFor(a + 1.5708, 16));   // mũi theo chiều xoay
+        if (sw) { ctx.globalCompositeOperation = 'source-over'; sw.x = Math.round(bx); sw.y = Math.round(by); sw.draw(ctx); ctx.globalCompositeOperation = 'lighter'; continue; }
         pxLine(ctx, bx - Math.cos(a + 1.57) * 3, by - Math.sin(a + 1.57) * 3, bx + Math.cos(a + 1.57) * 3, by + Math.sin(a + 1.57) * 3, s.evolved ? '#ff9a3c' : '#bff4ff', 1);
         ctx.fillStyle = '#fff'; ctx.fillRect(Math.round(bx), Math.round(by), 1, 1);
       }
@@ -359,7 +379,7 @@ function drawProjectiles(ctx, scene, FX, dt, quality) {
   for (const q of scene.projectiles) {
     const x = Math.round(q.x), y = Math.round(q.y);
     if (q.kind === 'bolt') {
-      if (!q.fxObj) q.fxObj = createFx(FX.kiem_khi, { heading: q.heading });
+      if (!q.fxObj) q.fxObj = createFx(q.ice && quality !== 'low' && FX.bang_cham ? FX.bang_cham : FX.kiem_khi, { heading: q.heading });
       q.fxObj.update(dt); q.fxObj.x = x; q.fxObj.y = y; q.fxObj.draw(ctx);
       if (q.evo && q.evo.chains) { ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = '#d9c8ff'; ctx.fillRect(x - 1 + ((x * 7) % 3) - 1, y - 2, 1, 4); ctx.globalCompositeOperation = 'source-over'; }
     } else {
@@ -368,6 +388,11 @@ function drawProjectiles(ctx, scene, FX, dt, quality) {
         const c = Math.cos(q.heading), s = Math.sin(q.heading);
         pxLine(ctx, x - c * 5, y - s * 5, x + c * 3, y + s * 3, q.color, 1);
         ctx.fillStyle = '#fff'; ctx.fillRect(x + Math.round(c * 3), y + Math.round(s * 3), 1, 1);
+      } else if (q.kind === 'homing' && rich && FX.phi_kiem) {   // kiếm đuổi quái: đổi hàng khi đổi hướng
+        ctx.globalCompositeOperation = 'source-over';
+        const name = q.evo ? 'liet_diem_kiem' : 'phi_kiem', row = rowFor(q.heading || 0, 16);
+        if (!q.fxObj || q.fxRow !== row) { q.fxObj = createFx(FX[name], { row }); q.fxRow = row; }
+        q.fxObj.update(dt); q.fxObj.x = x; q.fxObj.y = y; q.fxObj.draw(ctx);
       } else if (q.kind === 'orb' && rich && FX.hoa_cau_bay) {   // M5-03: VFX beanfx, 8 hướng
         ctx.globalCompositeOperation = 'source-over';
         if (!q.fxObj) q.fxObj = createFx(FX.hoa_cau_bay, { heading: Math.atan2(q.vy, q.vx) });
@@ -393,6 +418,7 @@ function drawProjectiles(ctx, scene, FX, dt, quality) {
 // g: { scene, player, time, meta, run, vis, medFx, trib, inForm, portal }
 export function render(ctx, g) {
   const { scene, player: p, time, vis } = g, map = scene.map;
+  vis.frameNo = (vis.frameNo || 0) + 1; vis.frameDt = g.dtWorld || 0;
   let camX = Math.round(Math.max(0, Math.min(map.pw - W, p.x - W / 2)));
   let camY = Math.round(Math.max(0, Math.min(map.ph - H, p.y - 8 - H / 2)));
   if (vis.shake > 0) { camX += Math.round(rand(-2, 2)); camY += Math.round(rand(-2, 2)); }
@@ -413,7 +439,14 @@ export function render(ctx, g) {
   } else {
     // chiến ý (EXP) và vùng lửa nằm dưới mặt đất
     ctx.globalCompositeOperation = 'lighter';
-    for (const z of scene.zones) { ctx.globalAlpha = Math.min(1, z.t); pxRing(ctx, z.x, z.y, z.r, 16, time * 3, '#ff6a2a', 2, 0.5); }
+    const zf = sharedFx(vis, 'liet_diem_vung');
+    if (zf) ctx.globalCompositeOperation = 'source-over';
+    for (const z of scene.zones) {
+      ctx.globalAlpha = Math.min(1, z.t);
+      if (zf) { zf.x = Math.round(z.x); zf.y = Math.round(z.y); zf.scale = z.r / 16; zf.draw(ctx); }
+      else pxRing(ctx, z.x, z.y, z.r, 16, time * 3, '#ff6a2a', 2, 0.5);
+    }
+    if (zf) { zf.scale = 1; ctx.globalCompositeOperation = 'lighter'; }
     ctx.globalAlpha = 1;
     for (const o of scene.orbs) {
       const c = o.v >= 3 ? '#ffd978' : o.v >= 2 ? '#7fe3ff' : '#9cf2a0';
@@ -445,7 +478,7 @@ export function render(ctx, g) {
   if (g.run) drawSkillsOver(ctx, g.run, p, time, vis);
   if (scene.kind !== 'hub') drawTelegraphsTop(ctx, scene);
   else if (g.trib && g.trib.interactive) drawTribulation(ctx, g.trib, time, true);
-  if (scene.enemyShots) drawEnemyShots(ctx, scene.enemyShots);
+  if (scene.enemyShots) drawEnemyShots(ctx, scene.enemyShots, vis);
   if (scene.projectiles) drawProjectiles(ctx, scene, vis.FX, g.dtWorld || 0, vis.quality);
   for (const s of g.hubShots || []) { s.fx.x = Math.round(s.x); s.fx.y = Math.round(s.y); s.fx.draw(ctx); }
   for (const fx of vis.fxs) fx.draw(ctx);

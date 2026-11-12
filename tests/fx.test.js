@@ -6,7 +6,8 @@ import { fromJson, createFx } from '../lib/beanfx.js';
 
 const DIR = new URL('../fx/', import.meta.url);
 const pngSize = file => { const b = fs.readFileSync(new URL(file, DIR)); return { w: b.readUInt32BE(16), h: b.readUInt32BE(20) }; };
-const NEW = ['loi_cuong_back', 'loi_cuong_front', 'loi_vuc', 'hoa_cau_bay', 'hoa_cau_no', 'phong_nhan', 'hoa_long_quyen_v2'];
+const NEW = ['loi_cuong_back', 'loi_cuong_front', 'loi_vuc', 'hoa_cau_bay', 'hoa_cau_no', 'phong_nhan', 'hoa_long_quyen_v2',
+  'phi_kiem', 'liet_diem_kiem', 'liet_diem_vung', 'bang_cham', 'han_khi', 'hoa_luan', 'hac_diem_no', 'hac_diem_dan'];
 
 for (const name of NEW) {
   test(`sheet ${name}: JSON + ảnh màu/sáng hợp lệ`, () => {

@@ -1,0 +1,314 @@
+{
+ "frames": [
+  {
+   "filename": "hoa_luan 0",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 112,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 112,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 112,
+    "h": 72
+   },
+   "duration": 50
+  },
+  {
+   "filename": "hoa_luan 1",
+   "frame": {
+    "x": 112,
+    "y": 0,
+    "w": 112,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 112,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 112,
+    "h": 72
+   },
+   "duration": 50
+  },
+  {
+   "filename": "hoa_luan 2",
+   "frame": {
+    "x": 224,
+    "y": 0,
+    "w": 112,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 112,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 112,
+    "h": 72
+   },
+   "duration": 50
+  },
+  {
+   "filename": "hoa_luan 3",
+   "frame": {
+    "x": 0,
+    "y": 72,
+    "w": 112,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 112,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 112,
+    "h": 72
+   },
+   "duration": 50
+  },
+  {
+   "filename": "hoa_luan 4",
+   "frame": {
+    "x": 112,
+    "y": 72,
+    "w": 112,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 112,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 112,
+    "h": 72
+   },
+   "duration": 50
+  },
+  {
+   "filename": "hoa_luan 5",
+   "frame": {
+    "x": 224,
+    "y": 72,
+    "w": 112,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 112,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 112,
+    "h": 72
+   },
+   "duration": 50
+  },
+  {
+   "filename": "hoa_luan 6",
+   "frame": {
+    "x": 0,
+    "y": 144,
+    "w": 112,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 112,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 112,
+    "h": 72
+   },
+   "duration": 50
+  },
+  {
+   "filename": "hoa_luan 7",
+   "frame": {
+    "x": 112,
+    "y": 144,
+    "w": 112,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 112,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 112,
+    "h": 72
+   },
+   "duration": 50
+  },
+  {
+   "filename": "hoa_luan 8",
+   "frame": {
+    "x": 224,
+    "y": 144,
+    "w": 112,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 112,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 112,
+    "h": 72
+   },
+   "duration": 50
+  },
+  {
+   "filename": "hoa_luan 9",
+   "frame": {
+    "x": 0,
+    "y": 216,
+    "w": 112,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 112,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 112,
+    "h": 72
+   },
+   "duration": 50
+  },
+  {
+   "filename": "hoa_luan 10",
+   "frame": {
+    "x": 112,
+    "y": 216,
+    "w": 112,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 112,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 112,
+    "h": 72
+   },
+   "duration": 50
+  },
+  {
+   "filename": "hoa_luan 11",
+   "frame": {
+    "x": 224,
+    "y": 216,
+    "w": 112,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 112,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 112,
+    "h": 72
+   },
+   "duration": 50
+  }
+ ],
+ "meta": {
+  "app": "beanfx",
+  "version": "1",
+  "image": "hoa_luan.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 336,
+   "h": 288
+  },
+  "scale": "1",
+  "frameTags": [
+   {
+    "name": "hoa_luan",
+    "from": 0,
+    "to": 11,
+    "direction": "forward"
+   }
+  ],
+  "beanfx": {
+   "name": "hoa_luan",
+   "fps": 20,
+   "loop": true,
+   "end": "loop",
+   "frames": 12,
+   "rows": 1,
+   "frameSize": [
+    112,
+    72
+   ],
+   "pivot": [
+    56,
+    42
+   ],
+   "columns": 3,
+   "blend_light": "add",
+   "light_gain": 1.0,
+   "view": "3/4",
+   "directions": 1,
+   "glow": "medium",
+   "radius": 40.0,
+   "note": "game: scale = b\u00e1n k\u00ednh th\u1eadt / 40",
+   "sheet": "hoa_luan.png",
+   "light": "hoa_luan_light.png",
+   "color": "hoa_luan_color.png"
+  }
+ }
+}

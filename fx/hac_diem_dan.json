@@ -1,0 +1,180 @@
+{
+ "frames": [
+  {
+   "filename": "hac_diem_dan 0",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 16,
+    "h": 16
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 16,
+    "h": 16
+   },
+   "sourceSize": {
+    "w": 16,
+    "h": 16
+   },
+   "duration": 42
+  },
+  {
+   "filename": "hac_diem_dan 1",
+   "frame": {
+    "x": 16,
+    "y": 0,
+    "w": 16,
+    "h": 16
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 16,
+    "h": 16
+   },
+   "sourceSize": {
+    "w": 16,
+    "h": 16
+   },
+   "duration": 42
+  },
+  {
+   "filename": "hac_diem_dan 2",
+   "frame": {
+    "x": 32,
+    "y": 0,
+    "w": 16,
+    "h": 16
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 16,
+    "h": 16
+   },
+   "sourceSize": {
+    "w": 16,
+    "h": 16
+   },
+   "duration": 42
+  },
+  {
+   "filename": "hac_diem_dan 3",
+   "frame": {
+    "x": 0,
+    "y": 16,
+    "w": 16,
+    "h": 16
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 16,
+    "h": 16
+   },
+   "sourceSize": {
+    "w": 16,
+    "h": 16
+   },
+   "duration": 42
+  },
+  {
+   "filename": "hac_diem_dan 4",
+   "frame": {
+    "x": 16,
+    "y": 16,
+    "w": 16,
+    "h": 16
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 16,
+    "h": 16
+   },
+   "sourceSize": {
+    "w": 16,
+    "h": 16
+   },
+   "duration": 42
+  },
+  {
+   "filename": "hac_diem_dan 5",
+   "frame": {
+    "x": 32,
+    "y": 16,
+    "w": 16,
+    "h": 16
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 16,
+    "h": 16
+   },
+   "sourceSize": {
+    "w": 16,
+    "h": 16
+   },
+   "duration": 42
+  }
+ ],
+ "meta": {
+  "app": "beanfx",
+  "version": "1",
+  "image": "hac_diem_dan.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 48,
+   "h": 32
+  },
+  "scale": "1",
+  "frameTags": [
+   {
+    "name": "hac_diem_dan",
+    "from": 0,
+    "to": 5,
+    "direction": "forward"
+   }
+  ],
+  "beanfx": {
+   "name": "hac_diem_dan",
+   "fps": 24,
+   "loop": true,
+   "end": "loop",
+   "frames": 6,
+   "rows": 1,
+   "frameSize": [
+    16,
+    16
+   ],
+   "pivot": [
+    8,
+    8
+   ],
+   "columns": 3,
+   "blend_light": "add",
+   "light_gain": 1.0,
+   "view": "3/4",
+   "directions": 1,
+   "glow": "medium",
+   "sheet": "hac_diem_dan.png",
+   "light": "hac_diem_dan_light.png",
+   "color": "hac_diem_dan_color.png"
+  }
+ }
+}

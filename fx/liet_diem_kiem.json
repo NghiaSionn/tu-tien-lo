@@ -1,0 +1,1548 @@
+{
+ "frames": [
+  {
+   "filename": "liet_diem_kiem dir0 0",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir0 1",
+   "frame": {
+    "x": 28,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir0 2",
+   "frame": {
+    "x": 56,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir0 3",
+   "frame": {
+    "x": 84,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir1 0",
+   "frame": {
+    "x": 112,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir1 1",
+   "frame": {
+    "x": 140,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir1 2",
+   "frame": {
+    "x": 168,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir1 3",
+   "frame": {
+    "x": 196,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir2 0",
+   "frame": {
+    "x": 0,
+    "y": 28,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir2 1",
+   "frame": {
+    "x": 28,
+    "y": 28,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir2 2",
+   "frame": {
+    "x": 56,
+    "y": 28,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir2 3",
+   "frame": {
+    "x": 84,
+    "y": 28,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir3 0",
+   "frame": {
+    "x": 112,
+    "y": 28,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir3 1",
+   "frame": {
+    "x": 140,
+    "y": 28,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir3 2",
+   "frame": {
+    "x": 168,
+    "y": 28,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir3 3",
+   "frame": {
+    "x": 196,
+    "y": 28,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir4 0",
+   "frame": {
+    "x": 0,
+    "y": 56,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir4 1",
+   "frame": {
+    "x": 28,
+    "y": 56,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir4 2",
+   "frame": {
+    "x": 56,
+    "y": 56,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir4 3",
+   "frame": {
+    "x": 84,
+    "y": 56,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir5 0",
+   "frame": {
+    "x": 112,
+    "y": 56,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir5 1",
+   "frame": {
+    "x": 140,
+    "y": 56,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir5 2",
+   "frame": {
+    "x": 168,
+    "y": 56,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir5 3",
+   "frame": {
+    "x": 196,
+    "y": 56,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir6 0",
+   "frame": {
+    "x": 0,
+    "y": 84,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir6 1",
+   "frame": {
+    "x": 28,
+    "y": 84,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir6 2",
+   "frame": {
+    "x": 56,
+    "y": 84,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir6 3",
+   "frame": {
+    "x": 84,
+    "y": 84,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir7 0",
+   "frame": {
+    "x": 112,
+    "y": 84,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir7 1",
+   "frame": {
+    "x": 140,
+    "y": 84,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir7 2",
+   "frame": {
+    "x": 168,
+    "y": 84,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir7 3",
+   "frame": {
+    "x": 196,
+    "y": 84,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir8 0",
+   "frame": {
+    "x": 0,
+    "y": 112,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir8 1",
+   "frame": {
+    "x": 28,
+    "y": 112,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir8 2",
+   "frame": {
+    "x": 56,
+    "y": 112,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir8 3",
+   "frame": {
+    "x": 84,
+    "y": 112,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir9 0",
+   "frame": {
+    "x": 112,
+    "y": 112,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir9 1",
+   "frame": {
+    "x": 140,
+    "y": 112,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir9 2",
+   "frame": {
+    "x": 168,
+    "y": 112,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir9 3",
+   "frame": {
+    "x": 196,
+    "y": 112,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir10 0",
+   "frame": {
+    "x": 0,
+    "y": 140,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir10 1",
+   "frame": {
+    "x": 28,
+    "y": 140,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir10 2",
+   "frame": {
+    "x": 56,
+    "y": 140,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir10 3",
+   "frame": {
+    "x": 84,
+    "y": 140,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir11 0",
+   "frame": {
+    "x": 112,
+    "y": 140,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir11 1",
+   "frame": {
+    "x": 140,
+    "y": 140,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir11 2",
+   "frame": {
+    "x": 168,
+    "y": 140,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir11 3",
+   "frame": {
+    "x": 196,
+    "y": 140,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir12 0",
+   "frame": {
+    "x": 0,
+    "y": 168,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir12 1",
+   "frame": {
+    "x": 28,
+    "y": 168,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir12 2",
+   "frame": {
+    "x": 56,
+    "y": 168,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir12 3",
+   "frame": {
+    "x": 84,
+    "y": 168,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir13 0",
+   "frame": {
+    "x": 112,
+    "y": 168,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir13 1",
+   "frame": {
+    "x": 140,
+    "y": 168,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir13 2",
+   "frame": {
+    "x": 168,
+    "y": 168,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir13 3",
+   "frame": {
+    "x": 196,
+    "y": 168,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir14 0",
+   "frame": {
+    "x": 0,
+    "y": 196,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir14 1",
+   "frame": {
+    "x": 28,
+    "y": 196,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir14 2",
+   "frame": {
+    "x": 56,
+    "y": 196,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir14 3",
+   "frame": {
+    "x": 84,
+    "y": 196,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir15 0",
+   "frame": {
+    "x": 112,
+    "y": 196,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir15 1",
+   "frame": {
+    "x": 140,
+    "y": 196,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir15 2",
+   "frame": {
+    "x": 168,
+    "y": 196,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  },
+  {
+   "filename": "liet_diem_kiem dir15 3",
+   "frame": {
+    "x": 196,
+    "y": 196,
+    "w": 28,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 28
+   },
+   "duration": 42
+  }
+ ],
+ "meta": {
+  "app": "beanfx",
+  "version": "1",
+  "image": "liet_diem_kiem.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 224,
+   "h": 224
+  },
+  "scale": "1",
+  "frameTags": [
+   {
+    "name": "dir0",
+    "from": 0,
+    "to": 3,
+    "direction": "forward"
+   },
+   {
+    "name": "dir1",
+    "from": 4,
+    "to": 7,
+    "direction": "forward"
+   },
+   {
+    "name": "dir2",
+    "from": 8,
+    "to": 11,
+    "direction": "forward"
+   },
+   {
+    "name": "dir3",
+    "from": 12,
+    "to": 15,
+    "direction": "forward"
+   },
+   {
+    "name": "dir4",
+    "from": 16,
+    "to": 19,
+    "direction": "forward"
+   },
+   {
+    "name": "dir5",
+    "from": 20,
+    "to": 23,
+    "direction": "forward"
+   },
+   {
+    "name": "dir6",
+    "from": 24,
+    "to": 27,
+    "direction": "forward"
+   },
+   {
+    "name": "dir7",
+    "from": 28,
+    "to": 31,
+    "direction": "forward"
+   },
+   {
+    "name": "dir8",
+    "from": 32,
+    "to": 35,
+    "direction": "forward"
+   },
+   {
+    "name": "dir9",
+    "from": 36,
+    "to": 39,
+    "direction": "forward"
+   },
+   {
+    "name": "dir10",
+    "from": 40,
+    "to": 43,
+    "direction": "forward"
+   },
+   {
+    "name": "dir11",
+    "from": 44,
+    "to": 47,
+    "direction": "forward"
+   },
+   {
+    "name": "dir12",
+    "from": 48,
+    "to": 51,
+    "direction": "forward"
+   },
+   {
+    "name": "dir13",
+    "from": 52,
+    "to": 55,
+    "direction": "forward"
+   },
+   {
+    "name": "dir14",
+    "from": 56,
+    "to": 59,
+    "direction": "forward"
+   },
+   {
+    "name": "dir15",
+    "from": 60,
+    "to": 63,
+    "direction": "forward"
+   }
+  ],
+  "beanfx": {
+   "name": "liet_diem_kiem",
+   "fps": 24,
+   "loop": true,
+   "end": "loop",
+   "frames": 4,
+   "rows": 16,
+   "frameSize": [
+    28,
+    28
+   ],
+   "pivot": [
+    14,
+    14
+   ],
+   "columns": 8,
+   "blend_light": "add",
+   "light_gain": 1.0,
+   "view": "3/4",
+   "directions": 16,
+   "row_rule": "row k faces tau * k / n, y down: 0 east, n/4 south, n/2 west, 3n/4 north",
+   "row_of": "round(atan2(dy, dx) / tau * n) mod n",
+   "glow": "medium",
+   "sheet": "liet_diem_kiem.png",
+   "light": "liet_diem_kiem_light.png",
+   "color": "liet_diem_kiem_color.png"
+  }
+ }
+}

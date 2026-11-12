@@ -1,0 +1,314 @@
+{
+ "frames": [
+  {
+   "filename": "liet_diem_vung 0",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 50
+  },
+  {
+   "filename": "liet_diem_vung 1",
+   "frame": {
+    "x": 40,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 50
+  },
+  {
+   "filename": "liet_diem_vung 2",
+   "frame": {
+    "x": 80,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 50
+  },
+  {
+   "filename": "liet_diem_vung 3",
+   "frame": {
+    "x": 0,
+    "y": 28,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 50
+  },
+  {
+   "filename": "liet_diem_vung 4",
+   "frame": {
+    "x": 40,
+    "y": 28,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 50
+  },
+  {
+   "filename": "liet_diem_vung 5",
+   "frame": {
+    "x": 80,
+    "y": 28,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 50
+  },
+  {
+   "filename": "liet_diem_vung 6",
+   "frame": {
+    "x": 0,
+    "y": 56,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 50
+  },
+  {
+   "filename": "liet_diem_vung 7",
+   "frame": {
+    "x": 40,
+    "y": 56,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 50
+  },
+  {
+   "filename": "liet_diem_vung 8",
+   "frame": {
+    "x": 80,
+    "y": 56,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 50
+  },
+  {
+   "filename": "liet_diem_vung 9",
+   "frame": {
+    "x": 0,
+    "y": 84,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 50
+  },
+  {
+   "filename": "liet_diem_vung 10",
+   "frame": {
+    "x": 40,
+    "y": 84,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 50
+  },
+  {
+   "filename": "liet_diem_vung 11",
+   "frame": {
+    "x": 80,
+    "y": 84,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 50
+  }
+ ],
+ "meta": {
+  "app": "beanfx",
+  "version": "1",
+  "image": "liet_diem_vung.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 120,
+   "h": 112
+  },
+  "scale": "1",
+  "frameTags": [
+   {
+    "name": "liet_diem_vung",
+    "from": 0,
+    "to": 11,
+    "direction": "forward"
+   }
+  ],
+  "beanfx": {
+   "name": "liet_diem_vung",
+   "fps": 20,
+   "loop": true,
+   "end": "loop",
+   "frames": 12,
+   "rows": 1,
+   "frameSize": [
+    40,
+    28
+   ],
+   "pivot": [
+    20,
+    18
+   ],
+   "columns": 3,
+   "blend_light": "add",
+   "light_gain": 1.0,
+   "view": "3/4",
+   "directions": 1,
+   "glow": "medium",
+   "radius": 16.0,
+   "note": "game: scale = b\u00e1n k\u00ednh v\u00f9ng / 16",
+   "sheet": "liet_diem_vung.png",
+   "light": "liet_diem_vung_light.png",
+   "color": "liet_diem_vung_color.png"
+  }
+ }
+}

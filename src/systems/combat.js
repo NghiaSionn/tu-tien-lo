@@ -199,7 +199,7 @@ const KINDS = {
       if (m.dead || Math.hypot(m.x - pl.x, m.y - pl.y) > r) continue;
       hitMonster(ctx, m, p.dmg * ctx.atk, '#d9c8ff'); applySlow(m, p.slow, p.slowTime); n++;
     }
-    ctx.ev.push({ type: 'pulse', x: pl.x, y: pl.y, r, color: p.color || '#b48cff', hits: n, fx: p.color ? null : 'loi_vuc', fxR: 46 });
+    ctx.ev.push({ type: 'pulse', x: pl.x, y: pl.y, r, color: p.color || '#b48cff', hits: n, fx: p.color ? 'han_khi' : 'loi_vuc', fxR: 46 });
   },
 
   line(ctx, s, p, dt) {

@@ -1,0 +1,270 @@
+{
+ "frames": [
+  {
+   "filename": "hac_diem_no 0",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 72
+   },
+   "duration": 42
+  },
+  {
+   "filename": "hac_diem_no 1",
+   "frame": {
+    "x": 96,
+    "y": 0,
+    "w": 96,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 72
+   },
+   "duration": 42
+  },
+  {
+   "filename": "hac_diem_no 2",
+   "frame": {
+    "x": 192,
+    "y": 0,
+    "w": 96,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 72
+   },
+   "duration": 42
+  },
+  {
+   "filename": "hac_diem_no 3",
+   "frame": {
+    "x": 0,
+    "y": 72,
+    "w": 96,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 72
+   },
+   "duration": 42
+  },
+  {
+   "filename": "hac_diem_no 4",
+   "frame": {
+    "x": 96,
+    "y": 72,
+    "w": 96,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 72
+   },
+   "duration": 42
+  },
+  {
+   "filename": "hac_diem_no 5",
+   "frame": {
+    "x": 192,
+    "y": 72,
+    "w": 96,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 72
+   },
+   "duration": 42
+  },
+  {
+   "filename": "hac_diem_no 6",
+   "frame": {
+    "x": 0,
+    "y": 144,
+    "w": 96,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 72
+   },
+   "duration": 42
+  },
+  {
+   "filename": "hac_diem_no 7",
+   "frame": {
+    "x": 96,
+    "y": 144,
+    "w": 96,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 72
+   },
+   "duration": 42
+  },
+  {
+   "filename": "hac_diem_no 8",
+   "frame": {
+    "x": 192,
+    "y": 144,
+    "w": 96,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 72
+   },
+   "duration": 42
+  },
+  {
+   "filename": "hac_diem_no 9",
+   "frame": {
+    "x": 0,
+    "y": 216,
+    "w": 96,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 72
+   },
+   "duration": 42
+  }
+ ],
+ "meta": {
+  "app": "beanfx",
+  "version": "1",
+  "image": "hac_diem_no.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 288,
+   "h": 288
+  },
+  "scale": "1",
+  "frameTags": [
+   {
+    "name": "hac_diem_no",
+    "from": 0,
+    "to": 9,
+    "direction": "forward"
+   }
+  ],
+  "beanfx": {
+   "name": "hac_diem_no",
+   "fps": 24,
+   "loop": false,
+   "end": "remove",
+   "frames": 10,
+   "rows": 1,
+   "frameSize": [
+    96,
+    72
+   ],
+   "pivot": [
+    48,
+    44
+   ],
+   "columns": 3,
+   "blend_light": "add",
+   "light_gain": 1.0,
+   "view": "3/4",
+   "directions": 1,
+   "glow": "medium",
+   "radius": 30.0,
+   "note": "game: scale = b\u00e1n k\u00ednh v\u00f9ng / 30",
+   "sheet": "hac_diem_no.png",
+   "light": "hac_diem_no_light.png",
+   "color": "hac_diem_no_color.png"
+  }
+ }
+}

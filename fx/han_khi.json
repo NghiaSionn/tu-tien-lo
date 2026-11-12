@@ -1,0 +1,402 @@
+{
+ "frames": [
+  {
+   "filename": "han_khi 0",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 128,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 128,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 128,
+    "h": 96
+   },
+   "duration": 33
+  },
+  {
+   "filename": "han_khi 1",
+   "frame": {
+    "x": 128,
+    "y": 0,
+    "w": 128,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 128,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 128,
+    "h": 96
+   },
+   "duration": 33
+  },
+  {
+   "filename": "han_khi 2",
+   "frame": {
+    "x": 256,
+    "y": 0,
+    "w": 128,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 128,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 128,
+    "h": 96
+   },
+   "duration": 33
+  },
+  {
+   "filename": "han_khi 3",
+   "frame": {
+    "x": 384,
+    "y": 0,
+    "w": 128,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 128,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 128,
+    "h": 96
+   },
+   "duration": 33
+  },
+  {
+   "filename": "han_khi 4",
+   "frame": {
+    "x": 0,
+    "y": 96,
+    "w": 128,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 128,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 128,
+    "h": 96
+   },
+   "duration": 33
+  },
+  {
+   "filename": "han_khi 5",
+   "frame": {
+    "x": 128,
+    "y": 96,
+    "w": 128,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 128,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 128,
+    "h": 96
+   },
+   "duration": 33
+  },
+  {
+   "filename": "han_khi 6",
+   "frame": {
+    "x": 256,
+    "y": 96,
+    "w": 128,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 128,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 128,
+    "h": 96
+   },
+   "duration": 33
+  },
+  {
+   "filename": "han_khi 7",
+   "frame": {
+    "x": 384,
+    "y": 96,
+    "w": 128,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 128,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 128,
+    "h": 96
+   },
+   "duration": 33
+  },
+  {
+   "filename": "han_khi 8",
+   "frame": {
+    "x": 0,
+    "y": 192,
+    "w": 128,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 128,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 128,
+    "h": 96
+   },
+   "duration": 33
+  },
+  {
+   "filename": "han_khi 9",
+   "frame": {
+    "x": 128,
+    "y": 192,
+    "w": 128,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 128,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 128,
+    "h": 96
+   },
+   "duration": 33
+  },
+  {
+   "filename": "han_khi 10",
+   "frame": {
+    "x": 256,
+    "y": 192,
+    "w": 128,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 128,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 128,
+    "h": 96
+   },
+   "duration": 33
+  },
+  {
+   "filename": "han_khi 11",
+   "frame": {
+    "x": 384,
+    "y": 192,
+    "w": 128,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 128,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 128,
+    "h": 96
+   },
+   "duration": 33
+  },
+  {
+   "filename": "han_khi 12",
+   "frame": {
+    "x": 0,
+    "y": 288,
+    "w": 128,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 128,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 128,
+    "h": 96
+   },
+   "duration": 33
+  },
+  {
+   "filename": "han_khi 13",
+   "frame": {
+    "x": 128,
+    "y": 288,
+    "w": 128,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 128,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 128,
+    "h": 96
+   },
+   "duration": 33
+  },
+  {
+   "filename": "han_khi 14",
+   "frame": {
+    "x": 256,
+    "y": 288,
+    "w": 128,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 128,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 128,
+    "h": 96
+   },
+   "duration": 33
+  },
+  {
+   "filename": "han_khi 15",
+   "frame": {
+    "x": 384,
+    "y": 288,
+    "w": 128,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 128,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 128,
+    "h": 96
+   },
+   "duration": 33
+  }
+ ],
+ "meta": {
+  "app": "beanfx",
+  "version": "1",
+  "image": "han_khi.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 512,
+   "h": 384
+  },
+  "scale": "1",
+  "frameTags": [
+   {
+    "name": "han_khi",
+    "from": 0,
+    "to": 15,
+    "direction": "forward"
+   }
+  ],
+  "beanfx": {
+   "name": "han_khi",
+   "fps": 30,
+   "loop": false,
+   "end": "remove",
+   "frames": 16,
+   "rows": 1,
+   "frameSize": [
+    128,
+    96
+   ],
+   "pivot": [
+    64,
+    54
+   ],
+   "columns": 4,
+   "blend_light": "add",
+   "light_gain": 1.0,
+   "view": "3/4",
+   "directions": 1,
+   "glow": "medium",
+   "radius": 46.0,
+   "note": "game: scale = b\u00e1n k\u00ednh th\u1eadt / 46",
+   "sheet": "han_khi.png",
+   "light": "han_khi_light.png",
+   "color": "han_khi_color.png"
+  }
+ }
+}

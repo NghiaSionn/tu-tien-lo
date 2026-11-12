@@ -45,7 +45,9 @@ const FX = {};
 for (const name of ['kiem_khi', 'kiem_trung', 'loi_kiep', 'dot_pha', 'toa_thien']) FX[name] = await loadFx(`fx/${name}.json`);
 // M5-03: VFX beanfx Lôi Cương Hộ Thể (draft vfx/drafts/loi_cuong_ho_the, K=0,36) — lớp sau + lớp trước/sáng; lỗi nạp thì vẽ vòng cũ
 // M5-03 đợt 1: Lôi Vực, Hỏa Cầu (bay 8 hướng + nổ), Phong Nhận (8 hướng), Hỏa Long Quyển (dựng lại từ loc_gio_v2)
-for (const name of ['loi_cuong_back', 'loi_cuong_front', 'loi_vuc', 'hoa_cau_bay', 'hoa_cau_no', 'phong_nhan', 'hoa_long_quyen_v2']) { try { FX[name] = await loadFx(`fx/${name}.json`); } catch (e) { console.warn('[fx]', name, e); } }
+// đợt 2: Phi Kiếm Trận, Liệt Diễm (kiếm + vùng lửa), Băng Châm, Hàn Khí, Hỏa Luân, hắc diễm của boss
+for (const name of ['loi_cuong_back', 'loi_cuong_front', 'loi_vuc', 'hoa_cau_bay', 'hoa_cau_no', 'phong_nhan', 'hoa_long_quyen_v2',
+  'phi_kiem', 'liet_diem_kiem', 'liet_diem_vung', 'bang_cham', 'han_khi', 'hoa_luan', 'hac_diem_no', 'hac_diem_dan']) { try { FX[name] = await loadFx(`fx/${name}.json`); } catch (e) { console.warn('[fx]', name, e); } }
 const vis = makeVis(FX);
 const medFx = createFx(FX.toa_thien);
 // Sheet pixelfx (tùy chọn): lỗi tải thì quay về hình vẽ bằng code, game vẫn chạy
