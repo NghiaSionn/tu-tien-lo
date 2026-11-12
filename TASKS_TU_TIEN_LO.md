@@ -341,6 +341,19 @@
 
 ---
 
+## M7 — CHỨNG MINH VÒNG LẶP VỚI NGƯỜI CHƠI THẬT (P0–P2) — đã duyệt 13/11/2026
+
+Backlog chi tiết (ChatGPT đề xuất 13/11, người phát triển duyệt cùng ngày): **`docs/TASKS_TU_TIEN_LO_M7_2026-11-13.md`** — 18 task M7-01..18, 4 mốc M7-A/B/C/D, mỗi mốc có GATE; mục [GIẢ THUYẾT] phải có kết luận SUPPORTED/REJECTED/INCONCLUSIVE sau playtest. Bổ sung, không thay M0–M6; M6-01..05 vẫn khóa. Thứ tự: M7-01 trước, báo cáo rồi chờ duyệt mới làm M7-02.
+
+- [x] M7-01 Audit baseline + đối chiếu UI với logic hiện có (S, P0) — xong 13/11: `docs/playtest/BASELINE_M7.md`, HEAD 2035580, 146/146 test, 7 bảng PASS/FAIL/NOT VERIFIED, 5 lỗi major (B1 phím tắt bị input nuốt, B2 màn dọc, B3 nút nhỏ, B4 thiên kiếp gắt, B5 thua boss cuối trong browser), 0 blocker. Không sửa code/balance.
+- [ ] M7-02 Kiểm thử UI tương tác M3/M4, sửa lỗi blocking (M, P0)
+- [ ] M7-03 Kiểm thử máy thật, âm thanh, tải và save (M, P0) — cần điện thoại thật
+- [ ] M7-04 Ghi sự kiện playtest tại máy, opt-in, xuất JSON/CSV (M, P0)
+- [ ] M7-05 Baseline playtest người thật ≥8 người (M, P0) — cần người thật
+- [ ] M7-06..11 (M7-B), M7-12..14 (M7-C, có điều kiện), M7-15..18 (M7-D): xem file backlog
+
+---
+
 ## M6 — LATER / KHÔNG ĐƯỢC TỰ LÀM (P3)
 
 - [ ] `M6-01` Thêm bí cảnh/biome/boss sau khi build loop được playtest tốt.
