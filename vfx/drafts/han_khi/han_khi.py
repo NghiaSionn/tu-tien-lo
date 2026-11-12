@@ -79,7 +79,7 @@ def render(a, f, seed=SEED):
         bx, by = math.cos(ang) * R, math.sin(ang) * R * FLAT
         if born <= f <= 9:
             grow = min(1.0, (f - born + 1) / 2)
-            hgt, wid = 14 * size * grow, 3.6 * size
+            hgt, wid = 8 * size * grow, 2.4 * size   # trong game phóng tới ×1,8: giữ gai thấp để không che quái
             spike(m, x, y, bx, by, hgt, wid)
             if f - born < 2:
                 light.glow(L, c, bx, by - hgt, 3.5, 0.32)                 # đỉnh gai lóe khi mọc

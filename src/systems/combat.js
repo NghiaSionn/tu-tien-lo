@@ -49,8 +49,8 @@ export function nearestTargets(ctx, x, y, range, n, los = true, exclude = null) 
   return list.slice(0, n).map(e => e[1]);
 }
 
-function hitMonster(ctx, m, dmg, color) {
-  const killed = damageMonster(m, dmg * ctx.stats.damage, ctx.ev, color);
+function hitMonster(ctx, m, dmg, color, quiet = false) {
+  const killed = damageMonster(m, dmg * ctx.stats.damage, quiet ? null : ctx.ev, color);   // quiet: nhịp vùng/đốt không in số
   if (killed) m.killedBy = 'skill';
   return killed;
 }
@@ -334,7 +334,7 @@ export function updateZones(ctx, dt) {
     z.t -= dt; z.tick -= dt;
     if (z.tick <= 0) {
       z.tick = 0.25;
-      for (const m of ctx.scene.monsters) if (!m.dead && Math.hypot(m.x - z.x, m.y - z.y) < z.r) hitMonster(ctx, m, z.dps * 0.25 * ctx.atk, '#ffb070');
+      for (const m of ctx.scene.monsters) if (!m.dead && Math.hypot(m.x - z.x, m.y - z.y) < z.r) hitMonster(ctx, m, z.dps * 0.25 * ctx.atk, '#ffb070', true);
     }
     if (z.t <= 0) zs.splice(i, 1);
   }

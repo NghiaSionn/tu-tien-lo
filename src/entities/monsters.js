@@ -71,7 +71,7 @@ export function updateMonsters(scene, player, dt, ev, opts) {
     m.hit -= dt; m.atkCd -= dt; m.think -= dt;
     if (m.burn && m.burn.t > 0) {
       m.burn.t -= dt; m.burn.acc += m.burn.dps * dt;
-      if (m.burn.acc >= 1) { const d = Math.floor(m.burn.acc); m.burn.acc -= d; damageMonster(m, d, ev, '#ffb070'); if (m.dead) continue; }
+      if (m.burn.acc >= 1) { const d = Math.floor(m.burn.acc); m.burn.acc -= d; damageMonster(m, d, null, '#ffb070'); if (m.dead) continue; }   // nhịp thiêu đốt: không in số (in mỗi nhịp chồng thành cột chữ che quái)
     }
     if (m.slow && m.slow.t > 0) m.slow.t -= dt;
     const slowF = m.slow && m.slow.t > 0 ? 1 - m.slow.f : 1;

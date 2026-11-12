@@ -384,7 +384,7 @@ function drawProjectiles(ctx, scene, FX, dt, quality) {
       if (q.evo && q.evo.chains) { ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = '#d9c8ff'; ctx.fillRect(x - 1 + ((x * 7) % 3) - 1, y - 2, 1, 4); ctx.globalCompositeOperation = 'source-over'; }
     } else {
       ctx.globalCompositeOperation = 'lighter';
-      if (q.kind === 'homing') {
+      if (q.kind === 'homing' && !(rich && FX.phi_kiem)) {   // hình code khi đồ họa Thấp / chưa nạp sheet
         const c = Math.cos(q.heading), s = Math.sin(q.heading);
         pxLine(ctx, x - c * 5, y - s * 5, x + c * 3, y + s * 3, q.color, 1);
         ctx.fillStyle = '#fff'; ctx.fillRect(x + Math.round(c * 3), y + Math.round(s * 3), 1, 1);

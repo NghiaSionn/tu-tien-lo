@@ -432,6 +432,7 @@ Tạo thư mục `docs/adr/` hoặc phần ghi chú khi có quyết định ản
 | 2026-11-12 | M5-01..06 | PARTIAL (M5-05 DONE) | Dáng quái riêng; VFX beanfx Lôi Cương + công cụ chuyển strip→beanfx; bench logic (100/200: 0,98 ms trung vị); overlay F3, ?stress=1, mức đồ họa; âm thanh tổng hợp + cài đặt; joystick ảo; cây mờ khi che. 123/123 test PASS | GATE v0.4 chưa đạt: chưa đo vẽ, chưa nghe, chưa máy thật, chưa làm lại biome/sprite nhân vật/VFX còn lại |
 | 2026-11-12 | M5-03 đợt 1 | DONE (chưa xem trình duyệt) | 4 VFX beanfx: Lôi Vực, Hỏa Cầu (bay+nổ), Phong Nhận, Hỏa Long Quyển (từ loc_gio_v2). Ánh sáng mean 0,06–0,11, cover 16–48%; kiểm tra beanfx sạch. 131/131 test PASS | Còn 5 công pháp + boss |
 | 2026-11-12 | M5-03 đợt 2 | DONE (chưa xem trình duyệt) | 8 sheet beanfx: phi_kiem, liet_diem_kiem (16 hướng), liet_diem_vung, bang_cham (8 hướng), han_khi, hoa_luan, hac_diem_no, hac_diem_dan; kiểm tra beanfx sạch; gắn vào game (fx dùng chung theo tên+hàng cho kiếm xoay/vùng lửa/đạn boss; đồ họa Thấp → hình code). 139/139 test PASS | M5-03 còn: xem trong trình duyệt; M5-01/02/04/06 như trước |
+| 2026-11-12 | M5-03 xem trình duyệt | DONE | Xem trong game (127.0.0.1, `?loop=timer&perf`, dựng chiêu/boss bằng console): các VFX hiện đúng, ~62 FPS, ~1 ms/khung. Sửa: bỏ số sát thương nhịp thiêu đốt/vùng lửa (`quiet`), gai Hàn Khí thấp lại; kiếm đuổi quái trước đây không dùng sheet beanfx (nhánh vẽ code đứng trước) — đã sửa và xem lại. Nổ hắc diễm xem cận cảnh đạt. 139/139 test PASS | Không |
 
 ---
 
