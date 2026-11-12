@@ -78,6 +78,8 @@
   .card { position: relative; text-align: left; padding: .6em .7em .7em; border: 1px solid var(--c); background: rgba(30, 24, 46, .95);
           display: flex; flex-direction: column; gap: .2em; font-size: .9em; }
   .card:hover { background: #2e2448; transform: translateY(-2px); }
+  .itemrow { display: flex; justify-content: space-between; align-items: center; gap: .6em; padding: .3em 0; border-bottom: 1px solid rgba(184,154,84,.18); font-size: .85em; }
+  .itemrow button { margin-left: .3em; }
   .card .key { position: absolute; right: .5em; top: .4em; font-size: .75em; opacity: .7; border: 1px solid #6a5f80; border-radius: .2em; padding: 0 .3em; }
   .card .ic { font-size: 1.6em; } .card b { color: var(--c); font-size: 1.05em; } .card em { font-style: normal; font-size: .75em; opacity: .75; }
   .card p { margin: .2em 0 0; font-size: .85em; } .card small { font-size: .72em; color: #ffd978; opacity: .85; }
@@ -126,8 +128,11 @@
       <button id="btnPill">Dùng đan (1)</button>
       <button id="btnBuy">Mua đan · 25💎 (2)</button>
       <button id="btnRun" hidden>Vào bí cảnh (E)</button>
+      <button id="btnForge">Luyện khí (G)</button>
+      <button id="btnGacha">Truyền Thừa (H)</button>
+      <button id="btnAch">Thành tựu (J)</button>
     </div>
-    <div id="help">WASD / mũi tên: di chuyển · Space: phóng kiếm khí · T: tọa thiền · B: đột phá · 1: dùng đan · 2: mua đan · E: bí cảnh</div>
+    <div id="help">WASD / mũi tên: di chuyển · Space: phóng kiếm khí · T: tọa thiền · B: đột phá · 1: dùng đan · 2: mua đan · E: bí cảnh · G: luyện khí · H: Truyền Thừa Các · J: thành tựu</div>
     <div id="modal" hidden></div>
   </div>
 </div>

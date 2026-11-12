@@ -28,7 +28,7 @@ export function evolutionHint(skillId) {
 export function candidates(run) {
   const out = [];
   for (const [id, def] of Object.entries(SKILLS)) {
-    if (!def.implemented) continue;
+    if (!def.implemented || (def.locked && !(run.unlocked || []).includes(id))) continue;   // M4-02: công pháp khóa chỉ vào pool khi đã mở
     const s = run.skills.find(k => k.id === id);
     if (!s) {
       if (run.skills.length < RUN.MAX_ACTIVE)

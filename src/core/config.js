@@ -186,3 +186,16 @@ export const DIFFICULTY = [
 // ---------- Linh Mạch — điểm nghỉ trong bí cảnh (M3-04) [THỬ NGHIỆM] ----------
 // Hiện ra khi hạ Lang Vương. Một lần mỗi run, chọn 1 trong 3; bị phong ấn (không dùng được) khi có boss đang sống.
 export const SHRINE = { R: 20, HEAL: 0.5, DMG_BUFF: 0.2, QI: 60 };
+
+// ---------- Truyền Thừa Các (M4-03) — chỉ dùng vé Cơ Duyên kiếm trong game, KHÔNG có tiền thật ----------
+// Tỉ lệ hiển thị nguyên văn trong UI. Bảo hiểm: lượt thứ PITY không ra Cực phẩm thì chắc chắn Cực phẩm.
+export const GACHA = {
+  COST: 1,
+  RATES: { common: 0.70, rare: 0.25, epic: 0.05 },
+  PITY: 30,
+  DUP_SHARDS: { rare: 5, epic: 15 },                   // trùng -> Bí Kíp Tàn Thiên (mảnh)
+  SHOP: { item: 20, skill: 40 },                        // đổi mảnh lấy đúng món/công pháp mình chọn
+  COMMON: [{ kind: 'craftMats', n: 5 }, { kind: 'linhThach', n: 100 }, { kind: 'lingQi', n: 60 }],
+  EPIC_SKILLS: ['ice_needle', 'ice_nova'],
+  HISTORY: 50,
+};

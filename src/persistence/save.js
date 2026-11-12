@@ -8,6 +8,9 @@
 //   tutien_save_v2_corrupt  bản v2 hỏng gần nhất, giữ lại để cứu dữ liệu
 import { REALM, ITEMS, REWARD } from '../core/config.js';
 import { OUTCOMES, AMOUNT_KEYS } from '../progression/rewards.js';
+import { sanitizeGear } from '../progression/gear.js';
+import { ACHIEVEMENTS } from '../data/achievements.js';
+import { EVOLUTIONS } from '../data/skills.js';
 import { maxHp, need } from '../progression/realm.js';
 
 export const KEYS = {
@@ -23,11 +26,14 @@ export function defaultMeta(hubSpawn) {
     lingQi: 0, craftMats: 0, coDuyenTicket: 0, firstClear: false,     // M2-03
     pendingReward: null, rewardLog: [],                                 // phần thưởng run chờ nhận / id run đã nhận
     tribPending: false,                                                 // M3-03: đang độ kiếp (tải lại giữa chừng = thất bại)
+    items: {}, equipped: { weapon: null, armor: null, talisman: null, ring: null },   // M4-01
+    achievements: [], shards: 0,                                        // M4-02 / M4-03 (Bí Kíp Tàn Thiên)
+    gacha: { seed: 20261112, pity: 0, pulls: 0, history: [] },
     hubPos: { x: hubSpawn.x, y: hubSpawn.y },
     unlocks: { skills: [], tier: 0 },
     lastDifficulty: 0,
     settings: { reduceEffects: false, screenShake: true },
-    stats: { runs: 0, wins: 0, bestTime: 0, bestLevel: 0 },
+    stats: { runs: 0, wins: 0, bestTime: 0, bestLevel: 0, kills: 0, minis: 0, evos: [], bestDiffWin: -1 },
   };
 }
 
@@ -55,6 +61,12 @@ export function sanitizeMeta(src, ctx, warnings = []) {
   out.coDuyenTicket = int(src.coDuyenTicket, 0, MAX_PILLS, 0);
   out.firstClear = src.firstClear === true;
   out.tribPending = src.tribPending === true;
+  Object.assign(out, sanitizeGear(src));
+  out.achievements = Array.isArray(src.achievements) ? [...new Set(src.achievements.filter(a => ACHIEVEMENTS.some(x => x.id === a)))] : [];
+  out.shards = int(src.shards, 0, 1e6, 0);
+  const g = src.gacha && typeof src.gacha === 'object' ? src.gacha : {};
+  out.gacha = { seed: int(g.seed, 0, 4294967295, 20261112), pity: int(g.pity, 0, 1000, 0), pulls: int(g.pulls, 0, 1e9, 0),
+    history: Array.isArray(g.history) ? g.history.filter(h => h && typeof h.n === 'string' && typeof h.r === 'string').slice(0, 50).map(h => ({ r: h.r, n: h.n.slice(0, 40), d: h.d ? 1 : 0 })) : [] };
   if (Array.isArray(src.rewardLog)) out.rewardLog = src.rewardLog.filter(s => typeof s === 'string' && s.length <= 64).slice(-REWARD.LOG_KEEP);
   out.pendingReward = sanitizeReward(src.pendingReward, warnings);
   const pos = src.hubPos;
@@ -69,6 +81,9 @@ export function sanitizeMeta(src, ctx, warnings = []) {
     out.stats = {
       runs: int(src.stats.runs, 0, 1e9, 0), wins: int(src.stats.wins, 0, 1e9, 0),
       bestTime: Math.max(0, num(src.stats.bestTime) || 0), bestLevel: int(src.stats.bestLevel, 0, 1e6, 0),
+      kills: int(src.stats.kills, 0, 1e9, 0), minis: int(src.stats.minis, 0, 1e9, 0),
+      evos: Array.isArray(src.stats.evos) ? [...new Set(src.stats.evos.filter(e => EVOLUTIONS[e]))] : [],
+      bestDiffWin: int(src.stats.bestDiffWin, -1, 3, -1),
     };
   }
   return out;
@@ -82,6 +97,8 @@ function sanitizeReward(r, warnings) {
   const out = { id: r.id, outcome: r.outcome, firstClear: r.firstClear === true,
     bosses: Array.isArray(r.bosses) ? r.bosses.filter(b => b === 'MINI' || b === 'FINAL').slice(0, 4) : [] };
   for (const k of AMOUNT_KEYS) out[k] = int(r[k], 0, 1e6, 0);
+  const s = r.summary;
+  out.summary = s && typeof s === 'object' ? { kills: int(s.kills, 0, 1e5, 0), mini: s.mini ? 1 : 0, evos: Array.isArray(s.evos) ? s.evos.filter(e => EVOLUTIONS[e]).slice(0, 8) : [], winDiff: int(s.winDiff, -1, 3, -1) } : null;
   return out;
 }
 

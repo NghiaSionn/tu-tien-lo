@@ -242,7 +242,7 @@ test('thông số công pháp hợp lệ', () => {
     if (!d.implemented) continue;
     assert.equal(d.levels.length, d.maxLevel, id);
     assert.equal(d.levelText.length, d.maxLevel, id);
-    for (const p of d.levels) for (const [k, v] of Object.entries(p)) assert.ok(Number.isFinite(v) && v >= 0, `${id}.${k}`);
+    for (const p of d.levels) for (const [k, v] of Object.entries(p)) if (k !== 'color') assert.ok(Number.isFinite(v) && v >= 0, `${id}.${k}`);
   }
   for (const e of Object.values(EVOLUTIONS)) { assert.ok(SKILLS[e.base].implemented); for (const n of e.needAny) assert.ok(SKILLS[n].implemented); assert.ok(skillParams({ id: e.base, level: 5, evolved: Object.keys(EVOLUTIONS).find(k => EVOLUTIONS[k] === e) })); }
 });

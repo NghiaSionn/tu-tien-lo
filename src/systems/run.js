@@ -13,10 +13,11 @@ import { runStats, updateSkills, updateProjectiles, updateZones, absorbDamage } 
 
 let runCounter = 0;
 
-export function createRun({ seed, startSkill, realmLevel, difficulty = 0 }) {
+export function createRun({ seed, startSkill, realmLevel, difficulty = 0, unlocked = [], gear = null }) {
   const map = makeArenaMap(RUN.ARENA_W, RUN.ARENA_H, seed);
   const run = {
     diff: Math.max(0, Math.min(DIFFICULTY.length - 1, difficulty | 0)),   // M3-02: độ khó bí cảnh
+    unlocked: [...unlocked], gear,                                     // M4: công pháp đã mở (pool thẻ), chỉ số trang bị
     id: ++runCounter, uid: `${Date.now().toString(36)}-${seed}-${runCounter}`, seed, eliteKills: 0, rng: mulberry32(seed), status: 'RUNNING', time: 0,
     level: 1, xp: 0, pendingDrafts: 0, skills: [{ id: startSkill, level: 1, evolved: null, st: {} }],
     passives: {}, evolutions: [], kills: 0, damageTaken: 0, dmgBy: {}, dir: createDirector(), outcome: null,
@@ -48,9 +49,10 @@ export function hurtRunPlayer(run, player, dmg, ev, src = 'other') {
   const left = absorbDamage(ctx, dmg);
   player.inv = PLAYER.INVULN;
   if (left <= 0) { ev.push({ type: 'text', x: player.x, y: player.y - 20, text: 'chặn', color: '#ffd978' }); return 0; }
-  run.hp -= left; run.damageTaken += left;
-  run.dmgBy[src] = (run.dmgBy[src] || 0) + left;     // thống kê nguồn sát thương (cân bằng/debug)
-  ev.push({ type: 'text', x: player.x, y: player.y - 20, text: '-' + Math.round(left), color: '#ff8f8a' }, { type: 'shake', t: 0.12 });
+  const taken = left * (run.gear ? 1 + run.gear.dmgTaken : 1);   // M4-01: Sát Khí Giới
+  run.hp -= taken; run.damageTaken += taken;
+  run.dmgBy[src] = (run.dmgBy[src] || 0) + taken;     // thống kê nguồn sát thương (cân bằng/debug)
+  ev.push({ type: 'text', x: player.x, y: player.y - 20, text: '-' + Math.round(taken), color: '#ff8f8a' }, { type: 'shake', t: 0.12 });
   if (run.hp <= 0) { run.hp = 0; endRun(run, 'LOSE'); }
   return left;
 }
@@ -69,7 +71,7 @@ export function endRun(run, outcome) {
 export function updateRun(run, player, dt, ev, realmPowerOverride) {
   if (run.status !== 'RUNNING') return;
   run.time += dt;
-  run.hp = Math.min(run.maxHp, run.hp + run.maxHp * RUN.REGEN * dt);
+  run.hp = Math.min(run.maxHp, run.hp + run.maxHp * RUN.REGEN * (run.gear ? run.gear.regenMul : 1) * dt);
   const sc = run.scene;
   updateDirector(run, player, dt, ev, realmPowerOverride ?? power(run.realmLevel));
   const ctx = makeCtx(run, player, ev);
@@ -106,7 +108,7 @@ export function updateRun(run, player, dt, ev, realmPowerOverride) {
   const mag = RUN.MAGNET * ctx.stats.magnet;
   for (let i = sc.orbs.length - 1; i >= 0; i--) {
     const o = sc.orbs[i], dx = player.x - o.x, dy = (player.y - 6) - o.y, d = Math.hypot(dx, dy);
-    if (d < RUN.PICKUP) { addRunXp(run, o.v); sc.orbs.splice(i, 1); continue; }
+    if (d < RUN.PICKUP) { addRunXp(run, o.v * ctx.stats.xp); sc.orbs.splice(i, 1); continue; }
     if (d < mag) { const sp = RUN.ORB_SPEED * dt * (1.5 - d / mag); o.x += dx / d * sp; o.y += dy / d * sp; }
   }
   if (finalDown) { endRun(run, 'WIN'); return; }

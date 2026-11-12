@@ -14,6 +14,13 @@ export function runStats(run) {
     else st[p.stat] += p.per * lv;
   }
   st.damage += run.shrineDmg || 0;            // M3-04: Linh Mạch
+  const g = run.gear;                          // M4-01: trang bị (đã cộng sẵn ở gearMods)
+  st.extraProj = 0; st.xp = 1; st.regen = 1; st.dmgTaken = 1;
+  if (g) {
+    st.damage = Math.max(0.2, st.damage + g.damage); st.moveSpeed = Math.max(0.4, st.moveSpeed + g.moveSpeed);
+    st.maxHp = Math.max(0.3, st.maxHp + g.maxHp); st.area += g.area; st.magnet += g.magnet;
+    st.cooldown *= g.cooldownMul; st.extraProj = g.extraProj; st.xp += g.xp; st.regen = g.regenMul; st.dmgTaken += g.dmgTaken;
+  }
   return st;
 }
 
@@ -89,15 +96,16 @@ const KINDS = {
     s.st.cd = (s.st.cd ?? 0) - dt;
     if (s.st.cd > 0) return;
     const pl = ctx.player;
-    const ts = nearestTargets(ctx, pl.x, pl.y, p.range, p.count);
+    const count = p.count + (ctx.stats.extraProj || 0);           // M4-01: Phi Hành Kiếm +1 đạn
+    const ts = nearestTargets(ctx, pl.x, pl.y, p.range, count);
     if (!ts.length) { s.st.cd = 0; return; }
-    for (let i = 0; i < p.count; i++) {
+    for (let i = 0; i < count; i++) {
       const m = ts[i % ts.length];
       let dx = m.x - pl.x, dy = (m.y - 4) - (pl.y - 8);
-      const spread = ts.length < p.count ? (i - (p.count - 1) / 2) * fanStep(Math.hypot(dx, dy), 0.22) : 0;
+      const spread = ts.length < count ? (i - (count - 1) / 2) * fanStep(Math.hypot(dx, dy), 0.22) : 0;
       const a = Math.atan2(dy, dx) + spread;
       dx = Math.cos(a); dy = Math.sin(a);
-      pushProjectile(ctx, { kind: 'bolt', x: pl.x, y: pl.y - 8, vx: dx * p.speed, vy: dy * p.speed, life: p.range / p.speed * 1.4, dmg: p.dmg, pierce: p.pierce, hits: new Set(), fx: 'kiem_khi', heading: a, evo: s.evolved ? p : null });
+      pushProjectile(ctx, { kind: 'bolt', x: pl.x, y: pl.y - 8, vx: dx * p.speed, vy: dy * p.speed, life: p.range / p.speed * 1.4, dmg: p.dmg, pierce: p.pierce, hits: new Set(), fx: 'kiem_khi', heading: a, evo: s.evolved ? p : null, slow: p.slow, slowTime: p.slowTime, ice: !!p.slow });
     }
     s.st.cd = p.cd * ctx.stats.cooldown;
     ctx.ev.push({ type: 'cast', skill: s.id });
@@ -138,11 +146,12 @@ const KINDS = {
     s.st.cd = (s.st.cd ?? 0) - dt;
     if (s.st.cd > 0) return;
     const pl = ctx.player;
-    const ts = nearestTargets(ctx, pl.x, pl.y, p.range, p.count);
+    const count = p.count + (ctx.stats.extraProj || 0);
+    const ts = nearestTargets(ctx, pl.x, pl.y, p.range, count);
     if (!ts.length) { s.st.cd = 0; return; }
-    for (let i = 0; i < p.count; i++) {
+    for (let i = 0; i < count; i++) {
       const m = ts[i % ts.length];
-      const a = Math.atan2((m.y - 4) - (pl.y - 8), m.x - pl.x) + (ts.length < p.count ? (i - (p.count - 1) / 2) * fanStep(Math.hypot(m.x - pl.x, m.y - pl.y), 0.3) : 0);
+      const a = Math.atan2((m.y - 4) - (pl.y - 8), m.x - pl.x) + (ts.length < count ? (i - (count - 1) / 2) * fanStep(Math.hypot(m.x - pl.x, m.y - pl.y), 0.3) : 0);
       pushProjectile(ctx, { kind: 'orb', x: pl.x, y: pl.y - 8, vx: Math.cos(a) * p.speed, vy: Math.sin(a) * p.speed, life: p.range / p.speed * 1.2, p, hits: new Set() });
     }
     s.st.cd = p.cd * ctx.stats.cooldown;
@@ -190,7 +199,7 @@ const KINDS = {
       if (m.dead || Math.hypot(m.x - pl.x, m.y - pl.y) > r) continue;
       hitMonster(ctx, m, p.dmg * ctx.atk, '#d9c8ff'); applySlow(m, p.slow, p.slowTime); n++;
     }
-    ctx.ev.push({ type: 'pulse', x: pl.x, y: pl.y, r, color: '#b48cff', hits: n });
+    ctx.ev.push({ type: 'pulse', x: pl.x, y: pl.y, r, color: p.color || '#b48cff', hits: n });
   },
 
   line(ctx, s, p, dt) {
@@ -297,6 +306,7 @@ export function updateProjectiles(ctx, dt) {
       q.hits.add(m);
       if (q.kind === 'orb') { explode(ctx, q.x, q.y, q.p); dead = true; q.exploded = true; break; }
       hitMonster(ctx, m, q.dmg * ctx.atk, q.kind === 'blade' ? '#c8ffe8' : '#fff');
+      if (q.slow) applySlow(m, q.slow, q.slowTime);
       const e = q.evo;
       if (e && e.chains) chainLightning(ctx, m, e.chains, e.chainRange, e.chainDmg * ctx.atk, e.slow, e.slowTime);
       if (e && e.burn) applyBurn(m, e.burn * ctx.atk * ctx.stats.damage, e.burnTime);

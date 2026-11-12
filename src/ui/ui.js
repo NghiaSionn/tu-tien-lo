@@ -222,3 +222,63 @@ export function showSettings(meta, h) {
 }
 
 export { fmtTime, evolutionHint };
+
+// ================= M4: Luyện Khí, Truyền Thừa Các, Thành Tựu (bảng danh sách đơn giản) =================
+import { ITEMS_DEF, SLOTS, CRAFT, MAX_ITEM_LEVEL } from '../data/items.js';
+import { ACHIEVEMENTS } from '../data/achievements.js';
+import { GACHA } from '../core/config.js';
+
+const costText = c => Object.entries(c).map(([k, v]) => `${v}${{ craftMats: '🔩', linhThach: '💎' }[k]}`).join(' ');
+const resLine = meta => `💎 ${meta.linhThach} · 🔩 ${meta.craftMats} · ✨ ${Math.floor(meta.lingQi)} · 🎫 ${meta.coDuyenTicket} · 📜 ${meta.shards} mảnh`;
+
+// act(kind, ...args) do main.js xử lý (kiểm tra + lưu chắc chắn), rồi gọi lại hàm này để vẽ lại
+export function showForge(meta, act, note = '') {
+  const rows = Object.entries(SLOTS).map(([slot, sname]) => {
+    const items = Object.entries(ITEMS_DEF).filter(([, d]) => d.slot === slot);
+    return `<h3>${esc(sname)} — đang mặc: ${meta.equipped[slot] ? esc(ITEMS_DEF[meta.equipped[slot]].name) : 'trống'}</h3>` + items.map(([id, d]) => {
+      const lv = meta.items[id], on = meta.equipped[slot] === id;
+      const btns = !lv ? `<button data-a="craft" data-id="${id}">Luyện · ${costText(CRAFT.make)}</button>`
+        : `${on ? `<button class="ghost" data-a="unequip" data-id="${slot}">Tháo</button>` : `<button data-a="equip" data-id="${id}">Mặc</button>`}
+           ${lv < MAX_ITEM_LEVEL ? `<button data-a="upgrade" data-id="${id}">Nâng ${lv}→${lv + 1} · ${costText(CRAFT.upgrade(lv))}</button>` : '<span class="sub">tối đa</span>'}`;
+      return `<div class="itemrow"><span>${d.icon} <b>${esc(d.name)}</b>${lv ? ` cấp ${lv}` : ' <span class="sub">(chưa có)</span>'}<br><span class="sub">${esc(d.text(lv || 1))}</span></span><span>${btns}</span></div>`;
+    }).join('');
+  }).join('');
+  open(`<h2>Luyện Khí</h2><p class="sub">${resLine(meta)}</p><p class="sub">Mỗi món một ưu một nhược. Nâng cấp chắc chắn thành công, tối đa cấp ${MAX_ITEM_LEVEL}. Luyện liệu kiếm từ tinh anh và boss.</p>
+    ${note ? `<p>${esc(note)}</p>` : ''}${rows}<div class="row"><button class="ghost" data-a="close">Đóng (Esc)</button></div>`,
+  code => { if (code === 'Escape' || code === 'KeyG') { closeModal(); return true; } return false; });
+  $('modal').querySelectorAll('[data-a]').forEach(b => b.addEventListener('click', () => b.dataset.a === 'close' ? closeModal() : act(b.dataset.a, b.dataset.id)));
+}
+
+export function showGacha(meta, act, last = null, note = '') {
+  const R = GACHA.RATES, pct = v => (v * 100).toFixed(v < 0.1 ? 1 : 0) + '%';
+  const shopItems = Object.entries(ITEMS_DEF).filter(([id]) => !meta.items[id]);
+  const shopSkills = GACHA.EPIC_SKILLS.filter(id => !meta.unlocks.skills.includes(id));
+  open(`<h2>Truyền Thừa Các</h2><p class="sub">${resLine(meta)}</p>
+    <p class="sub">Chỉ dùng vé Cơ Duyên kiếm được khi chơi (thắng bí cảnh, thành tựu) — không bán, không nạp tiền.
+    Tỉ lệ: Thường ${pct(R.common)} (tài nguyên) · Hiếm ${pct(R.rare)} (trang bị) · Cực phẩm ${pct(R.epic)} (trang bị cực phẩm / công pháp Băng).
+    Bảo hiểm: tối đa ${GACHA.PITY} lượt chắc chắn có Cực phẩm (còn ${GACHA.PITY - meta.gacha.pity}). Trùng → ${GACHA.DUP_SHARDS.rare}/${GACHA.DUP_SHARDS.epic} mảnh.</p>
+    ${last ? `<p><b>${{ common: 'Thường', rare: 'Hiếm', epic: 'Cực phẩm' }[last.rarity]}:</b> ${esc(last.name)}${last.dup ? ` (trùng → +${last.shards} mảnh)` : ''}</p>` : ''}${note ? `<p>${esc(note)}</p>` : ''}
+    <div class="row" style="justify-content:flex-start"><button data-a="pull" ${meta.coDuyenTicket < GACHA.COST ? 'disabled' : ''}>Quay 1 lượt · ${GACHA.COST}🎫 (Space)</button></div>
+    <h3>Đổi mảnh (chọn đúng thứ mình muốn)</h3>
+    ${shopSkills.map(id => `<div class="itemrow"><span>${SKILLS[id].icon} ${esc(SKILLS[id].name)} <span class="sub">công pháp</span></span><button data-a="shop" data-t="skill" data-id="${id}" ${meta.shards < GACHA.SHOP.skill ? 'disabled' : ''}>${GACHA.SHOP.skill} mảnh</button></div>`).join('')}
+    ${shopItems.map(([id, d]) => `<div class="itemrow"><span>${d.icon} ${esc(d.name)} <span class="sub">trang bị</span></span><button data-a="shop" data-t="item" data-id="${id}" ${meta.shards < GACHA.SHOP.item ? 'disabled' : ''}>${GACHA.SHOP.item} mảnh</button></div>`).join('') || ''}
+    <h3>Lịch sử (${meta.gacha.pulls} lượt)</h3><p class="sub">${meta.gacha.history.slice(0, 12).map(h => `${{ common: '·', rare: '◆', epic: '★' }[h.r] || '·'} ${esc(h.n)}${h.d ? ' (trùng)' : ''}`).join(' &nbsp; ') || 'chưa quay'}</p>
+    <div class="row"><button class="ghost" data-a="close">Đóng (Esc)</button></div>`,
+  code => {
+    if (code === 'Escape' || code === 'KeyH') { closeModal(); return true; }
+    if (code === 'Space') { act('pull'); return true; }
+    return false;
+  });
+  $('modal').querySelectorAll('[data-a]').forEach(b => b.addEventListener('click', () => b.dataset.a === 'close' ? closeModal() : act(b.dataset.a, b.dataset.id, b.dataset.t)));
+}
+
+export function showAchievements(meta) {
+  open(`<h2>Thành Tựu</h2><p class="sub">Một số thành tựu mở công pháp mới — lộ trình chắc chắn, không cần Truyền Thừa Các.</p>
+    ${ACHIEVEMENTS.map(a => { const done = meta.achievements.includes(a.id), r = a.reward;
+      const rw = [r.skill && `mở ${SKILLS[r.skill].name}`, r.tickets && `${r.tickets}🎫`, r.craftMats && `${r.craftMats}🔩`].filter(Boolean).join(', ');
+      return `<div class="itemrow"><span>${done ? '✅' : '⬜'} <b>${esc(a.name)}</b> — ${esc(a.desc)}</span><span class="sub">${esc(rw)}</span></div>`; }).join('')}
+    <p class="sub">Đã hạ ${meta.stats.kills} yêu thú · Lang Vương ${meta.stats.minis} lần · Tiến hóa đã thấy: ${meta.stats.evos.length}</p>
+    <div class="row"><button class="ghost" data-a="close">Đóng (Esc)</button></div>`,
+  code => { if (code === 'Escape' || code === 'KeyJ') { closeModal(); return true; } return false; });
+  $('modal').querySelector('[data-a=close]').addEventListener('click', closeModal);
+}

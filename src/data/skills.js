@@ -111,8 +111,31 @@ export const SKILLS = {
   },
   // ---- chỉ có thiết kế, chưa triển khai (không vào pool) ----
   wind_step: { name: 'Phong Ảnh Bộ', element: 'phong', kind: 'dash', icon: '💨', implemented: false, maxLevel: 5, desc: 'Lướt né, để lại tàn ảnh.', levels: [], levelText: [] },
-  ice_needle: { name: 'Băng Châm', element: 'bang', kind: 'bolt', icon: '❄', implemented: false, maxLevel: 5, desc: 'Đạn băng bắn nhanh, làm chậm.', levels: [], levelText: [] },
-  ice_nova: { name: 'Hàn Khí', element: 'bang', kind: 'nova', icon: '✳', implemented: false, maxLevel: 5, desc: 'Nổ băng quanh thân, hồi chiêu dài.', levels: [], levelText: [] },
+  // M4-02: công pháp khóa — mở bằng thành tựu (chắc chắn) hoặc Truyền Thừa Các; locked:true = không có trong pool tới khi mở
+  ice_needle: {
+    name: 'Băng Châm', element: 'bang', kind: 'bolt', icon: '❄', implemented: true, locked: true, maxLevel: 5,
+    desc: 'Kim băng bắn nhanh vào yêu thú gần nhất, làm chậm.',
+    levels: [
+      { cd: 0.55, dmg: 0.6, count: 1, pierce: 0, speed: 280, range: 150, slow: 0.25, slowTime: 1.2 },
+      { cd: 0.5, dmg: 0.65, count: 1, pierce: 0, speed: 280, range: 150, slow: 0.3, slowTime: 1.2 },
+      { cd: 0.5, dmg: 0.65, count: 2, pierce: 0, speed: 290, range: 160, slow: 0.3, slowTime: 1.4 },
+      { cd: 0.45, dmg: 0.75, count: 2, pierce: 1, speed: 300, range: 160, slow: 0.35, slowTime: 1.4 },
+      { cd: 0.4, dmg: 0.8, count: 3, pierce: 1, speed: 300, range: 170, slow: 0.4, slowTime: 1.6 },
+    ],
+    levelText: ['Kim băng bắn nhanh, làm chậm', 'Bắn nhanh hơn, chậm mạnh hơn', 'Thêm 1 kim', 'Xuyên 1 yêu thú', 'Thêm 1 kim, làm chậm mạnh'],
+  },
+  ice_nova: {
+    name: 'Hàn Khí', element: 'bang', kind: 'pulse', icon: '✳', implemented: true, locked: true, maxLevel: 5,
+    desc: 'Nổ hàn khí quanh thân theo nhịp dài: sát thương lớn và làm chậm mạnh.',
+    levels: [
+      { interval: 3.2, radius: 60, dmg: 1.6, slow: 0.4, slowTime: 1.6, color: '#bfe8ff' },
+      { interval: 3.2, radius: 68, dmg: 1.6, slow: 0.4, slowTime: 1.6, color: '#bfe8ff' },
+      { interval: 3.0, radius: 68, dmg: 2.1, slow: 0.45, slowTime: 1.8, color: '#bfe8ff' },
+      { interval: 2.7, radius: 74, dmg: 2.1, slow: 0.5, slowTime: 1.8, color: '#bfe8ff' },
+      { interval: 2.4, radius: 82, dmg: 2.5, slow: 0.55, slowTime: 2.0, color: '#bfe8ff' },
+    ],
+    levelText: ['Nổ băng quanh thân', 'Vùng rộng hơn', 'Sát thương +31%', 'Nhịp nhanh hơn', 'Vùng rộng, đóng băng mạnh'],
+  },
   spirit_orb: { name: 'Linh Châu', element: 'linh', kind: 'orbit', icon: '🔮', implemented: false, maxLevel: 5, desc: 'Linh châu xoay quanh, đánh tầm gần.', levels: [], levelText: [] },
 };
 

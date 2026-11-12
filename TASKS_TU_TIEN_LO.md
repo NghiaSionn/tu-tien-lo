@@ -245,7 +245,7 @@
 
 ## M4 — TRANG BỊ, SƯU TẬP, GACHA (P2)
 
-### M4-01 [ ] Trang bị tối thiểu + luyện khí (L)
+### M4-01 [x] Trang bị tối thiểu + luyện khí (L)
 **Phụ thuộc:** M3 Gate hoặc ít nhất M2 Gate + meta schema ổn.  
 **Làm:** 3–4 slot tối giản, item definitions, stats/affixes có trade-off, craft mats, nâng cấp có cap, equip/unequip, UI.
 
@@ -253,7 +253,7 @@
 - Trang bị đổi hành vi gameplay hoặc có trade-off đo được, không chỉ +stat ngẫu nhiên vô hạn.
 - Lưu/reload đúng, không trang bị trùng ở nhiều slot sai luật, không trừ tiền âm.
 
-### M4-02 [ ] Mở khóa công pháp bằng thành tựu (M)
+### M4-02 [x] Mở khóa công pháp bằng thành tựu (M)
 **Phụ thuộc:** M2 Gate, M0-04.  
 **Làm:** kho công pháp vĩnh viễn và unlock conditions (đánh boss, vượt thử thách, tăng cảnh giới); pool draft lấy từ unlock.
 
@@ -261,7 +261,7 @@
 - Người chơi mới có sẵn bộ cơ bản đủ chơi; mở khóa mới tạo build mới.
 - Unlock persist; có ít nhất một lộ trình **chắc chắn** nhận công pháp quan trọng mà không quay gacha.
 
-### M4-03 [ ] Truyền Thừa Các: gacha bằng vé game (L)
+### M4-03 [x] Truyền Thừa Các: gacha bằng vé game (L)
 **Phụ thuộc:** M4-02, M4-01, M0-04.  
 **Làm:** vé kiếm từ run/thành tựu, danh mục phần thưởng, tỷ lệ hiển thị, pity, duplicates -> mảnh, cửa hàng đổi mảnh, lịch sử lượt quay; RNG được test.
 
@@ -271,6 +271,11 @@
 - Không có đường nạp tiền thật hoặc kỹ năng độc quyền bắt buộc thắng game.
 
 **GATE v0.3b:** Có vòng run kiếm tài nguyên -> nâng đồ/mở công pháp/gacha -> thử lại với build mới, không có lỗ hổng nhân bản vật phẩm.
+
+> **Kết quả 12/11/2026: XONG, GATE v0.3b đóng ở mức logic** (`tests/m4.test.js`, 13 test). ADR 0007. Chưa xem trong trình duyệt (theo chỉ đạo 12/11 "không cần test nữa"); đã kiểm tra cú pháp + liên kết module.
+> - M4-01: 4 ô, 8 món một-ưu-một-nhược (Phi Hành Kiếm +1 đạn/−sát thương; Liệt Hỏa Đao; Huyền Quy Giáp; Phong Hành Y; Tụ Linh Châu +EXP; Hỏa Diễm Kính +phạm vi/hồi chiêu chậm; Hồi Xuân Giới hồi máu ×2; Sát Khí Giới +sát thương/nhận thêm 15%). Luyện 8🔩+80💎, nâng chắc chắn tới cấp 5. Bảng Luyện Khí (G).
+> - M4-02: 2 công pháp mới hệ Băng (Băng Châm — kim băng làm chậm; Hàn Khí — nổ băng nhịp dài), khóa tới khi đạt thành tựu (hạ Lang Vương / hạ Yêu Vương) — lộ trình chắc chắn; 7 thành tựu thưởng vé/luyện liệu. Bảng Thành Tựu (J).
+> - M4-03: Truyền Thừa Các (H): 1🎫/lượt, 70/25/5%, bảo hiểm 30, trùng → mảnh, đổi mảnh lấy đúng mục tiêu, lịch sử, RNG lưu trong save, giao dịch lưu-chắc-chắn, chống bấm dồn. Không có tiền thật.
 
 ---
 
@@ -414,6 +419,7 @@ Tạo thư mục `docs/adr/` hoặc phần ghi chú khi có quyết định ản
 | 2026-11-12 | M2-02 / M2-04 / GATE v0.2 | DONE (M2-02), PARTIAL (M2-04) | `?loop=timer` (vòng lặp setInterval khi môi trường hãm rAF) + `tools/autopilot.js` (phát phím). 4 lượt trong trình duyệt: Kiếm+Lôi thắng 6:39; Phi Kiếm+Hỏa (giảm hiệu ứng) thua 6:35 vì đập đất; Hỏa+Phong thắng 8:39; Lôi+Thể thua 4:29. Sửa: viền cảnh báo trên tán cây, thanh máu boss mờ khi che, đập đất R48/gồng 1,25 s, hắc diễm gồng 1,4 s R26, nhãn sát thương tách `boss:slam`, Lôi Đình giảm nhẹ, Hỏa Long tăng. Bot (16 seed): 15/16 · 14/16 · 8/16 · 11/16 | Lượt 5 chưa chơi (trang bị ẩn); chưa người thật |
 | 2026-11-12 | M3-01..04 | PARTIAL | Linh khí → tu vi khi thiền; thiên kiếp tương tác 3 nhịp; mở khóa đại cảnh giới + độ khó bí cảnh; Linh Mạch. 102/102 test PASS. Bot độ khó: cảnh giới 9 Linh thắng 1–5/6, 12 Huyền 0–5/6 | Chưa kiểm tra trong trình duyệt (trang bị ẩn); GATE v0.3a chưa xác minh |
 | 2026-11-12 | M2-04 + GATE v0.3a | DONE (có hạn chế) | theo chỉ đạo 12/11 ("không cần test nữa") bỏ kiểm tra trình duyệt: M2-04 đóng với 4 lượt trình duyệt (thay vì 5); M3 đóng bằng test tích hợp chuỗi GATE v0.3a. 105/105 test PASS | Chưa người thật; M3 chưa xem trong trình duyệt |
+| 2026-11-12 | M4-01..03 + GATE v0.3b | DONE (logic) | Trang bị/luyện khí, thành tựu mở công pháp Băng, Truyền Thừa Các bằng vé game. 118/118 test PASS (13 test M4 gồm tỉ lệ 20000 lượt, bảo hiểm, trùng→mảnh, đổi mảnh, giao dịch, chuỗi GATE v0.3b) | Chưa xem trong trình duyệt (theo chỉ đạo 12/11 "không cần test nữa"); đã kiểm tra cú pháp + liên kết module. |
 
 ---
 

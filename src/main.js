@@ -18,6 +18,10 @@ import * as UI from './ui/ui.js';
 import { EVOLUTIONS } from './data/skills.js';
 import { computeRunReward, stageReward, claimReward, rewardText } from './progression/rewards.js';
 import { shrineReady, useShrine, nearShrine, shrineSealed, CHOICES as SHRINE_CHOICES } from './systems/shrine.js';
+import { gearMods } from './data/items.js';
+import { craftItem, upgradeItem, equip, unequip } from './progression/gear.js';
+import { evaluateAchievements } from './progression/achievements.js';
+import { pull, shopBuy } from './progression/gacha.js';
 
 const { W, H } = VIEW;
 const $ = id => document.getElementById(id);
@@ -74,6 +78,8 @@ if (loaded.source === 'v1') {
 if (loaded.recovered) startNotes.push(['Save hiện tại bị hỏng, đã khôi phục bản trước đó.', 'bad']);
 // M3-02: save cũ đã ở đại cảnh giới cao vẫn nhận đủ mở khóa
 grantUnlocks(meta);
+// M4-02: save cũ đã thắng/đạt cảnh giới nhận thành tựu tương ứng (idempotent)
+for (const a of evaluateAchievements(meta)) startNotes.push([`Thành tựu: ${a.name}!`, 'gold']);
 // M3-03: tải lại/đóng trang giữa lúc độ kiếp -> tính là thất bại (không né được hình phạt bằng cách tải lại)
 if (meta.tribPending) {
   C.failTribulation(meta);
@@ -127,6 +133,54 @@ function toggleMed() {
 function realmUpNotes(r) {
   UI.log(`Công ${atk(r.from)} → ${atk(r.to)} · Khí huyết ${maxHp(r.from)} → ${maxHp(r.to)}.`, 'good');
   for (const u of r.granted) UI.log(`Mở khóa: ${u.text}.`, 'gold');
+  checkAchievements();
+}
+// M4-02: thành tựu (idempotent) — gọi sau khi nhận thưởng run / đột phá
+function checkAchievements() {
+  for (const a of evaluateAchievements(meta)) {
+    const r = a.reward;
+    UI.log(`Thành tựu: ${a.name}!${r.skill ? ` Mở công pháp ${r.skill === 'ice_needle' ? 'Băng Châm' : 'Hàn Khí'}.` : ''}${r.tickets ? ` +${r.tickets}🎫` : ''}${r.craftMats ? ` +${r.craftMats}🔩` : ''}`, 'gold');
+  }
+}
+
+// ---------- M4: giao dịch có lưu chắc chắn ----------
+// Thao tác trên bản sao; ghi save rồi đọc lại khớp mới thay meta. Lưu lỗi -> không phát/không trừ gì (nghiệm thu M4-03).
+function transact(fn) {
+  const draft = JSON.parse(JSON.stringify(meta));
+  const out = fn(draft);
+  if (!out || out.ok === false) return out;
+  draft.hubPos = view !== 'HUB' && run ? { ...hubPosBeforeRun } : { x: p.x, y: p.y };
+  let ok = false;
+  try { const raw = writeSave(storage, draft); ok = storage.getItem(KEYS.V2) === raw; } catch (e) { ok = false; }
+  if (!ok) { UI.log('Không lưu được — thao tác bị hủy, không mất gì.', 'bad'); return { ok: false, reason: 'lỗi lưu' }; }
+  meta = draft;
+  return out;
+}
+function openForge(note = '') {
+  if (view !== 'HUB' || trib) return;
+  UI.showForge(meta, (a, id) => {
+    const fn = { craft: m => craftItem(m, id), upgrade: m => upgradeItem(m, id), equip: m => equip(m, id), unequip: m => unequip(m, id) }[a];
+    const r = transact(fn);
+    openForge(r && r.ok === false ? `Không được: ${r.reason}.` : '');
+  }, note);
+}
+let lastPullAt = 0;
+function openGacha(last = null, note = '') {
+  if (view !== 'HUB' || trib) return;
+  UI.showGacha(meta, (a, id, t) => {
+    if (a === 'pull') {
+      const now = performance.now();
+      if (now - lastPullAt < 300) return;            // chống bấm dồn: một lượt mỗi lần bấm
+      lastPullAt = now;
+      let res = null;
+      const r = transact(m => { res = pull(m); return res ? { ok: true } : { ok: false, reason: 'hết vé' }; });
+      if (r && r.ok !== false && res) { UI.log(`Truyền Thừa Các: ${res.name}${res.dup ? ` (trùng → +${res.shards} mảnh)` : ''}.`, res.rarity === 'epic' ? 'gold' : 'good'); openGacha(res); }
+      else openGacha(null, r ? `Không quay được: ${r.reason}.` : '');
+    } else if (a === 'shop') {
+      const r = transact(m => shopBuy(m, t, id));
+      openGacha(null, r && r.ok === false ? `Không đổi được: ${r.reason}.` : 'Đã đổi.');
+    }
+  }, last, note);
 }
 function levelUp() {
   const r = C.levelUp(meta); readyNotified = false;
@@ -296,7 +350,7 @@ function startRun(skill, difficulty = 0) {
   hubPosBeforeRun = { x: p.x, y: p.y };
   meta.hubPos = { ...hubPosBeforeRun };
   save();
-  run = createRun({ seed: (Date.now() ^ Math.floor(Math.random() * 0x7fffffff)) >>> 0, startSkill: skill, realmLevel: meta.realmLevel, difficulty });
+  run = createRun({ seed: (Date.now() ^ Math.floor(Math.random() * 0x7fffffff)) >>> 0, startSkill: skill, realmLevel: meta.realmLevel, difficulty, unlocked: meta.unlocks.skills, gear: gearMods(meta) });
   p.x = run.scene.map.cx; p.y = run.scene.map.cy; p.inv = 1; p.med = false; p.cd = 0;
   hubShots.length = 0; clearVis(vis); input.clear(); ev.length = 0;
   view = 'RUN'; paused = false;
@@ -378,6 +432,7 @@ function claimAndReturn() {
   if (view !== 'RESULTS') return;
   const got = claimReward(meta);
   if (got) UI.log(`Mang về: ${rewardText(got)}.`, 'good');
+  checkAchievements();
   returnToHub();
 }
 function returnToHub() {
@@ -441,6 +496,9 @@ function onAction(code) {
   else if (code === 'Digit1') usePill();
   else if (code === 'Digit2') buyPill();
   else if (code === 'KeyE') openPrepare();
+  else if (code === 'KeyG') openForge();
+  else if (code === 'KeyH') openGacha();
+  else if (code === 'KeyJ') UI.showAchievements(meta);
   else return false;
   return true;
 }
@@ -449,6 +507,7 @@ const keys = input.keys;
 const bind = (id, fn) => $(id).addEventListener('click', e => { fn(); e.currentTarget.blur(); });
 bind('btnMed', toggleMed); bind('btnBreak', tryBreak); bind('btnPill', usePill); bind('btnBuy', buyPill);
 bind('btnRun', openPrepare); bind('btnSettings', openSettings); bind('btnPause', pauseRun);
+bind('btnForge', () => openForge()); bind('btnGacha', () => openGacha()); bind('btnAch', () => { if (view === 'HUB' && !trib) UI.showAchievements(meta); });
 addEventListener('beforeunload', save);
 addEventListener('pagehide', save);
 addEventListener('blur', () => { if (view === 'RUN') pauseRun(); });

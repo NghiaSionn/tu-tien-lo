@@ -6,10 +6,10 @@ Cập nhật: 2026-11-11, sau phiên M0 + M1 và thử pixelfx. Bản trước c
 
 | | |
 |---|---|
-| Trạng thái | M0 xong (gate đạt). M1 xong, **gate M1 đạt**. **M2 xong** (GATE v0.2 đi trọn trong trình duyệt bằng autopilot phát phím). **M3 xong**, GATE v0.3a đóng ở mức logic (bỏ kiểm tra trình duyệt theo chỉ đạo 12/11). Chờ chỉ đạo trước M4 |
-| Test tự động | `npm test`: 105/105 PASS |
+| Trạng thái | M0 xong (gate đạt). M1 xong, **gate M1 đạt**. **M2 xong** (GATE v0.2 đi trọn trong trình duyệt bằng autopilot phát phím). **M3 xong**, GATE v0.3a đóng ở mức logic. **M4 xong** (trang bị, thành tựu, Truyền Thừa Các), GATE v0.3b đóng ở mức logic — M3/M4 chưa xem trong trình duyệt theo chỉ đạo 12/11. Tiếp: M5 (chờ chỉ đạo) |
+| Test tự động | `npm test`: 118/118 PASS |
 | Kiểm thử tay | `TEST_REPORT.md` |
-| Quyết định kỹ thuật | `docs/adr/0001…0006` (0005: beanfx chính, pixelfx phụ; 0006: thưởng run nhận một lần) |
+| Quyết định kỹ thuật | `docs/adr/0001…0007` (0005: beanfx chính; 0006: thưởng run nhận một lần; 0007: trang bị/thành tựu/Truyền Thừa Các) |
 | Rollback | `git checkout baseline-v0.1` (code v0.1 nguyên trạng) |
 
 ---
@@ -74,7 +74,7 @@ src/
   render/render.js      Vẽ khung + hiệu ứng tạm
   render/pixelfx.js     Nạp sheet pixelfx, phát bằng trình phát beanfx
   ui/ui.js              HUD, bảng chuẩn bị/thẻ/tạm dừng/kết quả/cài đặt
-tests/                  node:test (realm, cultivation, save, run, director, boss, rewards)
+tests/                  node:test (realm, cultivation, save, run, director, boss, rewards, tribulation, shrine, gate_v03a, m4)
 tools/serve.py          Server dev không cache
 tools/sim.mjs           Bot mô phỏng run (biết né cảnh báo; --summary; NAIVE=1; DMG=1)
 tools/dps.mjs           Đo sát thương/giây từng công pháp lên bia đứng yên
@@ -101,6 +101,7 @@ Thêm: **cổng bí cảnh** phía bắc tụ linh trận; nút **Cài đặt** 
 
 ### 3.2 Bí cảnh (mới, M1)
 - Đứng gần cổng → E → chọn công pháp khởi đầu (Kiếm Khí / Hỏa Cầu / Lôi Kích) → vào đấu trường 44×44 ô.
+- **M4:** ở động phủ có **Luyện Khí (G)** — 4 ô trang bị, 8 món một-ưu-một-nhược, luyện/nâng bằng luyện liệu + linh thạch, chắc chắn; **Thành Tựu (J)** — 7 thành tựu, hai cái mở công pháp hệ Băng (Băng Châm, Hàn Khí); **Truyền Thừa Các (H)** — quay bằng vé Cơ Duyên kiếm trong game, tỉ lệ công khai, bảo hiểm 30 lượt, trùng → mảnh đổi đúng món muốn. Không có tiền thật.
 - **M3 (meta tu tiên):** tọa thiền **chuyển hóa linh khí** mang về từ bí cảnh thành tu vi (nhanh ×3 và lời hơn trong tụ linh trận; hết linh khí gần như dừng). Tụ Khí Đan cho linh khí. Đột phá đại cảnh giới = **thiên kiếp tương tác** ~24 s quanh tụ linh trận (né vòng sét, dải sét, đứng vào ô an toàn), thua giữ cảnh giới, mất 30% tu vi. Đại cảnh giới mở công pháp khởi đầu mới + độ khó bí cảnh (phím D ở màn chuẩn bị). Trong bí cảnh, hạ Lang Vương thì hiện **Linh Mạch** (E, chọn 1 trong 3, một lần).
 - Quái do **director** sinh (M2-01, `DIRECTOR` trong config): nhịp nhanh dần qua 5 giai đoạn; đợt đội hình có thông báo (0:55 vây tròn, 1:40 bầy Hỏa Hồ, 2:30 hàng cung Huyền Băng Thú, 4:10, 4:50, 5:30); Ma Ảnh tinh anh từ 2:45 rồi mỗi 90 s (M2-04: run 6–8 phút). Không sinh trong 150 px quanh người chơi; ngân sách cost + trần 90 con. Mạnh dần theo thời gian và cảnh giới.
 - **Boss** (M2-02, `BOSS` trong config): **Lang Vương** lúc 3:30 (lao 3 lần, mỗi lần có đường cảnh báo; tru gọi 4 Dã Lang). **Ma Ảnh Yêu Vương** lúc 6:00 (đạn tỏa tròn có tia báo hướng — đứng giữa hai tia; vùng hắc diễm quanh người chơi; đập đất khi áp sát; pha 2 dưới 50% máu; cuồng nộ sau 2:30). **Hạ Yêu Vương = thắng.** Quá 15 phút = "hết thời gian". Sau mỗi chiêu boss sơ hở 1,3 s (sao vàng, +50% sát thương). 1 đòn ≤ 3% máu boss. Thanh máu boss ở cạnh dưới màn. Khi boss sống, quái thường thưa hơn, không có tinh anh. `run.rewards` ghi boss đã hạ (hook cho M2-03).
@@ -164,8 +165,8 @@ Save trên trình duyệt của máy này lúc kết thúc phiên: đã đưa v�
 
 ## 7. Bước tiếp theo (theo `TASKS_TU_TIEN_LO.md`)
 
-1. M4 (trang bị/luyện khí dùng luyện liệu, mở khóa công pháp bằng thành tựu, Truyền Thừa Các gacha chỉ bằng vé trong game) — **chờ chỉ đạo** vì là thay đổi lớn.
-2. Nên có: xem nhanh M3 trong trình duyệt khi tiện (màn chuẩn bị, thiên kiếp, Linh Mạch).
+1. M5 (art direction, sprite pipeline, VFX ngũ hành bằng beanfx, hiệu năng, âm thanh, mobile) — **chờ chỉ đạo**; theo ADR 0005 VFX làm bằng beanfx.
+2. Nên có: xem nhanh M3/M4 trong trình duyệt khi tiện (màn chuẩn bị, thiên kiếp, Linh Mạch, Luyện Khí, Truyền Thừa Các).
 
 ---
 

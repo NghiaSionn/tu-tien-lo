@@ -3,6 +3,7 @@
 // Nhận đúng một lần: claimReward cộng tài nguyên và xóa pending trong CÙNG một lần ghi save; id run đã nhận nằm trong
 // meta.rewardLog nên bấm lại / tải lại trang / stage lại cùng run đều không cộng thêm.
 import { REWARD, DIFFICULTY } from '../core/config.js';
+import { runSummary, applySummary } from './achievements.js';
 
 export const OUTCOMES = ['WIN', 'LOSE', 'ABANDON', 'TIMEOUT'];
 export const AMOUNT_KEYS = ['linhThach', 'lingQi', 'craftMats', 'tickets'];
@@ -22,7 +23,7 @@ export function computeRunReward(run, meta) {
   const mult = (win ? REWARD.WIN_MULT : 1) * (1 + meta.realmLevel * REWARD.REALM_MULT) * dm;
   const firstClear = win && !meta.firstClear;
   return {
-    id: run.uid, outcome: run.outcome, bosses, firstClear,
+    id: run.uid, outcome: run.outcome, bosses, firstClear, summary: runSummary(run),   // M4-02: thống kê cộng khi nhận
     linhThach: Math.round(r.linhThach * mult),
     lingQi: Math.round(r.lingQi * mult),
     craftMats: Math.round(r.craftMats * (win ? REWARD.WIN_MULT : 1) * dm),
@@ -34,7 +35,7 @@ export function computeRunReward(run, meta) {
 export function stageReward(meta, reward) {
   if (!reward || !reward.id || meta.rewardLog.includes(reward.id)) return false;
   if (meta.pendingReward && meta.pendingReward.id !== reward.id) return false;
-  meta.pendingReward = { ...reward, bosses: [...reward.bosses] };
+  meta.pendingReward = { ...reward, bosses: [...reward.bosses], summary: reward.summary ? { ...reward.summary, evos: [...reward.summary.evos] } : null };
   return true;
 }
 
@@ -46,6 +47,7 @@ export function claimReward(meta) {
   if (meta.rewardLog.includes(r.id)) return null;
   for (const k of AMOUNT_KEYS) meta[k === 'tickets' ? 'coDuyenTicket' : k] += r[k];
   if (r.firstClear) meta.firstClear = true;
+  applySummary(meta, r.summary);                       // M4-02: thống kê vĩnh viễn — cùng lần ghi với phần thưởng
   meta.rewardLog.push(r.id);
   if (meta.rewardLog.length > REWARD.LOG_KEEP) meta.rewardLog.splice(0, meta.rewardLog.length - REWARD.LOG_KEEP);
   return r;
