@@ -50,12 +50,17 @@ for (const name of ['loi_cuong_back', 'loi_cuong_front', 'loi_vuc', 'hoa_cau_bay
   'phi_kiem', 'liet_diem_kiem', 'liet_diem_vung', 'bang_cham', 'han_khi', 'hoa_luan', 'hac_diem_no', 'hac_diem_dan']) { try { FX[name] = await loadFx(`fx/${name}.json`); } catch (e) { console.warn('[fx]', name, e); } }
 const vis = makeVis(FX);
 const medFx = createFx(FX.toa_thien);
-// M5-02: sprite nhân vật vẽ theo concept (art/nhan_vat/nhan_vat.py, docs/concept/); lỗi nạp thì dùng sprite code cũ
-try {
-  const meta = await (await fetch('sprites/nhan_vat.json')).json();
+// M5-02: sprite sheet ChatGPT vẽ, tools/sprite_clean.py làm sạch (docs/concept/). Lỗi nạp thì dùng sprite code cũ.
+// white/glow: bóng trắng (lóe trúng đòn) và bóng tím (viền tinh anh) dựng sẵn từ sheet
+async function loadSheet(name) {
+  const meta = await (await fetch(`sprites/${name}.json`)).json();
   const img = new Image(); img.src = 'sprites/' + meta.image; await img.decode();
-  vis.hero = { img, meta };
-} catch (e) { console.warn('[sprite] nhân vật dùng hình cũ:', e); }
+  const tint = col => { const c = document.createElement('canvas'); c.width = img.width; c.height = img.height; const g = c.getContext('2d'); g.drawImage(img, 0, 0); g.globalCompositeOperation = 'source-in'; g.fillStyle = col; g.fillRect(0, 0, c.width, c.height); return c; };
+  return { img, meta, white: tint('#ffffff'), glow: tint('#c070ff') };
+}
+for (const [key, name] of [['hero', 'nhan_vat'], ['mobs', 'quai'], ['bosses', 'boss']]) {
+  try { vis[key] = await loadSheet(name); } catch (e) { console.warn('[sprite] dùng hình cũ:', name, e); }
+}
 // Sheet pixelfx (tùy chọn): lỗi tải thì quay về hình vẽ bằng code, game vẫn chạy
 if (FEATURES.pixelfxAssets) {
   try {

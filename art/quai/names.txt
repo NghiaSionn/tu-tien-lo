@@ -1,0 +1,6 @@
+lang_walk0 lang_walk1 lang_walk2 lang_walk3 lang_atk lang_hurt
+ho_walk0 ho_walk1 ho_walk2 ho_walk3 ho_atk ho_hurt
+bang_walk0 bang_walk1 bang_walk2 bang_walk3 bang_atk bang_hurt
+ma_walk0 ma_walk1 ma_walk2 ma_walk3 ma_atk ma_hurt
+- - - - - -
+- - - - - -

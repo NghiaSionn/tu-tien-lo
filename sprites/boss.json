@@ -1,0 +1,65 @@
+{
+ "frameSize": [
+  52,
+  53
+ ],
+ "pivot": [
+  25,
+  52
+ ],
+ "image": "boss.png",
+ "frames": {
+  "MINI_walk0": [
+   0,
+   0
+  ],
+  "MINI_walk1": [
+   52,
+   0
+  ],
+  "MINI_walk2": [
+   104,
+   0
+  ],
+  "MINI_walk3": [
+   156,
+   0
+  ],
+  "MINI_atk": [
+   208,
+   0
+  ],
+  "MINI_hurt": [
+   260,
+   0
+  ],
+  "FINAL_walk0": [
+   312,
+   0
+  ],
+  "FINAL_walk1": [
+   364,
+   0
+  ],
+  "FINAL_walk2": [
+   416,
+   0
+  ],
+  "FINAL_walk3": [
+   468,
+   0
+  ],
+  "FINAL_atk": [
+   520,
+   0
+  ],
+  "FINAL_hurt": [
+   572,
+   0
+  ]
+ },
+ "source": "docs/concept/quai_sheet_chatgpt.png",
+ "tool": "tools/sprite_clean.py",
+ "scale": 4.1,
+ "colors": 32
+}

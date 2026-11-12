@@ -28,35 +28,39 @@ MIN_BLOB = 40
 def key_background(rgb, bg, tol):
     d = np.abs(rgb.astype(int) - np.array(bg)).sum(-1)
     alpha = d > tol
-    # viền lem: hồng tím (r, b cao hơn g nhiều) cạnh nền -> bỏ
-    r, g, b = [rgb[..., i].astype(int) for i in range(3)]
-    fringe = (r - g > 90) & (b - g > 90)
+    # viền lem: hồng tím (r, b cao hơn g nhiều) NẰM SÁT nền -> bỏ. Chỉ xét sát nền để không ăn màu tím thật của
+    # sprite (Ma Ảnh); lặp 2 lượt vì viền lem có thể dày 2 pixel
     if bg == (255, 0, 255):
-        alpha &= ~fringe
+        r, g, b = [rgb[..., i].astype(int) for i in range(3)]
+        fringe = (r - g > 90) & (b - g > 90) & (np.abs(r - b) < 70)
+        for _ in range(2):
+            bgm = ~alpha
+            near = np.zeros_like(bgm)
+            near[1:] |= bgm[:-1]; near[:-1] |= bgm[1:]; near[:, 1:] |= bgm[:, :-1]; near[:, :-1] |= bgm[:, 1:]
+            alpha &= ~(fringe & near)
     return alpha
 
 
-def components_bbox(mask):
-    """Khung bao các cụm đủ lớn (bỏ vụn)."""
+def label_components(mask):
+    """Gán nhãn các cụm đục (4 lân cận) trên toàn ảnh. Trả (nhãn HxW, [(tâm y, tâm x, số px, bbox)]) — nhãn 0 = nền."""
     from collections import deque
     h, w = mask.shape
-    seen = np.zeros_like(mask, bool)
-    boxes = []
-    for y in range(h):
-        for x in range(w):
-            if mask[y, x] and not seen[y, x]:
-                q = deque([(y, x)]); seen[y, x] = True
-                ys, xs = [], []
-                while q:
-                    cy, cx = q.popleft(); ys.append(cy); xs.append(cx)
-                    for ny, nx in ((cy + 1, cx), (cy - 1, cx), (cy, cx + 1), (cy, cx - 1)):
-                        if 0 <= ny < h and 0 <= nx < w and mask[ny, nx] and not seen[ny, nx]:
-                            seen[ny, nx] = True; q.append((ny, nx))
-                if len(ys) >= MIN_BLOB:
-                    boxes.append((min(xs), min(ys), max(xs) + 1, max(ys) + 1))
-    if not boxes:
-        return None
-    return (min(b[0] for b in boxes), min(b[1] for b in boxes), max(b[2] for b in boxes), max(b[3] for b in boxes))
+    lab = np.zeros((h, w), np.int32)
+    info = [None]
+    ys0, xs0 = np.nonzero(mask)
+    for y, x in zip(ys0.tolist(), xs0.tolist()):
+        if lab[y, x]:
+            continue
+        k = len(info)
+        q = deque([(y, x)]); lab[y, x] = k
+        ys, xs = [], []
+        while q:
+            cy, cx = q.popleft(); ys.append(cy); xs.append(cx)
+            for ny, nx in ((cy + 1, cx), (cy - 1, cx), (cy, cx + 1), (cy, cx - 1)):
+                if 0 <= ny < h and 0 <= nx < w and mask[ny, nx] and not lab[ny, nx]:
+                    lab[ny, nx] = k; q.append((ny, nx))
+        info.append((sum(ys) / len(ys), sum(xs) / len(xs), len(ys), (min(xs), min(ys), max(xs) + 1, max(ys) + 1)))
+    return lab, info
 
 
 def estimate_scale(rgb, alpha):
@@ -133,20 +137,27 @@ def main():
     s = a.scale or estimate_scale(img, alpha)
     print(f'cỡ pixel gốc s = {s:.2f}')
     frames = {}
+    # cụm thuộc ô nào thì xét theo tâm của cụm (lưới AI vẽ không đều tuyệt đối: chân/đuôi có thể lấn sang ô bên)
+    lab, cinfo = label_components(alpha)
+    cells = {}
+    for k, inf in enumerate(cinfo):
+        if not inf or inf[2] < MIN_BLOB:
+            continue
+        r, c = min(a.rows - 1, int(inf[0] // ch)), min(a.cols - 1, int(inf[1] // cw))
+        cells.setdefault(r * a.cols + c, []).append(k)
     for i, n in enumerate(names):
         if n == '-':
             continue
-        r, c = divmod(i, a.cols)
-        x0, y0, x1, y1 = int(c * cw), int(r * ch), int((c + 1) * cw), int((r + 1) * ch)
-        sub_a, sub = alpha[y0:y1, x0:x1], img[y0:y1, x0:x1]
-        bb = components_bbox(sub_a)
-        if not bb:
+        ks = cells.get(i)
+        if not ks:
             print('ô rỗng', n); continue
-        bx0, by0, bx1, by1 = bb
+        bx0 = min(cinfo[k][3][0] for k in ks); by0 = min(cinfo[k][3][1] for k in ks)
+        bx1 = max(cinfo[k][3][2] for k in ks); by1 = max(cinfo[k][3][3] for k in ks)
         pad = int(s * 2)
         bx0, by0 = max(0, bx0 - pad), max(0, by0 - pad)
-        bx1, by1 = min(sub.shape[1], bx1 + pad), min(sub.shape[0], by1 + pad)
-        crop, crop_a = sub[by0:by1, bx0:bx1], sub_a[by0:by1, bx0:bx1]
+        bx1, by1 = min(W, bx1 + pad), min(H, by1 + pad)
+        crop = img[by0:by1, bx0:bx1]
+        crop_a = np.isin(lab[by0:by1, bx0:bx1], ks)
         ox, oy = best_phase(crop, crop_a, s)
         frames[n] = downscale(crop, crop_a, s, ox, oy)
     # bảng màu chung
@@ -156,8 +167,13 @@ def main():
     for n, f in frames.items():
         op = f[..., 3] > 0
         px = f[op][:, :3].astype(int)
-        idx = np.argmin(((px[:, None, :] - pal[None]) ** 2).sum(-1), 1)
-        f[op, :3] = pal[idx]
+        d2 = ((px[:, None, :] - pal[None]) ** 2).sum(-1)
+        idx = np.argmin(d2, 1)
+        q = pal[idx]
+        # điểm nhấn nhỏ (mắt đỏ, ngọc) bị median-cut nuốt: lệch xa mọi màu bảng -> giữ màu gốc
+        far = np.sqrt(d2[np.arange(len(idx)), idx]) > 70
+        q[far] = px[far]
+        f[op, :3] = q
         # bỏ pixel đục đứng một mình (vụn)
         al = f[..., 3] > 0
         nb = np.zeros_like(al, int)

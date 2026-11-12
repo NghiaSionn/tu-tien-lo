@@ -1,0 +1,113 @@
+{
+ "frameSize": [
+  44,
+  29
+ ],
+ "pivot": [
+  21,
+  28
+ ],
+ "image": "quai.png",
+ "frames": {
+  "lang_walk0": [
+   0,
+   0
+  ],
+  "lang_walk1": [
+   44,
+   0
+  ],
+  "lang_walk2": [
+   88,
+   0
+  ],
+  "lang_walk3": [
+   132,
+   0
+  ],
+  "lang_atk": [
+   176,
+   0
+  ],
+  "lang_hurt": [
+   220,
+   0
+  ],
+  "ho_walk0": [
+   264,
+   0
+  ],
+  "ho_walk1": [
+   308,
+   0
+  ],
+  "ho_walk2": [
+   352,
+   0
+  ],
+  "ho_walk3": [
+   396,
+   0
+  ],
+  "ho_atk": [
+   440,
+   0
+  ],
+  "ho_hurt": [
+   484,
+   0
+  ],
+  "bang_walk0": [
+   528,
+   0
+  ],
+  "bang_walk1": [
+   572,
+   0
+  ],
+  "bang_walk2": [
+   616,
+   0
+  ],
+  "bang_walk3": [
+   660,
+   0
+  ],
+  "bang_atk": [
+   704,
+   0
+  ],
+  "bang_hurt": [
+   748,
+   0
+  ],
+  "ma_walk0": [
+   792,
+   0
+  ],
+  "ma_walk1": [
+   836,
+   0
+  ],
+  "ma_walk2": [
+   880,
+   0
+  ],
+  "ma_walk3": [
+   924,
+   0
+  ],
+  "ma_atk": [
+   968,
+   0
+  ],
+  "ma_hurt": [
+   1012,
+   0
+  ]
+ },
+ "source": "docs/concept/quai_sheet_chatgpt.png",
+ "tool": "tools/sprite_clean.py",
+ "scale": 4.1,
+ "colors": 24
+}

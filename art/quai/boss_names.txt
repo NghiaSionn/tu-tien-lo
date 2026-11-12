@@ -1,0 +1,6 @@
+- - - - - -
+- - - - - -
+- - - - - -
+- - - - - -
+MINI_walk0 MINI_walk1 MINI_walk2 MINI_walk3 MINI_atk MINI_hurt
+FINAL_walk0 FINAL_walk1 FINAL_walk2 FINAL_walk3 FINAL_atk FINAL_hurt

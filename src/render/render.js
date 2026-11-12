@@ -114,7 +114,51 @@ function drawMap(ctx, map, camX, camY, time, objs) {
   }
 }
 
-function drawBoss(ctx, m, time) {
+// M5-02: quái/boss từ sheet (quay mặt phải; lật khi đi sang trái). Chân (pivot) đặt đúng (m.x, m.y)
+const SPECIES = ['lang', 'ho', 'bang', 'ma'];
+function sheetFrame(ctx, sh, name, x, y, flip, src = sh.img) {
+  const m = sh.meta, f = m.frames[name], [fw, fh] = m.frameSize, [ax, ay] = m.pivot;
+  if (!f) return;
+  const px = Math.round(x), py = Math.round(y) - ay;
+  if (flip) { ctx.save(); ctx.translate(px, 0); ctx.scale(-1, 1); ctx.drawImage(src, f[0], f[1], fw, fh, -(ax + 1), py, fw, fh); ctx.restore(); }   // cột pivot ax vẫn rơi đúng px
+  else ctx.drawImage(src, f[0], f[1], fw, fh, px - ax, py, fw, fh);
+}
+function mobState(m, time) {
+  if (m.hit > 0) return 'hurt';
+  if (m.st === 'windup') return 'atk';
+  return 'walk' + ((m.vx || m.vy) ? Math.floor(time * 8 + (m.ph || 0) * 4) % 4 : 0);
+}
+function mobFlip(m) {
+  const vx = m.st === 'windup' || m.st === 'dash' ? (m.dirX || m.vx) : m.vx;
+  if (Math.abs(vx) > 0.5) m.faceL = vx < 0;   // chỉ để vẽ
+  return !!m.faceL;
+}
+function drawMobSheet(ctx, sh, m, prefix, time) {
+  const name = prefix + '_' + mobState(m, time), flip = mobFlip(m);
+  if (m.elite) for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) { ctx.globalAlpha = 0.8; sheetFrame(ctx, sh, name, m.x + dx, m.y + dy, flip, sh.glow); }
+  ctx.globalAlpha = 1;
+  sheetFrame(ctx, sh, name, m.x, m.y, flip);
+  if (m.hit > 0) { ctx.globalAlpha = 0.55; sheetFrame(ctx, sh, name, m.x, m.y, flip, sh.white); ctx.globalAlpha = 1; }
+}
+
+function drawBoss(ctx, m, time, vis) {
+  const bs = vis && vis.bosses;
+  if (bs) {
+    const top = Math.round(m.y) - 50;
+    ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(Math.round(m.x) - 20, Math.round(m.y) - 3, 40, 5);
+    if (m.st === 'windup') {   // gồng chiêu: viền trắng sáng quanh thân
+      ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 0.35;
+      const name = m.bossKind + '_atk', flip = mobFlip(m);
+      for (const [dx, dy] of [[-2, 0], [2, 0], [0, -2], [0, 2]]) sheetFrame(ctx, bs, name, m.x + dx, m.y + dy, flip, bs.white);
+      ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
+    }
+    drawMobSheet(ctx, bs, m, m.bossKind, time);
+    if (m.vuln > 0) {   // sơ hở: 3 sao vàng xoay trên đầu
+      ctx.fillStyle = '#ffe066';
+      for (let i = 0; i < 3; i++) { const a = time * 5 + i * 2.094; ctx.fillRect(Math.round(m.x + Math.cos(a) * 14) - 1, Math.round(top - 4 + Math.sin(a) * 3) - 1, 3, 3); }
+    }
+    return;
+  }
   const spr = BOSS_SPR[m.bossKind], S = 3, w = spr.width * S, h = spr.height * S;
   const hop = (m.vx || m.vy) && m.st === 'move' ? Math.abs(Math.sin(time * 6)) * 3 : 0;
   const bx = Math.round(m.x - w / 2), by = Math.round(m.y - h + 3 - hop);
@@ -127,8 +171,23 @@ function drawBoss(ctx, m, time) {
   }
 }
 
-function drawMonster(ctx, m, time) {
-  if (m.boss) return drawBoss(ctx, m, time);
+function drawMonster(ctx, m, time, vis) {
+  if (m.boss) return drawBoss(ctx, m, time, vis);
+  const ms = vis && vis.mobs;
+  if (ms) {
+    const x = Math.round(m.x), y = Math.round(m.y), top = y - 26;
+    ctx.fillStyle = m.elite ? 'rgba(60,20,90,.4)' : 'rgba(0,0,0,.25)'; ctx.fillRect(x - 9, y - 2, 18, 3);
+    drawMobSheet(ctx, ms, m, SPECIES[m.tier] || 'lang', time);
+    if (m.st === 'windup' && !m.elite) { ctx.fillStyle = '#ff4a3a'; ctx.fillRect(x - 1, top - 8, 2, 4); ctx.fillRect(x - 1, top - 3, 2, 1); }
+    if (m.burn && m.burn.t > 0 && Math.floor(time * 10 + m.ph) % 3 === 0) { ctx.fillStyle = '#ffb070'; ctx.fillRect(x - 6 + Math.floor(m.ph * 3) % 12, top + 6, 1, 2); }
+    if (m.slow && m.slow.t > 0) { ctx.fillStyle = '#b48cff'; ctx.fillRect(x - 8, y, 16, 1); }
+    if (m.elite || m.hp < m.max) {
+      const w = m.elite ? 26 : 14;
+      ctx.fillStyle = '#1a1423'; ctx.fillRect(x - w / 2 - 1, top - 1, w + 2, 3);
+      ctx.fillStyle = m.elite ? '#c070ff' : '#e2584f'; ctx.fillRect(x - w / 2, top, Math.max(1, Math.round(w * m.hp / m.max)), 1);
+    }
+    return;
+  }
   const hop = (m.vx || m.vy) && m.st !== 'dash' ? Math.abs(Math.sin(time * 9 + m.ph)) * 2 : 0;
   if (m.elite) {
     // tinh anh: sprite x2, bóng lớn, thanh máu luôn hiện
@@ -493,7 +552,7 @@ export function render(ctx, g) {
       ctx.drawImage(o.img, o.x, o.dy);
       ctx.globalAlpha = 1;
     }
-    else if (o.m) drawMonster(ctx, o.m, time);
+    else if (o.m) drawMonster(ctx, o.m, time, vis);
     else if (o.portal) { const f = vis.pfx.portal; f.x = Math.round(g.portal.x); f.y = Math.round(g.portal.y); f.draw(ctx); }
     else drawPlayer(ctx, p, time, g.medFx, g.inForm, vis);
   }

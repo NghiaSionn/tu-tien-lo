@@ -57,3 +57,15 @@ test('sheet nhân vật (M5-02): đủ khung đi/đánh/trúng đòn 4 hướng 
   for (const n of need) { const f = m.frames[n]; assert.ok(f, `thiếu ${n}`); assert.ok(f[0] + fw <= w && f[1] + fh <= h, `${n} ngoài ảnh`); }
   assert.ok(m.pivot[1] === fh - 1, 'pivot ở hàng chân cuối');
 });
+
+test('sheet quái + boss (M5-02): đủ khung đi/gồng/trúng đòn cho 4 loài và 2 boss, nằm trong ảnh', () => {
+  const S = new URL('../sprites/', import.meta.url);
+  for (const [file, kinds] of [['quai', ['lang', 'ho', 'bang', 'ma']], ['boss', ['MINI', 'FINAL']]]) {
+    const m = JSON.parse(fs.readFileSync(new URL(`${file}.json`, S), 'utf8'));
+    const b = fs.readFileSync(new URL(m.image, S)), w = b.readUInt32BE(16), h = b.readUInt32BE(20);
+    const [fw, fh] = m.frameSize;
+    for (const k of kinds) for (const st of ['walk0', 'walk1', 'walk2', 'walk3', 'atk', 'hurt']) {
+      const f = m.frames[`${k}_${st}`]; assert.ok(f, `${file}: thiếu ${k}_${st}`); assert.ok(f[0] + fw <= w && f[1] + fh <= h);
+    }
+  }
+});
