@@ -46,3 +46,14 @@ test('trần fx sự kiện chiến đấu: 1000 tia trúng không làm fx vư�
     assert.equal(vis.fxs.length, R.FX_CAP[q]); assert.equal(vis.rings.length, 1);
   }
 });
+
+test('sheet nhân vật (M5-02): đủ khung đi/đánh/trúng đòn 3 hướng + ngồi thiền, nằm trong ảnh', () => {
+  const S = new URL('../sprites/', import.meta.url);
+  const m = JSON.parse(fs.readFileSync(new URL('nhan_vat.json', S), 'utf8'));
+  const b = fs.readFileSync(new URL(m.image, S)), w = b.readUInt32BE(16), h = b.readUInt32BE(20);
+  const [fw, fh] = m.frameSize;
+  const need = ['sit'];
+  for (const d of ['down', 'up', 'side']) need.push(`${d}_walk0`, `${d}_walk1`, `${d}_walk2`, `${d}_walk3`, `${d}_atk`, `${d}_hurt`);
+  for (const n of need) { const f = m.frames[n]; assert.ok(f, `thiếu ${n}`); assert.ok(f[0] + fw <= w && f[1] + fh <= h, `${n} ngoài ảnh`); }
+  assert.ok(m.pivot[1] === fh - 1, 'pivot ở hàng chân cuối');
+});

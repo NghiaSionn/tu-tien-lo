@@ -50,6 +50,12 @@ for (const name of ['loi_cuong_back', 'loi_cuong_front', 'loi_vuc', 'hoa_cau_bay
   'phi_kiem', 'liet_diem_kiem', 'liet_diem_vung', 'bang_cham', 'han_khi', 'hoa_luan', 'hac_diem_no', 'hac_diem_dan']) { try { FX[name] = await loadFx(`fx/${name}.json`); } catch (e) { console.warn('[fx]', name, e); } }
 const vis = makeVis(FX);
 const medFx = createFx(FX.toa_thien);
+// M5-02: sprite nhân vật vẽ theo concept (art/nhan_vat/nhan_vat.py, docs/concept/); lỗi nạp thì dùng sprite code cũ
+try {
+  const meta = await (await fetch('sprites/nhan_vat.json')).json();
+  const img = new Image(); img.src = 'sprites/' + meta.image; await img.decode();
+  vis.hero = { img, meta };
+} catch (e) { console.warn('[sprite] nhân vật dùng hình cũ:', e); }
 // Sheet pixelfx (tùy chọn): lỗi tải thì quay về hình vẽ bằng code, game vẫn chạy
 if (FEATURES.pixelfxAssets) {
   try {
@@ -236,7 +242,7 @@ function hubShoot() {
 }
 function hurtHubPlayer(d) {
   if (p.inv > 0 || trib) return;
-  meta.hp -= d; p.inv = PLAYER.INVULN; p.med = false; addShake(vis, 0.15);
+  meta.hp -= d; p.inv = PLAYER.INVULN; p.hurtT = 0.2; p.med = false; addShake(vis, 0.15);
   floatText(vis, p.x, p.y - 20, '-' + d, '#ff8f8a');
   if (meta.hp <= 0) {
     C.deathPenalty(meta);
@@ -324,7 +330,7 @@ function updateInteractiveTrib(dt) {
   clampToArena(trib, p);
   const mh = maxHp(meta.realmLevel);
   const strikes = updateTrib(trib, p, dt, f => {
-    meta.hp -= f * mh; p.inv = 0.3; addShake(vis, 0.2);
+    meta.hp -= f * mh; p.inv = 0.3; p.hurtT = 0.2; addShake(vis, 0.2);
     floatText(vis, p.x, p.y - 20, '-' + Math.round(f * mh), '#ff8f8a');
     if (meta.hp <= 0) { meta.hp = 0; trib.done = 'LOSE'; }
   });

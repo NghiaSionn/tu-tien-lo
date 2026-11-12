@@ -1,0 +1,91 @@
+{
+ "frameSize": [
+  16,
+  24
+ ],
+ "pivot": [
+  8,
+  23
+ ],
+ "image": "nhan_vat.png",
+ "frames": {
+  "down_walk0": [
+   0,
+   0
+  ],
+  "down_walk1": [
+   16,
+   0
+  ],
+  "down_walk2": [
+   32,
+   0
+  ],
+  "down_walk3": [
+   48,
+   0
+  ],
+  "down_atk": [
+   64,
+   0
+  ],
+  "down_hurt": [
+   80,
+   0
+  ],
+  "up_walk0": [
+   96,
+   0
+  ],
+  "up_walk1": [
+   112,
+   0
+  ],
+  "up_walk2": [
+   128,
+   0
+  ],
+  "up_walk3": [
+   144,
+   0
+  ],
+  "up_atk": [
+   160,
+   0
+  ],
+  "up_hurt": [
+   176,
+   0
+  ],
+  "side_walk0": [
+   192,
+   0
+  ],
+  "side_walk1": [
+   208,
+   0
+  ],
+  "side_walk2": [
+   224,
+   0
+  ],
+  "side_walk3": [
+   240,
+   0
+  ],
+  "side_atk": [
+   256,
+   0
+  ],
+  "side_hurt": [
+   272,
+   0
+  ],
+  "sit": [
+   288,
+   0
+  ]
+ },
+ "source": "art/nhan_vat/nhan_vat.py",
+ "concept": "docs/concept/nhan_vat_chinh_chatgpt.jpg"
+}

@@ -47,7 +47,7 @@ export function hurtRunPlayer(run, player, dmg, ev, src = 'other') {
   if (player.inv > 0 || run.status !== 'RUNNING') return 0;
   const ctx = makeCtx(run, player, ev);
   const left = absorbDamage(ctx, dmg);
-  player.inv = PLAYER.INVULN;
+  player.inv = PLAYER.INVULN; player.hurtT = 0.2;   // hurtT: chỉ để vẽ khung trúng đòn
   if (left <= 0) { ev.push({ type: 'text', x: player.x, y: player.y - 20, text: 'chặn', color: '#ffd978' }); return 0; }
   const taken = left * (run.gear ? 1 + run.gear.dmgTaken : 1);   // M4-01: Sát Khí Giới
   run.hp -= taken; run.damageTaken += taken;
