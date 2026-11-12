@@ -197,3 +197,15 @@ test('Huyền Băng Thú ngoài khung nhìn thì không bắn, chỉ tiến lạ
   assert.equal(m.st, 'move'); assert.equal(r.scene.enemyShots.length, 0);
   assert.ok(m.vy > 0, 'tiến về phía người chơi');
 });
+
+test('inCameraView theo camera thật: người chơi sát góc sân thì điểm cách 330 px vẫn trong màn (camera chặn mép)', async () => {
+  const { inCameraView } = await import('../src/systems/director.js');
+  const { VIEW } = await import('../src/core/config.js');
+  const map = { pw: 56 * 16, ph: 56 * 16 };
+  const corner = { x: 40, y: 40 };
+  assert.equal(inCameraView(map, corner, corner.x + 330, corner.y + 20), true);    // camera ở (0,0): x=370 < 640
+  const mid = { x: map.pw / 2, y: map.ph / 2 };
+  assert.equal(inCameraView(map, mid, mid.x + 360, mid.y), false);                 // giữa sân: 360 > 320 + lề 24
+  assert.equal(inCameraView(map, mid, mid.x + VIEW.W / 2 - 10, mid.y), true);
+  assert.equal(inCameraView(map, mid, mid.x, mid.y - VIEW.H / 2 - 40), false);
+});

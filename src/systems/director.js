@@ -1,6 +1,6 @@
 // Director bí cảnh (M2-01): quyết định sinh quái gì, ở đâu, khi nào. Thuần logic, chỉ dùng run.rng -> cùng seed + cùng
 // input thì cùng kết quả. Thông số ở DIRECTOR / ARCH trong config.
-import { TILE as T, RUN, DIRECTOR as D, ARCH, BOSS, DIFFICULTY } from '../core/config.js';
+import { TILE as T, RUN, DIRECTOR as D, ARCH, BOSS, DIFFICULTY, VIEW } from '../core/config.js';
 import { makeMonster } from '../entities/monsters.js';
 import { initBoss } from '../entities/bosses.js';
 
@@ -75,12 +75,20 @@ export function summonAround(run, player, cx, cy, n, R, power) {
   return made;
 }
 
-// Một con lẻ quanh người chơi (ngoài tầm nhìn gần)
+// Khung camera thật (cùng cách chặn mép như render): người chơi sát rìa sân thì camera không ở giữa người chơi
+export function inCameraView(map, player, x, y, margin = 24) {
+  const cx = Math.max(0, Math.min(map.pw - VIEW.W, player.x - VIEW.W / 2)), cy = Math.max(0, Math.min(map.ph - VIEW.H, player.y - 8 - VIEW.H / 2));
+  return x > cx - margin && x < cx + VIEW.W + margin && y > cy - margin && y < cy + VIEW.H + margin * 2;
+}
+
+// Một con lẻ quanh người chơi: luôn ngoài khung camera (không hiện ra trước mặt)
 function spawnAround(run, player, arch, power) {
   const S = RUN.SPAWN, rng = run.rng;
   for (let i = 0; i < 16; i++) {
     const a = rng() * Math.PI * 2, r = S.DIST_MIN + rng() * (S.DIST_MAX - S.DIST_MIN);
-    const m = spawnAt(run, player, arch, player.x + Math.cos(a) * r, player.y + Math.sin(a) * r, power);
+    const x = player.x + Math.cos(a) * r, y = player.y + Math.sin(a) * r;
+    if (inCameraView(run.scene.map, player, x, y)) continue;
+    const m = spawnAt(run, player, arch, x, y, power);
     if (m) return m;
   }
   return null;

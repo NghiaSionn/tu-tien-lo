@@ -63,10 +63,14 @@ for (const [key, name] of [['hero', 'nhan_vat'], ['mobs', 'quai'], ['bosses', 'b
 }
 // M5-01: vật thể rừng (cây, đá, cỏ hoa...) cắt thành canvas riêng: vật che nhân vật dùng kích thước ảnh để làm mờ
 if (vis.rung) {
-  const { img, meta } = vis.rung, [fw, fh] = meta.frameSize;
-  vis.props = { ax: meta.pivot[0], ay: meta.pivot[1] };
+  // cây vẽ ×2 (pixel gấp đôi): chơi tay thấy cây ngang nhân vật là sai tỉ lệ -> cây ~70 px, gấp đôi người
+  const { img, meta } = vis.rung, [fw, fh] = meta.frameSize, [ax, ay] = meta.pivot;
+  const BIG = new Set(['tung1', 'tung2', 'la1', 'la2', 'dao1', 'dao2', 'tre']);
+  vis.props = {};
   for (const [n, [sx, sy]] of Object.entries(meta.frames)) {
-    const c = document.createElement('canvas'); c.width = fw; c.height = fh; c.getContext('2d').drawImage(img, sx, sy, fw, fh, 0, 0, fw, fh);
+    const k = BIG.has(n) ? 2 : 1, c = document.createElement('canvas'); c.width = fw * k; c.height = fh * k;
+    const g = c.getContext('2d'); g.imageSmoothingEnabled = false; g.drawImage(img, sx, sy, fw, fh, 0, 0, fw * k, fh * k);
+    c.ax = ax * k + (k - 1); c.ay = ay * k + (k - 1);   // pivot (chân) theo tỉ lệ
     vis.props[n] = c;
   }
 }

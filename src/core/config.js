@@ -6,7 +6,8 @@ export const FEATURES = {
   pixelfxAssets: true,  // dùng sheet pixelfx cho cổng bí cảnh. false = cổng vẽ bằng code như cũ
 };
 
-export const VIEW = { W: 480, H: 270 };
+// 12/11 (chơi tay): 480×270 -> 640×360 = thu camera 1,33 lần, nhân vật/quái nhỏ lại trên màn, thấy rộng hơn
+export const VIEW = { W: 640, H: 360 };
 export const TILE = 16;
 
 export const HUB = {
@@ -55,14 +56,14 @@ export const HUB_MONSTER = {
 
 // ---------- Run (bí cảnh) [THỬ NGHIỆM] ----------
 export const RUN = {
-  ARENA_W: 44, ARENA_H: 44,
+  ARENA_W: 56, ARENA_H: 56,   // nới theo khung nhìn 640×360 (cũ 44×44 với 480×270)
   TIME_LIMIT: 900,              // trần an toàn: chưa hạ boss cuối sau 15 phút -> kết thúc 'TIMEOUT' (thắng = hạ boss, BOSS.FINAL)
   START_SKILLS: ['sword_qi', 'fire_orb', 'thunder_strike'],
   MAX_ACTIVE: 4, MAX_PASSIVE: 4,
   XP_BASE: 4, XP_GROWTH: 1.13, XP_LINEAR: 1,
   MAGNET: 56, PICKUP: 10, ORB_SPEED: 160,
   REGEN: 0.005,                 // hồi khí huyết mỗi giây trong run (tỉ lệ khí huyết tối đa)
-  SPAWN: { MAX_ALIVE: 90, DIST_MIN: 190, DIST_MAX: 260 },   // nhịp sinh nằm ở DIRECTOR
+  SPAWN: { MAX_ALIVE: 90, DIST_MIN: 330, DIST_MAX: 410 },   // ngoài khung nhìn 640×360 (nửa chéo ~367)   // nhịp sinh nằm ở DIRECTOR
   ENEMY: { HP_BASE: 18, HP_TIME: 0.0045, DMG_BASE: 3, DMG_TIME: 0.0016, SPEED: 34, SPEED_TIME: 0.04, REALM_SCALE: 0.9 },
   CHAIN_BUDGET_PER_TICK: 24,    // tổng số lần nhảy sét tối đa mỗi khung (chặn chuỗi vô hạn)
   MAX_PROJECTILES: 220, MAX_ZONES: 40, MAX_ORBS: 300,
@@ -97,7 +98,7 @@ export const DIRECTOR = {
     { t: 330, arch: 'ranged',  n: 7,  form: 'arc',  text: 'Mưa băng tiễn — Yêu Vương sắp tới!' },
   ],
   ELITE: { FIRST: 165, EVERY: 90, MAX_ALIVE: 2, TEXT: 'Ma Ảnh tinh anh xuất hiện!' },
-  RING_R: 175, PACK_R: 200, ARC_R: 170,
+  RING_R: 235, PACK_R: 265, ARC_R: 225,   // ×1,33 theo khung nhìn 640×360: đội hình hiện sát mép màn như cũ
 };
 
 // Kiểu quái trong bí cảnh. tier = loài (màu sprite): 0 Dã Lang, 1 Hỏa Hồ, 2 Huyền Băng Thú, 3 Ma Ảnh.
@@ -108,9 +109,9 @@ export const ARCH = {
   charger: { tier: 1, cost: 2, hp: 1.3, dmg: 1,   speed: 0.85, xp: 2,
     TRIGGER: 105, WINDUP: 0.75, DASH_SPEED: 230, DASH_TIME: 0.45, DASH_DMG: 1.6, RECOVER: 0.8, CD: 2.6, HIT_R: 11 },
   // bắn xa: giữ khoảng cách, gồng (cảnh báo đường bắn), bắn băng tiễn theo hướng đã khóa; cây/đá chặn đạn.
-  // Chỉ bắn khi đang trong khung nhìn quanh người chơi (ONSCREEN_X/Y, màn 480×270) — không bắn lén từ ngoài màn.
+  // Chỉ bắn khi đang trong khung nhìn quanh người chơi (ONSCREEN_X/Y, màn 640×360) — không bắn lén từ ngoài màn.
   ranged:  { tier: 2, cost: 2, hp: 0.8, dmg: 1,   speed: 0.8,  xp: 2,
-    KEEP_MIN: 95, KEEP_MAX: 150, FIRE_RANGE: 175, WINDUP: 0.6, CD: 2.8, ONSCREEN_X: 215, ONSCREEN_Y: 115, SHOT_SPEED: 105, SHOT_LIFE: 2.4, SHOT_DMG: 1.2, SHOT_R: 6 },
+    KEEP_MIN: 95, KEEP_MAX: 150, FIRE_RANGE: 175, WINDUP: 0.6, CD: 2.8, ONSCREEN_X: 295, ONSCREEN_Y: 155, SHOT_SPEED: 105, SHOT_LIFE: 2.4, SHOT_DMG: 1.2, SHOT_R: 6 },
   // tinh anh: trâu, đập đất vùng tròn sau khi gồng (vòng cảnh báo lớn dần)
   elite:   { tier: 3, cost: 8, hp: 10,  dmg: 1.5, speed: 0.9,  xp: 12,
     TRIGGER: 50, WINDUP: 1.0, SLAM_R: 46, SLAM_DMG: 2.2, RECOVER: 0.5, CD: 4.5 },

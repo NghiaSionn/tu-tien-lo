@@ -108,7 +108,7 @@ const pick = (list, v) => list.find(([, p]) => v < p)[0];
 function drawMap(ctx, map, camX, camY, time, objs, vis) {
   const props = vis && vis.props, decor = [];
   const tx0 = Math.floor(camX / T), ty0 = Math.floor(camY / T), tx1 = tx0 + Math.ceil(W / T) + 1, ty1 = ty0 + Math.ceil(H / T) + 1;
-  for (let ty = ty0; ty <= ty1 + 3; ty++) for (let tx = tx0 - 2; tx <= tx1 + 1; tx++) {
+  for (let ty = ty0; ty <= ty1 + 5; ty++) for (let tx = tx0 - 3; tx <= tx1 + 2; tx++) {   // cây ×2 cao ~72 px, rộng ~84 px: quét rộng hơn để không cụt
     const t = map.tileAt(tx, ty), x = tx * T, y = ty * T;
     if (ty <= ty1) {
       if (t === WATER) {
@@ -124,14 +124,14 @@ function drawMap(ctx, map, camX, camY, time, objs, vis) {
     }
     if (props && t === TREE) {
       const img = props[pick(TREE_KINDS, hash(tx, ty, 6))];
-      objs.push({ y: y + T, img, x: x + 8 - props.ax, dy: y + T - 1 - props.ay });
+      objs.push({ y: y + T, img, x: x + 8 - img.ax, dy: y + T - 1 - img.ay });
     } else if (props && t === ROCK) {
       const img = props[pick(ROCK_KINDS, hash(tx, ty, 7))];
-      objs.push({ y: y + T - 2, img, x: x + 8 - props.ax, dy: y + T - 2 - props.ay });
+      objs.push({ y: y + T - 2, img, x: x + 8 - img.ax, dy: y + T - 2 - img.ay });
     } else if (t === TREE) { const v = hash(tx, ty, 6); objs.push({ y: y + T, img: treeSprs[v < 0.12 ? 2 : v < 0.56 ? 0 : 1], x: x - 2, dy: y + T - 28 }); }
     else if (t === ROCK) objs.push({ y: y + T - 2, img: rockSpr, x: x + 1, dy: y + 5 });
   }
-  if (props) for (const [img, x, y] of decor) ctx.drawImage(img, x + 8 - props.ax, y + T - 1 - props.ay);
+  if (props) for (const [img, x, y] of decor) ctx.drawImage(img, x + 8 - img.ax, y + T - 1 - img.ay);
 }
 
 // M5-02: quái/boss từ sheet (quay mặt phải; lật khi đi sang trái). Chân (pivot) đặt đúng (m.x, m.y)
@@ -567,7 +567,9 @@ export function render(ctx, g) {
   for (const o of objs) {
     if (o.img) {
       // M5-01: tán cây/đá che nhân vật thì mờ đi để luôn thấy người chơi và cảnh báo phía sau
-      const hide = o.y > p.y && p.x > o.x - 2 && p.x < o.x + o.img.width + 2 && p.y - 16 < o.y && p.y > o.dy;
+      const covers = (ux, uy) => o.y > uy && ux > o.x - 2 && ux < o.x + o.img.width + 2 && uy - 16 < o.y && uy > o.dy;
+      // cây ×2 tán lớn: cũng mờ khi có quái đứng sau (không để quái/đòn đánh khuất sau tán)
+      const hide = covers(p.x, p.y) || (o.img.width > 60 && scene.monsters.some(m => !m.dead && covers(m.x, m.y)));
       if (hide) ctx.globalAlpha = 0.45;
       ctx.drawImage(o.img, o.x, o.dy);
       ctx.globalAlpha = 1;
