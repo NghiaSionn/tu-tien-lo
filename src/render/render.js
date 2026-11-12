@@ -105,7 +105,66 @@ const TREE_KINDS = [['tung1', 0.18], ['tung2', 0.36], ['la1', 0.56], ['la2', 0.7
 const ROCK_KINDS = [['da1', 0.4], ['da2', 0.75], ['da_lon', 0.88], ['goc', 0.95], ['den', 1]];
 const DECOR_KINDS = [['co', 0.35], ['duong_xi', 0.6], ['hoa', 0.8], ['soi', 0.93], ['nam', 1]];
 const pick = (list, v) => list.find(([, p]) => v < p)[0];
+// M5-04 (tối ưu): bản đồ tĩnh -> vẽ sẵn theo khối 16×16 ô (256 px): ô nền + bờ nước + trang trí vào canvas, 2 bản theo
+// nhịp sóng nước; cây/đá của khối tính một lần. Mỗi khung chỉ còn vài drawImage thay vì ~1000 ô + quét hash từng ô.
+const CH = 16, CPX = CH * T;
+function tileObj(map, tx, ty, props) {
+  const t = map.tileAt(tx, ty), x = tx * T, y = ty * T;
+  if (props && t === TREE) { const img = props[pick(TREE_KINDS, hash(tx, ty, 6))]; return { y: y + T, img, x: x + 8 - img.ax, dy: y + T - 1 - img.ay }; }
+  if (props && t === ROCK) { const img = props[pick(ROCK_KINDS, hash(tx, ty, 7))]; return { y: y + T - 2, img, x: x + 8 - img.ax, dy: y + T - 2 - img.ay }; }
+  if (t === TREE) { const v = hash(tx, ty, 6); return { y: y + T, img: treeSprs[v < 0.12 ? 2 : v < 0.56 ? 0 : 1], x: x - 2, dy: y + T - 28 }; }
+  if (t === ROCK) return { y: y + T - 2, img: rockSpr, x: x + 1, dy: y + 5 };
+  return null;
+}
+function buildChunk(map, cx, cy, phase, props) {
+  const c = document.createElement('canvas'); c.width = c.height = CPX;
+  const g = c.getContext('2d'); g.imageSmoothingEnabled = false; g.translate(-cx * CPX, -cy * CPX);
+  const tx0 = cx * CH, ty0 = cy * CH;
+  for (let ty = ty0; ty < ty0 + CH; ty++) for (let tx = tx0; tx < tx0 + CH; tx++) {
+    const t = map.tileAt(tx, ty), x = tx * T, y = ty * T;
+    if (t === WATER) { g.drawImage(waterTiles[(phase + tx + ty) & 1], x, y); if (map.tileAt(tx, ty - 1) !== WATER) g.drawImage(waterBank, x, y); }
+    else if (t === STONE) g.drawImage(stoneTile, x, y);
+    else g.drawImage(grassTiles[Math.floor(hash(tx, ty, 5) * grassTiles.length)], x, y);
+  }
+  // trang trí: cả các ô ngay dưới/bên khối (hình cao ~36 px, rộng ~42 px lấn vào khối này)
+  if (props) for (let ty = ty0; ty < ty0 + CH + 3; ty++) for (let tx = tx0 - 3; tx < tx0 + CH + 3; tx++) {
+    const t = map.tileAt(tx, ty), d = hash(tx, ty, 8), x = tx * T, y = ty * T;
+    let img = null;
+    if (t === GRASS && d < 0.05) img = props[pick(DECOR_KINDS, d / 0.05)];
+    else if (t === WATER && d < 0.05 && map.tileAt(tx, ty - 1) === WATER) img = props.sen;
+    if (img) g.drawImage(img, x + 8 - img.ax, y + T - 1 - img.ay);
+  }
+  return c;
+}
+function drawMapCached(ctx, map, camX, camY, time, objs, vis) {
+  const props = vis.props;
+  if (!vis.mapCache || vis.mapCache.map !== map || vis.mapCache.props !== props) vis.mapCache = { map, props, img: new Map(), objs: new Map() };
+  const mc = vis.mapCache, phase = Math.floor(time * 1.5) & 1;
+  const ncx = Math.ceil(map.pw / CPX), ncy = Math.ceil(map.ph / CPX);
+  const cx0 = Math.max(0, Math.floor(camX / CPX)), cx1 = Math.min(ncx - 1, Math.floor((camX + W - 1) / CPX));
+  const cy0 = Math.max(0, Math.floor(camY / CPX)), cy1 = Math.min(ncy - 1, Math.floor((camY + H - 1) / CPX));
+  for (let cy = cy0; cy <= cy1; cy++) for (let cx = cx0; cx <= cx1; cx++) {
+    const key = cx + ',' + cy + ',' + phase;
+    let c = mc.img.get(key);
+    if (!c) { c = buildChunk(map, cx, cy, phase, props); mc.img.set(key, c); }
+    ctx.drawImage(c, cx * CPX, cy * CPX);
+  }
+  // cây/đá: khối có vật thể có thể lấn vào màn (cây ×2 cao ~72, rộng ~84 px)
+  const ox0 = Math.max(0, Math.floor((camX - 48) / CPX)), ox1 = Math.min(ncx - 1, Math.floor((camX + W + 48) / CPX));
+  const oy1 = Math.min(ncy - 1, Math.floor((camY + H + 80) / CPX));
+  for (let cy = cy0; cy <= oy1; cy++) for (let cx = ox0; cx <= ox1; cx++) {
+    const key = cx + ',' + cy;
+    let list = mc.objs.get(key);
+    if (!list) {
+      list = [];
+      for (let ty = cy * CH; ty < cy * CH + CH; ty++) for (let tx = cx * CH; tx < cx * CH + CH; tx++) { const o = tileObj(map, tx, ty, props); if (o) list.push(o); }
+      mc.objs.set(key, list);
+    }
+    for (const o of list) if (o.x < camX + W && o.x + o.img.width > camX && o.dy < camY + H && o.y > camY) objs.push(o);
+  }
+}
 function drawMap(ctx, map, camX, camY, time, objs, vis) {
+  if (vis && vis.mapChunks !== false && typeof document !== 'undefined') return drawMapCached(ctx, map, camX, camY, time, objs, vis);
   const props = vis && vis.props, decor = [];
   const tx0 = Math.floor(camX / T), ty0 = Math.floor(camY / T), tx1 = tx0 + Math.ceil(W / T) + 1, ty1 = ty0 + Math.ceil(H / T) + 1;
   for (let ty = ty0; ty <= ty1 + 5; ty++) for (let tx = tx0 - 3; tx <= tx1 + 2; tx++) {   // cây ×2 cao ~72 px, rộng ~84 px: quét rộng hơn để không cụt
@@ -531,6 +590,10 @@ function drawProjectiles(ctx, scene, FX, dt, quality) {
 export function render(ctx, g) {
   const { scene, player: p, time, vis } = g, map = scene.map;
   vis.frameNo = (vis.frameNo || 0) + 1; vis.frameDt = g.dtWorld || 0;
+  // đo thời gian từng phần (chỉ khi bật vis.prof = {} từ console/công cụ đo; mặc định tắt)
+  const PR = vis.prof; let pt = PR ? performance.now() : 0;
+  const mark = k => { if (!PR) return; const t = performance.now(); PR[k] = (PR[k] || 0) + t - pt; pt = t; };
+  if (PR) PR.frames = (PR.frames || 0) + 1;
   let camX = Math.round(Math.max(0, Math.min(map.pw - W, p.x - W / 2)));
   let camY = Math.round(Math.max(0, Math.min(map.ph - H, p.y - 8 - H / 2)));
   if (vis.shake > 0) { camX += Math.round(rand(-2, 2)); camY += Math.round(rand(-2, 2)); }
@@ -538,6 +601,7 @@ export function render(ctx, g) {
 
   const objs = [];
   drawMap(ctx, map, camX, camY, time, objs, vis);
+  mark('map');
 
   if (scene.kind === 'hub') {
     const ct = vis.ct;
@@ -577,6 +641,7 @@ export function render(ctx, g) {
     if (g.run && g.run.shrine && !g.run.shrine.used) drawShrine(ctx, g.run, p, time, vis);
   }
 
+  mark('ground');
   for (const m of scene.monsters) objs.push({ y: m.y, m });
   objs.push({ y: p.y, player: true });
   if (scene.kind === 'hub' && FEATURES.run && g.portal && vis.pfx) objs.push({ y: g.portal.y, portal: true });
@@ -601,13 +666,17 @@ export function render(ctx, g) {
     else drawPlayer(ctx, p, time, g.medFx, g.inForm, vis);
   }
 
+  mark('objects');
   if (g.run) drawSkillsOver(ctx, g.run, p, time, vis);
   if (scene.kind !== 'hub') drawTelegraphsTop(ctx, scene);
   else if (g.trib && g.trib.interactive) drawTribulation(ctx, g.trib, time, true);
   if (scene.enemyShots) drawEnemyShots(ctx, scene.enemyShots, vis);
+  mark('skillsTop');
   if (scene.projectiles) drawProjectiles(ctx, scene, vis.FX, g.dtWorld || 0, vis.quality);
+  mark('projectiles');
   for (const s of g.hubShots || []) { s.fx.x = Math.round(s.x); s.fx.y = Math.round(s.y); s.fx.draw(ctx); }
   for (const fx of vis.fxs) fx.draw(ctx);
+  mark('fx');
 
   ctx.globalCompositeOperation = 'lighter';
   for (const r of vis.rings) { ctx.globalAlpha = Math.min(1, r.life / r.max * 1.5); pxRing(ctx, r.x, r.y, r.r, Math.max(12, Math.round(r.r * 1.2)), 0, r.color, 2, 0.55); }
@@ -620,6 +689,7 @@ export function render(ctx, g) {
   for (const q of vis.parts) { ctx.globalAlpha = Math.min(1, q.life / q.max * 1.5); ctx.fillStyle = q.color; ctx.fillRect(Math.round(q.x), Math.round(q.y), q.size, q.size); }
   ctx.globalAlpha = 1;
   ctx.globalCompositeOperation = 'source-over';
+  mark('parts');
 
   ctx.font = '8px monospace'; ctx.textAlign = 'center';
   for (const q of vis.texts) {
@@ -628,6 +698,7 @@ export function render(ctx, g) {
     ctx.fillStyle = q.color; ctx.fillText(q.text, Math.round(q.x), Math.round(q.y));
   }
   ctx.globalAlpha = 1;
+  mark('texts');
 
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   drawBossBar(ctx, scene, camX, camY);

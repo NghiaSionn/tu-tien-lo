@@ -155,7 +155,7 @@ Save trên trình duyệt của máy này lúc kết thúc phiên: đã đưa v�
 - M2-03: 10 test thưởng; trình duyệt: tải lại giữa bảng kết quả và bấm nhận nhiều lần đều chỉ cộng 1 lần.
 - M2-02: 12 test boss; cảnh báo 5 chiêu đã xem trong trình duyệt. **Chưa chơi thật trọn run tới boss** (trình duyệt phiên 11/11 chỉ 2–5 khung/giây).
 - M2-01, chơi thật tới 3:07: đủ 4 kiểu quái, thông báo đợt, cảnh báo lao/bắn/đập, né được đòn đập tinh anh (TEST_REPORT §3c).
-- FPS: ~62 ở động phủ và bí cảnh thường (12/11, khung 640×360, 32 quái: 1,8/3,9 ms mỗi khung). Stress 100 quái/200 đạn/300 hạt: p95 20–29 ms (đo trước khi đổi camera/sprite) — chưa đạt, xem `TEST_REPORT.md`.
+- FPS: ~62 ở động phủ và bí cảnh thường (12/11, khung 640×360, 32 quái: 1,8/3,9 ms mỗi khung). Stress 100 quái/200 đạn/300 hạt sau tối ưu (bản đồ cache theo khối 16×16 ô): Cao 3,7/6,4 ms trung vị/p95 — đạt trên desktop; chưa đo điện thoại. Đo theo phần: đặt `__game.vis.prof = {}` rồi đọc lại.
 
 ---
 
