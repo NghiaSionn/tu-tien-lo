@@ -122,11 +122,13 @@ export const ARCH = {
 // sau mỗi chiêu boss "sơ hở" RECOVER giây, nhận thêm sát thương VULN_MULT. Một đòn không quá HIT_CAP máu tối đa.
 export const BOSS = {
   HIT_CAP: 0.03, VULN_MULT: 1.5, STUCK_TIME: 2, TELEPORT_R: 110,
+  // 12/11 (chơi tay: boss phải to): sprite vẽ ×2 (~100 px). Thân to -> trúng đòn rộng hơn, nhắm vào giữa thân, cắn từ xa hơn
+  DRAW_SCALE: 2, BODY: { hitR: 14, aimY: 24, reach: 20 },
   TRICKLE_MULT: 2,              // khi boss còn sống, quái thường sinh thưa hơn bấy nhiêu lần; không có tinh anh
   MINI: {
     AT: 210, name: 'Lang Vương', tier: 0, hp: 40, dmg: 1.4, speed: 0.95, xp: 40, size: 3,
     GAP: 1.6, RECOVER: 1.4, ORDER: ['dash', 'dash', 'howl'],
-    DASH: { WINDUP: 0.75, SPEED: 260, TIME: 0.42, REST: 0.35, COUNT: 3, DMG: 1.3, HIT_R: 16 },
+    DASH: { WINDUP: 0.75, SPEED: 260, TIME: 0.42, REST: 0.35, COUNT: 3, DMG: 1.3, HIT_R: 22 },   // 16 -> 22: thân ×2
     HOWL: { WINDUP: 0.9, N: 4, R: 40 },
   },
   FINAL: {

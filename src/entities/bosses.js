@@ -44,7 +44,7 @@ export function bossAI(m, player, dx, dy, d, dt, io) {
 
   // move: đuổi; cắn khi sát; hết GAP thì ra chiêu
   m.vx = dx / d * m.speed; m.vy = dy / d * m.speed;
-  if (d < HM.ATTACK_RANGE + 6) { m.vx = m.vy = 0; if (m.atkCd <= 0) { m.atkCd = HM.ATTACK_CD; io.onAttack(m, m.dmg); } }
+  if (d < HM.ATTACK_RANGE + (m.reach || 6)) { m.vx = m.vy = 0; if (m.atkCd <= 0) { m.atkCd = HM.ATTACK_CD; io.onAttack(m, m.dmg); } }
   unstick(m, d, dt, io, player);
   m.gapT -= dt;
   if (m.gapT > 0) return true;
@@ -146,5 +146,6 @@ export function initBoss(m, kind) {
   m.st = 'move'; m.stT = 0; m.gapT = BOSS[kind].GAP; m.patIdx = 0; m.vuln = 0; m.age = 0;
   m.hitCap = Math.max(1, Math.round(m.max * BOSS.HIT_CAP));
   m.lastX = m.x; m.lastY = m.y; m.stuckT = 0; m.dirX = 1; m.dirY = 0;
+  m.hitR = BOSS.BODY.hitR; m.aimY = BOSS.BODY.aimY; m.reach = BOSS.BODY.reach;   // thân to (vẽ ×2)
   return m;
 }

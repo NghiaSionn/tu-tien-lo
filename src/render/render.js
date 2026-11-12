@@ -136,12 +136,12 @@ function drawMap(ctx, map, camX, camY, time, objs, vis) {
 
 // M5-02: quái/boss từ sheet (quay mặt phải; lật khi đi sang trái). Chân (pivot) đặt đúng (m.x, m.y)
 const SPECIES = ['lang', 'ho', 'bang', 'ma'];
-function sheetFrame(ctx, sh, name, x, y, flip, src = sh.img) {
+function sheetFrame(ctx, sh, name, x, y, flip, src = sh.img, k = 1) {   // k: phóng nguyên lần (boss ×2)
   const m = sh.meta, f = m.frames[name], [fw, fh] = m.frameSize, [ax, ay] = m.pivot;
   if (!f) return;
-  const px = Math.round(x), py = Math.round(y) - ay;
-  if (flip) { ctx.save(); ctx.translate(px, 0); ctx.scale(-1, 1); ctx.drawImage(src, f[0], f[1], fw, fh, -(ax + 1), py, fw, fh); ctx.restore(); }   // cột pivot ax vẫn rơi đúng px
-  else ctx.drawImage(src, f[0], f[1], fw, fh, px - ax, py, fw, fh);
+  const px = Math.round(x), py = Math.round(y) - (ay + 1) * k + 1;
+  if (flip) { ctx.save(); ctx.translate(px, 0); ctx.scale(-1, 1); ctx.drawImage(src, f[0], f[1], fw, fh, -(ax + 1) * k, py, fw * k, fh * k); ctx.restore(); }   // cột pivot ax vẫn rơi đúng px
+  else ctx.drawImage(src, f[0], f[1], fw, fh, px - ax * k, py, fw * k, fh * k);
 }
 function mobState(m, time) {
   if (m.hit > 0) return 'hurt';
@@ -153,29 +153,29 @@ function mobFlip(m) {
   if (Math.abs(vx) > 0.5) m.faceL = vx < 0;   // chỉ để vẽ
   return !!m.faceL;
 }
-function drawMobSheet(ctx, sh, m, prefix, time) {
+function drawMobSheet(ctx, sh, m, prefix, time, k = 1) {
   const name = prefix + '_' + mobState(m, time), flip = mobFlip(m);
   if (m.elite) for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) { ctx.globalAlpha = 0.8; sheetFrame(ctx, sh, name, m.x + dx, m.y + dy, flip, sh.glow); }
   ctx.globalAlpha = 1;
-  sheetFrame(ctx, sh, name, m.x, m.y, flip);
-  if (m.hit > 0) { ctx.globalAlpha = 0.55; sheetFrame(ctx, sh, name, m.x, m.y, flip, sh.white); ctx.globalAlpha = 1; }
+  sheetFrame(ctx, sh, name, m.x, m.y, flip, sh.img, k);
+  if (m.hit > 0) { ctx.globalAlpha = 0.55; sheetFrame(ctx, sh, name, m.x, m.y, flip, sh.white, k); ctx.globalAlpha = 1; }
 }
 
 function drawBoss(ctx, m, time, vis) {
   const bs = vis && vis.bosses;
   if (bs) {
-    const top = Math.round(m.y) - 50;
-    ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(Math.round(m.x) - 20, Math.round(m.y) - 3, 40, 5);
+    const K = BOSS.DRAW_SCALE, top = Math.round(m.y) - 50 * K;
+    ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(Math.round(m.x) - 20 * K, Math.round(m.y) - 4, 40 * K, 7);
     if (m.st === 'windup') {   // gồng chiêu: viền trắng sáng quanh thân
       ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 0.35;
       const name = m.bossKind + '_atk', flip = mobFlip(m);
-      for (const [dx, dy] of [[-2, 0], [2, 0], [0, -2], [0, 2]]) sheetFrame(ctx, bs, name, m.x + dx, m.y + dy, flip, bs.white);
+      for (const [dx, dy] of [[-2, 0], [2, 0], [0, -2], [0, 2]]) sheetFrame(ctx, bs, name, m.x + dx, m.y + dy, flip, bs.white, K);
       ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
     }
-    drawMobSheet(ctx, bs, m, m.bossKind, time);
+    drawMobSheet(ctx, bs, m, m.bossKind, time, K);
     if (m.vuln > 0) {   // sơ hở: 3 sao vàng xoay trên đầu
       ctx.fillStyle = '#ffe066';
-      for (let i = 0; i < 3; i++) { const a = time * 5 + i * 2.094; ctx.fillRect(Math.round(m.x + Math.cos(a) * 14) - 1, Math.round(top - 4 + Math.sin(a) * 3) - 1, 3, 3); }
+      for (let i = 0; i < 3; i++) { const a = time * 5 + i * 2.094; ctx.fillRect(Math.round(m.x + Math.cos(a) * 14 * K) - 1, Math.round(top - 4 + Math.sin(a) * 3) - 1, 3, 3); }
     }
     return;
   }

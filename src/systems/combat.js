@@ -83,7 +83,7 @@ function pushProjectile(ctx, p) {
 function explode(ctx, x, y, p) {
   const r = p.radius * ctx.stats.area;
   for (const m of ctx.scene.monsters) {
-    if (m.dead || Math.hypot(m.x - x, m.y - 4 - y) > r + 4) continue;
+    if (m.dead || Math.hypot(m.x - x, m.y - (m.aimY || 4) - y) > r + 4 + (m.hitR || 0)) continue;
     hitMonster(ctx, m, p.dmg * ctx.atk, '#ffb070');
     applyBurn(m, p.burn * ctx.atk * ctx.stats.damage, p.burnTime);
   }
@@ -101,7 +101,7 @@ const KINDS = {
     if (!ts.length) { s.st.cd = 0; return; }
     for (let i = 0; i < count; i++) {
       const m = ts[i % ts.length];
-      let dx = m.x - pl.x, dy = (m.y - 4) - (pl.y - 8);
+      let dx = m.x - pl.x, dy = (m.y - (m.aimY || 4)) - (pl.y - 8);
       const spread = ts.length < count ? (i - (count - 1) / 2) * fanStep(Math.hypot(dx, dy), 0.22) : 0;
       const a = Math.atan2(dy, dx) + spread;
       dx = Math.cos(a); dy = Math.sin(a);
@@ -124,7 +124,7 @@ const KINDS = {
       for (let i = 0; i < st.ready; i++) {
         const a = st.angle + i * TAU / st.ready, bx = pl.x + Math.cos(a) * 18, by = pl.y - 8 + Math.sin(a) * 12;
         for (const m of ctx.scene.monsters) {
-          if (m.dead || Math.hypot(m.x - bx, m.y - 4 - by) > 9) continue;
+          if (m.dead || Math.hypot(m.x - bx, m.y - (m.aimY || 4) - by) > 9 + (m.hitR || 0)) continue;
           const tag = 'orb:' + s.id;
           if ((m.tags[tag] ?? -1) > ctx.time) continue;
           m.tags[tag] = ctx.time + 0.4;
@@ -151,7 +151,7 @@ const KINDS = {
     if (!ts.length) { s.st.cd = 0; return; }
     for (let i = 0; i < count; i++) {
       const m = ts[i % ts.length];
-      const a = Math.atan2((m.y - 4) - (pl.y - 8), m.x - pl.x) + (ts.length < count ? (i - (count - 1) / 2) * fanStep(Math.hypot(m.x - pl.x, m.y - pl.y), 0.3) : 0);
+      const a = Math.atan2((m.y - (m.aimY || 4)) - (pl.y - 8), m.x - pl.x) + (ts.length < count ? (i - (count - 1) / 2) * fanStep(Math.hypot(m.x - pl.x, m.y - pl.y), 0.3) : 0);
       pushProjectile(ctx, { kind: 'orb', x: pl.x, y: pl.y - 8, vx: Math.cos(a) * p.speed, vy: Math.sin(a) * p.speed, life: p.range / p.speed * 1.2, p, hits: new Set() });
     }
     s.st.cd = p.cd * ctx.stats.cooldown;
@@ -291,7 +291,7 @@ export function updateProjectiles(ctx, dt) {
     if (q.kind === 'homing') {
       if (!q.target || q.target.dead) q.target = nearestTargets(ctx, q.x, q.y, 120, 1, false)[0] || null;
       if (q.target) {
-        const dx = q.target.x - q.x, dy = (q.target.y - 4) - q.y, d = Math.hypot(dx, dy) || 1;
+        const dx = q.target.x - q.x, dy = (q.target.y - (q.target.aimY || 4)) - q.y, d = Math.hypot(dx, dy) || 1;
         const k = Math.min(1, dt * 8);
         q.vx += (dx / d * q.speed - q.vx) * k; q.vy += (dy / d * q.speed - q.vy) * k;
       }
@@ -302,7 +302,7 @@ export function updateProjectiles(ctx, dt) {
     if (!dead && q.kind !== 'blade' && q.kind !== 'homing' && map.blocksShot(q.x, q.y + 6)) dead = true;
     for (const m of ctx.scene.monsters) {
       if (dead) break;
-      if (m.dead || q.hits.has(m) || Math.hypot(m.x - q.x, m.y - 4 - q.y) > (q.kind === 'orb' ? 8 : 9)) continue;
+      if (m.dead || q.hits.has(m) || Math.hypot(m.x - q.x, m.y - (m.aimY || 4) - q.y) > (q.kind === 'orb' ? 8 : 9) + (m.hitR || 0)) continue;
       q.hits.add(m);
       if (q.kind === 'orb') { explode(ctx, q.x, q.y, q.p); dead = true; q.exploded = true; break; }
       hitMonster(ctx, m, q.dmg * ctx.atk, q.kind === 'blade' ? '#c8ffe8' : '#fff');
