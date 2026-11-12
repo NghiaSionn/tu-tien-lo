@@ -74,7 +74,7 @@ test('người mới có đủ bộ cơ bản; Băng Châm khóa tới khi hạ 
   const ids0 = candidates(r0).map(c => c.id);
   assert.ok(ids0.length >= 8, 'đủ công pháp cơ bản'); assert.ok(!ids0.includes('ice_needle') && !ids0.includes('ice_nova'));
   const r = createRun({ seed: 4, startSkill: 'sword_qi', realmLevel: 0 });
-  Object.assign(r, { time: 260, kills: 300, level: 20 }); r.rewards = [{ kind: 'MINI', t: 230 }]; endRun(r, 'LOSE');
+  Object.assign(r, { time: 260, kills: 250, level: 20 }); r.rewards = [{ kind: 'MINI', t: 230 }]; endRun(r, 'LOSE');   // < 300: chưa chạm 'Trảm Yêu'
   stageReward(m, computeRunReward(r, m)); claimReward(m);
   const got = evaluateAchievements(m);
   assert.deepEqual(got.map(a => a.id), ['first_mini']);

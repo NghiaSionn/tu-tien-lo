@@ -183,8 +183,8 @@ test('mỗi công pháp và tiến hóa: 20 giây không NaN/Infinity, sát thư
   for (const [evoId, e] of Object.entries(EVOLUTIONS)) runCheck([{ id: e.base, level: 5, evolved: evoId }], evoId);
   function runCheck(skills, label) {
     const { r, p } = arena(skills, 9, 8, true);
-    const ev = [];
-    for (let i = 0; i < 1200; i++) { step(r, p, 1 / 60, ev); r.time += 1 / 60; updateMonsters(r.scene, p, 1 / 60, ev, { safe: null, onAttack: () => {} }); }
+    const ev = [], cx = p.x, cy = p.y, moving = skills[0].id === 'wind_step';   // Phong Ảnh Bộ chỉ ra tàn ảnh khi di chuyển
+    for (let i = 0; i < 1200; i++) { if (moving) { p.x = cx + Math.cos(i * 0.05) * 30; p.y = cy + Math.sin(i * 0.05) * 30; } step(r, p, 1 / 60, ev); r.time += 1 / 60; updateMonsters(r.scene, p, 1 / 60, ev, { safe: null, onAttack: () => {} }); }
     for (const m of r.scene.monsters) { assert.ok(Number.isFinite(m.hp), `${label}: hp NaN`); assert.ok(Number.isFinite(m.x) && Number.isFinite(m.y), `${label}: vị trí NaN`); }
     const dealt = r.scene.monsters.reduce((a, m) => a + (m.max - m.hp), 0);
     if (!['body_aura'].includes(skills[0].id) || skills[0].evolved) assert.ok(dealt > 0, `${label}: không gây sát thương`);
@@ -276,4 +276,29 @@ test('một mục tiêu (boss): mọi lưỡi Kiếm Khí cấp 5 và cả 2 H�
       assert.ok(hits >= n, `${id} ở ${dist}px: ${hits}/${n} trúng`);
     }
   }
+});
+
+test('Phong Ảnh Bộ: đứng yên không ra tàn ảnh; đi đủ quãng thì ra tàn ảnh và nó nổ trúng quái gần', () => {
+  const { r, p } = arena([{ id: 'wind_step', level: 1 }], 0, 0);
+  const ev = [];
+  for (let i = 0; i < 120; i++) step(r, p, 1 / 60, ev);
+  assert.equal(r.skills[0].st.images.length, 0, 'đứng yên');
+  for (let i = 0; i < 80; i++) { p.x += 1; step(r, p, 1 / 60, ev); }      // đi 80 px > every 70
+  const im = r.skills[0].st.images[0];
+  assert.ok(im, 'có tàn ảnh');
+  const m = makeMonster(im.x, im.y, 1, { hp: 1000 }); m.speed = 0; r.scene.monsters.push(m);
+  for (let i = 0; i < 40; i++) step(r, p, 1 / 60, ev);                     // chờ hết delay 0,5 s
+  assert.ok(ev.some(e => e.type === 'boom' && e.color === '#7ff0c8'), 'tàn ảnh đã nổ');
+  assert.ok(m.hp < 1000, 'quái gần tàn ảnh bị trúng');
+});
+
+test('Linh Châu: châu chạm quái thì đánh, cùng viên không đánh lại trước hitCd', () => {
+  const { r, p } = arena([{ id: 'spirit_orb', level: 1 }], 0, 0);
+  const m = makeMonster(p.x + 24, p.y + 12 - 12, 1, { hp: 1000 }); m.speed = 0; r.scene.monsters.push(m);
+  const ev = [];
+  for (let i = 0; i < 60; i++) { step(r, p, 1 / 60, ev); r.time += 1 / 60; }   // 1 s, 2 châu, hitCd 0,5
+  const hits = 1000 - m.hp;
+  assert.ok(hits > 0, 'có trúng');
+  const per = SKILLS.spirit_orb.levels[0].dmg * makeCtx(r, p, []).atk;
+  assert.ok(hits <= per * 2 * 3 + 1e-6, 'không quá 2 châu × 3 nhịp trong 1 s');
 });

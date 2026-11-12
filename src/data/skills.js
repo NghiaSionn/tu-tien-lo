@@ -110,7 +110,20 @@ export const SKILLS = {
     levelText: ['Khiên 20% khí huyết', 'Khiên 25%', 'Hồi khiên nhanh hơn', 'Khiên 30%', 'Khiên 40%, hồi nhanh'],
   },
   // ---- chỉ có thiết kế, chưa triển khai (không vào pool) ----
-  wind_step: { name: 'Phong Ảnh Bộ', element: 'phong', kind: 'dash', icon: '💨', implemented: false, maxLevel: 5, desc: 'Lướt né, để lại tàn ảnh.', levels: [], levelText: [] },
+  // 12/11: GDD "lướt/né hoặc để lại tàn ảnh; không làm hỏng controls" -> KHÔNG ép di chuyển: cứ đi đủ `every` px thì để lại
+  // tàn ảnh, sau `delay` giây tàn ảnh nổ gió quanh nó. Thưởng lối chạy vòng/thả diều; đứng yên thì không ra tàn ảnh.
+  wind_step: {
+    name: 'Phong Ảnh Bộ', element: 'phong', kind: 'step', icon: '💨', implemented: true, locked: true, maxLevel: 5,
+    desc: 'Di chuyển để lại tàn ảnh gió; tàn ảnh nổ thành lốc quanh nó. Đứng yên thì không ra tàn ảnh.',
+    levels: [
+      { every: 70, delay: 0.5, radius: 26, dmg: 1.6, slow: 0, slowTime: 0, pull: 0 },   // 12/11: 1,2 -> 1,6 (chạy vòng chỉ 2,3 lần công/s)
+      { every: 70, delay: 0.5, radius: 26, dmg: 1.9, slow: 0, slowTime: 0, pull: 0 },
+      { every: 55, delay: 0.45, radius: 28, dmg: 1.9, slow: 0, slowTime: 0, pull: 0 },
+      { every: 55, delay: 0.45, radius: 32, dmg: 2.0, slow: 0.3, slowTime: 1.2, pull: 0 },
+      { every: 45, delay: 0.45, radius: 34, dmg: 2.1, slow: 0.35, slowTime: 1.4, pull: 40 },
+    ],
+    levelText: ['Đi 70 bước để lại tàn ảnh nổ gió', 'Sát thương +19%', 'Tàn ảnh dày hơn', 'Vùng nổ rộng hơn, làm chậm', 'Tàn ảnh dày hơn nữa, hút yêu thú vào trước khi nổ'],
+  },
   // M4-02: công pháp khóa — mở bằng thành tựu (chắc chắn) hoặc Truyền Thừa Các; locked:true = không có trong pool tới khi mở
   ice_needle: {
     name: 'Băng Châm', element: 'bang', kind: 'bolt', icon: '❄', implemented: true, locked: true, maxLevel: 5,
@@ -136,7 +149,19 @@ export const SKILLS = {
     ],
     levelText: ['Nổ băng quanh thân', 'Vùng rộng hơn', 'Sát thương +31%', 'Nhịp nhanh hơn', 'Vùng rộng, đóng băng mạnh'],
   },
-  spirit_orb: { name: 'Linh Châu', element: 'linh', kind: 'orbit', icon: '🔮', implemented: false, maxLevel: 5, desc: 'Linh châu xoay quanh, đánh tầm gần.', levels: [], levelText: [] },
+  // 12/11: viên châu xoay sát thân, chạm là đánh (mỗi viên chờ hitCd giây mới đánh lại cùng một con) — chống áp sát
+  spirit_orb: {
+    name: 'Linh Châu', element: 'linh', kind: 'spirit', icon: '🔮', implemented: true, locked: true, maxLevel: 5,
+    desc: 'Linh châu xoay sát quanh thân, chạm yêu thú là đánh. Mạnh khi bị vây.',
+    levels: [
+      { orbs: 2, radius: 24, spin: 2.6, dmg: 0.9, hitCd: 0.5, knock: 0 },
+      { orbs: 3, radius: 24, spin: 2.6, dmg: 0.9, hitCd: 0.5, knock: 0 },
+      { orbs: 3, radius: 28, spin: 2.8, dmg: 1.0, hitCd: 0.45, knock: 0 },
+      { orbs: 4, radius: 28, spin: 3.0, dmg: 1.0, hitCd: 0.5, knock: 0 },
+      { orbs: 5, radius: 32, spin: 3.2, dmg: 0.9, hitCd: 0.45, knock: 10 },   // 12/11 đo vây 8 quái: 1,35/0,4 = 17 lần công/s (gấp đôi Hỏa Luân) -> 0,9/0,45 ~12
+    ],
+    levelText: ['2 linh châu xoay quanh thân', 'Thêm 1 linh châu', 'Vòng rộng hơn, sát thương +11%', 'Thêm 1 linh châu, quay nhanh hơn', '5 linh châu, đánh bật yêu thú ra'],
+  },
 };
 
 // Tiến hóa: công pháp chính đạt cấp tối đa + có công pháp phụ + đã sống đủ lâu trong run. Không cần gacha.

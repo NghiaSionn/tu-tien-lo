@@ -92,6 +92,14 @@
   "fallback_heal": [
    960,
    0
+  ],
+  "wind_step": [
+   1008,
+   0
+  ],
+  "spirit_orb": [
+   1056,
+   0
   ]
  },
  "source": "docs/concept/bieu_tuong_chatgpt.png",

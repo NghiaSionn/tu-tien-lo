@@ -8,4 +8,7 @@ export const ACHIEVEMENTS = [
   { id: 'truc_co', name: 'Trúc Cơ', desc: 'Đạt Trúc Cơ', test: (s, m) => m.realmLevel >= 9, reward: { tickets: 2, craftMats: 10 } },
   { id: 'win_linh', name: 'Linh Cảnh', desc: 'Thắng bí cảnh độ khó Linh trở lên', test: s => s.bestDiffWin >= 1, reward: { tickets: 2, craftMats: 15 } },
   { id: 'kim_dan', name: 'Kết Đan', desc: 'Đạt Kim Đan', test: (s, m) => m.realmLevel >= 12, reward: { tickets: 3 } },
+  // 12/11: 2 công pháp mới của GDD (Phong, Linh) — mở bằng lộ trình chắc chắn như Băng Châm/Hàn Khí
+  { id: 'runs_5', name: 'Lịch Luyện', desc: 'Vào bí cảnh 5 lần', test: s => s.runs >= 5, reward: { skill: 'wind_step', tickets: 1 } },
+  { id: 'kills_300', name: 'Trảm Yêu', desc: 'Hạ tổng cộng 300 yêu thú trong bí cảnh', test: s => s.kills >= 300, reward: { skill: 'spirit_orb', tickets: 1 } },
 ];

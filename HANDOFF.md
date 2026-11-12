@@ -123,7 +123,7 @@ Thêm: **cổng bí cảnh** phía bắc tụ linh trận; nút **Cài đặt** 
 - Chết, rời, thắng hay hết giờ → bảng kết quả có mục **Mang về động phủ** (M2-03, `REWARD` trong config): linh thạch, linh khí, luyện liệu theo tiến độ (quái, cấp, thời gian, tinh anh, boss); thắng ×1,5 + vé Cơ Duyên, lần đầu hạ Yêu Vương thêm 1 vé. Nút "Nhận thưởng" cộng đúng một lần rồi về chỗ cũ ở động phủ. Cảnh giới, tu vi, đan không đổi. Linh khí/luyện liệu/vé **chưa có chỗ dùng** (M3/M4/M6).
 - Run không được lưu: tải lại trang giữa run = về động phủ.
 
-Công pháp đã chạy: Kiếm Khí, Phi Kiếm Trận, Hỏa Cầu, Hỏa Luân, Lôi Kích, Lôi Vực, Phong Nhận, Hộ Thể Cương Khí, Băng Châm và Hàn Khí (mở bằng thành tựu, M4-02). Chỉ có dữ liệu thiết kế, chưa vào pool: Phong Ảnh Bộ, Linh Châu.
+Công pháp đã chạy: Kiếm Khí, Phi Kiếm Trận, Hỏa Cầu, Hỏa Luân, Lôi Kích, Lôi Vực, Phong Nhận, Hộ Thể Cương Khí, Băng Châm và Hàn Khí (mở bằng thành tựu, M4-02), Phong Ảnh Bộ (tàn ảnh gió khi di chuyển; mở bằng thành tựu 'Lịch Luyện': vào bí cảnh 5 lần) và Linh Châu (châu xoay sát thân; mở bằng 'Trảm Yêu': hạ 300 yêu thú). Đủ 12 công pháp của GDD §6.2.
 
 ### 3.3 Hiệu ứng
 **pixelfx** (ADR 0004, cờ `FEATURES.pixelfxAssets`): cổng bí cảnh dùng sheet xuất từ pixelfx. **Hỏa Long Quyển** dùng VFX tự làm theo quy trình pixelfx (`vfx/pixelfx/hoa-long-quyen.js`, xuất 2 lớp bằng `tools/pixelfx_layers.mjs`). Viên chiến ý đã thử pixelfx nhưng trả về hình cũ theo yêu cầu. Ảnh trước/sau: `docs/pixelfx_truoc_sau.png`.

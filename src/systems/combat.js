@@ -233,6 +233,55 @@ const KINDS = {
     }
   },
 
+  // Linh Châu: vị trí châu tính theo cùng công thức với render (spiritOrbPos) để chạm đúng chỗ nhìn thấy
+  spirit(ctx, s, p, dt) {
+    const st = s.st, pl = ctx.player;
+    st.angle = (st.angle ?? 0) + p.spin * dt;
+    const r = p.radius * ctx.stats.area, tag = 'spirit:' + s.id;
+    for (let i = 0; i < p.orbs; i++) {
+      const [bx, by] = spiritOrbPos(pl, st.angle, i, p.orbs, r);
+      for (const m of ctx.scene.monsters) {
+        if (m.dead || Math.hypot(m.x - bx, m.y - (m.aimY || 4) - by) > 7 + (m.hitR || 0)) continue;
+        const key = tag + ':' + i;
+        if ((m.tags[key] ?? -1) > ctx.time) continue;
+        m.tags[key] = ctx.time + p.hitCd;
+        hitMonster(ctx, m, p.dmg * ctx.atk, '#f3a6c8');
+        if (p.knock && !m.boss) { const dx = m.x - pl.x, dy = m.y - pl.y, d = Math.hypot(dx, dy) || 1; moveEntity(ctx.scene.map, m, dx / d * p.knock, dy / d * p.knock, null); }
+      }
+    }
+  },
+
+  // Phong Ảnh Bộ: đếm quãng đường đi; đủ `every` px thì để tàn ảnh; tàn ảnh nổ sau `delay` giây (không ép người chơi di chuyển)
+  step(ctx, s, p, dt) {
+    const st = s.st, pl = ctx.player;
+    if (st.lx == null) { st.lx = pl.x; st.ly = pl.y; st.dist = 0; st.images = []; }
+    st.dist += Math.min(40, Math.hypot(pl.x - st.lx, pl.y - st.ly));   // chặn bước nhảy (dịch chuyển/hồi sinh)
+    st.lx = pl.x; st.ly = pl.y;
+    const every = p.every * Math.max(0.5, ctx.stats.cooldown);
+    if (st.dist >= every && st.images.length < 6) {
+      st.dist = 0;
+      st.images.push({ x: pl.x, y: pl.y, t: p.delay, max: p.delay, face: pl.face, flip: pl.flip });
+    }
+    const r = p.radius * ctx.stats.area;
+    for (let i = st.images.length - 1; i >= 0; i--) {
+      const im = st.images[i];
+      im.t -= dt;
+      if (p.pull) for (const m of ctx.scene.monsters) {
+        if (m.dead || m.boss) continue;
+        const dx = im.x - m.x, dy = im.y - m.y, d = Math.hypot(dx, dy);
+        if (d < r * 1.7 && d > 3) moveEntity(ctx.scene.map, m, dx / d * p.pull * dt, dy / d * p.pull * dt, null);
+      }
+      if (im.t > 0) continue;
+      st.images.splice(i, 1);
+      for (const m of ctx.scene.monsters) {
+        if (m.dead || Math.hypot(m.x - im.x, m.y - (m.aimY || 4) - (im.y - 8)) > r + (m.hitR || 0)) continue;
+        hitMonster(ctx, m, p.dmg * ctx.atk, '#7ff0c8');
+        if (p.slow) applySlow(m, p.slow, p.slowTime);
+      }
+      ctx.ev.push({ type: 'boom', x: im.x, y: im.y - 8, r, color: '#7ff0c8' });
+    }
+  },
+
   tornado(ctx, s, p, dt) {
     const st = s.st, pl = ctx.player;
     st.angle = (st.angle ?? 0) + p.spin * dt;
@@ -254,6 +303,12 @@ const KINDS = {
     }
   },
 };
+
+// vị trí linh châu thứ i (dùng chung logic + render): vòng elip dẹt quanh ngực nhân vật
+export function spiritOrbPos(pl, angle, i, n, r) {
+  const a = angle + i * TAU / n;
+  return [pl.x + Math.cos(a) * r, pl.y - 12 + Math.sin(a) * r * 0.55, a];
+}
 
 function novaAt(ctx, x, y, r, dmg, slow, slowTime) {
   for (const m of ctx.scene.monsters) {

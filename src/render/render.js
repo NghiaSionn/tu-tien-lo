@@ -3,7 +3,7 @@ import { VIEW, TILE as T, HUB, FEATURES, ARCH, BOSS, TRIBULATION, SHRINE, BASIC_
 import { GRASS, WATER, STONE, TREE, ROCK } from '../world/map.js';
 import { SPR, TIERS, BOSS_WHITE, BOSS_SPR, grassTiles, waterTiles, waterBank, stoneTile, treeSprs, rockSpr, hash } from './sprites.js';
 import { createFx } from '../../lib/beanfx.js';
-import { skillKind, skillParams } from '../systems/combat.js';
+import { skillKind, skillParams, spiritOrbPos } from '../systems/combat.js';
 
 const { W, H } = VIEW;
 // Chữ trên canvas (12/11, khung 640×360 làm chữ 8px quá nhỏ): đậm, viền tối 2 px để đọc rõ trên mọi nền
@@ -449,11 +449,11 @@ function drawEnemyShots(ctx, shots, vis) {
 }
 
 // M5-02: một khung của sheet nhân vật (ChatGPT vẽ, tools/sprite_clean.py làm sạch); hàng pivot (chân) đặt ở fy - 1
-function heroFrame(ctx, hero, name, px, fy, flip = false) {
+function heroFrame(ctx, hero, name, px, fy, flip = false, src = hero.img) {
   const m = hero.meta, [sx, sy] = m.frames[name] || m.frames.down_walk0, [fw, fh] = m.frameSize, [ax, ay] = m.pivot;
   const x = Math.round(px), y = fy - 1 - ay;
-  if (flip) { ctx.save(); ctx.translate(x, 0); ctx.scale(-1, 1); ctx.drawImage(hero.img, sx, sy, fw, fh, -ax, y, fw, fh); ctx.restore(); }
-  else ctx.drawImage(hero.img, sx, sy, fw, fh, x - ax, y, fw, fh);
+  if (flip) { ctx.save(); ctx.translate(x, 0); ctx.scale(-1, 1); ctx.drawImage(src, sx, sy, fw, fh, -ax, y, fw, fh); ctx.restore(); }
+  else ctx.drawImage(src, sx, sy, fw, fh, x - ax, y, fw, fh);
 }
 
 function drawPlayer(ctx, p, time, medFx, inForm, vis) {
@@ -498,6 +498,8 @@ function loiCuongFx(vis) {
 function drawSkillsUnder(ctx, run, p, time, vis, dt) {
   for (const s of run.skills) {
     if (skillKind(s) === 'orbit' && s.st.ready > 0) { ctx.globalCompositeOperation = 'lighter'; drawOrbit(ctx, s, s.st, p, vis, true); ctx.globalCompositeOperation = 'source-over'; }
+    if (skillKind(s) === 'spirit') drawSpiritOrbs(ctx, s, p, vis, true);
+    if (skillKind(s) === 'step') drawAfterimages(ctx, s, vis);
     if (s.evolved === 'loi_cuong_ho_the' && s.st.hp > 0) {
       const f = loiCuongFx(vis);
       if (f) { f.back.update(dt); f.front.update(dt); f.back.x = f.front.x = Math.round(p.x); f.back.y = f.front.y = Math.round(p.y); f.back.draw(ctx); }
@@ -513,6 +515,46 @@ function drawSkillsUnder(ctx, run, p, time, vis, dt) {
     }
   }
 }
+// Linh Châu: viên châu hồng trắng sáng; nửa sau vòng (sin < 0) vẽ dưới nhân vật, nửa trước vẽ trên (như kiếm xoay)
+function drawSpiritOrbs(ctx, s, p, vis, back) {
+  const prm = skillParams(s), st = s.st, n = prm.orbs, r = prm.radius;
+  if (st.angle == null) return;
+  const spr = vis.ct && vis.ct.linh_chau;
+  for (let i = 0; i < n; i++) {
+    const [x, y, a] = spiritOrbPos(p, st.angle, i, n, r);
+    if ((Math.sin(a) < 0) !== back) continue;
+    const bx = Math.round(x), by = Math.round(y);
+    if (spr) { ctx.globalCompositeOperation = 'source-over'; ctx.drawImage(spr, bx - (spr.width >> 1), by - (spr.height >> 1)); }
+    else {
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.fillStyle = '#7a3a6a'; ctx.fillRect(bx - 3, by - 2, 6, 4); ctx.fillRect(bx - 2, by - 3, 4, 6);
+      ctx.fillStyle = '#f3a6c8'; ctx.fillRect(bx - 2, by - 2, 4, 4);
+      ctx.fillStyle = '#fff4fa'; ctx.fillRect(bx - 1, by - 2, 2, 2);
+    }
+    ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 0.35;
+    ctx.fillStyle = '#f3a6c8'; ctx.fillRect(bx - 4, by - 1, 8, 2); ctx.fillRect(bx - 1, by - 4, 2, 8);
+    ctx.globalAlpha = 1;
+  }
+  ctx.globalCompositeOperation = 'source-over';
+}
+// Phong Ảnh Bộ: tàn ảnh = bóng nhân vật tô xanh ngọc, mờ dần tới lúc nổ
+function drawAfterimages(ctx, s, vis) {
+  const hero = vis.hero, ims = s.st.images;
+  if (!ims || !ims.length) return;
+  for (const im of ims) {
+    const k = Math.max(0, im.t / im.max);
+    ctx.globalAlpha = 0.25 + 0.4 * k;
+    if (hero) {
+      const dir = im.face === 'side' ? (im.flip ? 'left' : 'right') : (im.face || 'down');
+      heroFrame(ctx, hero, dir + '_walk1', im.x, Math.round(im.y), false, hero.wind);
+    } else { ctx.fillStyle = '#7ff0c8'; ctx.fillRect(Math.round(im.x) - 5, Math.round(im.y) - 16, 10, 16); }
+    ctx.globalAlpha = 0.5 * (1 - k); ctx.globalCompositeOperation = 'lighter';
+    pxRing(ctx, im.x, im.y - 8, 6 + 18 * (1 - k), 14, im.t * 9, '#7ff0c8', 1, 0.55);
+    ctx.globalCompositeOperation = 'source-over';
+  }
+  ctx.globalAlpha = 1;
+}
+
 // Kiếm xoay quanh thân (Phi Kiếm/Liệt Diễm): nửa vòng phía sau (sin < 0, cao hơn chân) vẽ ở lớp dưới để nhân vật che,
 // nửa phía trước vẽ ở lớp trên. back = true: chỉ vẽ kiếm phía sau
 function drawOrbit(ctx, s, st, p, vis, back) {
@@ -531,6 +573,7 @@ function drawSkillsOver(ctx, run, p, time, vis) {
     const k = skillKind(s), prm = skillParams(s), st = s.st;
     ctx.globalCompositeOperation = 'lighter';
     if (k === 'orbit' && st.ready > 0) drawOrbit(ctx, s, st, p, vis, false);
+    else if (k === 'spirit') drawSpiritOrbs(ctx, s, p, vis, false);
     else if (k === 'shield' && st.hp > 0 && s.evolved === 'loi_cuong_ho_the' && vis.loiCuong && vis.quality !== 'low') {
       ctx.globalCompositeOperation = 'source-over';
       vis.loiCuong.front.draw(ctx);

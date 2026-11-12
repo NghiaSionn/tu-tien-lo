@@ -56,7 +56,7 @@ async function loadSheet(name) {
   const meta = await (await fetch(`sprites/${name}.json`)).json();
   const img = new Image(); img.src = 'sprites/' + meta.image; await img.decode();
   const tint = col => { const c = document.createElement('canvas'); c.width = img.width; c.height = img.height; const g = c.getContext('2d'); g.drawImage(img, 0, 0); g.globalCompositeOperation = 'source-in'; g.fillStyle = col; g.fillRect(0, 0, c.width, c.height); return c; };
-  return { img, meta, white: tint('#ffffff'), glow: tint('#c070ff') };
+  return { img, meta, white: tint('#ffffff'), glow: tint('#c070ff'), wind: tint('#7ff0c8') };   // wind: tàn ảnh Phong Ảnh Bộ
 }
 for (const [key, name] of [['hero', 'nhan_vat'], ['mobs', 'quai'], ['bosses', 'boss'], ['rung', 'rung'], ['congTrinh', 'cong_trinh'], ['icons', 'bieu_tuong']]) {
   try { vis[key] = await loadSheet(name); } catch (e) { console.warn('[sprite] dùng hình cũ:', name, e); }
