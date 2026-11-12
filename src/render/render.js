@@ -1,7 +1,7 @@
 // Vẽ một khung: bản đồ, vật thể sắp theo y, yêu thú, người chơi, công pháp, hiệu ứng beanfx và hạt sáng.
 import { VIEW, TILE as T, HUB, FEATURES, ARCH, BOSS, TRIBULATION, SHRINE, BASIC_ATTACK } from '../core/config.js';
-import { WATER, STONE, TREE, ROCK } from '../world/map.js';
-import { SPR, TIERS, BOSS_WHITE, BOSS_SPR, grassTiles, waterTiles, stoneTile, treeSprs, rockSpr, hash } from './sprites.js';
+import { GRASS, WATER, STONE, TREE, ROCK } from '../world/map.js';
+import { SPR, TIERS, BOSS_WHITE, BOSS_SPR, grassTiles, waterTiles, waterBank, stoneTile, treeSprs, rockSpr, hash } from './sprites.js';
 import { createFx } from '../../lib/beanfx.js';
 import { skillKind, skillParams } from '../systems/combat.js';
 
@@ -100,18 +100,38 @@ function pxLine(ctx, x0, y0, x1, y1, col, size) {
   for (let i = 0; i <= n; i++) ctx.fillRect(Math.round(x0 + (x1 - x0) * i / n), Math.round(y0 + (y1 - y0) * i / n), size, size);
 }
 
-function drawMap(ctx, map, camX, camY, time, objs) {
+// M5-01: chọn vật thể rừng theo ô (cố định theo toạ độ). Cây/đá chắn đường như cũ; cỏ hoa/sen chỉ trang trí, vẽ dưới nhân vật
+const TREE_KINDS = [['tung1', 0.18], ['tung2', 0.36], ['la1', 0.56], ['la2', 0.76], ['tre', 0.86], ['dao1', 0.93], ['dao2', 1]];
+const ROCK_KINDS = [['da1', 0.4], ['da2', 0.75], ['da_lon', 0.88], ['goc', 0.95], ['den', 1]];
+const DECOR_KINDS = [['co', 0.35], ['duong_xi', 0.6], ['hoa', 0.8], ['soi', 0.93], ['nam', 1]];
+const pick = (list, v) => list.find(([, p]) => v < p)[0];
+function drawMap(ctx, map, camX, camY, time, objs, vis) {
+  const props = vis && vis.props, decor = [];
   const tx0 = Math.floor(camX / T), ty0 = Math.floor(camY / T), tx1 = tx0 + Math.ceil(W / T) + 1, ty1 = ty0 + Math.ceil(H / T) + 1;
-  for (let ty = ty0; ty <= ty1 + 2; ty++) for (let tx = tx0 - 1; tx <= tx1; tx++) {
+  for (let ty = ty0; ty <= ty1 + 3; ty++) for (let tx = tx0 - 2; tx <= tx1 + 1; tx++) {
     const t = map.tileAt(tx, ty), x = tx * T, y = ty * T;
     if (ty <= ty1) {
-      if (t === WATER) ctx.drawImage(waterTiles[(Math.floor(time * 1.5) + tx + ty) & 1], x, y);
-      else if (t === STONE) ctx.drawImage(stoneTile, x, y);
-      else ctx.drawImage(grassTiles[Math.floor(hash(tx, ty, 5) * 4)], x, y);
+      if (t === WATER) {
+        ctx.drawImage(waterTiles[(Math.floor(time * 1.5) + tx + ty) & 1], x, y);
+        if (map.tileAt(tx, ty - 1) !== WATER) ctx.drawImage(waterBank, x, y);
+      } else if (t === STONE) ctx.drawImage(stoneTile, x, y);
+      else ctx.drawImage(grassTiles[Math.floor(hash(tx, ty, 5) * grassTiles.length)], x, y);
+      if (props) {
+        const d = hash(tx, ty, 8);
+        if (t === GRASS && d < 0.05) decor.push([props[pick(DECOR_KINDS, d / 0.05)], x, y]);
+        else if (t === WATER && d < 0.05 && map.tileAt(tx, ty - 1) === WATER) decor.push([props.sen, x, y]);
+      }
     }
-    if (t === TREE) { const v = hash(tx, ty, 6); objs.push({ y: y + T, img: treeSprs[v < 0.12 ? 2 : v < 0.56 ? 0 : 1], x: x - 2, dy: y + T - 28 }); }
+    if (props && t === TREE) {
+      const img = props[pick(TREE_KINDS, hash(tx, ty, 6))];
+      objs.push({ y: y + T, img, x: x + 8 - props.ax, dy: y + T - 1 - props.ay });
+    } else if (props && t === ROCK) {
+      const img = props[pick(ROCK_KINDS, hash(tx, ty, 7))];
+      objs.push({ y: y + T - 2, img, x: x + 8 - props.ax, dy: y + T - 2 - props.ay });
+    } else if (t === TREE) { const v = hash(tx, ty, 6); objs.push({ y: y + T, img: treeSprs[v < 0.12 ? 2 : v < 0.56 ? 0 : 1], x: x - 2, dy: y + T - 28 }); }
     else if (t === ROCK) objs.push({ y: y + T - 2, img: rockSpr, x: x + 1, dy: y + 5 });
   }
+  if (props) for (const [img, x, y] of decor) ctx.drawImage(img, x + 8 - props.ax, y + T - 1 - props.ay);
 }
 
 // M5-02: quái/boss từ sheet (quay mặt phải; lật khi đi sang trái). Chân (pivot) đặt đúng (m.x, m.y)
@@ -507,7 +527,7 @@ export function render(ctx, g) {
   ctx.setTransform(1, 0, 0, 1, -camX, -camY);
 
   const objs = [];
-  drawMap(ctx, map, camX, camY, time, objs);
+  drawMap(ctx, map, camX, camY, time, objs, vis);
 
   if (scene.kind === 'hub') {
     ctx.globalCompositeOperation = 'lighter';

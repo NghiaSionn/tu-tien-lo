@@ -1,0 +1,3 @@
+tung1 tung2 la1 la2 dao1 dao2
+da1 da2 da_lon co hoa nam
+tre goc den soi duong_xi sen

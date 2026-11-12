@@ -58,8 +58,17 @@ async function loadSheet(name) {
   const tint = col => { const c = document.createElement('canvas'); c.width = img.width; c.height = img.height; const g = c.getContext('2d'); g.drawImage(img, 0, 0); g.globalCompositeOperation = 'source-in'; g.fillStyle = col; g.fillRect(0, 0, c.width, c.height); return c; };
   return { img, meta, white: tint('#ffffff'), glow: tint('#c070ff') };
 }
-for (const [key, name] of [['hero', 'nhan_vat'], ['mobs', 'quai'], ['bosses', 'boss']]) {
+for (const [key, name] of [['hero', 'nhan_vat'], ['mobs', 'quai'], ['bosses', 'boss'], ['rung', 'rung']]) {
   try { vis[key] = await loadSheet(name); } catch (e) { console.warn('[sprite] dùng hình cũ:', name, e); }
+}
+// M5-01: vật thể rừng (cây, đá, cỏ hoa...) cắt thành canvas riêng: vật che nhân vật dùng kích thước ảnh để làm mờ
+if (vis.rung) {
+  const { img, meta } = vis.rung, [fw, fh] = meta.frameSize;
+  vis.props = { ax: meta.pivot[0], ay: meta.pivot[1] };
+  for (const [n, [sx, sy]] of Object.entries(meta.frames)) {
+    const c = document.createElement('canvas'); c.width = fw; c.height = fh; c.getContext('2d').drawImage(img, sx, sy, fw, fh, 0, 0, fw, fh);
+    vis.props[n] = c;
+  }
 }
 // Sheet pixelfx (tùy chọn): lỗi tải thì quay về hình vẽ bằng code, game vẫn chạy
 if (FEATURES.pixelfxAssets) {

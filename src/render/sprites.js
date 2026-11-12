@@ -79,21 +79,51 @@ export const BOSS_SPR = {
 };
 
 // Ô nền
-export const grassTiles = [0, 1, 2, 3].map(v => makeCanvas(T, T, px => {
+// M5-01: ô nền vẽ lại theo bảng màu của sprite ChatGPT (cỏ tươi, viền đậm). Ô phải lặp liền mạch nên vẽ bằng code:
+// mọi chi tiết (cụm cỏ, hoa, viên đá) nằm trong ô, không chạm mép.
+const G = { base: '#5fa64c', shade: '#5b9f49', dark: '#3f7d38', mid: '#6fb653', light: '#8fcd63' };
+function tuft(px, x, y) {   // cụm cỏ chữ V: gốc đậm, ngọn sáng
+  px(x, y, G.dark); px(x - 1, y - 1, G.dark); px(x + 1, y - 1, G.dark); px(x, y - 1, G.mid);
+  px(x - 1, y - 2, G.light); px(x + 1, y - 2, G.light);
+}
+export const grassTiles = [0, 1, 2, 3, 4, 5, 6, 7].map(v => makeCanvas(T, T, px => {
   for (let y = 0; y < T; y++) for (let x = 0; x < T; x++) {
-    const r = hash(x, y, 10 + v);
-    px(x, y, r < 0.06 ? '#4a8f45' : r > 0.95 ? '#7cc264' : '#5da552');
+    const blk = hash(x >> 2, y >> 2, 40 + v), r = hash(x, y, 10 + v);
+    px(x, y, r < 0.05 ? G.dark : r > 0.94 ? G.mid : blk < 0.35 ? G.shade : G.base);
   }
-  if (v === 3) { px(5, 6, '#f6e27a'); px(11, 10, '#f3a6c8'); }
+  const n = 1 + Math.floor(hash(v, 0, 50) * 3);
+  for (let i = 0; i < n; i++) tuft(px, 2 + Math.floor(hash(v, i, 51) * 12), 3 + Math.floor(hash(v, i, 52) * 11));
+  if (v === 7) {   // hoa dại (1/8 số ô): trắng/vàng/hồng, tâm đậm
+    const cols = [['#f6f2e0', '#e8c060'], ['#f6e27a', '#c89a30'], ['#f3a6c8', '#c86090']];
+    for (let i = 0; i < 1; i++) {
+      const [c1, c2] = cols[Math.floor(hash(v, i, 53) * 3)], x = 3 + Math.floor(hash(v, i, 54) * 10), y = 3 + Math.floor(hash(v, i, 55) * 10);
+      px(x - 1, y, c1); px(x + 1, y, c1); px(x, y - 1, c1); px(x, y + 1, c1); px(x, y, c2);
+    }
+  }
 }));
 export const waterTiles = [0, 1].map(v => makeCanvas(T, T, px => {
-  for (let y = 0; y < T; y++) for (let x = 0; x < T; x++) px(x, y, '#3f7fc4');
-  for (let i = 0; i < 3; i++) { const y = 3 + i * 5, x = (i * 5 + v * 4) % 12; for (let k = 0; k < 4; k++) px(x + k, y, '#7fb6e8'); }
+  for (let y = 0; y < T; y++) for (let x = 0; x < T; x++) px(x, y, hash(x >> 2, (y + v) >> 2, 60) < 0.3 ? '#3673ba' : '#3a78c0');
+  for (let i = 0; i < 3; i++) {
+    const y = 3 + i * 5, x = (i * 5 + v * 4) % 11 + 1;
+    for (let k = 0; k < 3; k++) px(x + k, y, '#7fb6e8');
+    px(x + 1, y - 1, '#b8dcf6');
+  }
 }));
+// bờ nước (mép trên giáp đất): dải đất tối + bóng xuống nước — cho cảm giác mặt nước thấp hơn bờ (3/4)
+export const waterBank = makeCanvas(T, 4, px => {
+  for (let x = 0; x < T; x++) { px(x, 0, '#4a3a26'); px(x, 1, hash(x, 0, 61) < 0.5 ? '#5c4630' : '#4a3a26'); px(x, 2, '#25507f'); px(x, 3, '#2c5f96'); }
+});
+// đá lát: 2 hàng viên đá so le, mạch vữa tối, mặt sáng trên-trái, tối dưới-phải, chút rêu
 export const stoneTile = makeCanvas(T, T, px => {
   for (let y = 0; y < T; y++) for (let x = 0; x < T; x++) {
-    const edge = x === 0 || y === 0;
-    px(x, y, edge ? '#857f72' : hash(x, y, 20) < 0.08 ? '#9a9486' : '#aea898');
+    const row = y >> 3, off = row ? 4 : 0, bx = (x + off) & 7, by = y & 7;
+    let c = '#b3ab9a';
+    if (bx === 0 || by === 0) c = '#7d766a';
+    else if (bx === 1 || by === 1) c = '#c8c0ae';
+    else if (bx === 7 || by === 7) c = '#958d7d';
+    else if (hash(x, y, 20) < 0.07) c = '#a39b8a';
+    if (c !== '#7d766a' && hash(x, y, 21) < 0.02) c = '#7f9a5a';
+    px(x, y, c);
   }
 });
 function makeTree(v, pink) {

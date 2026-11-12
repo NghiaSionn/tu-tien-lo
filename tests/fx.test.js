@@ -69,3 +69,9 @@ test('sheet quái + boss (M5-02): đủ khung đi/gồng/trúng đòn cho 4 loà
     }
   }
 });
+
+test('sheet vật thể rừng (M5-01): đủ cây/đá/trang trí mà bản đồ dùng', () => {
+  const S = new URL('../sprites/', import.meta.url);
+  const m = JSON.parse(fs.readFileSync(new URL('rung.json', S), 'utf8'));
+  for (const n of ['tung1', 'tung2', 'la1', 'la2', 'tre', 'dao1', 'dao2', 'da1', 'da2', 'da_lon', 'goc', 'den', 'co', 'duong_xi', 'hoa', 'soi', 'nam', 'sen']) assert.ok(m.frames[n], `thiếu ${n}`);
+});
