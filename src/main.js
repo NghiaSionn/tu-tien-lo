@@ -58,9 +58,23 @@ async function loadSheet(name) {
   const tint = col => { const c = document.createElement('canvas'); c.width = img.width; c.height = img.height; const g = c.getContext('2d'); g.drawImage(img, 0, 0); g.globalCompositeOperation = 'source-in'; g.fillStyle = col; g.fillRect(0, 0, c.width, c.height); return c; };
   return { img, meta, white: tint('#ffffff'), glow: tint('#c070ff') };
 }
-for (const [key, name] of [['hero', 'nhan_vat'], ['mobs', 'quai'], ['bosses', 'boss'], ['rung', 'rung']]) {
+for (const [key, name] of [['hero', 'nhan_vat'], ['mobs', 'quai'], ['bosses', 'boss'], ['rung', 'rung'], ['congTrinh', 'cong_trinh'], ['icons', 'bieu_tuong']]) {
   try { vis[key] = await loadSheet(name); } catch (e) { console.warn('[sprite] dùng hình cũ:', name, e); }
 }
+// công trình động phủ (cổng, tụ linh trận, Linh Mạch): cắt sát nội dung, nhớ tâm khung bao để đặt giữa
+if (vis.congTrinh) {
+  const { img, meta } = vis.congTrinh, [fw, fh] = meta.frameSize;
+  vis.ct = {};
+  for (const [n, [sx, sy]] of Object.entries(meta.frames)) {
+    const c = document.createElement('canvas'); c.width = fw; c.height = fh; const g = c.getContext('2d'); g.drawImage(img, sx, sy, fw, fh, 0, 0, fw, fh);
+    const d = g.getImageData(0, 0, fw, fh).data; let x0 = fw, y0 = fh, x1 = 0, y1 = 0;
+    for (let y = 0; y < fh; y++) for (let x = 0; x < fw; x++) if (d[(y * fw + x) * 4 + 3]) { x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); }
+    const o = document.createElement('canvas'); o.width = x1 - x0 + 1; o.height = y1 - y0 + 1; o.getContext('2d').drawImage(c, -x0, -y0);
+    vis.ct[n] = o;
+  }
+}
+// biểu tượng công pháp cho UI (thay emoji); thiếu sheet thì UI giữ emoji
+if (vis.icons) UI.setIcons('sprites/' + vis.icons.meta.image, vis.icons.meta, vis.icons.img.width, vis.icons.img.height);
 // M5-01: vật thể rừng (cây, đá, cỏ hoa...) cắt thành canvas riêng: vật che nhân vật dùng kích thước ảnh để làm mờ
 if (vis.rung) {
   // cây vẽ ×2 (pixel gấp đôi): chơi tay thấy cây ngang nhân vật là sai tỉ lệ -> cây ~70 px, gấp đôi người

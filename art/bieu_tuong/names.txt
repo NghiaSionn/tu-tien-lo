@@ -1,0 +1,4 @@
+sword_qi sword_array fire_orb fire_ring thunder_strike thunder_field
+wind_blade body_aura ice_needle ice_nova liet_diem_kiem_tran loi_dinh_van_kiem
+hoa_long_quyen loi_cuong_ho_the than_phap linh_luc ngung_than hap_linh
+ho_mach tu_khi fallback_heal - - -

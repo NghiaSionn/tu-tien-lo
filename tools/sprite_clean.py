@@ -25,15 +25,15 @@ from PIL import Image
 MIN_BLOB = 40
 
 
-def key_background(rgb, bg, tol):
+def key_background(rgb, bg, tol, passes=2):
     d = np.abs(rgb.astype(int) - np.array(bg)).sum(-1)
     alpha = d > tol
     # viền lem: hồng tím (r, b cao hơn g nhiều) NẰM SÁT nền -> bỏ. Chỉ xét sát nền để không ăn màu tím thật của
     # sprite (Ma Ảnh); lặp 2 lượt vì viền lem có thể dày 2 pixel
     if bg == (255, 0, 255):
         r, g, b = [rgb[..., i].astype(int) for i in range(3)]
-        fringe = (r - g > 90) & (b - g > 90) & (np.abs(r - b) < 70)
-        for _ in range(2):
+        fringe = (r - g > 90) & (b - g > 90) & (np.abs(r - b) < 70) & (r > 200) & (b > 190)   # hồng sáng sát nền; tím tối (sét) giữ lại
+        for _ in range(passes):
             bgm = ~alpha
             near = np.zeros_like(bgm)
             near[1:] |= bgm[:-1]; near[:-1] |= bgm[1:]; near[:, 1:] |= bgm[:, :-1]; near[:, :-1] |= bgm[:, 1:]
@@ -126,12 +126,13 @@ def main():
     ap.add_argument('--names', required=True); ap.add_argument('--out', required=True)
     ap.add_argument('--scale', type=float, default=0); ap.add_argument('--colors', type=int, default=24)
     ap.add_argument('--bg', default='ff00ff'); ap.add_argument('--tol', type=int, default=150)
+    ap.add_argument('--fringe', type=int, default=2, help='số lượt bóc viền lem màu nền (quầng sáng dày cần nhiều hơn)')
     ap.add_argument('--preview', default='')
     a = ap.parse_args()
     bg = tuple(int(a.bg[i:i + 2], 16) for i in (0, 2, 4))
     names = Path(a.names).read_text(encoding='utf-8').split()
     img = np.array(Image.open(a.src).convert('RGB'))
-    alpha = key_background(img, bg, a.tol)
+    alpha = key_background(img, bg, a.tol, a.fringe)
     H, W = alpha.shape
     cw, ch = W / a.cols, H / a.rows
     s = a.scale or estimate_scale(img, alpha)

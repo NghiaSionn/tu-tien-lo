@@ -6,7 +6,7 @@ Cập nhật: 2026-11-11, sau phiên M0 + M1 và thử pixelfx. Bản trước c
 
 | | |
 |---|---|
-| Trạng thái | M0 xong (gate đạt). M1 xong, **gate M1 đạt**. **M2 xong** (GATE v0.2 đi trọn trong trình duyệt bằng autopilot phát phím). **M3 xong**, GATE v0.3a đóng ở mức logic. **M4 xong**, GATE v0.3b đóng ở mức logic. **M5 làm một phần** (âm thanh xong; dáng quái, 1 VFX beanfx, đo logic, mức đồ họa, joystick ảo) — GATE v0.4 chưa đạt. M3–M5 chưa xem trong trình duyệt |
+| Trạng thái | M0 xong (gate đạt). M1 xong, **gate M1 đạt**. **M2 xong** (GATE v0.2 đi trọn trong trình duyệt bằng autopilot phát phím). **M3 xong**, GATE v0.3a đóng ở mức logic. **M4 xong**, GATE v0.3b đóng ở mức logic. **M5 gần xong phần nhìn** (12/11): VFX beanfx cho mọi công pháp/tiến hóa/boss; sprite nhân vật, quái, boss, vật thể rừng, cổng, tụ linh trận, Linh Mạch và biểu tượng công pháp do ChatGPT vẽ + `tools/sprite_clean.py`; khung nhìn 640×360; âm thanh tổng hợp; mức đồ họa; joystick ảo — GATE v0.4 chưa đạt (p95 cảnh stress, máy thật, nghe thật). M3–M5 chưa xem trong trình duyệt |
 | Test tự động | `npm test`: 139/139 PASS |
 | Kiểm thử tay | `TEST_REPORT.md` |
 | Quyết định kỹ thuật | `docs/adr/0001…0007` (0005: beanfx chính; 0006: thưởng run nhận một lần; 0007: trang bị/thành tựu/Truyền Thừa Các) |
@@ -86,7 +86,11 @@ src/ui/touch.js         Joystick ảo cảm ứng
 tools/pixelfx_import.py Nhập sheet gộp của pixelfx (khử nhân alpha)
 tools/pixelfx_layers.mjs Xuất hiệu ứng pixelfx thành 2 lớp màu + sáng (định dạng beanfx)
 vfx/pixelfx/            Mã nguồn VFX tự làm theo quy trình pixelfx
-vfx/drafts/             Draft beanfx tu tiên dùng lại, đã thu nhỏ theo nhân vật 25 px (chưa gắn vào game)
+vfx/drafts/             Draft beanfx các VFX công pháp/boss (đã gắn vào game, xem vfx/drafts/README.md)
+sprites/                Sheet sprite ChatGPT vẽ, đã làm sạch: nhan_vat, quai, boss, rung, cong_trinh, bieu_tuong (+ .json)
+docs/concept/           Ảnh gốc ChatGPT (concept + sheet nền magenta) để làm sạch lại khi cần
+tools/sprite_clean.py   Làm sạch sheet AI: tách nền, thu về lưới pixel gốc, bảng màu chung, căn chân
+art/*/names.txt         Tên từng ô của sheet ChatGPT (đầu vào sprite_clean)
 fx/pixelfx/             Sheet pixelfx (cổng, Hỏa Long Quyển) + LICENSE/NOTICE
 lib/beanfx.js, fx/, vfx/ Hiệu ứng beanfx (không đổi từ v0.1)
 legacy/game_v0.1.js     Code v0.1 một file, KHÔNG còn được nạp; giữ để đối chiếu
@@ -119,7 +123,7 @@ Thêm: **cổng bí cảnh** phía bắc tụ linh trận; nút **Cài đặt** 
 - Chết, rời, thắng hay hết giờ → bảng kết quả có mục **Mang về động phủ** (M2-03, `REWARD` trong config): linh thạch, linh khí, luyện liệu theo tiến độ (quái, cấp, thời gian, tinh anh, boss); thắng ×1,5 + vé Cơ Duyên, lần đầu hạ Yêu Vương thêm 1 vé. Nút "Nhận thưởng" cộng đúng một lần rồi về chỗ cũ ở động phủ. Cảnh giới, tu vi, đan không đổi. Linh khí/luyện liệu/vé **chưa có chỗ dùng** (M3/M4/M6).
 - Run không được lưu: tải lại trang giữa run = về động phủ.
 
-Công pháp đã chạy: Kiếm Khí, Phi Kiếm Trận, Hỏa Cầu, Hỏa Luân, Lôi Kích, Lôi Vực, Phong Nhận, Hộ Thể Cương Khí. Chỉ có dữ liệu thiết kế, chưa vào pool: Phong Ảnh Bộ, Băng Châm, Hàn Khí, Linh Châu.
+Công pháp đã chạy: Kiếm Khí, Phi Kiếm Trận, Hỏa Cầu, Hỏa Luân, Lôi Kích, Lôi Vực, Phong Nhận, Hộ Thể Cương Khí, Băng Châm và Hàn Khí (mở bằng thành tựu, M4-02). Chỉ có dữ liệu thiết kế, chưa vào pool: Phong Ảnh Bộ, Linh Châu.
 
 ### 3.3 Hiệu ứng
 **pixelfx** (ADR 0004, cờ `FEATURES.pixelfxAssets`): cổng bí cảnh dùng sheet xuất từ pixelfx. **Hỏa Long Quyển** dùng VFX tự làm theo quy trình pixelfx (`vfx/pixelfx/hoa-long-quyen.js`, xuất 2 lớp bằng `tools/pixelfx_layers.mjs`). Viên chiến ý đã thử pixelfx nhưng trả về hình cũ theo yêu cầu. Ảnh trước/sau: `docs/pixelfx_truoc_sau.png`.
@@ -151,7 +155,7 @@ Save trên trình duyệt của máy này lúc kết thúc phiên: đã đưa v�
 - M2-03: 10 test thưởng; trình duyệt: tải lại giữa bảng kết quả và bấm nhận nhiều lần đều chỉ cộng 1 lần.
 - M2-02: 12 test boss; cảnh báo 5 chiêu đã xem trong trình duyệt. **Chưa chơi thật trọn run tới boss** (trình duyệt phiên 11/11 chỉ 2–5 khung/giây).
 - M2-01, chơi thật tới 3:07: đủ 4 kiểu quái, thông báo đợt, cảnh báo lao/bắn/đập, né được đòn đập tinh anh (TEST_REPORT §3c).
-- FPS: 60 (16,7 ms/khung) ở động phủ và đầu bí cảnh. Stress test 100 quái/200 đạn/300 hạt **chưa đo**.
+- FPS: ~62 ở động phủ và bí cảnh thường (12/11, khung 640×360, 32 quái: 1,8/3,9 ms mỗi khung). Stress 100 quái/200 đạn/300 hạt: p95 20–29 ms (đo trước khi đổi camera/sprite) — chưa đạt, xem `TEST_REPORT.md`.
 
 ---
 

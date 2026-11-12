@@ -9,6 +9,15 @@ import { skillName, skillElement, skillKind, skillParams } from '../systems/comb
 import { REALM } from '../core/config.js';
 
 const $ = id => document.getElementById(id);
+// Biểu tượng pixel (sprites/bieu_tuong.png, ChatGPT vẽ). ic(id, emoji, em): ô có sheet -> ảnh nét pixel cỡ em; không thì emoji
+let ICONS = null;
+export function setIcons(url, meta, w, h) { ICONS = { url, meta, w, h }; }
+function ic(id, emoji, em = 1.6) {
+  const f = ICONS && ICONS.meta.frames[id];
+  if (!f) return emoji;
+  const [fw, fh] = ICONS.meta.frameSize, k = em / fw;
+  return `<i class="pxi" style="width:${em}em;height:${(fh * k).toFixed(3)}em;background-image:url(${ICONS.url});background-size:${(ICONS.w * k).toFixed(3)}em ${(ICONS.h * k).toFixed(3)}em;background-position:${(-f[0] * k).toFixed(3)}em ${(-f[1] * k).toFixed(3)}em"></i>`;
+}
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const fmtTime = t => { t = Math.max(0, Math.floor(t)); return `${Math.floor(t / 60)}:${String(t % 60).padStart(2, '0')}`; };
 
@@ -73,8 +82,8 @@ export function runHud(run) {
     box.dataset.sig = sig;
     box.innerHTML = run.skills.map((s, i) => {
       const el = ELEMENTS[skillElement(s)];
-      return `<div class="slot${s.evolved ? ' evo' : ''}" style="--c:${el.color}" title="${esc(skillName(s))}"><span>${SKILLS[s.id].icon}</span><b>${s.evolved ? '★' : s.level}</b><i data-i="${i}"></i></div>`;
-    }).join('') + Object.entries(run.passives).map(([id, lv]) => `<div class="slot pas" title="${esc(PASSIVES[id].name)}"><span>${PASSIVES[id].icon}</span><b>${lv}</b></div>`).join('');
+      return `<div class="slot${s.evolved ? ' evo' : ''}" style="--c:${el.color}" title="${esc(skillName(s))}"><span>${ic(s.evolved || s.id, SKILLS[s.id].icon, 1.9)}</span><b>${s.evolved ? '★' : s.level}</b><i data-i="${i}"></i></div>`;
+    }).join('') + Object.entries(run.passives).map(([id, lv]) => `<div class="slot pas" title="${esc(PASSIVES[id].name)}"><span>${ic(id, PASSIVES[id].icon, 1.9)}</span><b>${lv}</b></div>`).join('');
   }
   box.querySelectorAll('i[data-i]').forEach(el => { el.style.height = skillCdFrac(run.skills[+el.dataset.i]) * 100 + '%'; });
 }
@@ -107,7 +116,7 @@ export function showPrepare(meta, onPick, onCancel) {
     ${nextLock ? `<p class="sub">Đột phá ${esc(levelName(+nextLock[0]))} để mở: ${esc(nextLock[1].text)}.</p>` : ''}
     <h3>Chọn công pháp khởi đầu</h3>
     <div class="cards">${opts.map((d, i) => `<button class="card" data-i="${i}" style="--c:${ELEMENTS[d.element].color}">
-      <span class="key">${i + 1}</span><span class="ic">${d.icon}</span><b>${esc(d.name)}</b><em>${esc(ELEMENTS[d.element].name)}</em><p>${esc(d.desc)}</p></button>`).join('')}</div>
+      <span class="key">${i + 1}</span><span class="ic">${ic(ids[i], d.icon, 2.2)}</span><b>${esc(d.name)}</b><em>${esc(ELEMENTS[d.element].name)}</em><p>${esc(d.desc)}</p></button>`).join('')}</div>
     <div class="row"><button class="ghost" data-act="cancel">Hủy (Esc)</button></div>`,
   code => {
     const i = { Digit1: 0, Digit2: 1, Digit3: 2, Digit4: 3, Digit5: 4, Digit6: 5 }[code];
@@ -149,7 +158,7 @@ export function showDraft(run, cards, onPick) {
   open(`<h2>Lên cấp ${run.level - run.pendingDrafts + 1}</h2>
     <p class="sub">Chọn 1 trong ${cards.length}${run.pendingDrafts > 1 ? ` · còn ${run.pendingDrafts - 1} lượt chọn` : ''}</p>
     <div class="cards">${cards.map((c, i) => `<button class="card t-${c.type}" data-i="${i}" style="--c:${c.element ? ELEMENTS[c.element].color : '#ffd978'}">
-      <span class="key">${i + 1}</span><span class="ic">${c.icon}</span><b>${esc(c.name)}</b>
+      <span class="key">${i + 1}</span><span class="ic">${ic(c.id, c.icon, 2.2)}</span><b>${esc(c.name)}</b>
       <em>${esc(typeName[c.type])}${c.element ? ' · ' + esc(elementName(c.element)) : ''}${c.level !== '' ?` · ${c.type === 'EVOLUTION' ? 'MAX' : 'Cấp ' + c.level}` : ''}</em>
       <p>${esc(c.desc)}</p>${c.hint ? `<small>${esc(c.hint)}</small>` : ''}</button>`).join('')}</div>`,
   code => {
@@ -181,8 +190,8 @@ export function nextGoal(run, reward, meta) {
 export function showResults(run, reward, onClose, meta) {
   const title = { WIN: `Hạ ${BOSS.FINAL.name}, vượt qua bí cảnh!`, LOSE: 'Trọng thương, rời bí cảnh', ABANDON: 'Đã rời bí cảnh', TIMEOUT: 'Hết thời gian, bí cảnh khép lại' }[run.outcome];
   const downs = run.rewards.map(r => BOSS[r.kind].name);
-  const skills = run.skills.map(s => `${SKILLS[s.id].icon} ${esc(skillName(s))}${s.evolved ? ' ★' : ' cấp ' + s.level}`).join('<br>');
-  const pas = Object.entries(run.passives).map(([id, lv]) => `${PASSIVES[id].icon} ${esc(PASSIVES[id].name)} ${lv}`).join(' · ');
+  const skills = run.skills.map(s => `${ic(s.evolved || s.id, SKILLS[s.id].icon, 1.3)} ${esc(skillName(s))}${s.evolved ? ' ★' : ' cấp ' + s.level}`).join('<br>');
+  const pas = Object.entries(run.passives).map(([id, lv]) => `${ic(id, PASSIVES[id].icon, 1.3)} ${esc(PASSIVES[id].name)} ${lv}`).join(' · ');
   let closed = false;
   const close = () => { if (closed) return; closed = true; closeModal(); onClose(); };
   open(`<h2 class="${run.outcome === 'WIN' ? 'win' : 'lose'}">${title}</h2>

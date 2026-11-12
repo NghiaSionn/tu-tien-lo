@@ -1,0 +1,101 @@
+{
+ "frameSize": [
+  48,
+  41
+ ],
+ "pivot": [
+  23,
+  40
+ ],
+ "image": "bieu_tuong.png",
+ "frames": {
+  "sword_qi": [
+   0,
+   0
+  ],
+  "sword_array": [
+   48,
+   0
+  ],
+  "fire_orb": [
+   96,
+   0
+  ],
+  "fire_ring": [
+   144,
+   0
+  ],
+  "thunder_strike": [
+   192,
+   0
+  ],
+  "thunder_field": [
+   240,
+   0
+  ],
+  "wind_blade": [
+   288,
+   0
+  ],
+  "body_aura": [
+   336,
+   0
+  ],
+  "ice_needle": [
+   384,
+   0
+  ],
+  "ice_nova": [
+   432,
+   0
+  ],
+  "liet_diem_kiem_tran": [
+   480,
+   0
+  ],
+  "loi_dinh_van_kiem": [
+   528,
+   0
+  ],
+  "hoa_long_quyen": [
+   576,
+   0
+  ],
+  "loi_cuong_ho_the": [
+   624,
+   0
+  ],
+  "than_phap": [
+   672,
+   0
+  ],
+  "linh_luc": [
+   720,
+   0
+  ],
+  "ngung_than": [
+   768,
+   0
+  ],
+  "hap_linh": [
+   816,
+   0
+  ],
+  "ho_mach": [
+   864,
+   0
+  ],
+  "tu_khi": [
+   912,
+   0
+  ],
+  "fallback_heal": [
+   960,
+   0
+  ]
+ },
+ "source": "docs/concept/bieu_tuong_chatgpt.png",
+ "tool": "tools/sprite_clean.py",
+ "scale": 5.75,
+ "colors": 64
+}

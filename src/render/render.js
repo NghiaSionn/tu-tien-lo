@@ -298,13 +298,16 @@ function drawBossTelegraph(ctx, m) {
 }
 
 // Linh Mạch (M3-04): cột linh quang; mờ + vòng đỏ khi bị phong ấn (boss sống); chữ "E" khi đứng gần
-function drawShrine(ctx, run, p, time) {
+function drawShrine(ctx, run, p, time, vis) {
   const s = run.shrine, sealed = run.scene.monsters.some(m => m.boss && !m.dead);
   const x = Math.round(s.x), y = Math.round(s.y);
+  const spr = vis && vis.ct && vis.ct[sealed ? 'linh_mach_phong' : 'linh_mach'];   // cụm linh thạch; phong ấn: xích + bùa
+  if (spr) ctx.drawImage(spr, x - Math.round(spr.width / 2), y + 4 - spr.height);
   ctx.globalCompositeOperation = 'lighter';
   ctx.globalAlpha = sealed ? 0.35 : 0.9;
   pxRing(ctx, x, y, SHRINE.R, 30, time, sealed ? '#ff6a6a' : '#7fe3ff', 1, 0.6);
-  for (let i = 0; i < 18; i++) { ctx.fillStyle = i % 3 ? '#7fe3ff' : '#e8fbff'; ctx.fillRect(x - 1 + Math.round(Math.sin(time * 4 + i) * 1.5), y - 2 - i * 2 - ((time * 20) % 2), 2, 2); }
+  const np = spr ? (sealed ? 0 : 7) : 18;   // có sprite: chỉ vài hạt linh khí bay lên từ đỉnh tinh thể
+  for (let i = 0; i < np; i++) { ctx.fillStyle = i % 3 ? '#7fe3ff' : '#e8fbff'; const k = spr ? ((time * 0.6 + i / np) % 1) : 0; ctx.fillRect(x - 1 + Math.round(Math.sin(time * 4 + i) * (spr ? 6 : 1.5)), spr ? Math.round(y - 30 - k * 26) : y - 2 - i * 2 - ((time * 20) % 2), spr ? 1 : 2, spr ? 1 : 2); }
   ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
   if (Math.hypot(p.x - s.x, p.y - s.y) < SHRINE.R + 6) {
     ctx.font = '8px monospace'; ctx.textAlign = 'center'; ctx.fillStyle = '#000'; ctx.fillText(sealed ? 'phong ấn' : 'E: Linh Mạch', x + 1, y - 42);
@@ -530,12 +533,19 @@ export function render(ctx, g) {
   drawMap(ctx, map, camX, camY, time, objs, vis);
 
   if (scene.kind === 'hub') {
+    const ct = vis.ct;
+    if (ct && ct.tran) {   // tụ linh trận (ChatGPT vẽ): thiền trong trận thì sáng rực, bình thường nhịp sáng nhẹ
+      const t = ct.tran, s = ct.tran_sang, on = p.med && g.inForm;
+      ctx.drawImage(t, Math.round(map.cx - t.width / 2), Math.round(map.cy - t.height / 2));
+      if (s) { ctx.globalAlpha = on ? 0.75 + 0.25 * Math.sin(time * 3) : 0.18 + 0.12 * Math.sin(time * 1.5); ctx.drawImage(s, Math.round(map.cx - s.width / 2), Math.round(map.cy - s.height / 2)); ctx.globalAlpha = 1; }
+    } else {
     ctx.globalCompositeOperation = 'lighter';
     ctx.globalAlpha = p.med && g.inForm ? 1 : 0.55;
     pxRing(ctx, map.cx, map.cy, HUB.FORM_R, 28, time * 0.5, '#3fb8d8', 2);
     pxRing(ctx, map.cx, map.cy, HUB.FORM_R * 0.62, 16, -time * 0.8, '#7fe3ff', 2);
     pxRing(ctx, map.cx, map.cy, HUB.FORM_R * 0.28, 8, time * 1.2, '#ffe08a', 2);
     ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
+    }
     if (FEATURES.run && g.portal && !vis.pfx) drawPortal(ctx, g.portal.x, g.portal.y, time, g.portal.near);
     if (g.trib && g.trib.interactive) drawTribulation(ctx, g.trib, time, false);
   } else {
@@ -557,7 +567,7 @@ export function render(ctx, g) {
     ctx.globalCompositeOperation = 'source-over';
     if (g.run) drawSkillsUnder(ctx, g.run, p, time, vis, g.dtWorld || 0);
     drawTelegraphs(ctx, scene);
-    if (g.run && g.run.shrine && !g.run.shrine.used) drawShrine(ctx, g.run, p, time);
+    if (g.run && g.run.shrine && !g.run.shrine.used) drawShrine(ctx, g.run, p, time, vis);
   }
 
   for (const m of scene.monsters) objs.push({ y: m.y, m });
@@ -575,7 +585,12 @@ export function render(ctx, g) {
       ctx.globalAlpha = 1;
     }
     else if (o.m) drawMonster(ctx, o.m, time, vis);
-    else if (o.portal) { const f = vis.pfx.portal; f.x = Math.round(g.portal.x); f.y = Math.round(g.portal.y); f.draw(ctx); }
+    else if (o.portal) {
+      // cổng trăng đá (ChatGPT vẽ): vòng xoáy pixelfx thu nhỏ vẽ TRƯỚC, cổng đè lên -> xoáy chỉ lộ qua lòng cổng trống
+      const gate = vis.ct && vis.ct.cong, f = vis.pfx.portal;
+      f.x = Math.round(g.portal.x); f.y = Math.round(g.portal.y) + (gate ? 2 : 0); f.scale = gate ? 0.66 : 1; f.draw(ctx); f.scale = 1;
+      if (gate) ctx.drawImage(gate, Math.round(g.portal.x - gate.width / 2), Math.round(g.portal.y + 6 - gate.height));
+    }
     else drawPlayer(ctx, p, time, g.medFx, g.inForm, vis);
   }
 
