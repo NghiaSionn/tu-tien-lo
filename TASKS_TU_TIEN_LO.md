@@ -178,7 +178,7 @@
 
 > **Kết quả 11/11/2026: XONG.** `src/progression/rewards.js`, `REWARD` trong config, ADR 0006. Kết thúc run → `meta.pendingReward` (lưu ngay) → nút "Nhận thưởng" cộng + ghi `rewardLog` + xóa pending trong một lần lưu; mở trang còn pending thì tự nhận. Tài nguyên mới: linh khí, luyện liệu, vé Cơ Duyên (HUD động phủ). 10 test mới. Trình duyệt: tải lại giữa bảng kết quả → nhận đúng 1 lần, tải lại tiếp không đổi; bấm đúp + Enter ×2 → cộng 1 lần.
 
-### M2-04 [~] Cân bằng một run hoàn chỉnh (M)
+### M2-04 [x] Cân bằng một run hoàn chỉnh (M)
 **Phụ thuộc:** M2-01..03.  
 **Làm:** run đầu 6–8 phút để test nhanh, sau đó mở mục tiêu 12–15 phút nếu nhịp chơi tốt; điều chỉnh XP, spawn, sát thương, reward, tỷ lệ xuất hiện combo.
 
@@ -197,7 +197,7 @@
 
 ## M3 — META TU TIÊN: THIỀN, CẢNH GIỚI, THIÊN KIẾP (P2)
 
-### M3-01 [~] Hệ `lingQi` -> `cultivationXp` qua tọa thiền (M)
+### M3-01 [x] Hệ `lingQi` -> `cultivationXp` qua tọa thiền (M)
 **Phụ thuộc:** M2 Gate.  
 **Làm:** tách linh khí từ rewards, chuyển hóa khi thiền, hiệu suất tụ linh trận, thông báo tiến độ và giới hạn AFK, giữ VFX cũ.
 
@@ -206,7 +206,7 @@
 - Di chuyển ngắt thiền, safe zone làm việc, reload không nhân đôi chuyển hóa.
 - Dùng Tụ Khí Đan trong hệ mới có mô tả/giá/phí nhất quán.
 
-### M3-02 [~] Cảnh giới, ngưỡng và phần thưởng mở khóa (M)
+### M3-02 [x] Cảnh giới, ngưỡng và phần thưởng mở khóa (M)
 **Phụ thuộc:** M3-01.  
 **Làm:** giữ đúng 18 bậc, đột phá bậc nhỏ, UI nêu chỉ số/tính năng mới, chỉnh power scaling nếu cần theo playtest.
 
@@ -215,7 +215,7 @@
 - Realm giữ khi kết thúc run/thua/reload, không lẫn runLevel.
 - Người mới vẫn build được ít nhất một lối chơi hấp dẫn.
 
-### M3-03 [~] Thiên kiếp tương tác 3 giai đoạn (L)
+### M3-03 [x] Thiên kiếp tương tác 3 giai đoạn (L)
 **Phụ thuộc:** M3-02.  
 **Làm:** thay random 70% thuần bằng arena thử thách có telegraph, né, phòng thủ, kết quả; dùng `loi_kiep` và `dot_pha`; có toggle reduced effects.
 
@@ -224,7 +224,7 @@
 - Thua không tụt cảnh giới đang có; thưởng/phạt chính xác; không spam phím để đột phá trùng.
 - Không phá save cũ, không gây flashing quá mạnh khi chọn giảm hiệu ứng.
 
-### M3-04 [~] Nút nghỉ/thiền trong bí cảnh [THỬ NGHIỆM] (M)
+### M3-04 [x] Nút nghỉ/thiền trong bí cảnh [THỬ NGHIỆM] (M)
 **Phụ thuộc:** M3-01, M2 Gate.  
 **Làm:** 1 điểm linh mạch/đợt nghỉ có lựa chọn trade-off: hồi máu, buff hoặc lấy tài nguyên; không cho người chơi spam hồi máu ngay giữa combat.
 
@@ -234,7 +234,7 @@
 
 **GATE v0.3a:** Sau một hoặc vài run, người chơi có thể tọa thiền -> đột phá -> độ kiếp bằng tương tác -> mở khóa tính năng -> thử run khác.
 
-> **Kết quả 12/11/2026: XONG CODE + TEST TỰ ĐỘNG, CHƯA KIỂM TRA TRÌNH DUYỆT** (trang bị ẩn nên game tự dừng).
+> **Kết quả 12/11/2026: ĐÓNG GATE v0.3a ở mức logic** — theo chỉ đạo 12/11 ("không cần test nữa") bỏ kiểm tra trình duyệt. `tests/gate_v03a.test.js` chạy trọn chuỗi: run thắng mang linh khí về → lưu/nạp → tọa thiền tới viên mãn → thiên kiếp tương tác (người né theo cảnh báo thắng; đứng yên thua, giữ cảnh giới) → lên Trúc Cơ, mở Phi Kiếm Trận + độ khó Linh → lưu/nạp → run mới dùng mở khóa. **Chưa ai chơi M3 trong trình duyệt** — rủi ro còn lại là UI/hiển thị (màn chuẩn bị, thiên kiếp, Linh Mạch).
 > - M3-01: tọa thiền chuyển hóa linh khí (4/s ×(1+0,15L), ×3 trong trận; 1 linh khí = 1,5 tu vi trong trận, 0,8 ngoài); hết linh khí chỉ còn 10% tốc độ cũ và chỉ trong trận; đầy thì ngừng tiêu. Yêu thú động phủ cho linh khí thay vì tu vi. Tụ Khí Đan = +linh khí (đủ 25% ngưỡng khi thiền trong trận), nút ghi rõ "+N✨". Sửa lỗi báo "viên mãn" không bao giờ hiện.
 > - M3-02: 18 bậc giữ nguyên; đột phá ghi "Công a → b · Khí huyết c → d" và mở khóa; Trúc Cơ/Kim Đan/Nguyên Anh mở công pháp khởi đầu mới (Phi Kiếm Trận / Hộ Thể / Hỏa Luân) và độ khó bí cảnh Linh/Huyền/Thiên (quái ×1,3/1,6/1,8, thưởng ×1,5/2/2,8; phím D ở màn chuẩn bị). Save cũ ở cảnh giới cao tự nhận mở khóa. Test biên 8→9, 11→12, 14→15, max 17.
 > - M3-03: thiên kiếp ~24 s, 3 nhịp (Lôi ấn: vòng sét; Lôi xà: dải sét; Thiên lôi: phủ trận trừ ô an toàn — luôn có 1 ô trong tầm 80 px), mọi đòn có cảnh báo lấp dần, giữ trong trận quanh tụ linh trận; khí huyết về 0 = thua (giữ cảnh giới, mất 30% tu vi); tải lại giữa chừng = thua (cờ `tribPending`). Seed cố định → kỹ năng quyết định: đứng yên thua mọi seed, bot né theo cảnh báo mất < 0,2 máu ở 20/20 seed. `TRIBULATION.ENABLED=false` quay về lôi kiếp cũ.
@@ -413,6 +413,7 @@ Tạo thư mục `docs/adr/` hoặc phần ghi chú khi có quyết định ản
 | 2026-11-11 | M2-04 | PARTIAL | Bot mới biết né cảnh báo + `--summary`; công cụ `tools/dps.mjs`. Sửa lỗi: Kiếm Khí cấp 3+ / Hỏa Cầu cấp 4+ tỏa quạt góc cố định nên trượt khi chỉ 1 mục tiêu (boss: 1/3 lưỡi, 0/2 cầu) → góc thu hẹp theo khoảng cách + test; Phong Nhận ngắm yêu thú gần nhất. Chỉnh số: Kiếm Khí cấp 5 giảm, Phi Kiếm Trận nạp nhanh, Lôi Kích mạnh hơn, Hỏa Luân rộng hơn, Liệt Diễm/Hỏa Long/Lôi Cương tăng, Lôi Đình giảm nhẹ; run 6–8 phút (boss 3:30/6:00, đợt dồn trước 5:30); Lang Vương lao nhẹ hơn + gồng 0,75 s; Yêu Vương máu ×70, hắc diễm ×1,6. Bảng kết quả thêm "Bước tiếp theo". Bot né (12 seed): 10/12 · 7/12 · 4/12 · 8/12 (trước 4/8 · 1/8 · 1/8 · 0/8). 81/81 test PASS | Chưa playtest người thật (trình duyệt 2–5 khung/giây), GATE v0.2 chưa xác minh; Hỏa+Phong yếu nhất; cảnh giới 9 quá dễ (7–8/8) |
 | 2026-11-12 | M2-02 / M2-04 / GATE v0.2 | DONE (M2-02), PARTIAL (M2-04) | `?loop=timer` (vòng lặp setInterval khi môi trường hãm rAF) + `tools/autopilot.js` (phát phím). 4 lượt trong trình duyệt: Kiếm+Lôi thắng 6:39; Phi Kiếm+Hỏa (giảm hiệu ứng) thua 6:35 vì đập đất; Hỏa+Phong thắng 8:39; Lôi+Thể thua 4:29. Sửa: viền cảnh báo trên tán cây, thanh máu boss mờ khi che, đập đất R48/gồng 1,25 s, hắc diễm gồng 1,4 s R26, nhãn sát thương tách `boss:slam`, Lôi Đình giảm nhẹ, Hỏa Long tăng. Bot (16 seed): 15/16 · 14/16 · 8/16 · 11/16 | Lượt 5 chưa chơi (trang bị ẩn); chưa người thật |
 | 2026-11-12 | M3-01..04 | PARTIAL | Linh khí → tu vi khi thiền; thiên kiếp tương tác 3 nhịp; mở khóa đại cảnh giới + độ khó bí cảnh; Linh Mạch. 102/102 test PASS. Bot độ khó: cảnh giới 9 Linh thắng 1–5/6, 12 Huyền 0–5/6 | Chưa kiểm tra trong trình duyệt (trang bị ẩn); GATE v0.3a chưa xác minh |
+| 2026-11-12 | M2-04 + GATE v0.3a | DONE (có hạn chế) | theo chỉ đạo 12/11 ("không cần test nữa") bỏ kiểm tra trình duyệt: M2-04 đóng với 4 lượt trình duyệt (thay vì 5); M3 đóng bằng test tích hợp chuỗi GATE v0.3a. 105/105 test PASS | Chưa người thật; M3 chưa xem trong trình duyệt |
 
 ---
 

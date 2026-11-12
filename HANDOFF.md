@@ -6,8 +6,8 @@ Cập nhật: 2026-11-11, sau phiên M0 + M1 và thử pixelfx. Bản trước c
 
 | | |
 |---|---|
-| Trạng thái | M0 xong (gate đạt). M1 xong, **gate M1 đạt**. **M2-01 xong**; **M2-02 xong code** (2 boss), còn thiếu chơi thật trọn run tới boss. **M2 xong** trừ lượt playtest thứ 5 (M2-04). GATE v0.2 đi trọn trong trình duyệt bằng autopilot phát phím. **M3 xong code + test**, chưa kiểm tra trình duyệt |
-| Test tự động | `npm test`: 102/102 PASS |
+| Trạng thái | M0 xong (gate đạt). M1 xong, **gate M1 đạt**. **M2-01 xong**; **M2-02 xong code** (2 boss), còn thiếu chơi thật trọn run tới boss. **M2 xong** (GATE v0.2 đi trọn trong trình duyệt bằng autopilot phát phím). **M3 xong**, GATE v0.3a đóng ở mức logic (bỏ kiểm tra trình duyệt theo chỉ đạo 12/11). Chờ chỉ đạo trước M4 |
+| Test tự động | `npm test`: 105/105 PASS |
 | Kiểm thử tay | `TEST_REPORT.md` |
 | Quyết định kỹ thuật | `docs/adr/0001…0006` (0005: beanfx chính, pixelfx phụ; 0006: thưởng run nhận một lần) |
 | Rollback | `git checkout baseline-v0.1` (code v0.1 nguyên trạng) |
@@ -152,7 +152,7 @@ Save trên trình duyệt của máy này lúc kết thúc phiên: đã đưa v�
 
 1. **Chưa có người thật chơi.** 4 lượt trong trình duyệt do autopilot phát phím (`tools/autopilot.js`, xem `docs/playtest_M2-04.md`); thiếu lượt 5. Môi trường test hãm `requestAnimationFrame` → mở game với `?loop=timer`. Khi trang bị ẩn, game tự dừng (đúng thiết kế) nên không test được.
 2. Cân bằng (bot biết né, 16 seed): Kiếm + Lôi 15/16, Phi Kiếm + Hỏa 14/16, Lôi + Thể 11/16, Hỏa + Phong 8/16. Đầu run Lôi + Thể yếu; Hỏa + Phong đánh boss chậm. Cảnh giới cao có độ khó bí cảnh tự chọn (M3-02).
-3. **M3 chưa kiểm tra trong trình duyệt**: tọa thiền với linh khí, màn chuẩn bị có độ khó/công pháp mở khóa, Linh Mạch, thiên kiếp tương tác (cần save ở Luyện Khí 9 đầy tu vi — nhập qua Cài đặt → Nhập save). GATE v0.3a chưa xác minh.
+3. **M3 chưa ai xem trong trình duyệt** (bỏ theo chỉ đạo 12/11): màn chuẩn bị có độ khó/công pháp mở khóa, tọa thiền với linh khí, Linh Mạch, thiên kiếp tương tác. Logic đã có test (gồm chuỗi GATE v0.3a). Rủi ro còn lại: hiển thị/UI.
 4. Viên chiến ý nhỏ, khó thấy trên cỏ (bản pixelfx đã thử và bị loại; cần hướng khác).
 5. Không có điều khiển cảm ứng (M5-06).
 6. Chưa thử tay: xuất/nhập save và "Chơi lại" trong Cài đặt (có test logic), đổi tab thật khi đang run.
@@ -164,8 +164,8 @@ Save trên trình duyệt của máy này lúc kết thúc phiên: đã đưa v�
 
 ## 7. Bước tiếp theo (theo `TASKS_TU_TIEN_LO.md`)
 
-1. Khi trình duyệt hiển thị: lượt playtest 5 (đóng M2-04); kiểm tra M3 trong trình duyệt và đi GATE v0.3a (thiền → đột phá → thiên kiếp → mở khóa → run khác).
-2. Sau GATE v0.3a: M4 (trang bị/luyện khí, mở khóa công pháp bằng thành tựu, gacha bằng vé game) — chờ chỉ đạo vì là thay đổi lớn.
+1. M4 (trang bị/luyện khí dùng luyện liệu, mở khóa công pháp bằng thành tựu, Truyền Thừa Các gacha chỉ bằng vé trong game) — **chờ chỉ đạo** vì là thay đổi lớn.
+2. Nên có: xem nhanh M3 trong trình duyệt khi tiện (màn chuẩn bị, thiên kiếp, Linh Mạch).
 
 ---
 
