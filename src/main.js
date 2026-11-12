@@ -13,7 +13,7 @@ import { spawnHubMonster, updateMonsters, reapMonsters, damageMonster, moveEntit
 import { loadSave, writeSave, commitMigration, exportSave, importSave, defaultMeta, KEYS } from './persistence/save.js';
 import { loadFx, createFx } from '../lib/beanfx.js';
 import { loadPixelfx } from './render/pixelfx.js';
-import { makeVis, consumeEvents, updateVis, clearVis, render, spawnFx, burst, floatText, addShake, addFlash, part } from './render/render.js';
+import { makeVis, consumeEvents, updateVis, clearVis, render, spawnFx, burst, floatText, addShake, addFlash, part, PART_CAP } from './render/render.js';
 import * as UI from './ui/ui.js';
 import { EVOLUTIONS } from './data/skills.js';
 import { computeRunReward, stageReward, claimReward, rewardText } from './progression/rewards.js';
@@ -557,7 +557,9 @@ function stressTopUp() {
   run.dir.spawnT = 1e9; run.hp = run.maxHp;
   while (sc.monsters.length < 100) { const a = Math.random() * 6.283, d = 40 + Math.random() * 160; const m = makeRunEnemy(run, ['chaser', 'charger', 'ranged'][sc.monsters.length % 3], p.x + Math.cos(a) * d, p.y + Math.sin(a) * d, 1); m.hp = m.max = 1e12; }
   while (sc.projectiles.length < 200) { const a = Math.random() * 6.283; sc.projectiles.push({ kind: 'bolt', x: p.x, y: p.y - 8, vx: Math.cos(a) * 140, vy: Math.sin(a) * 140, life: 1.5, dmg: 0.0001, pierce: 999, hits: new Set(), heading: a }); }
-  while (vis.parts.length < 300) burst(vis, p.x + (Math.random() - 0.5) * 300, p.y + (Math.random() - 0.5) * 160, 10, 60, '#ffd06a', 1.2, 1);
+  // trần hạt theo mức đồ họa (Vừa 220, Thấp 90) < 300: không chặn thì vòng lặp không bao giờ dừng -> treo trang
+  const partTarget = Math.min(300, (PART_CAP[vis.quality] || 300) - 10);
+  while (vis.parts.length < partTarget) burst(vis, p.x + (Math.random() - 0.5) * 300, p.y + (Math.random() - 0.5) * 160, 10, 60, '#ffd06a', 1.2, 1);
 }
 
 let lastFrameAt = 0;

@@ -10,6 +10,9 @@ const rand = (a, b) => a + Math.random() * (b - a);
 const MAX_PARTS = 400, MAX_TEXTS = 60;
 // M5-04: trần hạt theo mức đồ họa (cảnh báo nguy hiểm KHÔNG bị cắt ở mức nào)
 export const PART_CAP = { high: 400, medium: 220, low: 90 };
+// trần fx sinh từ sự kiện chiến đấu (tia trúng đòn, nổ, xung). Đầy thì bỏ fx mới; nổ/xung về hình vẽ code.
+// Không áp cho fx đột phá/lôi kiếp (có onHit). Cảnh stress không trần từng lên 880 fx -> 45 ms/khung.
+export const FX_CAP = { high: 160, medium: 100, low: 50 };
 
 // ---------- hiệu ứng tạm (chỉ để nhìn, không ảnh hưởng logic) ----------
 export function makeVis(FX) {
@@ -53,16 +56,18 @@ const rowFor = (heading, n) => ((Math.round(heading / 6.283185307 * n) % n) + n)
 
 // Biến sự kiện từ logic thành hình
 export function consumeEvents(vis, ev) {
+  const cap = FX_CAP[vis.quality] || FX_CAP.high;
   for (const e of ev) {
+    const room = vis.fxs.length < cap;
     switch (e.type) {
       case 'text': floatText(vis, e.x, e.y, e.text, e.color); break;
-      case 'fx': spawnFx(vis, e.name, e.x, e.y, { scale: e.scale || 1, flip: !!e.flip }); break;
+      case 'fx': if (room) spawnFx(vis, e.name, e.x, e.y, { scale: e.scale || 1, flip: !!e.flip }); break;
       case 'shake': addShake(vis, e.t); break;
       case 'chain': vis.chains.push({ pts: e.pts, life: 0.18 }); break;
       case 'boom': if (!e.fx && e.color === '#c070ff') { e.fx = 'hac_diem_no'; e.fxR = 30; }
-        if (e.fx && vis.FX[e.fx] && vis.quality !== 'low') { spawnFx(vis, e.fx, e.x, e.y, { scale: e.r / e.fxR }); break; }
+        if (room && e.fx && vis.FX[e.fx] && vis.quality !== 'low') { spawnFx(vis, e.fx, e.x, e.y, { scale: e.r / e.fxR }); break; }
         vis.rings.push({ x: e.x, y: e.y, r: e.r * 0.4, to: e.r, life: 0.3, max: 0.3, color: e.color, fill: true }); burst(vis, e.x, e.y, 10, 60, e.color, 0.4); break;
-      case 'pulse': if (e.fx && vis.FX[e.fx] && vis.quality !== 'low') { spawnFx(vis, e.fx, e.x, e.y, { scale: e.r / e.fxR }); break; }
+      case 'pulse': if (room && e.fx && vis.FX[e.fx] && vis.quality !== 'low') { spawnFx(vis, e.fx, e.x, e.y, { scale: e.r / e.fxR }); break; }
         vis.rings.push({ x: e.x, y: e.y - 4, r: 6, to: e.r, life: 0.35, max: 0.35, color: e.color }); break;
       case 'death': burst(vis, e.x, e.y - 4, 12, 70, TIER_COLORS[e.tier] || '#fff', 0.6, 2); break;
       case 'announce': vis.banner = { text: e.text, color: e.color || '#ffd978', life: 2.6 }; break;

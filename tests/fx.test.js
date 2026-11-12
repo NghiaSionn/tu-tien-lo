@@ -32,3 +32,17 @@ test('sheet bay nhiều hướng chọn đúng hàng theo hướng bay', async (
   const { rowOf } = await import('../lib/beanfx.js');
   assert.equal(rowOf(0, 8), 0); assert.equal(rowOf(Math.PI / 2, 8), 2); assert.equal(rowOf(Math.PI, 8), 4); assert.equal(rowOf(-Math.PI / 2, 8), 6);
 });
+
+test('trần fx sự kiện chiến đấu: 1000 tia trúng không làm fx vượt trần; nổ khi đầy về hình code', async () => {
+  let R;
+  try { R = await import('../src/render/render.js'); } catch { return; }   // sprites.js cần canvas: bỏ qua nếu Node không có
+  const sheet = fromJson(JSON.parse(fs.readFileSync(new URL('kiem_trung.json', DIR), 'utf8')), {});
+  const no = fromJson(JSON.parse(fs.readFileSync(new URL('hoa_cau_no.json', DIR), 'utf8')), {});
+  for (const q of ['high', 'medium', 'low']) {
+    const vis = R.makeVis({ kiem_trung: sheet, hoa_cau_no: no }); vis.quality = q;
+    R.consumeEvents(vis, Array.from({ length: 1000 }, () => ({ type: 'fx', name: 'kiem_trung', x: 0, y: 0 })));
+    assert.equal(vis.fxs.length, R.FX_CAP[q]);
+    R.consumeEvents(vis, [{ type: 'boom', x: 0, y: 0, r: 16, fx: 'hoa_cau_no', fxR: 16, color: '#f80' }]);
+    assert.equal(vis.fxs.length, R.FX_CAP[q]); assert.equal(vis.rings.length, 1);
+  }
+});

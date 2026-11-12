@@ -96,7 +96,7 @@ Kết quả lần chạy cuối: **41 test, 41 PASS, 0 FAIL.**
 |---|---|---|---|---|
 | Động phủ | 45 yêu thú | 16,70 ms | 16,80 ms | 60 FPS |
 | Bí cảnh 0:23 | 6 yêu thú, 0 đạn | 16,70 ms | 16,80 ms | tải nhẹ |
-| Bí cảnh đông (100 quái / 200 đạn / 300 hạt) | — | NOT MEASURED | — | thuộc M5-04 |
+| Bí cảnh đông (100 quái / 200 đạn / 300 hạt) | 12/11, pane trình duyệt của Claude desktop (Chrome 156, Windows 11, 8 luồng), `?stress=1&perf&loop=timer` | Thời gian xử lý mỗi khung (logic + vẽ), trung vị/p95: Cao 9,2/29,2 ms, Vừa 7,3/20,4 ms, Thấp 7,7/21,8 ms; chỉ vẽ (tạm dừng) 5,2/13,5 ms; heap ~14 MB | CHƯA ĐẠT p95 < 16,7 ms | Trước sửa: fx không trần lên 880 → 45 ms/khung và tăng dần; Vừa/Thấp treo trang (vòng bơm hạt không dừng). FPS trong pane không tin được (rAF bị hãm) |
 
 ---
 
