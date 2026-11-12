@@ -170,6 +170,7 @@ Save trên trình duyệt của máy này lúc kết thúc phiên: đã đưa v�
 7. Thiên kiếp tương tác thay xổ số 70% (`TRIBULATION.ENABLED`); đường cũ còn trong code để rollback.
 8. VFX beanfx M5-03 đã xem trong trình duyệt (12/11, 127.0.0.1, `?loop=timer&perf`): Hỏa Luân, Hỏa Cầu bay/nổ, Lôi Vực, Phong Nhận, Hàn Khí, lốc Hỏa Long Quyển, vùng lửa Liệt Diễm, đạn hắc diễm của boss hiện đúng, ~62 FPS, xử lý ~1 ms/khung. Sửa khi xem: số sát thương nhịp thiêu đốt/vùng lửa không in nữa (chồng thành cột che quái), gai Hàn Khí thấp lại, kiếm đuổi quái (Phi Kiếm/Liệt Diễm) trước đây luôn rơi vào nhánh vẽ code do thứ tự nhánh sai — nay dùng sheet beanfx. Nổ hắc diễm của boss xem cận cảnh: lóe lửa tím rồi khói tím đen, rõ trên đá và cỏ. Cảnh stress đo trong trình duyệt (`TEST_REPORT.md`): đã sửa treo trang ở đồ họa Vừa/Thấp và thêm trần fx `FX_CAP`; p95 vẫn 20–29 ms, chưa đạt.
 9. Save thật trên `localhost:8123` giờ là tiến độ người chơi; test nên chạy ở `127.0.0.1:8123` (bộ nhớ lưu riêng).
+10. **Bản chơi thử cho người khác** (12/11): https://claude.ai/artifact/274WT7qoWw42kA2GX11jkt — đã chạy ổn. Mỗi người test có save riêng trong trình duyệt của họ. Cập nhật: đăng lại `index.html` kèm `src/`, `lib/`, `fx/`, `sprites/` vào đúng link này. Quyền chia sẻ do chủ artifact bật trong menu Share.
 
 ---
 
