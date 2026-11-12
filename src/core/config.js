@@ -1,5 +1,8 @@
 // Mọi thông số gameplay. Các con số có nhãn [THỬ NGHIỆM] trong GDD là mặc định để playtest, không phải luật cuối.
 
+// M7-04: phiên bản ghi vào log playtest (đổi khi phát hành bản thử mới)
+export const BUILD = '0.4.0-m7';
+
 export const FEATURES = {
   run: true,            // M1: cổng bí cảnh + vòng run roguelite. false = game chạy như v0.1
   manualAttackInRun: true,

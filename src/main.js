@@ -25,6 +25,8 @@ import { pull, shopBuy } from './progression/gacha.js';
 import * as Audio from './audio/sfx.js';
 import { makeRunEnemy } from './systems/director.js';
 import { setupTouch } from './ui/touch.js';
+import { createPlaytestLog } from './systems/playtest.js';
+import { BUILD } from './core/config.js';
 
 const { W, H } = VIEW;
 const $ = id => document.getElementById(id);
@@ -147,6 +149,14 @@ if (meta.pendingReward) {
   writeSave(storage, meta);
   if (got) startNotes.push([`Đã nhận phần thưởng bí cảnh còn treo: ${rewardText(got)}.`, 'good']);
 }
+// M7-04: nhật ký playtest opt-in (mặc định tắt, khóa riêng, không gửi mạng). setItem để ném lỗi để log tự bỏ bớt khi đầy.
+const PT = createPlaytestLog({
+  storage: { getItem: k => { try { return localStorage.getItem(k); } catch (e) { return null; } }, setItem: (k, v) => localStorage.setItem(k, v) },
+  build: BUILD, platform: window.matchMedia && matchMedia('(pointer: coarse)').matches ? 'touch' : 'desktop',
+});
+PT.sessionStart({ realm: meta.realmLevel, runs: meta.stats.runs });
+addEventListener('pagehide', () => PT.sessionEnd());
+const metaAct = (action, ok = true) => PT.log('meta_action', { action, ok: !!ok, realm: meta.realmLevel });
 function save() {
   if (view !== 'HUB' && run) meta.hubPos = { ...hubPosBeforeRun };
   else meta.hubPos = { x: p.x, y: p.y };
@@ -217,6 +227,7 @@ function openForge(note = '') {
   UI.showForge(meta, (a, id) => {
     const fn = { craft: m => craftItem(m, id), upgrade: m => upgradeItem(m, id), equip: m => equip(m, id), unequip: m => unequip(m, id) }[a];
     const r = transact(fn);
+    metaAct(a, !(r && r.ok === false));
     openForge(r && r.ok === false ? `Không được: ${r.reason}.` : '');
   }, note);
 }
@@ -230,10 +241,12 @@ function openGacha(last = null, note = '') {
       lastPullAt = now;
       let res = null;
       const r = transact(m => { res = pull(m); return res ? { ok: true } : { ok: false, reason: 'hết vé' }; });
+      metaAct('gacha_pull', r && r.ok !== false && res);
       if (r && r.ok !== false && res) { UI.log(`Truyền Thừa Các: ${res.name}${res.dup ? ` (trùng → +${res.shards} mảnh)` : ''}.`, res.rarity === 'epic' ? 'gold' : 'good'); openGacha(res); }
       else openGacha(null, r ? `Không quay được: ${r.reason}.` : '');
     } else if (a === 'shop') {
       const r = transact(m => shopBuy(m, t, id));
+      metaAct('gacha_shop', !(r && r.ok === false));
       openGacha(null, r && r.ok === false ? `Không đổi được: ${r.reason}.` : 'Đã đổi.');
     }
   }, last, note);
@@ -252,23 +265,24 @@ function tryBreak() {
     p.med = false; p.x = CX; p.y = CY + 12;
     trib = createTrib((meta.realmLevel * 7919 + meta.stats.runs * 104729 + Math.floor(meta.cultivationXp)) >>> 0, CX, CY);
     trib.interactive = true; trib.shownPhase = -1;
-    meta.tribPending = true; save();
+    meta.tribPending = true; save(); metaAct('trib_start');
     UI.log(`Thiên kiếp giáng xuống! Xung kích ${REALMS[realmOf(meta.realmLevel + 1)]} — né các vùng sét đã đánh dấu, đứng vào ô an toàn khi Thiên lôi phủ trận.`, 'bad');
   } else if (isMajor(meta.realmLevel)) {
     p.med = false;
     trib = { t: 0, next: 0.2 };
     UI.log(`Lôi kiếp giáng xuống! Xung kích ${REALMS[realmOf(meta.realmLevel + 1)]}...`, 'bad');
-  } else levelUp();
+  } else { levelUp(); metaAct('breakthrough'); }
 }
 function usePill() {
   if (view !== 'HUB') return;
   const v = C.usePill(meta);
   if (!v) return;
+  metaAct('pill_use');
   UI.log(`Tụ Khí Đan hóa thành ${v} linh khí — tọa thiền (T) để chuyển hóa thành tu vi.`, 'good');
   floatText(vis, p.x, p.y - 20, '+' + v + ' ✨', '#7fe3ff');
   burst(vis, p.x, p.y - 8, 12, 50, '#7fe3ff');
 }
-function buyPill() { if (view === 'HUB' && C.buyPill(meta)) UI.log('Mua 1 Tụ Khí Đan.'); }
+function buyPill() { if (view === 'HUB' && C.buyPill(meta)) { UI.log('Mua 1 Tụ Khí Đan.'); metaAct('pill_buy'); } }
 function hubShoot() {
   p.cd = BASIC_ATTACK.CD; p.med = false;
   let dx = p.fx, dy = p.fy, best = BASIC_ATTACK.AIM_RANGE;
@@ -387,6 +401,7 @@ function updateInteractiveTrib(dt) {
   if (!trib.done) return;
   const won = trib.done === 'WIN';
   trib = null; meta.tribPending = false; readyNotified = false;
+  metaAct(won ? 'trib_win' : 'trib_fail');
   if (won) { const r = C.levelUp(meta); afterMajor(); realmUpNotes(r); }
   else { C.failTribulation(meta); UI.log('Độ kiếp thất bại — giữ cảnh giới, tu vi hao tổn 30%. Hồi phục rồi thử lại.', 'bad', 14000); save(); }
 }
@@ -411,6 +426,7 @@ function startRun(skill, difficulty = 0) {
   p.x = run.scene.map.cx; p.y = run.scene.map.cy; p.inv = 1; p.med = false; p.cd = 0;
   hubShots.length = 0; clearVis(vis); input.clear(); ev.length = 0;
   view = 'RUN'; paused = false;
+  PT.log('run_start', { skill, difficulty, realm: meta.realmLevel }, run);
   UI.setMode('run');
   UI.log('Bước vào bí cảnh. Công pháp tự thi triển khi có yêu thú trong tầm.', 'gold');
 }
@@ -429,6 +445,7 @@ function updateRunView(dt) {
   movePlayer(run.scene.map, dt, runStats(run).moveSpeed);
   if (FEATURES.manualAttackInRun && keys.attack && p.cd <= 0) runShoot();
   updateRun(run, p, dt, ev);
+  if (run.dir.mini === 'DEAD') PT.log('miniboss_result', { result: 'killed', time: Math.round(run.time) }, run);   // một lần mỗi run
   if (run.shrine && !run.shrineLogged) { run.shrineLogged = true; UI.log('Linh Mạch hiện ra nơi Lang Vương ngã xuống — đứng gần và nhấn E (một lần, chọn 1 trong 3).', 'gold'); }
   if (run.status === 'ENDED') { finishRun(); return; }
   if (run.pendingDrafts > 0) openDraft();
@@ -445,6 +462,11 @@ function openDraft() {
     });
     r.pendingDrafts = Math.max(0, r.pendingDrafts - 1);
     Audio.play('card');
+    if (ok) {
+      const c = { card: card.id, cardType: card.type, level: r.level, time: Math.round(r.time) };
+      PT.log('first_card', c, r); PT.log('card_picked', c, r);
+      if (card.type === 'EVOLUTION') PT.log('evolution', { evo: card.id, time: c.time }, r);
+    }
     if (!ok) UI.log('Thẻ không còn hợp lệ, bỏ qua.', 'bad');
     else if (card.type === 'EVOLUTION') {
       spawnFx(vis, 'dot_pha', p.x, p.y, { onHit: () => { addFlash(vis, 0.15); addShake(vis, 0.2); } });
@@ -483,6 +505,9 @@ function finishRun() {
   if (meta.pendingReward && meta.pendingReward.id !== reward.id) claimReward(meta);   // phòng hờ: không để mất phần cũ
   stageReward(meta, reward);
   save();
+  if (r.dir.mini === 'ALIVE') PT.log('miniboss_result', { result: r.outcome === 'LOSE' ? 'died' : 'abandoned', time: Math.round(r.time) }, r);
+  const cause = r.outcome === 'LOSE' ? Object.entries(r.dmgBy).sort((a, b) => b[1] - a[1])[0]?.[0] : undefined;
+  PT.log('run_end', { outcome: r.outcome, time: Math.round(r.time), level: r.level, kills: r.kills, cause, evolutions: [...r.evolutions], difficulty: r.diff }, r);
   Audio.play(r.outcome === 'WIN' ? 'win' : 'lose');
   UI.showResults(r, reward, claimAndReturn, meta);
 }
@@ -506,21 +531,34 @@ function returnToHub() {
 }
 
 // ---------- cài đặt ----------
+// góp ý: trang issue của repo công khai; không gắn dữ liệu nào vào URL
+const FEEDBACK_URL = 'https://github.com/NghiaSionn/tu-tien-lo/issues/new';
+function download(text, name, type) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([text], { type }));
+  a.download = name;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
 function openSettings() {
   if (view !== 'HUB' || trib) return;
   view = 'SETTINGS'; p.med = false; input.clear();
   UI.showSettings(meta, {
     onClose: () => { view = 'HUB'; },
     onSetting: (k, v) => { meta.settings[k] = v; applySettings(); save(); },
-    onExport: () => {
-      save();
-      const blob = new Blob([exportSave(meta)], { type: 'application/json' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = `tutien_save_${new Date().toISOString().slice(0, 10)}.json`;
-      a.click();
-      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-    },
+    onExport: () => { save(); download(exportSave(meta), `tutien_save_${new Date().toISOString().slice(0, 10)}.json`, 'application/json'); },
+    // M7-04
+    pt: PT,
+    feedbackUrl: FEEDBACK_URL,
+    onPlaytest: on => { PT.setEnabled(on, () => ({ realm: meta.realmLevel, runs: meta.stats.runs })); UI.log(on ? 'Đã bật ghi playtest (chỉ lưu trên máy này).' : 'Đã tắt ghi playtest.', 'good'); },
+    onPtExport: kind => download(kind === 'csv' ? PT.exportCSV() : PT.exportJSON(), `tutien_playtest_${PT.testId || 'chua_bat'}.${kind}`, kind === 'csv' ? 'text/csv' : 'application/json'),
+    onPtClear: () => { if (confirm('Xóa toàn bộ log playtest trên máy này? (Không ảnh hưởng tiến độ chơi.)')) PT.clear(); },
+    feedbackText: () => [
+      `Tu Tiên Lộ — góp ý (bản ${BUILD})`,
+      `Mã thử: ${PT.testId || '(chưa bật log)'} · Thiết bị: ${matchMedia('(pointer: coarse)').matches ? 'cảm ứng' : 'máy tính'}`,
+      `Cảnh giới: ${levelName(meta.realmLevel)} · Số lượt bí cảnh: ${meta.stats.runs} · Thắng: ${meta.stats.wins} · Trụ lâu nhất: ${Math.floor(meta.stats.bestTime / 60)}:${String(meta.stats.bestTime % 60).padStart(2, '0')}`,
+      '1. Điểm vui nhất?', '2. Điểm khó hiểu nhất?', '3. Muốn mở khóa gì tiếp?',
+    ].join('\n'),
     onImport: text => {
       const r = importSave(text, saveCtx);
       if (!r.ok) { alert('Không nhập được: ' + r.error); return; }

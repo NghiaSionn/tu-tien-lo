@@ -222,6 +222,13 @@ export function showSettings(meta, h) {
     <h3>Dữ liệu</h3>
     <p class="sub">Tiến độ lưu trong trình duyệt này. Nên xuất bản sao trước khi xóa dữ liệu trình duyệt.</p>
     <div class="row"><button data-act="export">Xuất save (.json)</button><button data-act="import">Nhập save…</button><input type="file" id="importFile" accept="application/json,.json" hidden></div>
+    <h3>Ghi playtest (tùy chọn)</h3>
+    <p class="sub">Mặc định tắt. Khi bật, game ghi các mốc chơi (vào bí cảnh, chọn thẻ, boss, kết quả, đột phá…) <b>chỉ trên máy này</b> — không gửi đi đâu, không có tên, email hay IP. Muốn giúp người phát triển: bấm Xuất rồi tự gửi file.</p>
+    <label class="opt"><input type="checkbox" id="optPt" ${h.pt.enabled ? 'checked' : ''}> Bật ghi playtest</label>
+    <p class="sub" id="ptInfo"></p>
+    <div class="row"><button data-act="ptJson">Xuất log (.json)</button><button data-act="ptCsv">Xuất log (.csv)</button><button class="ghost" data-act="ptClear">Xóa log</button></div>
+    <div class="row"><button data-act="feedback">Sao chép tóm tắt góp ý</button><a class="btnlink" href="${h.feedbackUrl}" target="_blank" rel="noopener">Mở trang góp ý ↗</a></div>
+    <textarea id="fbText" readonly hidden rows="6"></textarea>
     <div class="row"><button class="ghost danger" data-act="reset">Chơi lại từ đầu</button><button data-act="close">Đóng (Esc)</button></div>`,
   code => { if (code === 'Escape') { closeModal(); h.onClose(); return true; } return false; });
   const m = $('modal');
@@ -236,6 +243,20 @@ export function showSettings(meta, h) {
   m.querySelector('[data-act=import]').addEventListener('click', () => file.click());
   file.addEventListener('change', async () => { const f = file.files[0]; if (f) h.onImport(await f.text()); });
   m.querySelector('[data-act=reset]').addEventListener('click', h.onReset);
+  // M7-04: nhật ký playtest
+  const ptInfo = () => { m.querySelector('#ptInfo').textContent = h.pt.testId ? `Mã thử: ${h.pt.testId} · ${h.pt.count} sự kiện${h.pt.dropped ? ` (đã bỏ ${h.pt.dropped} sự kiện cũ vì đầy)` : ''}${h.pt.enabled ? '' : ' · đang tắt'}` : 'Chưa bật lần nào.'; };
+  ptInfo();
+  m.querySelector('#optPt').addEventListener('change', e => { h.onPlaytest(e.target.checked); ptInfo(); });
+  m.querySelector('[data-act=ptJson]').addEventListener('click', () => h.onPtExport('json'));
+  m.querySelector('[data-act=ptCsv]').addEventListener('click', () => h.onPtExport('csv'));
+  m.querySelector('[data-act=ptClear]').addEventListener('click', () => { h.onPtClear(); ptInfo(); });
+  m.querySelector('[data-act=feedback]').addEventListener('click', async () => {
+    const text = h.feedbackText(), ta = m.querySelector('#fbText');
+    ta.value = text; ta.hidden = false;
+    let ok = false;
+    try { await navigator.clipboard.writeText(text); ok = true; } catch (e) { ta.select(); }
+    m.querySelector('[data-act=feedback]').textContent = ok ? 'Đã sao chép ✓' : 'Chép tay ô bên dưới';
+  });
   m.querySelector('[data-act=close]').addEventListener('click', () => { closeModal(); h.onClose(); });
 }
 

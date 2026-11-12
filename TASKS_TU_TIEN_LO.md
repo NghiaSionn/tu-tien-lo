@@ -348,7 +348,7 @@ Backlog chi tiết (ChatGPT đề xuất 13/11, người phát triển duyệt c
 - [x] M7-01 Audit baseline + đối chiếu UI với logic hiện có (S, P0) — xong 13/11: `docs/playtest/BASELINE_M7.md`, HEAD 2035580, 146/146 test, 7 bảng PASS/FAIL/NOT VERIFIED, 5 lỗi major (B1 phím tắt bị input nuốt, B2 màn dọc, B3 nút nhỏ, B4 thiên kiếp gắt, B5 thua boss cuối trong browser), 0 blocker. Không sửa code/balance.
 - [x] M7-02 Kiểm thử UI tương tác M3/M4, sửa lỗi blocking (M, P0) — xong 13/11: `docs/playtest/M7_02.md`. Sửa phím tắt bị nuốt (J/Space/D), nhắc xoay ngang + tự tạm dừng khi dọc, modal phủ màn, nút cảm ứng ≥44px, luyện khí báo thiếu nguyên liệu, icon pixel Linh Mạch, log thiên kiếp lâu hơn. 149/149 test; kiểm ở 360×800, 390×844, 1366×768. Còn: bố cục dọc riêng (chưa làm), B4/B5 cân bằng → M7-11
 - [ ] M7-03 Kiểm thử máy thật, âm thanh, tải và save (M, P0) — cần điện thoại thật
-- [ ] M7-04 Ghi sự kiện playtest tại máy, opt-in, xuất JSON/CSV (M, P0)
+- [x] M7-04 Ghi sự kiện playtest tại máy, opt-in, xuất JSON/CSV (M, P0) — xong 13/11: `src/systems/playtest.js` (khóa riêng `tutien_playtest_v1`, mặc định tắt, danh sách trắng, trần 3000 sự kiện), mục Ghi playtest trong Cài đặt (bật/tắt, xuất JSON/CSV, xóa, sao chép góp ý, link GitHub Issues), `tools/playtest_funnel.mjs`, hướng dẫn `docs/playtest/HUONG_DAN_LOG_PLAYTEST.md`. 158/158 test. Nút xuất file chưa bấm thử trong browser
 - [ ] M7-05 Baseline playtest người thật ≥8 người (M, P0) — cần người thật
 - [ ] M7-06..11 (M7-B), M7-12..14 (M7-C, có điều kiện), M7-15..18 (M7-D): xem file backlog
 
