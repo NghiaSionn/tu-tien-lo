@@ -4,7 +4,7 @@ const MOVE = { ArrowUp: 'up', KeyW: 'up', ArrowDown: 'down', KeyS: 'down', Arrow
 export function makeInput(onAction) {
   const keys = {}, seen = {}, release = {};
   const clear = () => { for (const k in keys) keys[k] = false; for (const k in release) delete release[k]; virt = {}; };
-  addEventListener('keydown', e => {
+  function onKeyDown(e) {
     // chỉ nhường phím cho ô nhập chữ; ô tích/nút vẫn để game nhận Esc, số...
     const t = e.target;
     if (t && (t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || (t.tagName === 'INPUT' && !/checkbox|radio|button|file/.test(t.type)))) return;
@@ -12,12 +12,16 @@ export function makeInput(onAction) {
     const k = MOVE[e.code];
     if (k) {
       e.preventDefault();
+      if (e.repeat) return;
+      // M7-02: phím tắt UI (J thành tựu, Space quay/đóng, D độ khó…) được xét trước; nhận rồi thì không thành di chuyển/đánh
+      if (onAction(e.code, e) === true) return;
       if (!keys[k]) { keys[k] = true; seen[k] = false; delete release[k]; }
       return;
     }
     if (e.repeat) return;
     if (onAction(e.code, e) === true) e.preventDefault();
-  });
+  }
+  addEventListener('keydown', onKeyDown);
   addEventListener('keyup', e => {
     const k = MOVE[e.code];
     if (!k) return;
@@ -36,6 +40,7 @@ export function makeInput(onAction) {
   }
   return {
     keys,
+    onKeyDown,   // để test gọi trực tiếp
     setVirtual,
     clear,
     // gọi cuối mỗi khung

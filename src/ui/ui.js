@@ -21,13 +21,13 @@ function ic(id, emoji, em = 1.6) {
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const fmtTime = t => { t = Math.max(0, Math.floor(t)); return `${Math.floor(t / 60)}:${String(t % 60).padStart(2, '0')}`; };
 
-export function log(msg, cls = '') {
+export function log(msg, cls = '', ms = 6000) {
   const el = document.createElement('div');
   el.textContent = msg; el.className = cls;
   const box = $('log'); box.appendChild(el);
   while (box.children.length > 5) box.firstChild.remove();
-  setTimeout(() => { el.style.opacity = 0; }, 6000);
-  setTimeout(() => el.remove(), 7200);
+  setTimeout(() => { el.style.opacity = 0; }, ms);
+  setTimeout(() => el.remove(), ms + 1200);
 }
 
 export function setMode(mode) { document.body.dataset.mode = mode; }
@@ -138,7 +138,7 @@ export function showShrine(choices, onPick) {
   let done = false;
   const pick = i => { if (done || !choices[i]) return; done = true; closeModal(); onPick(choices[i].id); };
   open(`<h2>Linh Mạch</h2><p class="sub">Linh khí trào lên từ lòng đất. Chỉ hấp thu được một lần.</p>
-    <div class="cards">${choices.map((c, i) => `<button class="card" data-i="${i}" style="--c:#7fe3ff"><span class="key">${i + 1}</span><span class="ic">${['✚', '⚔', '✨'][i]}</span><b>${esc(c.name)}</b><p>${esc(c.text())}</p></button>`).join('')}</div>`,
+    <div class="cards">${choices.map((c, i) => `<button class="card" data-i="${i}" style="--c:#7fe3ff"><span class="key">${i + 1}</span><span class="ic">${ic(['fallback_heal', 'linh_luc', 'hap_linh'][i], ['✚', '⚔', '✨'][i], 2.2)}</span><b>${esc(c.name)}</b><p>${esc(c.text())}</p></button>`).join('')}</div>`,
   code => { const i = { Digit1: 0, Digit2: 1, Digit3: 2 }[code]; if (i != null) { pick(i); return true; } return false; });
   $('modal').querySelectorAll('.card').forEach(b => b.addEventListener('click', () => pick(+b.dataset.i)));
 }
@@ -245,6 +245,7 @@ export { fmtTime, evolutionHint };
 import { ITEMS_DEF, SLOTS, CRAFT, MAX_ITEM_LEVEL } from '../data/items.js';
 import { ACHIEVEMENTS } from '../data/achievements.js';
 import { GACHA } from '../core/config.js';
+import { canPay } from '../progression/gear.js';
 
 const costText = c => Object.entries(c).map(([k, v]) => `${v}${{ craftMats: '🔩', linhThach: '💎' }[k]}`).join(' ');
 const resLine = meta => `💎 ${meta.linhThach} · 🔩 ${meta.craftMats} · ✨ ${Math.floor(meta.lingQi)} · 🎫 ${meta.coDuyenTicket} · 📜 ${meta.shards} mảnh`;
@@ -255,14 +256,17 @@ export function showForge(meta, act, note = '') {
     const items = Object.entries(ITEMS_DEF).filter(([, d]) => d.slot === slot);
     return `<h3>${esc(sname)} — đang mặc: ${meta.equipped[slot] ? esc(ITEMS_DEF[meta.equipped[slot]].name) : 'trống'}</h3>` + items.map(([id, d]) => {
       const lv = meta.items[id], on = meta.equipped[slot] === id;
-      const btns = !lv ? `<button data-a="craft" data-id="${id}">Luyện · ${costText(CRAFT.make)}</button>`
+      // M7-02: không đủ nguyên liệu -> nút mờ + ghi rõ thiếu gì
+      const need = c => canPay(meta, c) ? '' : ` disabled title="Thiếu nguyên liệu"`;
+      const btns = !lv ? `<button data-a="craft" data-id="${id}"${need(CRAFT.make)}>Luyện · ${costText(CRAFT.make)}</button>`
         : `${on ? `<button class="ghost" data-a="unequip" data-id="${slot}">Tháo</button>` : `<button data-a="equip" data-id="${id}">Mặc</button>`}
-           ${lv < MAX_ITEM_LEVEL ? `<button data-a="upgrade" data-id="${id}">Nâng ${lv}→${lv + 1} · ${costText(CRAFT.upgrade(lv))}</button>` : '<span class="sub">tối đa</span>'}`;
+           ${lv < MAX_ITEM_LEVEL ? `<button data-a="upgrade" data-id="${id}"${need(CRAFT.upgrade(lv))}>Nâng ${lv}→${lv + 1} · ${costText(CRAFT.upgrade(lv))}</button>` : '<span class="sub">tối đa</span>'}`;
       return `<div class="itemrow"><span>${d.icon} <b>${esc(d.name)}</b>${lv ? ` cấp ${lv}` : ' <span class="sub">(chưa có)</span>'}<br><span class="sub">${esc(d.text(lv || 1))}</span></span><span>${btns}</span></div>`;
     }).join('');
   }).join('');
   open(`<h2>Luyện Khí</h2><p class="sub">${resLine(meta)}</p><p class="sub">Mỗi món một ưu một nhược. Nâng cấp chắc chắn thành công, tối đa cấp ${MAX_ITEM_LEVEL}. Luyện liệu kiếm từ tinh anh và boss.</p>
-    ${note ? `<p>${esc(note)}</p>` : ''}${rows}<div class="row"><button class="ghost" data-a="close">Đóng (Esc)</button></div>`,
+    ${canPay(meta, CRAFT.make) ? '' : `<p class="sub warn">Chưa đủ nguyên liệu để luyện món mới (cần ${costText(CRAFT.make)}). Hạ tinh anh và boss trong bí cảnh để kiếm 🔩.</p>`}
+    ${note ? `<p class="note">${esc(note)}</p>` : ''}${rows}<div class="row"><button class="ghost" data-a="close">Đóng (Esc)</button></div>`,
   code => { if (code === 'Escape' || code === 'KeyG') { closeModal(); return true; } return false; });
   $('modal').querySelectorAll('[data-a]').forEach(b => b.addEventListener('click', () => b.dataset.a === 'close' ? closeModal() : act(b.dataset.a, b.dataset.id)));
 }

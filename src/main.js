@@ -39,6 +39,11 @@ function fit() {
   $('wrap').style.fontSize = Math.max(9, 6.2 * s) + 'px';
 }
 addEventListener('resize', fit); fit();
+// M7-02: điện thoại dọc -> nhắc xoay ngang (CSS hiện #rotate). Đang trong bí cảnh thì tự tạm dừng để không chết sau lớp phủ.
+const portraitMq = window.matchMedia ? matchMedia('(orientation: portrait) and (max-width: 900px)') : null;
+function onOrient() { if (portraitMq && portraitMq.matches && !document.body.classList.contains('rotate-ok') && typeof pauseRun === 'function') pauseRun(); }
+portraitMq && portraitMq.addEventListener && portraitMq.addEventListener('change', onOrient);
+document.getElementById('rotateOk')?.addEventListener('click', () => document.body.classList.add('rotate-ok'));
 
 // ---------- tài nguyên ----------
 const FX = {};
@@ -383,11 +388,11 @@ function updateInteractiveTrib(dt) {
   const won = trib.done === 'WIN';
   trib = null; meta.tribPending = false; readyNotified = false;
   if (won) { const r = C.levelUp(meta); afterMajor(); realmUpNotes(r); }
-  else { C.failTribulation(meta); UI.log('Độ kiếp thất bại — giữ cảnh giới, tu vi hao tổn 30%. Hồi phục rồi thử lại.', 'bad'); save(); }
+  else { C.failTribulation(meta); UI.log('Độ kiếp thất bại — giữ cảnh giới, tu vi hao tổn 30%. Hồi phục rồi thử lại.', 'bad', 14000); save(); }
 }
 function afterMajor() {
   spawnFx(vis, 'dot_pha', p.x, p.y, { onHit: () => { addFlash(vis, 0.18); addShake(vis, 0.3); } });
-  UI.log(`Đột phá thành công: ${levelName(meta.realmLevel)}!`, 'gold');
+  UI.log(`Đột phá thành công: ${levelName(meta.realmLevel)}!`, 'gold', 12000);
   save();
 }
 

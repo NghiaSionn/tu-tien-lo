@@ -100,6 +100,21 @@
   .stats b { display: block; font-size: 1.5em; color: #ffd978; }
   .opt { display: block; margin: .4em 0; font-size: .9em; pointer-events: auto; }
   button.ghost { background: transparent; } button.danger { border-color: #ff8f8a; color: #ffb4b0; }
+  .sheet .warn { color: #ffb4b0; opacity: 1; } .sheet .note { color: #ffd978; }
+  /* M7-02: bảng phủ cả màn hình (không bị bó trong khung game letterbox), chữ tối thiểu 12px */
+  #modal { position: fixed; z-index: 20; font-size: max(1em, 12px); }
+  /* M7-02: nút đủ lớn cho ngón tay (~44 CSS px) trên thiết bị cảm ứng */
+  body.touch .sheet button, body.touch #actions button, body.touch #btnSettings, body.touch #btnPause { min-height: 44px; min-width: 44px; }
+  body.touch .itemrow { flex-wrap: wrap; } body.touch .itemrow > span:last-child { display: flex; gap: .4em; flex-wrap: wrap; }
+  /* M7-02: điện thoại dọc -> nhắc xoay ngang; vẫn cho chơi dọc nếu muốn */
+  #rotate { display: none; }
+  @media (orientation: portrait) and (max-width: 900px) {
+    body:not(.rotate-ok) #rotate { display: flex; position: fixed; inset: 0; z-index: 30; flex-direction: column; align-items: center; justify-content: center;
+      gap: 16px; padding: 24px; background: rgba(13, 11, 20, .96); text-align: center; font-size: 16px; line-height: 1.5; }
+    #rotate b { color: #ffd978; font-size: 20px; } #rotate .ph { font-size: 48px; display: inline-block; animation: rot 2s ease-in-out infinite; }
+    #rotate button { min-height: 44px; padding: 0 20px; font-size: 14px; }
+  }
+  @keyframes rot { 40%, 70% { transform: rotate(-90deg); } }
 </style>
 </head>
 <body data-mode="hub">
@@ -151,6 +166,7 @@
     <div id="modal" hidden></div>
   </div>
 </div>
+<div id="rotate"><span class="ph">📱</span><b>Xoay ngang điện thoại để chơi</b><span>Tu Tiên Lộ thiết kế cho màn hình ngang 16:9.</span><button id="rotateOk" class="ghost">Vẫn chơi dọc</button></div>
 <script type="module" src="src/main.js"></script>
 </body>
 </html>

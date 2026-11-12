@@ -3,7 +3,7 @@
 // meta.equipped: { weapon, armor, talisman, ring } — id món đã sở hữu, đúng ô; một món chỉ ở ô của nó.
 import { ITEMS_DEF, SLOTS, CRAFT, MAX_ITEM_LEVEL } from '../data/items.js';
 
-const canPay = (meta, cost) => Object.entries(cost).every(([k, v]) => (meta[k] || 0) >= v);
+export const canPay = (meta, cost) => Object.entries(cost).every(([k, v]) => (meta[k] || 0) >= v);
 const pay = (meta, cost) => { for (const [k, v] of Object.entries(cost)) meta[k] -= v; };
 
 export function craftItem(meta, id) {

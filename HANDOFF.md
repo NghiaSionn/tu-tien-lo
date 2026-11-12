@@ -2,12 +2,12 @@
 
 Game web pixel 2D top-down, tu tiên + roguelite, chơi một mình trong trình duyệt. Chưa có phần online.
 
-Cập nhật: 2026-11-13, sau M7-01 (audit baseline, `docs/playtest/BASELINE_M7.md`). Bản trước của file này (v0.1) nằm trong git ở tag `baseline-v0.1`.
+Cập nhật: 2026-11-13, sau M7-02 (sửa UI; audit M7-01 ở `docs/playtest/BASELINE_M7.md`). Bản trước của file này (v0.1) nằm trong git ở tag `baseline-v0.1`.
 
 | | |
 |---|---|
 | Trạng thái | M0 xong (gate đạt). M1 xong, **gate M1 đạt**. **M2 xong** (GATE v0.2 đi trọn trong trình duyệt bằng autopilot phát phím). **M3 xong**, GATE v0.3a đóng ở mức logic. **M4 xong**, GATE v0.3b đóng ở mức logic. **M5 gần xong phần nhìn** (12/11): VFX beanfx cho mọi công pháp/tiến hóa/boss; sprite nhân vật, quái, boss, vật thể rừng, cổng, tụ linh trận, Linh Mạch và biểu tượng công pháp do ChatGPT vẽ + `tools/sprite_clean.py`; khung nhìn 640×360; âm thanh tổng hợp; mức đồ họa; joystick ảo — GATE v0.4 chưa đạt (p95 cảnh stress, máy thật, nghe thật). M3–M5 chưa xem trong trình duyệt |
-| Test tự động | `npm test`: 146/146 PASS (13/11, HEAD 2035580) |
+| Test tự động | `npm test`: 149/149 PASS (13/11, sau M7-02) |
 | Kiểm thử tay | `TEST_REPORT.md` |
 | Quyết định kỹ thuật | `docs/adr/0001…0007` (0005: beanfx chính; 0006: thưởng run nhận một lần; 0007: trang bị/thành tựu/Truyền Thừa Các) |
 | Rollback | `git checkout baseline-v0.1` (code v0.1 nguyên trạng) |
@@ -176,7 +176,7 @@ Save trên trình duyệt của máy này lúc kết thúc phiên: đã đưa v�
 
 ## 7. Bước tiếp theo (theo `TASKS_TU_TIEN_LO.md`)
 
-0. **M7 (13/11):** M7-01 audit xong → `docs/playtest/BASELINE_M7.md` (6 luồng + viewport, ảnh `docs/playtest/m7_01/`). Lỗi major chuyển M7-02: phím Space/J/D/WASD trong `src/core/input.js` nuốt phím tắt UI (J thành tựu, Space gacha/đóng kết quả, D độ khó); màn dọc điện thoại là dải letterbox nhỏ bị HUD/nút che; nút modal 68×17 px; thiên kiếp quá gắt. M7-11: autopilot thua boss cuối trong browser dù sim 8/8. Chờ duyệt mới làm M7-02.
+0. **M7 (13/11):** M7-01 audit xong → `docs/playtest/BASELINE_M7.md` (6 luồng + viewport, ảnh `docs/playtest/m7_01/`). Lỗi major chuyển M7-02: phím Space/J/D/WASD trong `src/core/input.js` nuốt phím tắt UI (J thành tựu, Space gacha/đóng kết quả, D độ khó); màn dọc điện thoại là dải letterbox nhỏ bị HUD/nút che; nút modal 68×17 px; thiên kiếp quá gắt. M7-11: autopilot thua boss cuối trong browser dù sim 8/8. **M7-02 xong 13/11** (`docs/playtest/M7_02.md`): các lỗi UI trên đã sửa trừ thiên kiếp gắt/thua boss cuối (để M7-11 đo); màn dọc có lời nhắc xoay ngang, chưa có bố cục dọc riêng. Tiếp theo theo backlog: M7-03 (cần điện thoại thật) và M7-04 (log playtest opt-in).
 1. Đóng GATE v0.4 cần trình duyệt chạy đủ khung hình + máy thật: đo `?stress=1` với F3 (Cao/Thấp), nghe âm thanh, thử joystick trên điện thoại, chụp trước/sau biome.
 2. Còn làm M5: VFX beanfx đã đủ cho mọi công pháp, tiến hóa và chiêu boss (2 đợt, `vfx/drafts/README.md`, đã xem trong trình duyệt); sprite nhân vật đã có (ChatGPT vẽ sheet → `tools/sprite_clean.py` làm sạch → `sprites/nhan_vat.*`), sprite quái + boss đã có (`sprites/quai.*`, `sprites/boss.*`, cùng quy trình); biome rừng đã làm lại (`sprites/rung.*` + ô nền mới, `docs/m5_01_truoc_sau.png`). Khung nhìn giờ 640×360 (thu camera), cây ×2, sân bí cảnh 56×56; quái lẻ luôn sinh ngoài khung camera (`inCameraView`).
 3. Nên có: xem nhanh M3/M4 trong trình duyệt.
