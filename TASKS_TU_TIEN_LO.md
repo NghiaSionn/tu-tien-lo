@@ -281,7 +281,7 @@
 
 ## M5 — VISUAL PSEUDO-2.5D, AUDIO, HIỆU NĂNG (P2)
 
-### M5-01 [ ] Art direction prototype một khu (M)
+### M5-01 [~] Art direction prototype một khu (M)
 **Phụ thuộc:** M0 Gate, ưu tiên làm song song art concept với M1 nhưng không rewrite game.  
 **Làm:** 1 scene rừng tiên hiệp với tụ linh trận, cây nhiều lớp, vật thể che nhân vật có sắp thứ tự y, bóng chân, palette rõ; đối chiếu bản đang chạy.
 
@@ -289,7 +289,7 @@
 - Screenshot trước/sau cùng vị trí; art giữ pixel edges, không làm gameplay khó đọc.
 - Thử zoom/màn hình rộng/hẹp; không tăng nội bộ resolution bừa bãi.
 
-### M5-02 [ ] Character/enemy sprite pipeline (L)
+### M5-02 [~] Character/enemy sprite pipeline (L)
 **Phụ thuộc:** M5-01.  
 **Làm:** thay dần sprites mã bằng sprite sheet nhất quán khi asset đạt chất lượng, animation đi/đánh/trúng/thiền, giữ fallback prototype; địch có silhouette phân biệt.
 
@@ -297,7 +297,7 @@
 - Bốn hướng không méo/lệch pivot; hitbox không phụ thuộc art size; asset license/nguồn rõ.
 - FPS không giảm bất thường khi thay art.
 
-### M5-03 [ ] VFX ngũ hành + telegraph & accessibility (L)
+### M5-03 [~] VFX ngũ hành + telegraph & accessibility (L)
 **Phụ thuộc:** M1-06, M2-02, M5-01.  
 **Làm:** dùng beanfx để làm VFX ưu tiên cho 3 build + 4 evolution + boss; cap light/particles; có reduced effects/screen shake controls.
 
@@ -305,7 +305,7 @@
 - Các FX xuất/đọc được đúng cấu trúc, không chạm khung sai nếu dùng beanfx export.check.
 - Player vẫn phân biệt được attack danger; tắt giảm hiệu ứng hoạt động.
 
-### M5-04 [ ] Profiling + stress test + graphics settings (L)
+### M5-04 [~] Profiling + stress test + graphics settings (L)
 **Phụ thuộc:** M2 Gate, M5-03 (có thể tạo harness sớm).  
 **Làm:** stress test target 100 enemy/200 projectile/300 particles, đo frame-time CPU/render và memory, tối ưu pooling/culling/spatial hash; Low/Medium/High.
 
@@ -314,14 +314,14 @@
 - Mục tiêu: desktop 60 FPS, mobile tầm trung >=30 FPS ổn định ở thiết lập phù hợp. Nếu chưa đạt, ghi bottleneck và tối ưu tiếp, **không tự tuyên bố đạt**.
 - Quyết định giữ Canvas hoặc đề xuất PixiJS/Phaser dựa trên số liệu; có migration plan nếu thật sự cần.
 
-### M5-05 [ ] SFX/music và cài đặt (M)
+### M5-05 [x] SFX/music và cài đặt (M)
 **Phụ thuộc:** M2 Gate.  
 **Làm:** SFX trúng đòn, thẻ, evolution, boss, thiền, độ kiếp; music ambient; music/sfx volume + mute; hỗ trợ user gesture audio.
 
 **Nghiệm thu:**
 - Không phát chồng audio vô hạn; reload giữ settings; mute chuẩn; asset rights phù hợp.
 
-### M5-06 [ ] Mobile input + responsive (L)
+### M5-06 [~] Mobile input + responsive (L)
 **Phụ thuộc:** M2 Gate, M1-04, M5-04.  
 **Làm:** joystick/touch, responsive HUD/thẻ, safe area, pause khi đổi tab; test trên thiết bị hoặc giả lập.
 
@@ -330,6 +330,14 @@
 - Nếu chưa có thiết bị, ghi `NOT VERIFIED ON REAL DEVICE`, không tuyên bố mobile-ready.
 
 **GATE v0.4:** Một biome đẹp, gameplay vẫn đọc rõ và mượt với quality settings; có audio/cảm ứng thực tế đã test hoặc ghi rõ giới hạn.
+
+> **Kết quả 12/11/2026: GATE v0.4 CHƯA ĐẠT** — phần làm được bằng code/test đã xong, phần cần mắt/tai/máy thật còn mở. Chưa xem trong trình duyệt (theo chỉ đạo 12/11 không test thêm; trình duyệt phiên này bị hãm khung hình/ẩn).
+> - M5-01 [~]: cây/đá che nhân vật thì mờ 45% (thấy người chơi + cảnh báo phía sau). **Chưa** làm lại biome/palette, **chưa** có ảnh trước/sau cùng vị trí.
+> - M5-02 [~]: 4 loài có **dáng riêng** (không chỉ khác màu): Dã Lang tai nhọn, Hỏa Hồ đuôi lửa, Huyền Băng Thú sừng + chân trụ, Ma Ảnh bóng ma không chân; boss dùng dáng tương ứng; hitbox không đổi (`docs/m5_02_dang_quai.png`). **Chưa** có sprite sheet/animation đi-đánh-trúng-thiền cho nhân vật.
+> - M5-03 [~]: VFX beanfx **Lôi Cương Hộ Thể** (draft `vfx/drafts/loi_cuong_ho_the`, K=0,36) đã gắn vào game, 2 lớp quanh thân; công cụ `tools/strip_to_beanfx.py` chuyển dải khung draft sang sheet + JSON beanfx, kiểm tra không chạm mép. Đồ họa Thấp/nạp lỗi → vòng vẽ code. **Còn:** VFX cho 3 build cơ bản, 3 tiến hóa còn lại (Hỏa Long Quyển đang dùng bản pixelfx), boss, công pháp Băng.
+> - M5-04 [~]: `node tools/bench.mjs` — logic mỗi khung (Node v26, Windows): 100 quái/200 đạn trung vị 0,98 ms, p95 2,2 ms, p99 3,4 ms; 200 quái/220 đạn trung vị 2,1 ms, p95 3,3 ms → logic không phải điểm nghẽn, **chưa cần spatial hash**, giữ Canvas 2D. Trong game: overlay F3 / `?perf` (FPS, 1% thấp, thời gian xử lý trung vị/p95, số quái/đạn/hạt), cảnh stress `?stress=1` (100 quái + 200 đạn + 300 hạt), mức đồ họa Cao/Vừa/Thấp (trần hạt 400/220/90; Thấp tắt VFX beanfx Lôi Cương; **cảnh báo không bao giờ bị cắt**). **Chưa đo phần vẽ trong trình duyệt** → không tuyên bố đạt 60 FPS.
+> - M5-05 [x]: âm thanh tổng hợp WebAudio (không file, không vướng bản quyền): trúng, nhặt chiến ý, thẻ, tiến hóa, boss xuất hiện, bị đánh, thiền, sét thiên kiếp, thắng/thua; nhạc nền ngũ cung tự sinh rất nhỏ. Mở sau cử chỉ đầu tiên; trần 10 tiếng + khoảng nghỉ mỗi loại; âm lượng hiệu ứng/nhạc + tắt tiếng (M) lưu trong save. Test bằng AudioContext giả. **Chưa nghe thật** trong trình duyệt.
+> - M5-06 [~]: joystick ảo nổi (nửa trái khung game), nút E, chặn cuộn trang (`touch-action: none`, `overscroll-behavior`), nút/thẻ to hơn, HUD thu gọn ở màn hẹp; tự bật trên `pointer: coarse` hoặc `?touch=1`; tạm dừng khi đổi tab đã có. **NOT VERIFIED ON REAL DEVICE** — không tuyên bố mobile-ready.
 
 ---
 
@@ -420,6 +428,7 @@ Tạo thư mục `docs/adr/` hoặc phần ghi chú khi có quyết định ản
 | 2026-11-12 | M3-01..04 | PARTIAL | Linh khí → tu vi khi thiền; thiên kiếp tương tác 3 nhịp; mở khóa đại cảnh giới + độ khó bí cảnh; Linh Mạch. 102/102 test PASS. Bot độ khó: cảnh giới 9 Linh thắng 1–5/6, 12 Huyền 0–5/6 | Chưa kiểm tra trong trình duyệt (trang bị ẩn); GATE v0.3a chưa xác minh |
 | 2026-11-12 | M2-04 + GATE v0.3a | DONE (có hạn chế) | theo chỉ đạo 12/11 ("không cần test nữa") bỏ kiểm tra trình duyệt: M2-04 đóng với 4 lượt trình duyệt (thay vì 5); M3 đóng bằng test tích hợp chuỗi GATE v0.3a. 105/105 test PASS | Chưa người thật; M3 chưa xem trong trình duyệt |
 | 2026-11-12 | M4-01..03 + GATE v0.3b | DONE (logic) | Trang bị/luyện khí, thành tựu mở công pháp Băng, Truyền Thừa Các bằng vé game. 118/118 test PASS (13 test M4 gồm tỉ lệ 20000 lượt, bảo hiểm, trùng→mảnh, đổi mảnh, giao dịch, chuỗi GATE v0.3b) | Chưa xem trong trình duyệt (theo chỉ đạo 12/11 "không cần test nữa"); đã kiểm tra cú pháp + liên kết module. |
+| 2026-11-12 | M5-01..06 | PARTIAL (M5-05 DONE) | Dáng quái riêng; VFX beanfx Lôi Cương + công cụ chuyển strip→beanfx; bench logic (100/200: 0,98 ms trung vị); overlay F3, ?stress=1, mức đồ họa; âm thanh tổng hợp + cài đặt; joystick ảo; cây mờ khi che. 123/123 test PASS | GATE v0.4 chưa đạt: chưa đo vẽ, chưa nghe, chưa máy thật, chưa làm lại biome/sprite nhân vật/VFX còn lại |
 
 ---
 

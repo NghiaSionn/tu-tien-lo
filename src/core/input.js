@@ -3,7 +3,7 @@ const MOVE = { ArrowUp: 'up', KeyW: 'up', ArrowDown: 'down', KeyS: 'down', Arrow
 
 export function makeInput(onAction) {
   const keys = {}, seen = {}, release = {};
-  const clear = () => { for (const k in keys) keys[k] = false; for (const k in release) delete release[k]; };
+  const clear = () => { for (const k in keys) keys[k] = false; for (const k in release) delete release[k]; virt = {}; };
   addEventListener('keydown', e => {
     // chỉ nhường phím cho ô nhập chữ; ô tích/nút vẫn để game nhận Esc, số...
     const t = e.target;
@@ -24,8 +24,19 @@ export function makeInput(onAction) {
     if (seen[k]) keys[k] = false; else release[k] = true;
   });
   addEventListener('blur', clear);
+  // M5-06: joystick ảo — dirs {up,down,left,right} hoặc null (thả tay). Dùng chung cơ chế "giữ ít nhất 1 khung".
+  let virt = {};
+  function setVirtual(dirs) {
+    for (const k of ['up', 'down', 'left', 'right']) {
+      const on = !!(dirs && dirs[k]);
+      if (on && !virt[k]) { keys[k] = true; seen[k] = false; delete release[k]; }
+      else if (!on && virt[k]) { if (seen[k]) keys[k] = false; else release[k] = true; }
+      virt[k] = on;
+    }
+  }
   return {
     keys,
+    setVirtual,
     clear,
     // gọi cuối mỗi khung
     endFrame() {

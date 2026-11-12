@@ -32,7 +32,7 @@ export function defaultMeta(hubSpawn) {
     hubPos: { x: hubSpawn.x, y: hubSpawn.y },
     unlocks: { skills: [], tier: 0 },
     lastDifficulty: 0,
-    settings: { reduceEffects: false, screenShake: true },
+    settings: { reduceEffects: false, screenShake: true, quality: 'high', sfx: 0.7, music: 0.4, mute: false },   // M5-04/05
     stats: { runs: 0, wins: 0, bestTime: 0, bestLevel: 0, kills: 0, minis: 0, evos: [], bestDiffWin: -1 },
   };
 }
@@ -75,7 +75,10 @@ export function sanitizeMeta(src, ctx, warnings = []) {
   if (src.unlocks && Array.isArray(src.unlocks.skills)) out.unlocks = { skills: src.unlocks.skills.filter(s => typeof s === 'string').slice(0, 64), tier: int(src.unlocks.tier, 0, 3, 0) };
   out.lastDifficulty = int(src.lastDifficulty, 0, 3, 0);
   if (src.settings && typeof src.settings === 'object') {
-    out.settings = { reduceEffects: src.settings.reduceEffects === true, screenShake: src.settings.screenShake !== false };
+    const vol = (v, d) => { const n = num(v); return Number.isNaN(n) ? d : Math.min(1, Math.max(0, n)); };
+    out.settings = { reduceEffects: src.settings.reduceEffects === true, screenShake: src.settings.screenShake !== false,
+      quality: ['high', 'medium', 'low'].includes(src.settings.quality) ? src.settings.quality : 'high',
+      sfx: vol(src.settings.sfx, 0.7), music: vol(src.settings.music, 0.4), mute: src.settings.mute === true };
   }
   if (src.stats && typeof src.stats === 'object') {
     out.stats = {

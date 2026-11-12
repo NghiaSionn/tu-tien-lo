@@ -22,6 +22,9 @@ import { gearMods } from './data/items.js';
 import { craftItem, upgradeItem, equip, unequip } from './progression/gear.js';
 import { evaluateAchievements } from './progression/achievements.js';
 import { pull, shopBuy } from './progression/gacha.js';
+import * as Audio from './audio/sfx.js';
+import { makeRunEnemy } from './systems/director.js';
+import { setupTouch } from './ui/touch.js';
 
 const { W, H } = VIEW;
 const $ = id => document.getElementById(id);
@@ -40,6 +43,8 @@ addEventListener('resize', fit); fit();
 // ---------- tài nguyên ----------
 const FX = {};
 for (const name of ['kiem_khi', 'kiem_trung', 'loi_kiep', 'dot_pha', 'toa_thien']) FX[name] = await loadFx(`fx/${name}.json`);
+// M5-03: VFX beanfx Lôi Cương Hộ Thể (draft vfx/drafts/loi_cuong_ho_the, K=0,36) — lớp sau + lớp trước/sáng; lỗi nạp thì vẽ vòng cũ
+for (const name of ['loi_cuong_back', 'loi_cuong_front']) { try { FX[name] = await loadFx(`fx/${name}.json`); } catch (e) { console.warn('[fx]', name, e); } }
 const vis = makeVis(FX);
 const medFx = createFx(FX.toa_thien);
 // Sheet pixelfx (tùy chọn): lỗi tải thì quay về hình vẽ bằng code, game vẫn chạy
@@ -103,7 +108,7 @@ const p = { x: meta.hubPos.x, y: meta.hubPos.y, face: 'down', flip: false, fx: 0
 let view = 'HUB', paused = false, run = null, hubPosBeforeRun = null;
 let time = 0, trib = null, readyNotified = C.isFull(meta), saveT = 0, dryNotified = false;
 const hubShots = [], ev = [];
-const applySettings = () => { vis.reduce = meta.settings.reduceEffects; vis.noShake = !meta.settings.screenShake; };
+const applySettings = () => { vis.reduce = meta.settings.reduceEffects; vis.noShake = !meta.settings.screenShake; vis.quality = meta.settings.quality; Audio.applyAudioSettings(meta.settings); };
 applySettings();
 
 const inForm = () => Math.hypot(p.x - CX, p.y - CY) < HUB.FORM_R;
@@ -126,6 +131,7 @@ function toggleMed() {
   p.med = !p.med;
   if (!p.med) return;
   dryNotified = false;
+  Audio.play('med');
   if (meta.lingQi <= 0) UI.log(inForm() ? 'Không còn linh khí — chỉ hấp thu được rất chậm. Vào bí cảnh (E) mang linh khí về, hoặc dùng Tụ Khí Đan.' : 'Không còn linh khí. Vào bí cảnh mang linh khí về; thiền trong tụ linh trận mới hấp thu được.', 'bad');
   else UI.log(inForm() ? `Tọa thiền trong tụ linh trận — chuyển hóa ${Math.floor(meta.lingQi)} linh khí, nhanh ×3 và lời hơn.` : `Tọa thiền — chuyển hóa linh khí. (Trong tụ linh trận nhanh ×3, mỗi linh khí cho nhiều tu vi hơn.)`);
 }
@@ -321,6 +327,7 @@ function updateInteractiveTrib(dt) {
     const pts = h.kind === 'circle' ? [[h.x, h.y]] : h.kind === 'line' ? [[h.x0 * 0.7 + h.x1 * 0.3, h.y0 * 0.7 + h.y1 * 0.3], [(h.x0 + h.x1) / 2, (h.y0 + h.y1) / 2], [h.x0 * 0.3 + h.x1 * 0.7, h.y0 * 0.3 + h.y1 * 0.7]]
       : [0, 1, 2, 3, 4].map(i => [CX + Math.cos(i * 1.257) * 55, CY + Math.sin(i * 1.257) * 40]);
     for (const [x, y] of pts) spawnFx(vis, 'loi_kiep', x, y, { flip: Math.random() < 0.5 });
+    Audio.play('strike');
     addFlash(vis, h.kind === 'storm' ? 0.2 : 0.08);
   }
   if (!trib.done && trib.phase !== trib.shownPhase) {
@@ -387,10 +394,11 @@ function openDraft() {
       onMaxHpChange: () => refreshMaxHp(r, false),
     });
     r.pendingDrafts = Math.max(0, r.pendingDrafts - 1);
+    Audio.play('card');
     if (!ok) UI.log('Thẻ không còn hợp lệ, bỏ qua.', 'bad');
     else if (card.type === 'EVOLUTION') {
       spawnFx(vis, 'dot_pha', p.x, p.y, { onHit: () => { addFlash(vis, 0.15); addShake(vis, 0.2); } });
-      UI.log(`Tiến hóa: ${EVOLUTIONS[card.id].name}!`, 'gold');
+      UI.log(`Tiến hóa: ${EVOLUTIONS[card.id].name}!`, 'gold'); Audio.play('evolve');
     }
     view = 'RUN'; input.clear();
   });
@@ -425,6 +433,7 @@ function finishRun() {
   if (meta.pendingReward && meta.pendingReward.id !== reward.id) claimReward(meta);   // phòng hờ: không để mất phần cũ
   stageReward(meta, reward);
   save();
+  Audio.play(r.outcome === 'WIN' ? 'win' : 'lose');
   UI.showResults(r, reward, claimAndReturn, meta);
 }
 // REWARDED -> HUB: cộng tài nguyên + xóa pending trong cùng một lần lưu; gọi lại lần nữa không cộng thêm
@@ -484,6 +493,8 @@ function openSettings() {
 
 // ---------- điều khiển ----------
 function onAction(code) {
+  if (code === 'KeyM') { meta.settings.mute = !meta.settings.mute; applySettings(); save(); UI.log(meta.settings.mute ? 'Đã tắt tiếng (M).' : 'Đã bật tiếng (M).'); return true; }
+  if (code === 'F3') { PERF.on = !PERF.on; return true; }
   if (UI.modalOpen()) return UI.modalKey(code);
   if (view === 'RUN') {
     if (code === 'Escape' || code === 'KeyP') { pauseRun(); return true; }
@@ -503,11 +514,15 @@ function onAction(code) {
   return true;
 }
 const input = makeInput(onAction);
+setupTouch(document.getElementById('game'), input, onAction);   // M5-06: chỉ bật trên thiết bị cảm ứng / ?touch=1
 const keys = input.keys;
 const bind = (id, fn) => $(id).addEventListener('click', e => { fn(); e.currentTarget.blur(); });
 bind('btnMed', toggleMed); bind('btnBreak', tryBreak); bind('btnPill', usePill); bind('btnBuy', buyPill);
 bind('btnRun', openPrepare); bind('btnSettings', openSettings); bind('btnPause', pauseRun);
 bind('btnForge', () => openForge()); bind('btnGacha', () => openGacha()); bind('btnAch', () => { if (view === 'HUB' && !trib) UI.showAchievements(meta); });
+// M5-05: trình duyệt chỉ cho phát âm sau cử chỉ người dùng -> mở ở lần bấm/chạm đầu tiên
+const firstGesture = () => { Audio.unlockAudio(); Audio.applyAudioSettings(meta.settings); Audio.startMusic(); removeEventListener('keydown', firstGesture); removeEventListener('pointerdown', firstGesture); };
+addEventListener('keydown', firstGesture); addEventListener('pointerdown', firstGesture);
 addEventListener('beforeunload', save);
 addEventListener('pagehide', save);
 addEventListener('blur', () => { if (view === 'RUN') pauseRun(); });
@@ -516,13 +531,44 @@ document.addEventListener('visibilitychange', () => { if (document.hidden && vie
 // ---------- vòng lặp ----------
 const TIMER_LOOP = new URLSearchParams(location.search).get('loop') === 'timer';
 let last = performance.now(), hudT = 0;
+// M5-04: overlay hiệu năng (F3) — thời gian xử lý mỗi khung (update + vẽ) và khoảng giữa các khung
+const PERF = { on: new URLSearchParams(location.search).has('perf'), work: [], gap: [], el: null };
+function perfFrame(work, gap) {
+  PERF.work.push(work); PERF.gap.push(gap);
+  if (PERF.work.length > 240) { PERF.work.shift(); PERF.gap.shift(); }
+  if (!PERF.on) { if (PERF.el) PERF.el.hidden = true; return; }
+  if (!PERF.el) { PERF.el = document.createElement('div'); PERF.el.id = 'perf'; document.getElementById('game').parentNode.appendChild(PERF.el); }
+  if (PERF.work.length % 15) return;
+  const q = (a, f) => { const s = [...a].sort((x, y) => x - y); return s[Math.min(s.length - 1, Math.floor(s.length * f))]; };
+  const sc = run && view !== 'HUB' ? run.scene : hub;
+  PERF.el.hidden = false;
+  PERF.el.textContent = `FPS ~${(1000 / q(PERF.gap, 0.5)).toFixed(0)} (1% thấp ~${(1000 / q(PERF.gap, 0.99)).toFixed(0)}) · xử lý ${q(PERF.work, 0.5).toFixed(1)}/${q(PERF.work, 0.95).toFixed(1)} ms (trung vị/p95) · quái ${sc.monsters.length} · đạn ${(sc.projectiles || []).length} · hạt ${vis.parts.length} · ${meta.settings.quality}${STRESS ? ' · STRESS' : ''}`;
+}
+// M5-04: cảnh stress (?stress=1): trong bí cảnh giữ 100 quái + 200 đạn + 300 hạt để đo (không dùng khi chơi)
+const STRESS = new URLSearchParams(location.search).get('stress') === '1';
+function stressTopUp() {
+  if (!STRESS || !run || view !== 'RUN') return;
+  const sc = run.scene;
+  run.dir.spawnT = 1e9; run.hp = run.maxHp;
+  while (sc.monsters.length < 100) { const a = Math.random() * 6.283, d = 40 + Math.random() * 160; const m = makeRunEnemy(run, ['chaser', 'charger', 'ranged'][sc.monsters.length % 3], p.x + Math.cos(a) * d, p.y + Math.sin(a) * d, 1); m.hp = m.max = 1e12; }
+  while (sc.projectiles.length < 200) { const a = Math.random() * 6.283; sc.projectiles.push({ kind: 'bolt', x: p.x, y: p.y - 8, vx: Math.cos(a) * 140, vy: Math.sin(a) * 140, life: 1.5, dmg: 0.0001, pierce: 999, hits: new Set(), heading: a }); }
+  while (vis.parts.length < 300) burst(vis, p.x + (Math.random() - 0.5) * 300, p.y + (Math.random() - 0.5) * 160, 10, 60, '#ffd06a', 1.2, 1);
+}
+
+let lastFrameAt = 0;
 function frame(now) {
+  const t0 = performance.now();
   // dấu thời gian rAF có thể sớm hơn `last` ở khung đầu -> dt âm làm hiệu ứng nhảy về khung -1
   const dt = Math.max(0, Math.min(0.05, (now - last) / 1000)); last = now;
+  stressTopUp();
   let worldDt = 0;
   if (view === 'HUB') { time += dt; worldDt = dt; updateHub(dt); }
   else if (view === 'RUN' && !paused) { time += dt; worldDt = dt; updateRunView(dt); }
-  for (const e of ev) if (e.type === 'announce') UI.log(e.text, 'bad');
+  for (const e of ev) {
+    if (e.type === 'announce') UI.log(e.text, 'bad');
+    else if (e.type === 'sfx') Audio.play(e.name);
+    else if (e.type === 'death') Audio.play('hit');
+  }
   consumeEvents(vis, ev);
   updateVis(vis, worldDt);
   if (vis.pfx && view === 'HUB') vis.pfx.portal.update(dt);
@@ -531,6 +577,8 @@ function frame(now) {
   render(ctx, { scene, player: p, time, vis, medFx, trib, inForm: p.inForm, portal: scene === hub ? PORTAL : null, run: scene === hub ? null : run, hubShots: scene === hub ? hubShots : null, dtWorld: worldDt });
   if ((hudT += dt) > 0.1) { hudT = 0; if (view === 'HUB' || !run) UI.hubHud(meta, p, trib, PORTAL.near); else UI.runHud(run); }
   input.endFrame();
+  const t1 = performance.now();
+  perfFrame(t1 - t0, lastFrameAt ? t1 - lastFrameAt : 16.7); lastFrameAt = t1;
   if (!TIMER_LOOP) requestAnimationFrame(frame);
 }
 

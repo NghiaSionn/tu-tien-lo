@@ -129,7 +129,7 @@ export function updateDirector(run, player, dt, ev, power) {
     const key = kind === 'MINI' ? 'mini' : 'final';
     if (dir[key] === 'PENDING' && t >= BOSS[kind].AT && spawnBoss(run, player, kind, power)) {
       dir[key] = 'ALIVE';
-      ev.push({ type: 'announce', x: player.x, y: player.y - 30, text: `${BOSS[kind].name} xuất hiện!`, color: '#ff5a5a' }, { type: 'shake', t: 0.25 });
+      ev.push({ type: 'announce', x: player.x, y: player.y - 30, text: `${BOSS[kind].name} xuất hiện!`, color: '#ff5a5a' }, { type: 'shake', t: 0.25 }, { type: 'sfx', name: 'boss' });
     }
   }
   const boss = aliveBoss(sc);

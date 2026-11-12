@@ -1,13 +1,15 @@
 // Vẽ một khung: bản đồ, vật thể sắp theo y, yêu thú, người chơi, công pháp, hiệu ứng beanfx và hạt sáng.
 import { VIEW, TILE as T, HUB, FEATURES, ARCH, BOSS, TRIBULATION, SHRINE } from '../core/config.js';
 import { WATER, STONE, TREE, ROCK } from '../world/map.js';
-import { SPR, TIERS, BEAST_WHITE, BOSS_SPR, grassTiles, waterTiles, stoneTile, treeSprs, rockSpr, hash } from './sprites.js';
+import { SPR, TIERS, BOSS_WHITE, BOSS_SPR, grassTiles, waterTiles, stoneTile, treeSprs, rockSpr, hash } from './sprites.js';
 import { createFx } from '../../lib/beanfx.js';
 import { skillKind, skillParams } from '../systems/combat.js';
 
 const { W, H } = VIEW;
 const rand = (a, b) => a + Math.random() * (b - a);
 const MAX_PARTS = 400, MAX_TEXTS = 60;
+// M5-04: trần hạt theo mức đồ họa (cảnh báo nguy hiểm KHÔNG bị cắt ở mức nào)
+export const PART_CAP = { high: 400, medium: 220, low: 90 };
 
 // ---------- hiệu ứng tạm (chỉ để nhìn, không ảnh hưởng logic) ----------
 export function makeVis(FX) {
@@ -15,11 +17,11 @@ export function makeVis(FX) {
 }
 
 export function part(vis, x, y, vx, vy, life, color, size = 1) {
-  if (vis.parts.length >= MAX_PARTS) vis.parts.shift();
+  if (vis.parts.length >= (PART_CAP[vis.quality] || MAX_PARTS)) vis.parts.shift();
   vis.parts.push({ x, y, vx, vy, life, max: life, color, size });
 }
 export function burst(vis, x, y, n, speed, color, life = 0.6, size = 1) {
-  if (vis.reduce) n = Math.ceil(n / 3);
+  if (vis.reduce || vis.quality === 'low') n = Math.ceil(n / 3); else if (vis.quality === 'medium') n = Math.ceil(n / 1.6);
   for (let i = 0; i < n; i++) { const a = rand(0, 6.283), v = rand(speed * 0.3, speed); part(vis, x, y, Math.cos(a) * v, Math.sin(a) * v, rand(life * 0.5, life), color, size); }
 }
 export function floatText(vis, x, y, text, color) {
@@ -96,8 +98,8 @@ function drawBoss(ctx, m, time) {
   const hop = (m.vx || m.vy) && m.st === 'move' ? Math.abs(Math.sin(time * 6)) * 3 : 0;
   const bx = Math.round(m.x - w / 2), by = Math.round(m.y - h + 3 - hop);
   ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(Math.round(m.x - w / 2 + 4), Math.round(m.y) - 3, w - 8, 5);
-  if (m.st === 'windup') { ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 0.35; ctx.drawImage(BEAST_WHITE, bx - 3, by + 6 - 3, w + 6, h - 6 + 6); ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over'; }
-  ctx.drawImage(m.hit > 0 ? BEAST_WHITE : spr, bx, by, w, h);
+  if (m.st === 'windup') { ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 0.35; ctx.drawImage(BOSS_WHITE[m.bossKind], bx - 3, by - 3, w + 6, h + 6); ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over'; }
+  ctx.drawImage(m.hit > 0 ? BOSS_WHITE[m.bossKind] : spr, bx, by, w, h);
   if (m.vuln > 0) {   // sơ hở: 3 sao vàng xoay trên đầu
     ctx.fillStyle = '#ffe066';
     for (let i = 0; i < 3; i++) { const a = time * 5 + i * 2.094; ctx.fillRect(Math.round(m.x + Math.cos(a) * 12) - 1, Math.round(by - 4 + Math.sin(a) * 3) - 1, 3, 3); }
@@ -111,14 +113,14 @@ function drawMonster(ctx, m, time) {
     // tinh anh: sprite x2, bóng lớn, thanh máu luôn hiện
     const ex = Math.round(m.x - 12), ey = Math.round(m.y - 18 - hop);
     ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.fillRect(ex + 2, Math.round(m.y) - 2, 20, 3);
-    ctx.drawImage(m.hit > 0 ? BEAST_WHITE : TIERS[m.tier].spr, ex, ey, 24, 18);
+    ctx.drawImage(m.hit > 0 ? TIERS[m.tier].white : TIERS[m.tier].spr, ex, ey - 2, 24, 20);
     ctx.fillStyle = '#1a1423'; ctx.fillRect(ex - 2, ey - 5, 28, 3);
     ctx.fillStyle = '#c070ff'; ctx.fillRect(ex - 1, ey - 4, Math.max(1, Math.round(26 * m.hp / m.max)), 1);
     return;
   }
-  const mx = Math.round(m.x - 6), my = Math.round(m.y - 9 - hop);
+  const mx = Math.round(m.x - 6), my = Math.round(m.y - 10 - hop);
   ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.fillRect(mx + 1, Math.round(m.y) - 1, 10, 2);
-  ctx.drawImage(m.hit > 0 ? BEAST_WHITE : TIERS[m.tier].spr, mx, my);
+  ctx.drawImage(m.hit > 0 ? TIERS[m.tier].white : TIERS[m.tier].spr, mx, my);
   if (m.st === 'windup') { ctx.fillStyle = '#ff4a3a'; ctx.fillRect(mx + 5, my - 8, 2, 4); ctx.fillRect(mx + 5, my - 3, 2, 1); }
   if (m.burn && m.burn.t > 0 && Math.floor(time * 10 + m.ph) % 3 === 0) { ctx.fillStyle = '#ffb070'; ctx.fillRect(mx + 2 + Math.floor(m.ph * 3) % 8, my - 1, 1, 2); }
   if (m.slow && m.slow.t > 0) { ctx.fillStyle = '#b48cff'; ctx.fillRect(mx, my + 9, 12, 1); }
@@ -301,8 +303,18 @@ function drawPortal(ctx, x, y, time, active) {
 }
 
 // Công pháp đang hoạt động quanh người chơi (vòng lửa, phi kiếm, khiên, lốc)
-function drawSkillsUnder(ctx, run, p, time) {
+// M5-03: khiên Lôi Cương bằng VFX beanfx (2 lớp quanh thân). vis.quality 'low' hoặc chưa nạp -> vòng vẽ bằng code
+function loiCuongFx(vis) {
+  if (vis.quality === 'low' || !vis.FX.loi_cuong_back || !vis.FX.loi_cuong_front) return null;
+  if (!vis.loiCuong) vis.loiCuong = { back: createFx(vis.FX.loi_cuong_back), front: createFx(vis.FX.loi_cuong_front) };
+  return vis.loiCuong;
+}
+function drawSkillsUnder(ctx, run, p, time, vis, dt) {
   for (const s of run.skills) {
+    if (s.evolved === 'loi_cuong_ho_the' && s.st.hp > 0) {
+      const f = loiCuongFx(vis);
+      if (f) { f.back.update(dt); f.front.update(dt); f.back.x = f.front.x = Math.round(p.x); f.back.y = f.front.y = Math.round(p.y); f.back.draw(ctx); }
+    }
     const k = skillKind(s), prm = skillParams(s);
     if (k === 'ring') {
       ctx.globalCompositeOperation = 'lighter';
@@ -322,6 +334,9 @@ function drawSkillsOver(ctx, run, p, time, vis) {
         pxLine(ctx, bx - Math.cos(a + 1.57) * 3, by - Math.sin(a + 1.57) * 3, bx + Math.cos(a + 1.57) * 3, by + Math.sin(a + 1.57) * 3, s.evolved ? '#ff9a3c' : '#bff4ff', 1);
         ctx.fillStyle = '#fff'; ctx.fillRect(Math.round(bx), Math.round(by), 1, 1);
       }
+    } else if (k === 'shield' && st.hp > 0 && s.evolved === 'loi_cuong_ho_the' && vis.loiCuong && vis.quality !== 'low') {
+      ctx.globalCompositeOperation = 'source-over';
+      vis.loiCuong.front.draw(ctx);
     } else if (k === 'shield' && st.hp > 0) {
       ctx.globalAlpha = 0.35 + 0.25 * (st.hp / (st.cap || 1));
       pxRing(ctx, p.x, p.y - 9, 13, 28, time, s.evolved ? '#d9c8ff' : '#ffd978', 1, 1.15);
@@ -394,7 +409,7 @@ export function render(ctx, g) {
       ctx.fillStyle = c; ctx.fillRect(Math.round(o.x) - 1, Math.round(o.y + Math.sin(time * 5 + o.x) * 1) - 1, 3, 3);
     }
     ctx.globalCompositeOperation = 'source-over';
-    if (g.run) drawSkillsUnder(ctx, g.run, p, time);
+    if (g.run) drawSkillsUnder(ctx, g.run, p, time, vis, g.dtWorld || 0);
     drawTelegraphs(ctx, scene);
     if (g.run && g.run.shrine && !g.run.shrine.used) drawShrine(ctx, g.run, p, time);
   }
@@ -404,7 +419,13 @@ export function render(ctx, g) {
   if (scene.kind === 'hub' && FEATURES.run && g.portal && vis.pfx) objs.push({ y: g.portal.y, portal: true });
   objs.sort((a, b) => a.y - b.y);
   for (const o of objs) {
-    if (o.img) ctx.drawImage(o.img, o.x, o.dy);
+    if (o.img) {
+      // M5-01: tán cây/đá che nhân vật thì mờ đi để luôn thấy người chơi và cảnh báo phía sau
+      const hide = o.y > p.y && p.x > o.x - 2 && p.x < o.x + o.img.width + 2 && p.y - 16 < o.y && p.y > o.dy;
+      if (hide) ctx.globalAlpha = 0.45;
+      ctx.drawImage(o.img, o.x, o.dy);
+      ctx.globalAlpha = 1;
+    }
     else if (o.m) drawMonster(ctx, o.m, time);
     else if (o.portal) { const f = vis.pfx.portal; f.x = Math.round(g.portal.x); f.y = Math.round(g.portal.y); f.draw(ctx); }
     else drawPlayer(ctx, p, time, g.medFx, g.inForm);

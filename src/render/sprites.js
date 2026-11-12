@@ -51,13 +51,31 @@ export const TIERS = [
   { name: 'Huyền Băng Thú', c: '#7fdcec', d: '#3f8fb0' },
   { name: 'Ma Ảnh', c: '#a468e0', d: '#5f3596' },
 ];
-TIERS.forEach(t => { t.spr = makeSprite(BEAST, { k: '#1a1423', c: t.c, d: t.d, w: '#ffffff' }); });
+// M5-02: mỗi loài một dáng (không chỉ khác màu) — 12x10, chân ở hàng dưới cùng (pivot giữa đáy), hitbox không đổi
+const SHAPES = [
+  [ // Dã Lang: tai nhọn, mõm thon — đuổi cắn
+    '..k......k..', '.kck....kck.', '.kcckkkkcck.', 'kcccccccccck', 'kcwkccccwkck',
+    'kcccccccccck', '.kccdkkdcck.', '..kcddddck..', '...kddddk...', '....kkkk....'],
+  [ // Hỏa Hồ: tai to, mõm trắng, đuôi lửa bên phải — lao
+    '.k......k...', 'kck....kck..', 'kcck..kcck..', 'kccckkccck..', 'kcwkcckwck.y',
+    '.kcccccck.yk', '.kcwwwwck.yk', '..kcwwck.yyk', '..kcddck.yk.', '...kkkk..k..'],
+  [ // Huyền Băng Thú: thân rộng, sừng băng, chân trụ — bắn xa
+    'w.k......k.w', 'wkck....kckw', 'kccckkkkccck', 'kcccccccccck', 'kcwkccccwkck',
+    'kcccccccccck', 'kcccddddccck', 'kddddddddddk', 'kdk.kddk.kdk', 'kk...kk...kk'],
+  [ // Ma Ảnh: bóng ma không chân, đáy lượn sóng — tinh anh
+    '...kkkkkk...', '..kcccccck..', '.kcccccccck.', 'kccwkccwkcck', 'kccwwccwwcck',
+    'kcccccccccck', 'kccddccddcck', 'kcdkcddkcdck', 'kdk.kddk.kdk', 'k....kk....k'],
+];
+TIERS.forEach((t, i) => {
+  t.spr = makeSprite(SHAPES[i], { k: '#1a1423', c: t.c, d: t.d, w: '#ffffff', y: '#ffd06a' });
+  t.white = makeSprite(SHAPES[i], { k: '#fff', c: '#fff', d: '#fff', w: '#fff', y: '#fff' });
+});
 export const BEAST_WHITE = makeSprite(BEAST, { k: '#fff', c: '#fff', d: '#fff', w: '#fff' });
 // Boss (M2-02): cùng dáng yêu thú, vẽ phóng ×3; Lang Vương bạc có vương miện vàng, Ma Ảnh Yêu Vương đen tím mắt đỏ
 const CROWN = ['..y.y.y.y...', '..yyyyyyy...'];
 export const BOSS_SPR = {
-  MINI: makeSprite([...CROWN, ...BEAST].map(r => r.padEnd(12, '.')), { k: '#1a1423', c: '#d6d9e6', d: '#7a7f96', w: '#ffe066', y: '#ffd040' }),
-  FINAL: makeSprite(['............', '............', ...BEAST], { k: '#0c0614', c: '#4a2a6a', d: '#22103a', w: '#ff4040' }),
+  MINI: makeSprite([...CROWN, ...SHAPES[0]], { k: '#1a1423', c: '#d6d9e6', d: '#7a7f96', w: '#ffe066', y: '#ffd040' }),
+  FINAL: makeSprite(['............', '............', ...SHAPES[3]], { k: '#0c0614', c: '#4a2a6a', d: '#22103a', w: '#ff4040' }),
 };
 
 // Ô nền
@@ -104,3 +122,6 @@ export const rockSpr = makeCanvas(14, 10, px => {
   }
 });
 
+
+export const BOSS_WHITE = Object.fromEntries(Object.entries({ MINI: [...CROWN, ...SHAPES[0]], FINAL: ['............', '............', ...SHAPES[3]] })
+  .map(([k, rows]) => [k, makeSprite(rows, { k: '#fff', c: '#fff', d: '#fff', w: '#fff', y: '#fff' })]));

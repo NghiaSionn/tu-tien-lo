@@ -205,6 +205,11 @@ export function showSettings(meta, h) {
   open(`<h2>Cài đặt</h2>
     <label class="opt"><input type="checkbox" id="optReduce" ${s.reduceEffects ? 'checked' : ''}> Giảm hiệu ứng (ít hạt, chớp nhẹ)</label>
     <label class="opt"><input type="checkbox" id="optShake" ${s.screenShake ? 'checked' : ''}> Rung màn hình</label>
+    <label class="opt">Đồ họa <select id="optQuality">${[['high', 'Cao'], ['medium', 'Vừa'], ['low', 'Thấp (máy yếu/điện thoại)']].map(([v, n]) => `<option value="${v}" ${s.quality === v ? 'selected' : ''}>${n}</option>`).join('')}</select></label>
+    <h3>Âm thanh</h3>
+    <label class="opt">Hiệu ứng <input type="range" id="optSfx" min="0" max="1" step="0.05" value="${s.sfx}"></label>
+    <label class="opt">Nhạc nền <input type="range" id="optMusic" min="0" max="1" step="0.05" value="${s.music}"></label>
+    <label class="opt"><input type="checkbox" id="optMute" ${s.mute ? 'checked' : ''}> Tắt tiếng (M)</label>
     <h3>Dữ liệu</h3>
     <p class="sub">Tiến độ lưu trong trình duyệt này. Nên xuất bản sao trước khi xóa dữ liệu trình duyệt.</p>
     <div class="row"><button data-act="export">Xuất save (.json)</button><button data-act="import">Nhập save…</button><input type="file" id="importFile" accept="application/json,.json" hidden></div>
@@ -213,6 +218,10 @@ export function showSettings(meta, h) {
   const m = $('modal');
   m.querySelector('#optReduce').addEventListener('change', e => h.onSetting('reduceEffects', e.target.checked));
   m.querySelector('#optShake').addEventListener('change', e => h.onSetting('screenShake', e.target.checked));
+  m.querySelector('#optQuality').addEventListener('change', e => h.onSetting('quality', e.target.value));
+  m.querySelector('#optSfx').addEventListener('change', e => h.onSetting('sfx', +e.target.value));
+  m.querySelector('#optMusic').addEventListener('change', e => h.onSetting('music', +e.target.value));
+  m.querySelector('#optMute').addEventListener('change', e => h.onSetting('mute', e.target.checked));
   m.querySelector('[data-act=export]').addEventListener('click', h.onExport);
   const file = m.querySelector('#importFile');
   m.querySelector('[data-act=import]').addEventListener('click', () => file.click());

@@ -52,7 +52,7 @@ export function hurtRunPlayer(run, player, dmg, ev, src = 'other') {
   const taken = left * (run.gear ? 1 + run.gear.dmgTaken : 1);   // M4-01: Sát Khí Giới
   run.hp -= taken; run.damageTaken += taken;
   run.dmgBy[src] = (run.dmgBy[src] || 0) + taken;     // thống kê nguồn sát thương (cân bằng/debug)
-  ev.push({ type: 'text', x: player.x, y: player.y - 20, text: '-' + Math.round(taken), color: '#ff8f8a' }, { type: 'shake', t: 0.12 });
+  ev.push({ type: 'text', x: player.x, y: player.y - 20, text: '-' + Math.round(taken), color: '#ff8f8a' }, { type: 'shake', t: 0.12 }, { type: 'sfx', name: 'hurt' });
   if (run.hp <= 0) { run.hp = 0; endRun(run, 'LOSE'); }
   return left;
 }
@@ -108,7 +108,7 @@ export function updateRun(run, player, dt, ev, realmPowerOverride) {
   const mag = RUN.MAGNET * ctx.stats.magnet;
   for (let i = sc.orbs.length - 1; i >= 0; i--) {
     const o = sc.orbs[i], dx = player.x - o.x, dy = (player.y - 6) - o.y, d = Math.hypot(dx, dy);
-    if (d < RUN.PICKUP) { addRunXp(run, o.v * ctx.stats.xp); sc.orbs.splice(i, 1); continue; }
+    if (d < RUN.PICKUP) { addRunXp(run, o.v * ctx.stats.xp); sc.orbs.splice(i, 1); ev.push({ type: 'sfx', name: 'pickup' }); continue; }
     if (d < mag) { const sp = RUN.ORB_SPEED * dt * (1.5 - d / mag); o.x += dx / d * sp; o.y += dy / d * sp; }
   }
   if (finalDown) { endRun(run, 'WIN'); return; }
