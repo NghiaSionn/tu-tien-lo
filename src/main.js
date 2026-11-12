@@ -44,7 +44,8 @@ addEventListener('resize', fit); fit();
 const FX = {};
 for (const name of ['kiem_khi', 'kiem_trung', 'loi_kiep', 'dot_pha', 'toa_thien']) FX[name] = await loadFx(`fx/${name}.json`);
 // M5-03: VFX beanfx Lôi Cương Hộ Thể (draft vfx/drafts/loi_cuong_ho_the, K=0,36) — lớp sau + lớp trước/sáng; lỗi nạp thì vẽ vòng cũ
-for (const name of ['loi_cuong_back', 'loi_cuong_front']) { try { FX[name] = await loadFx(`fx/${name}.json`); } catch (e) { console.warn('[fx]', name, e); } }
+// M5-03 đợt 1: Lôi Vực, Hỏa Cầu (bay 8 hướng + nổ), Phong Nhận (8 hướng), Hỏa Long Quyển (dựng lại từ loc_gio_v2)
+for (const name of ['loi_cuong_back', 'loi_cuong_front', 'loi_vuc', 'hoa_cau_bay', 'hoa_cau_no', 'phong_nhan', 'hoa_long_quyen_v2']) { try { FX[name] = await loadFx(`fx/${name}.json`); } catch (e) { console.warn('[fx]', name, e); } }
 const vis = makeVis(FX);
 const medFx = createFx(FX.toa_thien);
 // Sheet pixelfx (tùy chọn): lỗi tải thì quay về hình vẽ bằng code, game vẫn chạy
@@ -57,6 +58,8 @@ if (FEATURES.pixelfxAssets) {
     vis.pfxSkills = { tornado: createFx(await loadFx('fx/pixelfx/hoa-long-quyen.json')) };
   } catch (e) { console.warn('[pixelfx] lốc lửa dùng hình dự phòng:', e); }
 }
+// M5-03: Hỏa Long Quyển bằng beanfx (thay bản pixelfx, ADR 0005); bản pixelfx còn làm dự phòng
+if (FX.hoa_long_quyen_v2) vis.pfxSkills = { ...(vis.pfxSkills || {}), tornado: createFx(FX.hoa_long_quyen_v2) };
 
 // ---------- thế giới động phủ ----------
 const hubMap = makeHubMap();

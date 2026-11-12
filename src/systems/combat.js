@@ -87,7 +87,7 @@ function explode(ctx, x, y, p) {
     hitMonster(ctx, m, p.dmg * ctx.atk, '#ffb070');
     applyBurn(m, p.burn * ctx.atk * ctx.stats.damage, p.burnTime);
   }
-  ctx.ev.push({ type: 'boom', x, y, r, color: '#ff9a3c' });
+  ctx.ev.push({ type: 'boom', x, y, r, color: '#ff9a3c', fx: 'hoa_cau_no', fxR: 16 });
 }
 
 // ---------------- từng loại công pháp ----------------
@@ -199,7 +199,7 @@ const KINDS = {
       if (m.dead || Math.hypot(m.x - pl.x, m.y - pl.y) > r) continue;
       hitMonster(ctx, m, p.dmg * ctx.atk, '#d9c8ff'); applySlow(m, p.slow, p.slowTime); n++;
     }
-    ctx.ev.push({ type: 'pulse', x: pl.x, y: pl.y, r, color: p.color || '#b48cff', hits: n });
+    ctx.ev.push({ type: 'pulse', x: pl.x, y: pl.y, r, color: p.color || '#b48cff', hits: n, fx: p.color ? null : 'loi_vuc', fxR: 46 });
   },
 
   line(ctx, s, p, dt) {

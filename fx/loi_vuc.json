@@ -1,0 +1,402 @@
+{
+ "frames": [
+  {
+   "filename": "loi_vuc 0",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 128,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 128,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 128,
+    "h": 96
+   },
+   "duration": 33
+  },
+  {
+   "filename": "loi_vuc 1",
+   "frame": {
+    "x": 128,
+    "y": 0,
+    "w": 128,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 128,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 128,
+    "h": 96
+   },
+   "duration": 33
+  },
+  {
+   "filename": "loi_vuc 2",
+   "frame": {
+    "x": 256,
+    "y": 0,
+    "w": 128,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 128,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 128,
+    "h": 96
+   },
+   "duration": 33
+  },
+  {
+   "filename": "loi_vuc 3",
+   "frame": {
+    "x": 384,
+    "y": 0,
+    "w": 128,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 128,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 128,
+    "h": 96
+   },
+   "duration": 33
+  },
+  {
+   "filename": "loi_vuc 4",
+   "frame": {
+    "x": 0,
+    "y": 96,
+    "w": 128,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 128,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 128,
+    "h": 96
+   },
+   "duration": 33
+  },
+  {
+   "filename": "loi_vuc 5",
+   "frame": {
+    "x": 128,
+    "y": 96,
+    "w": 128,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 128,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 128,
+    "h": 96
+   },
+   "duration": 33
+  },
+  {
+   "filename": "loi_vuc 6",
+   "frame": {
+    "x": 256,
+    "y": 96,
+    "w": 128,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 128,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 128,
+    "h": 96
+   },
+   "duration": 33
+  },
+  {
+   "filename": "loi_vuc 7",
+   "frame": {
+    "x": 384,
+    "y": 96,
+    "w": 128,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 128,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 128,
+    "h": 96
+   },
+   "duration": 33
+  },
+  {
+   "filename": "loi_vuc 8",
+   "frame": {
+    "x": 0,
+    "y": 192,
+    "w": 128,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 128,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 128,
+    "h": 96
+   },
+   "duration": 33
+  },
+  {
+   "filename": "loi_vuc 9",
+   "frame": {
+    "x": 128,
+    "y": 192,
+    "w": 128,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 128,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 128,
+    "h": 96
+   },
+   "duration": 33
+  },
+  {
+   "filename": "loi_vuc 10",
+   "frame": {
+    "x": 256,
+    "y": 192,
+    "w": 128,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 128,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 128,
+    "h": 96
+   },
+   "duration": 33
+  },
+  {
+   "filename": "loi_vuc 11",
+   "frame": {
+    "x": 384,
+    "y": 192,
+    "w": 128,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 128,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 128,
+    "h": 96
+   },
+   "duration": 33
+  },
+  {
+   "filename": "loi_vuc 12",
+   "frame": {
+    "x": 0,
+    "y": 288,
+    "w": 128,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 128,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 128,
+    "h": 96
+   },
+   "duration": 33
+  },
+  {
+   "filename": "loi_vuc 13",
+   "frame": {
+    "x": 128,
+    "y": 288,
+    "w": 128,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 128,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 128,
+    "h": 96
+   },
+   "duration": 33
+  },
+  {
+   "filename": "loi_vuc 14",
+   "frame": {
+    "x": 256,
+    "y": 288,
+    "w": 128,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 128,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 128,
+    "h": 96
+   },
+   "duration": 33
+  },
+  {
+   "filename": "loi_vuc 15",
+   "frame": {
+    "x": 384,
+    "y": 288,
+    "w": 128,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 128,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 128,
+    "h": 96
+   },
+   "duration": 33
+  }
+ ],
+ "meta": {
+  "app": "beanfx",
+  "version": "1",
+  "image": "loi_vuc.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 512,
+   "h": 384
+  },
+  "scale": "1",
+  "frameTags": [
+   {
+    "name": "loi_vuc",
+    "from": 0,
+    "to": 15,
+    "direction": "forward"
+   }
+  ],
+  "beanfx": {
+   "name": "loi_vuc",
+   "fps": 30,
+   "loop": false,
+   "end": "remove",
+   "frames": 16,
+   "rows": 1,
+   "frameSize": [
+    128,
+    96
+   ],
+   "pivot": [
+    64,
+    52
+   ],
+   "columns": 4,
+   "blend_light": "add",
+   "light_gain": 1.0,
+   "view": "topdown",
+   "directions": 1,
+   "glow": "medium",
+   "radius": 46.0,
+   "note": "game: scale = b\u00e1n k\u00ednh th\u1eadt / 46",
+   "sheet": "loi_vuc.png",
+   "light": "loi_vuc_light.png",
+   "color": "loi_vuc_color.png"
+  }
+ }
+}

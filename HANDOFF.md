@@ -7,7 +7,7 @@ Cập nhật: 2026-11-11, sau phiên M0 + M1 và thử pixelfx. Bản trước c
 | | |
 |---|---|
 | Trạng thái | M0 xong (gate đạt). M1 xong, **gate M1 đạt**. **M2 xong** (GATE v0.2 đi trọn trong trình duyệt bằng autopilot phát phím). **M3 xong**, GATE v0.3a đóng ở mức logic. **M4 xong**, GATE v0.3b đóng ở mức logic. **M5 làm một phần** (âm thanh xong; dáng quái, 1 VFX beanfx, đo logic, mức đồ họa, joystick ảo) — GATE v0.4 chưa đạt. M3–M5 chưa xem trong trình duyệt |
-| Test tự động | `npm test`: 123/123 PASS |
+| Test tự động | `npm test`: 131/131 PASS |
 | Kiểm thử tay | `TEST_REPORT.md` |
 | Quyết định kỹ thuật | `docs/adr/0001…0007` (0005: beanfx chính; 0006: thưởng run nhận một lần; 0007: trang bị/thành tựu/Truyền Thừa Các) |
 | Rollback | `git checkout baseline-v0.1` (code v0.1 nguyên trạng) |
@@ -106,7 +106,7 @@ Thêm: **cổng bí cảnh** phía bắc tụ linh trận; nút **Cài đặt** 
 
 ### 3.2 Bí cảnh (mới, M1)
 - Đứng gần cổng → E → chọn công pháp khởi đầu (Kiếm Khí / Hỏa Cầu / Lôi Kích) → vào đấu trường 44×44 ô.
-- **M5:** âm thanh (M tắt tiếng; âm lượng trong Cài đặt), mức đồ họa Cao/Vừa/Thấp, overlay hiệu năng F3, cảnh stress `?stress=1`, joystick ảo trên thiết bị cảm ứng (`?touch=1` để thử trên máy tính), cây mờ khi che nhân vật, 4 loài quái có dáng riêng, khiên Lôi Cương dùng VFX beanfx. `?loop=timer` khi môi trường hãm requestAnimationFrame.
+- **M5:** âm thanh (M tắt tiếng; âm lượng trong Cài đặt), mức đồ họa Cao/Vừa/Thấp, overlay hiệu năng F3, cảnh stress `?stress=1`, joystick ảo trên thiết bị cảm ứng (`?touch=1` để thử trên máy tính), cây mờ khi che nhân vật, 4 loài quái có dáng riêng, khiên Lôi Cương, Lôi Vực, Hỏa Cầu (bay + nổ), Phong Nhận, Hỏa Long Quyển dùng VFX beanfx (`vfx/drafts/README.md`). `?loop=timer` khi môi trường hãm requestAnimationFrame.
 - **M4:** ở động phủ có **Luyện Khí (G)** — 4 ô trang bị, 8 món một-ưu-một-nhược, luyện/nâng bằng luyện liệu + linh thạch, chắc chắn; **Thành Tựu (J)** — 7 thành tựu, hai cái mở công pháp hệ Băng (Băng Châm, Hàn Khí); **Truyền Thừa Các (H)** — quay bằng vé Cơ Duyên kiếm trong game, tỉ lệ công khai, bảo hiểm 30 lượt, trùng → mảnh đổi đúng món muốn. Không có tiền thật.
 - **M3 (meta tu tiên):** tọa thiền **chuyển hóa linh khí** mang về từ bí cảnh thành tu vi (nhanh ×3 và lời hơn trong tụ linh trận; hết linh khí gần như dừng). Tụ Khí Đan cho linh khí. Đột phá đại cảnh giới = **thiên kiếp tương tác** ~24 s quanh tụ linh trận (né vòng sét, dải sét, đứng vào ô an toàn), thua giữ cảnh giới, mất 30% tu vi. Đại cảnh giới mở công pháp khởi đầu mới + độ khó bí cảnh (phím D ở màn chuẩn bị). Trong bí cảnh, hạ Lang Vương thì hiện **Linh Mạch** (E, chọn 1 trong 3, một lần).
 - Quái do **director** sinh (M2-01, `DIRECTOR` trong config): nhịp nhanh dần qua 5 giai đoạn; đợt đội hình có thông báo (0:55 vây tròn, 1:40 bầy Hỏa Hồ, 2:30 hàng cung Huyền Băng Thú, 4:10, 4:50, 5:30); Ma Ảnh tinh anh từ 2:45 rồi mỗi 90 s (M2-04: run 6–8 phút). Không sinh trong 150 px quanh người chơi; ngân sách cost + trần 90 con. Mạnh dần theo thời gian và cảnh giới.
@@ -172,7 +172,7 @@ Save trên trình duyệt của máy này lúc kết thúc phiên: đã đưa v�
 ## 7. Bước tiếp theo (theo `TASKS_TU_TIEN_LO.md`)
 
 1. Đóng GATE v0.4 cần trình duyệt chạy đủ khung hình + máy thật: đo `?stress=1` với F3 (Cao/Thấp), nghe âm thanh, thử joystick trên điện thoại, chụp trước/sau biome.
-2. Còn làm M5: VFX beanfx cho Kiếm Khí/Hỏa Cầu/Lôi Kích, 3 tiến hóa còn lại, boss, công pháp Băng (cần brief từng chiêu — ADR 0005); sprite sheet + animation nhân vật (rig beanfx); làm lại biome rừng.
+2. Còn làm M5: VFX beanfx cho Phi Kiếm Trận, Liệt Diễm Kiếm Trận, Băng Châm, Hàn Khí, Hỏa Luân, chiêu boss (đợt 1 xong: Lôi Vực, Hỏa Cầu, Phong Nhận, Hỏa Long Quyển); sprite sheet + animation nhân vật (rig beanfx); làm lại biome rừng.
 3. Nên có: xem nhanh M3/M4 trong trình duyệt.
 
 ---

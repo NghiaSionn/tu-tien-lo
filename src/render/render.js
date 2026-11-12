@@ -46,8 +46,10 @@ export function consumeEvents(vis, ev) {
       case 'fx': spawnFx(vis, e.name, e.x, e.y, { scale: e.scale || 1, flip: !!e.flip }); break;
       case 'shake': addShake(vis, e.t); break;
       case 'chain': vis.chains.push({ pts: e.pts, life: 0.18 }); break;
-      case 'boom': vis.rings.push({ x: e.x, y: e.y, r: e.r * 0.4, to: e.r, life: 0.3, max: 0.3, color: e.color, fill: true }); burst(vis, e.x, e.y, 10, 60, e.color, 0.4); break;
-      case 'pulse': vis.rings.push({ x: e.x, y: e.y - 4, r: 6, to: e.r, life: 0.35, max: 0.35, color: e.color }); break;
+      case 'boom': if (e.fx && vis.FX[e.fx] && vis.quality !== 'low') { spawnFx(vis, e.fx, e.x, e.y, { scale: e.r / e.fxR }); break; }
+        vis.rings.push({ x: e.x, y: e.y, r: e.r * 0.4, to: e.r, life: 0.3, max: 0.3, color: e.color, fill: true }); burst(vis, e.x, e.y, 10, 60, e.color, 0.4); break;
+      case 'pulse': if (e.fx && vis.FX[e.fx] && vis.quality !== 'low') { spawnFx(vis, e.fx, e.x, e.y, { scale: e.r / e.fxR }); break; }
+        vis.rings.push({ x: e.x, y: e.y - 4, r: 6, to: e.r, life: 0.35, max: 0.35, color: e.color }); break;
       case 'death': burst(vis, e.x, e.y - 4, 12, 70, TIER_COLORS[e.tier] || '#fff', 0.6, 2); break;
       case 'announce': vis.banner = { text: e.text, color: e.color || '#ffd978', life: 2.6 }; break;
       case 'shieldBreak': burst(vis, e.x, e.y - 8, 18, 80, '#ffd978', 0.5, 2); addShake(vis, 0.15); break;
@@ -352,7 +354,8 @@ function drawSkillsOver(ctx, run, p, time, vis) {
   }
 }
 
-function drawProjectiles(ctx, scene, FX, dt) {
+function drawProjectiles(ctx, scene, FX, dt, quality) {
+  const rich = quality !== 'low';
   for (const q of scene.projectiles) {
     const x = Math.round(q.x), y = Math.round(q.y);
     if (q.kind === 'bolt') {
@@ -365,6 +368,14 @@ function drawProjectiles(ctx, scene, FX, dt) {
         const c = Math.cos(q.heading), s = Math.sin(q.heading);
         pxLine(ctx, x - c * 5, y - s * 5, x + c * 3, y + s * 3, q.color, 1);
         ctx.fillStyle = '#fff'; ctx.fillRect(x + Math.round(c * 3), y + Math.round(s * 3), 1, 1);
+      } else if (q.kind === 'orb' && rich && FX.hoa_cau_bay) {   // M5-03: VFX beanfx, 8 hướng
+        ctx.globalCompositeOperation = 'source-over';
+        if (!q.fxObj) q.fxObj = createFx(FX.hoa_cau_bay, { heading: Math.atan2(q.vy, q.vx) });
+        q.fxObj.update(dt); q.fxObj.x = x; q.fxObj.y = y; q.fxObj.draw(ctx);
+      } else if (q.kind === 'blade' && rich && FX.phong_nhan) {
+        ctx.globalCompositeOperation = 'source-over';
+        if (!q.fxObj) q.fxObj = createFx(FX.phong_nhan, { heading: q.heading });
+        q.fxObj.update(dt); q.fxObj.x = x; q.fxObj.y = y; q.fxObj.draw(ctx);
       } else if (q.kind === 'orb') {
         ctx.fillStyle = 'rgba(255,120,40,.6)'; ctx.fillRect(x - 3, y - 3, 7, 7);
         ctx.fillStyle = '#ffd06a'; ctx.fillRect(x - 2, y - 2, 5, 5);
@@ -435,7 +446,7 @@ export function render(ctx, g) {
   if (scene.kind !== 'hub') drawTelegraphsTop(ctx, scene);
   else if (g.trib && g.trib.interactive) drawTribulation(ctx, g.trib, time, true);
   if (scene.enemyShots) drawEnemyShots(ctx, scene.enemyShots);
-  if (scene.projectiles) drawProjectiles(ctx, scene, vis.FX, g.dtWorld || 0);
+  if (scene.projectiles) drawProjectiles(ctx, scene, vis.FX, g.dtWorld || 0, vis.quality);
   for (const s of g.hubShots || []) { s.fx.x = Math.round(s.x); s.fx.y = Math.round(s.y); s.fx.draw(ctx); }
   for (const fx of vis.fxs) fx.draw(ctx);
 
