@@ -6,6 +6,13 @@ import { createFx } from '../../lib/beanfx.js';
 import { skillKind, skillParams } from '../systems/combat.js';
 
 const { W, H } = VIEW;
+// Chữ trên canvas (12/11, khung 640×360 làm chữ 8px quá nhỏ): đậm, viền tối 2 px để đọc rõ trên mọi nền
+const FONT = '"Segoe UI", system-ui, sans-serif';
+function txt(ctx, s, x, y, color, size = 10) {
+  ctx.font = `bold ${size}px ${FONT}`; ctx.textAlign = 'center'; ctx.lineJoin = 'round';
+  ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(8,4,16,.9)'; ctx.strokeText(s, x, y);
+  ctx.fillStyle = color; ctx.fillText(s, x, y);
+}
 const rand = (a, b) => a + Math.random() * (b - a);
 const MAX_PARTS = 400, MAX_TEXTS = 60;
 // M5-04: trần hạt theo mức đồ họa (cảnh báo nguy hiểm KHÔNG bị cắt ở mức nào)
@@ -369,8 +376,7 @@ function drawShrine(ctx, run, p, time, vis) {
   for (let i = 0; i < np; i++) { ctx.fillStyle = i % 3 ? '#7fe3ff' : '#e8fbff'; const k = spr ? ((time * 0.6 + i / np) % 1) : 0; ctx.fillRect(x - 1 + Math.round(Math.sin(time * 4 + i) * (spr ? 6 : 1.5)), spr ? Math.round(y - 30 - k * 26) : y - 2 - i * 2 - ((time * 20) % 2), spr ? 1 : 2, spr ? 1 : 2); }
   ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
   if (Math.hypot(p.x - s.x, p.y - s.y) < SHRINE.R + 6) {
-    ctx.font = '8px monospace'; ctx.textAlign = 'center'; ctx.fillStyle = '#000'; ctx.fillText(sealed ? 'phong ấn' : 'E: Linh Mạch', x + 1, y - 42);
-    ctx.fillStyle = sealed ? '#ff8f8a' : '#e8fbff'; ctx.fillText(sealed ? 'phong ấn' : 'E: Linh Mạch', x, y - 43);
+    txt(ctx, sealed ? 'phong ấn' : 'E: Linh Mạch', x, y - 46, sealed ? '#ff8f8a' : '#e8fbff', 10);
   }
 }
 
@@ -402,10 +408,9 @@ function drawTribulation(ctx, tr, time, top) {
 }
 function drawTribHud(ctx, tr) {
   const total = TRIBULATION.PHASES.reduce((a, p) => a + p.dur, 0), w = 200, x = Math.round((W - w) / 2), y = 56;
-  ctx.fillStyle = 'rgba(10,6,20,.7)'; ctx.fillRect(x - 3, y - 10, w + 6, 17);
-  ctx.font = '8px monospace'; ctx.textAlign = 'center'; ctx.fillStyle = '#e6dcff';
+  ctx.fillStyle = 'rgba(10,6,20,.7)'; ctx.fillRect(x - 3, y - 14, w + 6, 21);
   const ph = TRIBULATION.PHASES[Math.min(tr.phase, TRIBULATION.PHASES.length - 1)];
-  ctx.fillText(`Thiên kiếp · ${ph.name} (${Math.min(tr.phase + 1, TRIBULATION.PHASES.length)}/${TRIBULATION.PHASES.length})`, W / 2, y - 2);
+  txt(ctx, `Thiên kiếp · ${ph.name} (${Math.min(tr.phase + 1, TRIBULATION.PHASES.length)}/${TRIBULATION.PHASES.length})`, W / 2, y - 3, '#e6dcff', 10);
   ctx.fillStyle = '#2a1830'; ctx.fillRect(x, y + 1, w, 3);
   ctx.fillStyle = '#b48cff'; ctx.fillRect(x, y + 1, Math.round(w * Math.min(1, tr.t / total)), 3);
 }
@@ -418,9 +423,8 @@ function drawBossBar(ctx, scene, camX, camY) {
   const sy = m.y - camY, sx = m.x - camX;
   ctx.globalAlpha = sy > H - 48 && sx > (W - 260) / 2 && sx < (W + 260) / 2 ? 0.35 : 1;
   const B = BOSS[m.bossKind], w = 220, x = Math.round((W - w) / 2), y = H - 20;
-  ctx.fillStyle = 'rgba(10,6,20,.75)'; ctx.fillRect(x - 3, y - 11, w + 6, 19);
-  ctx.font = '8px monospace'; ctx.textAlign = 'center';
-  ctx.fillStyle = m.enraged ? '#ff6a6a' : '#f4e6ff'; ctx.fillText(B.name + (m.enraged ? ' · cuồng nộ' : m.vuln > 0 ? ' · sơ hở' : ''), W / 2, y - 3);
+  ctx.fillStyle = 'rgba(10,6,20,.75)'; ctx.fillRect(x - 3, y - 15, w + 6, 23);
+  txt(ctx, B.name + (m.enraged ? ' · cuồng nộ' : m.vuln > 0 ? ' · sơ hở' : ''), W / 2, y - 4, m.enraged ? '#ff6a6a' : '#f4e6ff', 11);
   ctx.fillStyle = '#2a1830'; ctx.fillRect(x, y, w, 5);
   ctx.fillStyle = m.bossKind === 'FINAL' ? '#c040ff' : '#e2584f'; ctx.fillRect(x, y, Math.max(0, Math.round(w * m.hp / m.max)), 5);
   if (B.PHASE2) { ctx.fillStyle = '#fff'; ctx.fillRect(x + Math.round(w * B.PHASE2), y - 1, 1, 7); }
@@ -691,11 +695,9 @@ export function render(ctx, g) {
   ctx.globalCompositeOperation = 'source-over';
   mark('parts');
 
-  ctx.font = '8px monospace'; ctx.textAlign = 'center';
   for (const q of vis.texts) {
     ctx.globalAlpha = Math.min(1, q.life * 2);
-    ctx.fillStyle = '#000'; ctx.fillText(q.text, Math.round(q.x) + 1, Math.round(q.y) + 1);
-    ctx.fillStyle = q.color; ctx.fillText(q.text, Math.round(q.x), Math.round(q.y));
+    txt(ctx, q.text, Math.round(q.x), Math.round(q.y), q.color, 10);
   }
   ctx.globalAlpha = 1;
   mark('texts');
@@ -704,10 +706,9 @@ export function render(ctx, g) {
   drawBossBar(ctx, scene, camX, camY);
   if (vis.banner) {
     const b = vis.banner; ctx.globalAlpha = Math.min(1, b.life * 2);
-    ctx.font = '9px monospace'; ctx.textAlign = 'center';
-    ctx.fillStyle = 'rgba(10,6,20,.6)'; ctx.fillRect(W / 2 - b.text.length * 3 - 6, 38, b.text.length * 6 + 12, 13);
-    ctx.fillStyle = '#000'; ctx.fillText(b.text, W / 2 + 1, 48);
-    ctx.fillStyle = b.color; ctx.fillText(b.text, W / 2, 47);
+    ctx.font = `bold 13px ${FONT}`; const bw = ctx.measureText(b.text).width;
+    ctx.fillStyle = 'rgba(10,6,20,.6)'; ctx.fillRect(Math.round(W / 2 - bw / 2 - 10), 40, Math.round(bw + 20), 20);
+    txt(ctx, b.text, W / 2, 55, b.color, 13);
     ctx.globalAlpha = 1;
   }
   if (g.trib && g.trib.interactive) { ctx.fillStyle = 'rgba(20,10,50,.12)'; ctx.fillRect(0, 0, W, H); drawTribHud(ctx, g.trib); }

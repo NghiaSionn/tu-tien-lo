@@ -159,7 +159,7 @@ export const EVOLUTIONS = {
     name: 'Hỏa Long Quyển', base: 'fire_ring', needAny: ['wind_blade'], minRunTime: 90,
     element: 'hoa', kind: 'tornado', icon: '🌪',
     desc: 'Ba cột lốc lửa quay quanh người, hút yêu thú vào và đốt theo nhịp.',
-    params: { count: 3, orbit: 66, spin: 1.3, radius: 26, pull: 34, pullRadius: 58, tick: 0.35, dmg: 1.2, burn: 0.7, burnTime: 2 },
+    params: { count: 3, orbit: 66, spin: 1.3, radius: 26, pull: 34, pullRadius: 58, tick: 0.35, dmg: 1.4, burn: 0.8, burnTime: 2 },   // 12/11: 1,2/0,7 -> 1,4/0,8 (Hỏa+Phong thắng ~8/16, yếu nhất)
     hint: 'Hỏa Luân cấp tối đa + Phong Nhận',
   },
   loi_cuong_ho_the: {
