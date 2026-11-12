@@ -172,7 +172,7 @@ Save trên trình duyệt của máy này lúc kết thúc phiên: đã đưa v�
 ## 7. Bước tiếp theo (theo `TASKS_TU_TIEN_LO.md`)
 
 1. Đóng GATE v0.4 cần trình duyệt chạy đủ khung hình + máy thật: đo `?stress=1` với F3 (Cao/Thấp), nghe âm thanh, thử joystick trên điện thoại, chụp trước/sau biome.
-2. Còn làm M5: VFX beanfx đã đủ cho mọi công pháp, tiến hóa và chiêu boss (2 đợt, `vfx/drafts/README.md`, đã xem trong trình duyệt); sprite nhân vật đã có (concept ChatGPT → `art/nhan_vat/nhan_vat.py`), còn sprite quái; làm lại biome rừng.
+2. Còn làm M5: VFX beanfx đã đủ cho mọi công pháp, tiến hóa và chiêu boss (2 đợt, `vfx/drafts/README.md`, đã xem trong trình duyệt); sprite nhân vật đã có (ChatGPT vẽ sheet → `tools/sprite_clean.py` làm sạch → `sprites/nhan_vat.*`), còn sprite quái (giờ trông quá nhỏ cạnh nhân vật); làm lại biome rừng.
 3. Nên có: xem nhanh M3/M4 trong trình duyệt.
 
 ---

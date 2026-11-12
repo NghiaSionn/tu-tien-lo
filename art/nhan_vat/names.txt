@@ -1,0 +1,5 @@
+down_walk0 down_walk1 down_walk2 down_walk3 down_atk down_hurt
+up_walk0 up_walk1 up_walk2 up_walk3 up_atk up_hurt
+left_walk0 left_walk1 left_walk2 left_walk3 left_atk left_hurt
+right_walk0 right_walk1 right_walk2 right_walk3 right_atk right_hurt
+sit0 sit1 - - - -

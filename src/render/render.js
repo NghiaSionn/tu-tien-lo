@@ -303,8 +303,8 @@ function drawEnemyShots(ctx, shots, vis) {
   }
 }
 
-// M5-02: một khung của sheet nhân vật; hàng pivot (chân) đặt ở fy - 1 như sprite cũ. flip: nhìn trái
-function heroFrame(ctx, hero, name, px, fy, flip) {
+// M5-02: một khung của sheet nhân vật (ChatGPT vẽ, tools/sprite_clean.py làm sạch); hàng pivot (chân) đặt ở fy - 1
+function heroFrame(ctx, hero, name, px, fy, flip = false) {
   const m = hero.meta, [sx, sy] = m.frames[name] || m.frames.down_walk0, [fw, fh] = m.frameSize, [ax, ay] = m.pivot;
   const x = Math.round(px), y = fy - 1 - ay;
   if (flip) { ctx.save(); ctx.translate(x, 0); ctx.scale(-1, 1); ctx.drawImage(hero.img, sx, sy, fw, fh, -ax, y, fw, fh); ctx.restore(); }
@@ -316,17 +316,18 @@ function drawPlayer(ctx, p, time, medFx, inForm, vis) {
   if (hero && p.hurtT > 0) p.hurtT -= vis.frameDt || 0;   // chỉ dùng để vẽ
   if (p.inv > 0 && Math.floor(time * 20) % 2) return;
   const x = Math.round(p.x - 6), fy = Math.round(p.y);
-  ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.fillRect(hero ? x : x + 1, fy - 1, hero ? 12 : 10, 2);
+  ctx.fillStyle = 'rgba(0,0,0,.25)'; if (hero) ctx.fillRect(x - 3, fy - 2, 18, 3); else ctx.fillRect(x + 1, fy - 1, 10, 2);
   if (p.med) {
     medFx.x = Math.round(p.x); medFx.y = fy; medFx.lightGain = inForm ? 1 : 0.6; medFx.draw(ctx);
     const bob = Math.round(Math.sin(time * 2) * 1.5 + 1.5);
-    if (hero) heroFrame(ctx, hero, 'sit', p.x, fy - bob, false);
+    if (hero) heroFrame(ctx, hero, Math.sin(time * 2) > 0 ? 'sit1' : 'sit0', p.x, fy);   // thở: 2 khung
     else ctx.drawImage(SPR.sit, x, fy - 14 - bob);
     return;
   }
   if (hero) {
     const st = p.hurtT > 0 ? 'hurt' : p.cd > BASIC_ATTACK.CD - 0.12 ? 'atk' : 'walk' + (p.moving ? Math.floor(p.anim) % 4 : 0);
-    heroFrame(ctx, hero, p.face + '_' + st, p.x, fy, p.face === 'side' && p.flip);
+    const dir = p.face === 'side' ? (p.flip ? 'left' : 'right') : p.face;   // trái/phải là khung riêng, không lật
+    heroFrame(ctx, hero, dir + '_' + st, p.x, fy);
     return;
   }
   const spr = SPR[p.face][p.moving ? Math.floor(p.anim) % 4 : 0];

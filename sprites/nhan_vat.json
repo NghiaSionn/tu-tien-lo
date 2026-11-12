@@ -1,11 +1,11 @@
 {
  "frameSize": [
-  16,
-  24
+  60,
+  46
  ],
  "pivot": [
-  8,
-  23
+  27,
+  45
  ],
  "image": "nhan_vat.png",
  "frames": {
@@ -14,78 +14,108 @@
    0
   ],
   "down_walk1": [
-   16,
+   60,
    0
   ],
   "down_walk2": [
-   32,
+   120,
    0
   ],
   "down_walk3": [
-   48,
+   180,
    0
   ],
   "down_atk": [
-   64,
-   0
-  ],
-  "down_hurt": [
-   80,
-   0
-  ],
-  "up_walk0": [
-   96,
-   0
-  ],
-  "up_walk1": [
-   112,
-   0
-  ],
-  "up_walk2": [
-   128,
-   0
-  ],
-  "up_walk3": [
-   144,
-   0
-  ],
-  "up_atk": [
-   160,
-   0
-  ],
-  "up_hurt": [
-   176,
-   0
-  ],
-  "side_walk0": [
-   192,
-   0
-  ],
-  "side_walk1": [
-   208,
-   0
-  ],
-  "side_walk2": [
-   224,
-   0
-  ],
-  "side_walk3": [
    240,
    0
   ],
-  "side_atk": [
-   256,
+  "down_hurt": [
+   300,
    0
   ],
-  "side_hurt": [
-   272,
+  "up_walk0": [
+   360,
    0
   ],
-  "sit": [
-   288,
+  "up_walk1": [
+   420,
+   0
+  ],
+  "up_walk2": [
+   480,
+   0
+  ],
+  "up_walk3": [
+   540,
+   0
+  ],
+  "up_atk": [
+   600,
+   0
+  ],
+  "up_hurt": [
+   660,
+   0
+  ],
+  "left_walk0": [
+   720,
+   0
+  ],
+  "left_walk1": [
+   780,
+   0
+  ],
+  "left_walk2": [
+   840,
+   0
+  ],
+  "left_walk3": [
+   900,
+   0
+  ],
+  "left_atk": [
+   960,
+   0
+  ],
+  "left_hurt": [
+   1020,
+   0
+  ],
+  "right_walk0": [
+   1080,
+   0
+  ],
+  "right_walk1": [
+   1140,
+   0
+  ],
+  "right_walk2": [
+   1200,
+   0
+  ],
+  "right_walk3": [
+   1260,
+   0
+  ],
+  "right_atk": [
+   1320,
+   0
+  ],
+  "right_hurt": [
+   1380,
+   0
+  ],
+  "sit0": [
+   1440,
+   0
+  ],
+  "sit1": [
+   1500,
    0
   ]
  },
- "source": "art/nhan_vat/nhan_vat.py",
- "concept": "docs/concept/nhan_vat_chinh_chatgpt.jpg"
+ "source": "docs/concept/nhan_vat_sheet_chatgpt.png",
+ "tool": "tools/sprite_clean.py",
+ "scale": 4.05,
+ "colors": 24
 }
