@@ -6,7 +6,7 @@ Cập nhật: 2026-11-11, sau phiên M0 + M1 và thử pixelfx. Bản trước c
 
 | | |
 |---|---|
-| Trạng thái | M0 xong (gate đạt). M1 xong, **gate M1 đạt**. **M2-01 xong**; **M2-02 xong code** (2 boss), còn thiếu chơi thật trọn run tới boss. **M2 xong** (GATE v0.2 đi trọn trong trình duyệt bằng autopilot phát phím). **M3 xong**, GATE v0.3a đóng ở mức logic (bỏ kiểm tra trình duyệt theo chỉ đạo 12/11). Chờ chỉ đạo trước M4 |
+| Trạng thái | M0 xong (gate đạt). M1 xong, **gate M1 đạt**. **M2 xong** (GATE v0.2 đi trọn trong trình duyệt bằng autopilot phát phím). **M3 xong**, GATE v0.3a đóng ở mức logic (bỏ kiểm tra trình duyệt theo chỉ đạo 12/11). Chờ chỉ đạo trước M4 |
 | Test tự động | `npm test`: 105/105 PASS |
 | Kiểm thử tay | `TEST_REPORT.md` |
 | Quyết định kỹ thuật | `docs/adr/0001…0006` (0005: beanfx chính, pixelfx phụ; 0006: thưởng run nhận một lần) |
