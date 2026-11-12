@@ -434,6 +434,7 @@ function loiCuongFx(vis) {
 }
 function drawSkillsUnder(ctx, run, p, time, vis, dt) {
   for (const s of run.skills) {
+    if (skillKind(s) === 'orbit' && s.st.ready > 0) { ctx.globalCompositeOperation = 'lighter'; drawOrbit(ctx, s, s.st, p, vis, true); ctx.globalCompositeOperation = 'source-over'; }
     if (s.evolved === 'loi_cuong_ho_the' && s.st.hp > 0) {
       const f = loiCuongFx(vis);
       if (f) { f.back.update(dt); f.front.update(dt); f.back.x = f.front.x = Math.round(p.x); f.back.y = f.front.y = Math.round(p.y); f.back.draw(ctx); }
@@ -449,19 +450,25 @@ function drawSkillsUnder(ctx, run, p, time, vis, dt) {
     }
   }
 }
+// Kiếm xoay quanh thân (Phi Kiếm/Liệt Diễm): nửa vòng phía sau (sin < 0, cao hơn chân) vẽ ở lớp dưới để nhân vật che,
+// nửa phía trước vẽ ở lớp trên. back = true: chỉ vẽ kiếm phía sau
+function drawOrbit(ctx, s, st, p, vis, back) {
+  for (let i = 0; i < st.ready; i++) {
+    const a = st.angle + i * 6.283 / st.ready;
+    if ((Math.sin(a) < 0) !== back) continue;
+    const bx = p.x + Math.cos(a) * 18, by = p.y - 8 + Math.sin(a) * 12;
+    const sw = sharedFx(vis, s.evolved ? 'liet_diem_kiem' : 'phi_kiem', rowFor(a + 1.5708, 16));   // mũi theo chiều xoay
+    if (sw) { ctx.globalCompositeOperation = 'source-over'; sw.x = Math.round(bx); sw.y = Math.round(by); sw.draw(ctx); ctx.globalCompositeOperation = 'lighter'; continue; }
+    pxLine(ctx, bx - Math.cos(a + 1.57) * 3, by - Math.sin(a + 1.57) * 3, bx + Math.cos(a + 1.57) * 3, by + Math.sin(a + 1.57) * 3, s.evolved ? '#ff9a3c' : '#bff4ff', 1);
+    ctx.fillStyle = '#fff'; ctx.fillRect(Math.round(bx), Math.round(by), 1, 1);
+  }
+}
 function drawSkillsOver(ctx, run, p, time, vis) {
   for (const s of run.skills) {
     const k = skillKind(s), prm = skillParams(s), st = s.st;
     ctx.globalCompositeOperation = 'lighter';
-    if (k === 'orbit' && st.ready > 0) {
-      for (let i = 0; i < st.ready; i++) {
-        const a = st.angle + i * 6.283 / st.ready, bx = p.x + Math.cos(a) * 18, by = p.y - 8 + Math.sin(a) * 12;
-        const sw = sharedFx(vis, s.evolved ? 'liet_diem_kiem' : 'phi_kiem', rowFor(a + 1.5708, 16));   // mũi theo chiều xoay
-        if (sw) { ctx.globalCompositeOperation = 'source-over'; sw.x = Math.round(bx); sw.y = Math.round(by); sw.draw(ctx); ctx.globalCompositeOperation = 'lighter'; continue; }
-        pxLine(ctx, bx - Math.cos(a + 1.57) * 3, by - Math.sin(a + 1.57) * 3, bx + Math.cos(a + 1.57) * 3, by + Math.sin(a + 1.57) * 3, s.evolved ? '#ff9a3c' : '#bff4ff', 1);
-        ctx.fillStyle = '#fff'; ctx.fillRect(Math.round(bx), Math.round(by), 1, 1);
-      }
-    } else if (k === 'shield' && st.hp > 0 && s.evolved === 'loi_cuong_ho_the' && vis.loiCuong && vis.quality !== 'low') {
+    if (k === 'orbit' && st.ready > 0) drawOrbit(ctx, s, st, p, vis, false);
+    else if (k === 'shield' && st.hp > 0 && s.evolved === 'loi_cuong_ho_the' && vis.loiCuong && vis.quality !== 'low') {
       ctx.globalCompositeOperation = 'source-over';
       vis.loiCuong.front.draw(ctx);
     } else if (k === 'shield' && st.hp > 0) {
