@@ -105,7 +105,9 @@
 <body data-mode="hub">
 <div id="wrap">
   <canvas id="game"></canvas>
-  <div id="loading" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#ffd978;font-size:1.4em;letter-spacing:.05em;text-shadow:0 1px 3px #000">Đang tải…</div>
+  <div id="loading" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#ffd978;font-size:1.4em;letter-spacing:.05em;text-shadow:0 1px 3px #000;pointer-events:none">Đang tải…</div>
+  <script>/* gỡ chữ "Đang tải…" khi game đã chạy, kể cả khi trình duyệt còn giữ main.js cũ trong cache */
+    (function w() { if (window.__game) { var e = document.getElementById('loading'); if (e) e.remove(); } else setTimeout(w, 200); })();</script>
   <div id="hud">
     <div id="panel" class="box">
       <div id="realm"></div>
