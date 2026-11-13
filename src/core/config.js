@@ -25,6 +25,7 @@ export const HUB = {
   FORM_R: 34,               // bán kính tụ linh trận (px)
   RESPAWN: { dx: 0, dy: 26 },
   PORTAL: { dx: 0, dy: -88, r: 22 },   // cổng bí cảnh, tính từ tâm trận
+  BIA: { dx: -64, dy: -62, r: 24 },    // M7-14: Bia Truyền Thừa (vùng cỏ trống quanh trận), đứng trong r rồi E để đọc
   MAX_MONSTERS: 45,
   NO_SPAWN_TILES: 10,
   NO_SPAWN_NEAR_PLAYER_TILES: 14,

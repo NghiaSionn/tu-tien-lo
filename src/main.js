@@ -71,7 +71,7 @@ async function loadSheet(name) {
   const tint = col => { const c = document.createElement('canvas'); c.width = img.width; c.height = img.height; const g = c.getContext('2d'); g.drawImage(img, 0, 0); g.globalCompositeOperation = 'source-in'; g.fillStyle = col; g.fillRect(0, 0, c.width, c.height); return c; };
   return { img, meta, white: tint('#ffffff'), glow: tint('#c070ff'), wind: tint('#7ff0c8') };   // wind: tàn ảnh Phong Ảnh Bộ
 }
-for (const [key, name] of [['hero', 'nhan_vat'], ['mobs', 'quai'], ['bosses', 'boss'], ['rung', 'rung'], ['congTrinh', 'cong_trinh'], ['icons', 'bieu_tuong'], ['tienHoa', 'tien_hoa']]) {
+for (const [key, name] of [['hero', 'nhan_vat'], ['mobs', 'quai'], ['bosses', 'boss'], ['rung', 'rung'], ['congTrinh', 'cong_trinh'], ['icons', 'bieu_tuong'], ['tienHoa', 'tien_hoa'], ['bia', 'bia']]) {
   try { vis[key] = await loadSheet(name); } catch (e) { console.warn('[sprite] dùng hình cũ:', name, e); }
 }
 // công trình động phủ (cổng, tụ linh trận, Linh Mạch) + VFX tiến hóa M7-12: cắt sát nội dung từng khung
@@ -88,6 +88,7 @@ function cropFrames(sheet) {
 }
 if (vis.tienHoa) vis.thx = cropFrames(vis.tienHoa);   // han_an, khoi_bang, vong_phong_an, bang_no
 if (vis.congTrinh) vis.ct = cropFrames(vis.congTrinh);
+if (vis.bia) vis.ct = { ...(vis.ct || {}), ...cropFrames(vis.bia) };   // M7-14: bia, bia_sang
 // biểu tượng công pháp cho UI (thay emoji); thiếu sheet thì UI giữ emoji
 if (vis.icons) UI.setIcons('sprites/' + vis.icons.meta.image, vis.icons.meta, vis.icons.img.width, vis.icons.img.height);
 // lần đầu mở trên web (GitHub Pages) mất vài giây tải ~130 file: chữ "Đang tải…" che màn đen tới đây
@@ -124,6 +125,7 @@ const hub = { kind: 'hub', map: hubMap, monsters: [], projectiles: null };
 const CX = hubMap.cx, CY = hubMap.cy;
 const HUB_SPAWN = { x: CX + HUB.RESPAWN.dx, y: CY + HUB.RESPAWN.dy };
 const PORTAL = { x: CX + HUB.PORTAL.dx, y: CY + HUB.PORTAL.dy, near: false };
+const BIA = { x: CX + HUB.BIA.dx, y: CY + HUB.BIA.dy, near: false, lit: false };   // M7-14
 const SAFE = { x: CX, y: CY, r: HUB.SAFE_TILES * 16 };
 const saveCtx = { canStand: hubMap.canStand, hubSpawn: HUB_SPAWN };
 
@@ -387,6 +389,8 @@ function updateHub(dt) {
   reapMonsters(hub, killHubMonster);
 
   PORTAL.near = FEATURES.run && Math.hypot(p.x - PORTAL.x, p.y - PORTAL.y) < HUB.PORTAL.r;
+  BIA.near = FEATURES.lore && Math.hypot(p.x - BIA.x, p.y - BIA.y) < HUB.BIA.r;
+  BIA.lit = !!(meta.lore && meta.lore.unlocked.some(id => !meta.lore.read.includes(id)));
   if ((saveT += dt) > 3) { saveT = 0; save(); }
 }
 function updateInteractiveTrib(dt) {
@@ -671,7 +675,7 @@ function onAction(code) {
   else if (code === 'KeyB') tryBreak();
   else if (code === 'Digit1') usePill();
   else if (code === 'Digit2') buyPill();
-  else if (code === 'KeyE') openPrepare();
+  else if (code === 'KeyE') { if (BIA.near) openLore(); else openPrepare(); }   // M7-14: đứng cạnh bia thì E = đọc bia
   else if (code === 'KeyG') openForge();
   else if (code === 'KeyH') openGacha();
   else if (code === 'KeyJ') UI.showAchievements(meta);
@@ -744,7 +748,7 @@ function frame(now) {
   if (vis.pfx && view === 'HUB') vis.pfx.portal.update(dt);
   if (vis.pfxSkills && view === 'RUN') vis.pfxSkills.tornado.update(worldDt);
   const scene = run && view !== 'HUB' ? run.scene : hub;
-  render(ctx, { scene, player: p, time, vis, medFx, trib, inForm: p.inForm, portal: scene === hub ? PORTAL : null, run: scene === hub ? null : run, hubShots: scene === hub ? hubShots : null, dtWorld: worldDt });
+  render(ctx, { scene, player: p, time, vis, medFx, trib, inForm: p.inForm, portal: scene === hub ? PORTAL : null, bia: scene === hub && FEATURES.lore ? BIA : null, run: scene === hub ? null : run, hubShots: scene === hub ? hubShots : null, dtWorld: worldDt });
   if ((hudT += dt) > 0.1) { hudT = 0; if (view === 'HUB' || !run) UI.hubHud(meta, p, trib, PORTAL.near); else UI.runHud(run); }
   input.endFrame();
   const t1 = performance.now();

@@ -380,6 +380,15 @@ function drawBossTelegraph(ctx, m) {
   ctx.globalAlpha = 1;
 }
 
+// M7-14: Bia Truyền Thừa ở động phủ (ChatGPT vẽ). Có đoạn chưa đọc -> bản phù văn sáng + nhấp nháy nhẹ; đứng gần -> chữ E
+function drawBia(ctx, b, vis, time) {
+  const spr = (b.lit && vis.ct.bia_sang) || vis.ct.bia, x = Math.round(b.x), y = Math.round(b.y);
+  ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.fillRect(x - 15, y - 2, 30, 4);
+  ctx.drawImage(spr, x - (spr.width >> 1), y + 2 - spr.height);
+  if (b.lit && Math.floor(time * 2) % 2 === 0) { ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 0.25; ctx.drawImage(spr, x - (spr.width >> 1), y + 2 - spr.height); ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over'; }
+  if (b.near) txt(ctx, 'E · đọc bia', x, y - spr.height - 4, '#ffd978');
+}
+
 // Linh Mạch (M3-04): cột linh quang; mờ + vòng đỏ khi bị phong ấn (boss sống); chữ "E" khi đứng gần
 function drawShrine(ctx, run, p, time, vis) {
   const s = run.shrine, sealed = run.scene.monsters.some(m => m.boss && !m.dead);
@@ -735,6 +744,7 @@ export function render(ctx, g) {
   for (const m of scene.monsters) objs.push({ y: m.y, m });
   objs.push({ y: p.y, player: true });
   if (scene.kind === 'hub' && FEATURES.run && g.portal && vis.pfx) objs.push({ y: g.portal.y, portal: true });
+  if (scene.kind === 'hub' && g.bia && vis.ct && vis.ct.bia) objs.push({ y: g.bia.y, bia: true });
   objs.sort((a, b) => a.y - b.y);
   for (const o of objs) {
     if (o.img) {
@@ -753,6 +763,7 @@ export function render(ctx, g) {
       f.x = Math.round(g.portal.x); f.y = Math.round(g.portal.y) + (gate ? 2 : 0); f.scale = gate ? 0.66 : 1; f.draw(ctx); f.scale = 1;
       if (gate) ctx.drawImage(gate, Math.round(g.portal.x - gate.width / 2), Math.round(g.portal.y + 6 - gate.height));
     }
+    else if (o.bia) drawBia(ctx, g.bia, vis, time);
     else drawPlayer(ctx, p, time, g.medFx, g.inForm, vis);
   }
 
