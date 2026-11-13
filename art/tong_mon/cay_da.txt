@@ -1,0 +1,3 @@
+anh_dao_lon anh_dao_nho tung_bonsai tung_cao
+cay_tron tre bui_cay khom_hoa
+da_lon da_nho vach_da sen

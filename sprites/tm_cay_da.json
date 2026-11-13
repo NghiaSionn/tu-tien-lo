@@ -1,0 +1,65 @@
+{
+ "frameSize": [
+  104,
+  94
+ ],
+ "pivot": [
+  53,
+  93
+ ],
+ "image": "tm_cay_da.png",
+ "frames": {
+  "anh_dao_lon": [
+   0,
+   0
+  ],
+  "anh_dao_nho": [
+   104,
+   0
+  ],
+  "tung_bonsai": [
+   208,
+   0
+  ],
+  "tung_cao": [
+   312,
+   0
+  ],
+  "cay_tron": [
+   416,
+   0
+  ],
+  "tre": [
+   520,
+   0
+  ],
+  "bui_cay": [
+   624,
+   0
+  ],
+  "khom_hoa": [
+   728,
+   0
+  ],
+  "da_lon": [
+   832,
+   0
+  ],
+  "da_nho": [
+   936,
+   0
+  ],
+  "vach_da": [
+   1040,
+   0
+  ],
+  "sen": [
+   1144,
+   0
+  ]
+ },
+ "source": "docs/concept/tong_mon_cay_da_chatgpt.png",
+ "tool": "tools/sprite_clean.py",
+ "scale": 4.0,
+ "colors": 48
+}

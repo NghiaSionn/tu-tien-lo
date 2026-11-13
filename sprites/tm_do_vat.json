@@ -1,0 +1,65 @@
+{
+ "frameSize": [
+  92,
+  88
+ ],
+ "pivot": [
+  46,
+  87
+ ],
+ "image": "tm_do_vat.png",
+ "frames": {
+  "den_da": [
+   0,
+   0
+  ],
+  "co_phuon": [
+   92,
+   0
+  ],
+  "lan_can": [
+   184,
+   0
+  ],
+  "bac_thang": [
+   276,
+   0
+  ],
+  "cau_da": [
+   368,
+   0
+  ],
+  "hang_rao": [
+   460,
+   0
+  ],
+  "cong_rao": [
+   552,
+   0
+  ],
+  "moc_nhan": [
+   644,
+   0
+  ],
+  "gia_binh_khi": [
+   736,
+   0
+  ],
+  "bia_lon": [
+   828,
+   0
+  ],
+  "bia_nho": [
+   920,
+   0
+  ],
+  "thac_nuoc": [
+   1012,
+   0
+  ]
+ },
+ "source": "docs/concept/tong_mon_do_vat_chatgpt.png",
+ "tool": "tools/sprite_clean.py",
+ "scale": 4.0,
+ "colors": 48
+}
