@@ -1,6 +1,6 @@
 // Vẽ một khung: bản đồ, vật thể sắp theo y, yêu thú, người chơi, công pháp, hiệu ứng beanfx và hạt sáng.
 import { VIEW, TILE as T, HUB, FEATURES, ARCH, BOSS, TRIBULATION, SHRINE, BASIC_ATTACK } from '../core/config.js';
-import { GRASS, WATER, STONE, TREE, ROCK } from '../world/map.js';
+import { GRASS, WATER, STONE, TREE, ROCK, BUILDING, FENCE, DIRT } from '../world/map.js';
 import { SPR, TIERS, BOSS_WHITE, BOSS_SPR, grassTiles, waterTiles, waterBank, stoneTile, treeSprs, rockSpr, hash } from './sprites.js';
 import { createFx } from '../../lib/beanfx.js';
 import { skillKind, skillParams, spiritOrbPos, sealOrbPos } from '../systems/combat.js';
@@ -116,8 +116,31 @@ const pick = (list, v) => list.find(([, p]) => v < p)[0];
 // M5-04 (tối ưu): bản đồ tĩnh -> vẽ sẵn theo khối 16×16 ô (256 px): ô nền + bờ nước + trang trí vào canvas, 2 bản theo
 // nhịp sóng nước; cây/đá của khối tính một lần. Mỗi khung chỉ còn vài drawImage thay vì ~1000 ô + quét hash từng ô.
 const CH = 16, CPX = CH * T;
+// M8-02: ô sân đất (Luyện Võ Trường) và cọc rào gỗ — vẽ bằng code (placeholder tới khi có art tông môn)
+let _dirt = null, _fence = null;
+function dirtTile() {
+  if (_dirt || typeof document === 'undefined') return _dirt;
+  const c = document.createElement('canvas'); c.width = c.height = T; const g = c.getContext('2d');
+  g.fillStyle = '#b08a5a'; g.fillRect(0, 0, T, T);
+  for (let i = 0; i < 18; i++) { const v = hash(i, 3, 11); g.fillStyle = v < 0.5 ? '#9a774a' : '#c49a66'; g.fillRect(Math.floor(hash(i, 1, 12) * T), Math.floor(hash(i, 2, 13) * T), 1 + (v > 0.8), 1); }
+  return (_dirt = c);
+}
+function fenceSpr() {
+  if (_fence || typeof document === 'undefined') return _fence;
+  const c = document.createElement('canvas'); c.width = T; c.height = 20; const g = c.getContext('2d');
+  g.fillStyle = '#3a2618'; g.fillRect(0, 8, 16, 3); g.fillRect(0, 13, 16, 3); g.fillRect(6, 2, 4, 18);
+  g.fillStyle = '#8a5a34'; g.fillRect(0, 9, 16, 1); g.fillRect(0, 14, 16, 1); g.fillRect(7, 3, 2, 16);
+  g.fillStyle = '#b07a48'; g.fillRect(7, 3, 1, 15);
+  return (_fence = c);
+}
+function groundTile(t, tx, ty) {
+  if (t === STONE || t === BUILDING) return stoneTile;
+  if (t === DIRT) return dirtTile();
+  return grassTiles[Math.floor(hash(tx, ty, 5) * grassTiles.length)];
+}
 function tileObj(map, tx, ty, props) {
   const t = map.tileAt(tx, ty), x = tx * T, y = ty * T;
+  if (t === FENCE) { const f = fenceSpr(); return f ? { y: y + T, img: f, x, dy: y + T - f.height } : null; }
   if (props && t === TREE) { const img = props[pick(TREE_KINDS, hash(tx, ty, 6))]; return { y: y + T, img, x: x + 8 - img.ax, dy: y + T - 1 - img.ay }; }
   if (props && t === ROCK) { const img = props[pick(ROCK_KINDS, hash(tx, ty, 7))]; return { y: y + T - 2, img, x: x + 8 - img.ax, dy: y + T - 2 - img.ay }; }
   if (t === TREE) { const v = hash(tx, ty, 6); return { y: y + T, img: treeSprs[v < 0.12 ? 2 : v < 0.56 ? 0 : 1], x: x - 2, dy: y + T - 28 }; }
@@ -131,8 +154,7 @@ function buildChunk(map, cx, cy, phase, props) {
   for (let ty = ty0; ty < ty0 + CH; ty++) for (let tx = tx0; tx < tx0 + CH; tx++) {
     const t = map.tileAt(tx, ty), x = tx * T, y = ty * T;
     if (t === WATER) { g.drawImage(waterTiles[(phase + tx + ty) & 1], x, y); if (map.tileAt(tx, ty - 1) !== WATER) g.drawImage(waterBank, x, y); }
-    else if (t === STONE) g.drawImage(stoneTile, x, y);
-    else g.drawImage(grassTiles[Math.floor(hash(tx, ty, 5) * grassTiles.length)], x, y);
+    else g.drawImage(groundTile(t, tx, ty), x, y);
   }
   // trang trí: cả các ô ngay dưới/bên khối (hình cao ~36 px, rộng ~42 px lấn vào khối này)
   if (props) for (let ty = ty0; ty < ty0 + CH + 3; ty++) for (let tx = tx0 - 3; tx < tx0 + CH + 3; tx++) {
@@ -181,8 +203,7 @@ function drawMap(ctx, map, camX, camY, time, objs, vis) {
       if (t === WATER) {
         ctx.drawImage(waterTiles[(Math.floor(time * 1.5) + tx + ty) & 1], x, y);
         if (map.tileAt(tx, ty - 1) !== WATER) ctx.drawImage(waterBank, x, y);
-      } else if (t === STONE) ctx.drawImage(stoneTile, x, y);
-      else ctx.drawImage(grassTiles[Math.floor(hash(tx, ty, 5) * grassTiles.length)], x, y);
+      } else ctx.drawImage(groundTile(t, tx, ty), x, y);
       if (props) {
         const d = hash(tx, ty, 8);
         if (t === GRASS && d < 0.05) decor.push([props[pick(DECOR_KINDS, d / 0.05)], x, y]);
@@ -197,6 +218,7 @@ function drawMap(ctx, map, camX, camY, time, objs, vis) {
       objs.push({ y: y + T - 2, img, x: x + 8 - img.ax, dy: y + T - 2 - img.ay });
     } else if (t === TREE) { const v = hash(tx, ty, 6); objs.push({ y: y + T, img: treeSprs[v < 0.12 ? 2 : v < 0.56 ? 0 : 1], x: x - 2, dy: y + T - 28 }); }
     else if (t === ROCK) objs.push({ y: y + T - 2, img: rockSpr, x: x + 1, dy: y + 5 });
+    else if (t === FENCE) { const o = tileObj(map, tx, ty, props); if (o) objs.push(o); }
   }
   if (props) for (const [img, x, y] of decor) ctx.drawImage(img, x + 8 - img.ax, y + T - 1 - img.ay);
 }
@@ -387,6 +409,20 @@ function drawBia(ctx, b, vis, time) {
   ctx.drawImage(spr, x - (spr.width >> 1), y + 2 - spr.height);
   if (b.lit && Math.floor(time * 2) % 2 === 0) { ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 0.25; ctx.drawImage(spr, x - (spr.width >> 1), y + 2 - spr.height); ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over'; }
   if (b.near) txt(ctx, 'E · đọc bia', x, y - spr.height - 4, '#ffd978');
+}
+
+// M8-02: công trình tông môn — PLACEHOLDER (khối tường + mái + cửa + tên) tới khi có art vẽ theo concept ảnh 2.
+// Nền (b.px, b.py, b.pw, b.ph) là vùng đặc; mái nhô lên trên nền thêm `tall` ô (góc nhìn 3/4).
+function drawSectBuilding(ctx, b) {
+  const x = b.px, w = b.pw, base = b.py + b.ph, wallH = Math.round(b.ph * 0.55), roofTop = b.py - Math.round((b.tall || 1.5) * T);
+  ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.fillRect(x + 2, base - 2, w, 4);
+  ctx.fillStyle = b.color; ctx.fillRect(x, base - wallH, w, wallH);
+  ctx.fillStyle = 'rgba(255,220,150,.18)'; for (let i = 6; i < w - 6; i += 14) ctx.fillRect(x + i, base - wallH + 4, 8, wallH - 8);
+  ctx.fillStyle = '#1a1210'; const dx = Math.round(b.doorPx.x - 6); ctx.fillRect(dx, base - Math.min(14, wallH - 2), 12, Math.min(14, wallH - 2));
+  ctx.fillStyle = b.roof; ctx.fillRect(x - 4, roofTop, w + 8, base - wallH - roofTop);
+  ctx.fillStyle = 'rgba(255,255,255,.12)'; ctx.fillRect(x - 4, roofTop, w + 8, 3);
+  ctx.fillStyle = '#0d0b14'; ctx.fillRect(x - 4, base - wallH - 2, w + 8, 2);
+  txt(ctx, b.name, Math.round(x + w / 2), roofTop - 3, '#ffd978');
 }
 
 // Linh Mạch (M3-04): cột linh quang; mờ + vòng đỏ khi bị phong ấn (boss sống); chữ "E" khi đứng gần
@@ -745,6 +781,7 @@ export function render(ctx, g) {
   objs.push({ y: p.y, player: true });
   if (scene.kind === 'hub' && FEATURES.run && g.portal && vis.pfx) objs.push({ y: g.portal.y, portal: true });
   if (scene.kind === 'hub' && g.bia && vis.ct && vis.ct.bia) objs.push({ y: g.bia.y, bia: true });
+  if (scene.kind === 'hub' && g.sect) for (const b of g.sect.buildings) objs.push({ y: b.py + b.ph, sectB: b });   // M8-02
   objs.sort((a, b) => a.y - b.y);
   for (const o of objs) {
     if (o.img) {
@@ -764,6 +801,7 @@ export function render(ctx, g) {
       if (gate) ctx.drawImage(gate, Math.round(g.portal.x - gate.width / 2), Math.round(g.portal.y + 6 - gate.height));
     }
     else if (o.bia) drawBia(ctx, g.bia, vis, time);
+    else if (o.sectB) drawSectBuilding(ctx, o.sectB);
     else drawPlayer(ctx, p, time, g.medFx, g.inForm, vis);
   }
 

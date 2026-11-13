@@ -1,7 +1,7 @@
 // Điều phối: vòng lặp, các cảnh (động phủ / bí cảnh), chuyển trạng thái HUB -> PREPARE -> RUN <-> CARD_DRAFT -> RESULTS -> HUB.
 import { VIEW, HUB, PLAYER, BASIC_ATTACK, MEDITATION, HUB_MONSTER as HM, REALM, FEATURES, ITEMS } from './core/config.js';
 import { makeInput } from './core/input.js';
-import { makeHubMap } from './world/map.js';
+import { makeHubMap, makeSectMap } from './world/map.js';
 import { levelName, maxHp, atk, need, isMajor, realmOf, REALMS, MAX_L, grantUnlocks } from './progression/realm.js';
 import { drawCards, applyCard, rerollDraft } from './progression/draft.js';
 import * as C from './systems/cultivation.js';
@@ -9,7 +9,7 @@ import { createTrib, updateTrib, clampToArena, phaseDef } from './systems/tribul
 import { TRIBULATION } from './core/config.js';
 import { createRun, updateRun, endRun, refreshMaxHp } from './systems/run.js';
 import { runStats } from './systems/combat.js';
-import { spawnHubMonster, updateMonsters, reapMonsters, damageMonster, moveEntity } from './entities/monsters.js';
+import { spawnHubMonster, updateMonsters, reapMonsters, damageMonster, moveEntity, makeMonster } from './entities/monsters.js';
 import { loadSave, writeSave, commitMigration, exportSave, importSave, defaultMeta, KEYS } from './persistence/save.js';
 import { loadFx, createFx } from '../lib/beanfx.js';
 import { loadPixelfx } from './render/pixelfx.js';
@@ -120,12 +120,15 @@ if (FEATURES.pixelfxAssets) {
 if (FX.hoa_long_quyen_v2) vis.pfxSkills = { ...(vis.pfxSkills || {}), tornado: createFx(FX.hoa_long_quyen_v2) };
 
 // ---------- thế giới động phủ ----------
-const hubMap = makeHubMap();
+// M8: ?sect=1 / ?sect=0 ghi đè FEATURES.sectHub cho lần mở này (thử sảnh tông môn khi cờ mặc định còn tắt)
+{ const q = new URLSearchParams(location.search).get('sect'); if (q === '1' || q === '0') FEATURES.sectHub = q === '1'; }
+const hubMap = FEATURES.sectHub ? makeSectMap() : makeHubMap();   // M8-02: sảnh tông môn (cờ) hoặc động phủ cũ
+const SECT_MAP = hubMap.sect || null;
 const hub = { kind: 'hub', map: hubMap, monsters: [], projectiles: null };
 const CX = hubMap.cx, CY = hubMap.cy;
 const HUB_SPAWN = { x: CX + HUB.RESPAWN.dx, y: CY + HUB.RESPAWN.dy };
-const PORTAL = { x: CX + HUB.PORTAL.dx, y: CY + HUB.PORTAL.dy, near: false };
-const BIA = { x: CX + HUB.BIA.dx, y: CY + HUB.BIA.dy, near: false, lit: false };   // M7-14
+const PORTAL = SECT_MAP ? { ...SECT_MAP.portal, near: false } : { x: CX + HUB.PORTAL.dx, y: CY + HUB.PORTAL.dy, near: false };
+const BIA = SECT_MAP ? { ...SECT_MAP.bia, near: false, lit: false } : { x: CX + HUB.BIA.dx, y: CY + HUB.BIA.dy, near: false, lit: false };   // M7-14 (M8: vườn bia phía nam)
 const SAFE = { x: CX, y: CY, r: HUB.SAFE_TILES * 16 };
 const saveCtx = { canStand: hubMap.canStand, hubSpawn: HUB_SPAWN };
 
@@ -318,6 +321,15 @@ function hurtHubPlayer(d) {
     save();
   }
 }
+// M8-02: Luyện Võ Trường — tối đa PEN_WOLVES sói cấp thấp, sinh và bị giữ trong sân rào (không lang thang vào tông môn)
+const PEN_WOLVES = 4;
+function penMonsters() {
+  const P = SECT_MAP.pen, x0 = P.px + 24, y0 = P.py + 28, x1 = P.px + P.pw - 24, y1 = P.py + P.ph - 12;
+  for (const m of hub.monsters) { if (m.dead) continue; m.x = Math.max(x0, Math.min(x1, m.x)); m.y = Math.max(y0, Math.min(y1, m.y)); }
+  if (hub.monsters.length >= PEN_WOLVES || Math.random() > 0.01) return;
+  const x = x0 + Math.random() * (x1 - x0), y = y0 + Math.random() * (y1 - y0);
+  if (hubMap.canStand(x, y) && Math.hypot(x - p.x, y - p.y) > 40) hub.monsters.push(makeMonster(x, y, 1, { ph: Math.random() * 6 }));
+}
 function killHubMonster(m) {
   const tv = Math.round(HM.TUVI_BASE * Math.pow(HM.TUVI_GROWTH, m.lvl - 1)), st = 1 + m.lvl;
   meta.lingQi += tv; meta.linhThach += st;      // M3-01: yêu thú động phủ cho linh khí (thiền mới thành tu vi)
@@ -369,7 +381,8 @@ function updateHub(dt) {
     medFx.update(dt);
   } else meta.hp = Math.min(mh, meta.hp + mh * MEDITATION.IDLE_HEAL * dt);
 
-  if (hub.monsters.length < HUB.MAX_MONSTERS) spawnHubMonster(hub, p, Math.random);
+  if (SECT_MAP) penMonsters();   // M8-02: sói chỉ ở trong rào Luyện Võ Trường
+  else if (hub.monsters.length < HUB.MAX_MONSTERS) spawnHubMonster(hub, p, Math.random);
   updateMonsters(hub, p, dt, ev, { safe: SAFE, onAttack: m => hurtHubPlayer(m.dmg) });
 
   for (let i = hubShots.length - 1; i >= 0; i--) {
@@ -748,7 +761,7 @@ function frame(now) {
   if (vis.pfx && view === 'HUB') vis.pfx.portal.update(dt);
   if (vis.pfxSkills && view === 'RUN') vis.pfxSkills.tornado.update(worldDt);
   const scene = run && view !== 'HUB' ? run.scene : hub;
-  render(ctx, { scene, player: p, time, vis, medFx, trib, inForm: p.inForm, portal: scene === hub ? PORTAL : null, bia: scene === hub && FEATURES.lore ? BIA : null, run: scene === hub ? null : run, hubShots: scene === hub ? hubShots : null, dtWorld: worldDt });
+  render(ctx, { scene, player: p, time, vis, medFx, trib, inForm: p.inForm, portal: scene === hub ? PORTAL : null, bia: scene === hub && FEATURES.lore ? BIA : null, sect: scene === hub ? SECT_MAP : null, run: scene === hub ? null : run, hubShots: scene === hub ? hubShots : null, dtWorld: worldDt });
   if ((hudT += dt) > 0.1) { hudT = 0; if (view === 'HUB' || !run) UI.hubHud(meta, p, trib, PORTAL.near); else UI.runHud(run); }
   input.endFrame();
   const t1 = performance.now();
@@ -756,7 +769,7 @@ function frame(now) {
   if (!TIMER_LOOP) requestAnimationFrame(frame);
 }
 
-for (let i = 0; i < HUB.MAX_MONSTERS; i++) spawnHubMonster(hub, p, Math.random);
+if (!SECT_MAP) for (let i = 0; i < HUB.MAX_MONSTERS; i++) spawnHubMonster(hub, p, Math.random);   // M8-02: tông môn chỉ có sói trong rào
 UI.setMode('hub');
 UI.log('Ngồi vào tụ linh trận và nhấn T để tu luyện.', 'gold');
 if (FEATURES.run) UI.log('Cổng bí cảnh ở phía bắc tụ linh trận — đứng gần và nhấn E.');

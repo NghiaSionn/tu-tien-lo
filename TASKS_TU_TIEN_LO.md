@@ -367,7 +367,7 @@ Backlog chi tiết (ChatGPT đề xuất 13/11, người phát triển duyệt c
 Thiết kế + backlog đầy đủ (ChatGPT, 13/11): **`docs/chatgpt_tong_mon_M8_2026-11-13.md`**. Quyết định đã chốt: `docs/M8_QUYET_DINH.md` (phong cách concept ảnh 2, bố cục ảnh 1). Cờ `FEATURES.sectHub` (tắt = động phủ cũ). Không qua GATE M8-A thì không làm M8-B.
 
 - [x] M8-01 Audit tích hợp và chuẩn bị rollback (S, P0) — xong 13/11: `docs/playtest/M8_01_AUDIT.md` (bảng 10 chức năng → hàm, phương án M8-02/03), tag `pre-m8` tại `0776e63`, cờ `FEATURES.sectHub = false`, 198/198 test
-- [ ] M8-02 Dựng layout tông môn và hệ thống va chạm (L, P0)
+- [x] M8-02 Dựng layout tông môn và hệ thống va chạm (L, P0) — xong 13/11 (`docs/playtest/M8_02.md`): `src/data/sect_layout.js` + `makeSectMap()` (ô BUILDING/FENCE/DIRT), công trình placeholder, sói trong rào Luyện Võ Trường, thử bằng `?sect=1`; 202/202 test (flood-fill, không ô kẹt, thiên kiếp, map cũ không đổi); đi bằng phím tới cả 8 khu trong 1,8–3,6 s
 - [ ] M8-03 Hệ thống tương tác công trình dùng chung (M, P0)
 - [ ] M8-04 Cổng Bí Cảnh (S, P0)
 - [ ] M8-05 Tụ Linh Pháp Đài (M, P0) → GATE M8-A
