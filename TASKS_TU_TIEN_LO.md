@@ -362,6 +362,19 @@ Backlog chi tiết (ChatGPT đề xuất 13/11, người phát triển duyệt c
 
 ---
 
+## M8 — SẢNH TÔNG MÔN (THANH HUYỀN TÔNG) — đi tới từng khu thay hàng nút
+
+Thiết kế + backlog đầy đủ (ChatGPT, 13/11): **`docs/chatgpt_tong_mon_M8_2026-11-13.md`**. Quyết định đã chốt: `docs/M8_QUYET_DINH.md` (phong cách concept ảnh 2, bố cục ảnh 1). Cờ `FEATURES.sectHub` (tắt = động phủ cũ). Không qua GATE M8-A thì không làm M8-B.
+
+- [x] M8-01 Audit tích hợp và chuẩn bị rollback (S, P0) — xong 13/11: `docs/playtest/M8_01_AUDIT.md` (bảng 10 chức năng → hàm, phương án M8-02/03), tag `pre-m8` tại `0776e63`, cờ `FEATURES.sectHub = false`, 198/198 test
+- [ ] M8-02 Dựng layout tông môn và hệ thống va chạm (L, P0)
+- [ ] M8-03 Hệ thống tương tác công trình dùng chung (M, P0)
+- [ ] M8-04 Cổng Bí Cảnh (S, P0)
+- [ ] M8-05 Tụ Linh Pháp Đài (M, P0) → GATE M8-A
+- [ ] M8-06..11 (M8-B, từng công trình), M8-12..16 (M8-C, HUD/dẫn đường/cảm ứng/art/save), M8-17..18 (M8-D, playtest): xem file thiết kế
+
+---
+
 ## M6 — LATER / KHÔNG ĐƯỢC TỰ LÀM (P3)
 
 - [ ] `M6-01` Thêm bí cảnh/biome/boss sau khi build loop được playtest tốt.
