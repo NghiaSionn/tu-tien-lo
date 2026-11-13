@@ -74,3 +74,20 @@ test('rộng gấp 2: đi từ pháp đài tới mỗi khu mất ≥ 4 s (đư�
   for (const [i, s] of far.entries()) assert.ok(s >= 4 && s <= 9, `${S.buildings[i].id}: ${s.toFixed(1)} s`);
   assert.ok(sec(S.portal) >= 3.5, 'cổng ' + sec(S.portal));
 });
+
+test('bệ pháp đài nâng cao: vách nam + lan can bao quanh, chỉ lên được qua lối đường/bậc thang', async () => {
+  const { WALL, STAIR, RAIL, PLAZA } = await import('../src/world/map.js');
+  const at = (lx, ly) => m.tileAt(S.ox + lx, S.oy + ly), cx = SECT.W / 2, cy = SECT.H / 2;
+  assert.equal(at(cx, cy), PLAZA);
+  let wall = 0, stair = 0, rail = 0;
+  for (let ly = 0; ly < SECT.H; ly++) for (let lx = 0; lx < SECT.W; lx++) { const t = at(lx, ly); wall += t === WALL; stair += t === STAIR; rail += t === RAIL; }
+  assert.ok(wall >= 20 && stair >= 4 && rail >= 20, `vách ${wall}, bậc ${stair}, lan can ${rail}`);
+  // mọi ô sát mặt bệ (4 hướng) không phải mặt bệ thì là lan can/vách/bậc hoặc lối đường (STONE)
+  for (let ly = 1; ly < SECT.H - 1; ly++) for (let lx = 1; lx < SECT.W - 1; lx++) {
+    if (at(lx, ly) !== PLAZA) continue;
+    for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+      const t = at(lx + dx, ly + dy);
+      assert.ok(t === PLAZA || t === WALL || t === STAIR || t === RAIL || t === 2, `mép bệ hở tại (${lx + dx},${ly + dy}): ${t}`);
+    }
+  }
+});

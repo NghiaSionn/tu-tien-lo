@@ -369,6 +369,7 @@ Thiết kế + backlog đầy đủ (ChatGPT, 13/11): **`docs/chatgpt_tong_mon_M
 - [x] M8-01 Audit tích hợp và chuẩn bị rollback (S, P0) — xong 13/11: `docs/playtest/M8_01_AUDIT.md` (bảng 10 chức năng → hàm, phương án M8-02/03), tag `pre-m8` tại `0776e63`, cờ `FEATURES.sectHub = false`, 198/198 test
 - [x] M8-02 Dựng layout tông môn và hệ thống va chạm (L, P0) — xong 13/11 (`docs/playtest/M8_02.md`): `src/data/sect_layout.js` + `makeSectMap()` (ô BUILDING/FENCE/DIRT), công trình placeholder, sói trong rào Luyện Võ Trường, thử bằng `?sect=1`; 202/202 test (flood-fill, không ô kẹt, thiên kiếp, map cũ không đổi); đi bằng phím tới cả 8 khu trong 1,8–3,6 s
   - [x] M8-02b (14/11) Tông môn rộng gấp 2 + art thật (`docs/playtest/M8_02b.md`): khung 88×64 ô (bản đồ 108×84 gồm 10 ô rừng mỗi phía), 5 công trình + chòi luyện võ + ~140 đồ vật/cây từ sprite `tm_*` (tách ảnh 1, `tools/build_tong_mon.py` thu từng món đúng cỡ), va chạm theo nền sprite (mặt nạ solid riêng), rào bằng sprite; 203/203 test; đi bằng phím: tâm → Đan Dược 6,1 s, → cổng 4,5 s
+  - [x] M8-02c (14/11) Bệ pháp đài nâng cao theo ảnh 1: mặt bệ bát giác lát đá tấm (ô PLAZA), vách đá nam cao 2 ô (WALL) + bóng đổ, bậc thang 4 ô nơi đường xuống vườn bia (STAIR), lan can đá quanh mép (RAIL), lối lên ở chỗ đường; 204/204 test; phím thật: vườn bia → leo bậc → tâm 3,5 s, vách/lan can chặn đúng. Ảnh `docs/playtest/M8_02c_be_phap_dai.png`
 - [ ] M8-03 Hệ thống tương tác công trình dùng chung (M, P0)
 - [ ] M8-04 Cổng Bí Cảnh (S, P0)
 - [ ] M8-05 Tụ Linh Pháp Đài (M, P0) → GATE M8-A

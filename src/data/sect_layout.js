@@ -7,7 +7,7 @@
 // (nền công trình / gốc cây), tính từ ô round(x - w/2), các hàng round(y) - h .. round(y) - 1. Sprite: sprites/tm_*.
 export const SECT = {
   W: 88, H: 64, PAD: 10,
-  PLAZA_R: 9,                   // bán kính sân đá pháp đài (ô) — thiên kiếp cần ARENA_R 96 px + lề (≈ 6,5 ô) trống
+  PLAZA_R: 8.5,                 // nửa bề rộng bệ pháp đài bát giác (ô), bệ nâng cao: vách nam + lan can — thiên kiếp cần ARENA_R 96 px + lề (≈ 6,5 ô) trống
   PATH_W: 3,                    // bề rộng đường lát đá (ô)
   // 5 công trình có chức năng (cửa = điểm đứng tương tác, ngay dưới bậc thềm)
   BUILDINGS: [
@@ -23,13 +23,13 @@ export const SECT = {
   BIA: [44, 48],                // Bia Truyền Thừa (bia động phủ hiện có) giữa vườn bia phía nam
   PATHS: [
     [[44, 24], [44, 10]],                         // bắc → cổng bí cảnh
-    [[38, 26], [28, 20], [20, 17]],               // tây bắc → Truyền Thừa Các
+    [[39, 27], [33, 21], [20, 17]],               // tây bắc → Truyền Thừa Các
     [[36, 32], [13, 33]],                         // tây → Tàng Kinh Các
-    [[38, 38], [27, 46], [18, 49]],               // tây nam → Công Đức Đường
-    [[50, 26], [60, 20], [68, 17]],               // đông bắc → Luyện Khí Phường
+    [[44, 46.5], [30, 46.5], [18, 49]],           // bậc nam → tây nam → Công Đức Đường
+    [[49, 27], [55, 21], [68, 17]],               // đông bắc → Luyện Khí Phường
     [[52, 32], [75, 33]],                         // đông → Đan Dược Phòng
-    [[50, 38], [57, 38], [61.5, 40]],             // đông nam → cổng rào Luyện Võ Trường
-    [[44, 40], [44, 48]],                         // nam → vườn bia
+    [[44, 46.5], [54, 45], [56, 38], [61.5, 38.5]], // bậc nam → đông nam → cổng rào Luyện Võ Trường
+    [[44, 38], [44, 48]],                         // nam: xuống bậc thang bệ → vườn bia
     [[18, 49], [22, 53], [27.5, 57], [27.5, 63]], // Công Đức Đường → cầu đá qua suối
   ],
   STREAM: { y: 58, h: 2, bridge: [26, 28] },      // suối ngang phía nam; cầu đá (cau_da) chỗ đường tây nam
@@ -38,21 +38,19 @@ export const SECT = {
   PROPS: [
     // bậc thềm trước mỗi công trình + hai đầu pháp đài
     ['bac_thang', 20, 17.6, 0, 1], ['bac_thang', 13, 33.6, 0, 1], ['bac_thang', 18, 49.6, 0, 1], ['bac_thang', 68, 17.6, 0, 1], ['bac_thang', 75, 33.6, 0, 1],
-    ['bac_thang', 44, 24, 0, 1], ['bac_thang', 44, 41.6, 0, 1], ['bac_thang', 44, 12.4, 0, 1],
-    // lan can đá hai bên bậc pháp đài
-    ['lan_can', 39.5, 23, [2, 1]], ['lan_can', 48.5, 23, [2, 1]], ['lan_can', 39.5, 42.6, [2, 1]], ['lan_can', 48.5, 42.6, [2, 1]],
+    ['bac_thang', 44, 24, 0, 1], ['bac_thang', 44, 12.4, 0, 1],
     // cờ phướn quanh pháp đài
     ['co_phuon', 41.5, 24, [1, 1]], ['co_phuon', 46.5, 24, [1, 1]], ['co_phuon', 41.5, 41, [1, 1]], ['co_phuon', 46.5, 41, [1, 1]],
-    ['co_phuon', 34.5, 29, [1, 1]], ['co_phuon', 34.5, 36, [1, 1]], ['co_phuon', 53.5, 29, [1, 1]], ['co_phuon', 53.5, 36, [1, 1]],
+    ['co_phuon', 36.5, 29, [1, 1]], ['co_phuon', 36.5, 36, [1, 1]], ['co_phuon', 51.5, 29, [1, 1]], ['co_phuon', 51.5, 36, [1, 1]],
     ['co_phuon', 40.5, 9, [1, 1]], ['co_phuon', 47.5, 9, [1, 1]],
     // đèn đá dọc đường
     ['den_da', 41.5, 14, [1, 1]], ['den_da', 46.5, 14, [1, 1]], ['den_da', 41.5, 19, [1, 1]], ['den_da', 46.5, 19, [1, 1]],
     ['den_da', 31.5, 25, [1, 1]], ['den_da', 24.5, 16, [1, 1]], ['den_da', 26.5, 30, [1, 1]], ['den_da', 18.5, 30, [1, 1]],
-    ['den_da', 30.5, 45, [1, 1]], ['den_da', 23.5, 47, [1, 1]], ['den_da', 57.5, 25, [1, 1]], ['den_da', 64.5, 15, [1, 1]],
-    ['den_da', 62.5, 30, [1, 1]], ['den_da', 69.5, 30, [1, 1]], ['den_da', 41.5, 46, [1, 1]], ['den_da', 46.5, 46, [1, 1]],
+    ['den_da', 30.5, 48, [1, 1]], ['den_da', 24.5, 51, [1, 1]], ['den_da', 57.5, 25, [1, 1]], ['den_da', 64.5, 15, [1, 1]],
+    ['den_da', 62.5, 30, [1, 1]], ['den_da', 69.5, 30, [1, 1]], ['den_da', 41.5, 48, [1, 1]], ['den_da', 46.5, 48, [1, 1]],
     ['den_da', 24.5, 57, [1, 1]], ['den_da', 30.5, 57, [1, 1]],
     // vườn bia
-    ['bia_lon', 38.5, 51, [2, 1]], ['bia_nho', 50, 51, [2, 1]], ['bia_nho', 36, 47, [2, 1]],
+    ['bia_lon', 38.5, 51, [2, 1]], ['bia_nho', 50, 51, [2, 1]], ['bia_nho', 35, 50, [2, 1]],
     // cầu đá + thác hai đầu suối + sen
     ['cau_da', 27.5, 60.3], ['thac_nuoc', 3.5, 61], ['thac_nuoc', 84.5, 61],
     ['sen', 12, 59.6], ['sen', 38, 59.4], ['sen', 58, 59.6], ['sen', 72, 59.4], ['sen', 31, 14.6],

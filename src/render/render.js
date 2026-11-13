@@ -1,6 +1,6 @@
 // Vẽ một khung: bản đồ, vật thể sắp theo y, yêu thú, người chơi, công pháp, hiệu ứng beanfx và hạt sáng.
 import { VIEW, TILE as T, HUB, FEATURES, ARCH, BOSS, TRIBULATION, SHRINE, BASIC_ATTACK } from '../core/config.js';
-import { GRASS, WATER, STONE, TREE, ROCK, BUILDING, FENCE, DIRT } from '../world/map.js';
+import { GRASS, WATER, STONE, TREE, ROCK, BUILDING, FENCE, DIRT, WALL, STAIR, RAIL, PLAZA } from '../world/map.js';
 import { SPR, TIERS, BOSS_WHITE, BOSS_SPR, grassTiles, waterTiles, waterBank, stoneTile, treeSprs, rockSpr, hash } from './sprites.js';
 import { createFx } from '../../lib/beanfx.js';
 import { skillKind, skillParams, spiritOrbPos, sealOrbPos } from '../systems/combat.js';
@@ -133,13 +133,74 @@ function fenceSpr() {
   g.fillStyle = '#b07a48'; g.fillRect(7, 3, 1, 15);
   return (_fence = c);
 }
-function groundTile(t, tx, ty) {
-  if (t === STONE || t === BUILDING) return stoneTile;
+// M8: bệ pháp đài nâng cao (ảnh 1) — vách đá xây 2 ô, bậc thang, lan can đá. Vẽ bằng code, bảng màu đá xám xanh.
+const ST = { lip: '#d9dce4', hi: '#b9bdc9', mid: '#9297a5', lo: '#727786', dk: '#555a68', ol: '#363946', moss: '#6f9a4a' };
+const _plaza = {};
+function mk(w, h, f) { const c = document.createElement('canvas'); c.width = w; c.height = h; f(c.getContext('2d')); return c; }
+function wallTile(row) {   // row 0: hàng trên (có gờ), row 1: chân vách (tối + bóng)
+  const k = 'w' + row; if (_plaza[k] || typeof document === 'undefined') return _plaza[k];
+  return (_plaza[k] = mk(T, T, g => {
+    g.fillStyle = row ? ST.lo : ST.mid; g.fillRect(0, 0, T, T);
+    for (let r = 0; r < 4; r++) {   // gạch đá: hàng cao 4 px, so le
+      const y = r * 4; g.fillStyle = ST.dk; g.fillRect(0, y + 3, T, 1);
+      for (let x = (r + row) & 1 ? 4 : 0; x < T; x += 8) g.fillRect(x, y, 1, 3);
+      g.fillStyle = row ? ST.mid : ST.hi; for (let x = (r + row) & 1 ? 5 : 1; x < T; x += 8) g.fillRect(x, y, 5, 1);
+    }
+    if (!row) { g.fillStyle = ST.ol; g.fillRect(0, 0, T, 1); g.fillStyle = ST.lip; g.fillRect(0, 1, T, 2); g.fillStyle = ST.dk; g.fillRect(0, 3, T, 1); }
+    else { g.fillStyle = ST.ol; g.fillRect(0, T - 2, T, 2); g.fillStyle = ST.moss; for (let i = 0; i < 4; i++) g.fillRect(Math.floor(hash(i, 7, 21) * 15), T - 3 - (i & 1), 2, 1); }
+  }));
+}
+function stairTile(cheekL, cheekR) {
+  const k = 's' + (+cheekL) + (+cheekR); if (_plaza[k] || typeof document === 'undefined') return _plaza[k];
+  return (_plaza[k] = mk(T, T, g => {
+    for (let i = 0; i < 4; i++) { const y = i * 4; g.fillStyle = ST.lip; g.fillRect(0, y, T, 2); g.fillStyle = ST.hi; g.fillRect(0, y + 2, T, 1); g.fillStyle = ST.lo; g.fillRect(0, y + 3, T, 1); }
+    g.fillStyle = ST.ol; if (cheekL) g.fillRect(0, 0, 2, T); if (cheekR) g.fillRect(T - 2, 0, 2, T);
+    g.fillStyle = ST.dk; if (cheekL) g.fillRect(2, 0, 1, T); if (cheekR) g.fillRect(T - 3, 0, 1, T);
+  }));
+}
+function railSpr(kind) {   // 'h' lan can ngang, 'v' dọc, 'p' trụ góc. Đáy ảnh = chân lan can
+  const k = 'r' + kind; if (_plaza[k] || typeof document === 'undefined') return _plaza[k];
+  const post = (g, x) => { g.fillStyle = ST.ol; g.fillRect(x, 1, 4, 14); g.fillStyle = ST.hi; g.fillRect(x + 1, 2, 2, 12); g.fillStyle = ST.lip; g.fillRect(x, 0, 4, 2); g.fillRect(x + 1, 2, 1, 11); };
+  if (kind === 'h') return (_plaza[k] = mk(T, 15, g => {
+    g.fillStyle = ST.ol; g.fillRect(0, 3, T, 4); g.fillRect(0, 11, T, 3);
+    g.fillStyle = ST.lip; g.fillRect(0, 4, T, 1); g.fillStyle = ST.hi; g.fillRect(0, 5, T, 1); g.fillRect(0, 12, T, 1);
+    for (let x = 6; x < T; x += 4) { g.fillStyle = ST.ol; g.fillRect(x, 7, 3, 4); g.fillStyle = ST.mid; g.fillRect(x + 1, 7, 1, 4); }
+    post(g, 0);
+  }));
+  if (kind === 'v') return (_plaza[k] = mk(T, 15 + T, g => {
+    g.fillStyle = ST.ol; g.fillRect(5, 3, 6, T + 10); g.fillStyle = ST.hi; g.fillRect(6, 4, 4, T + 8); g.fillStyle = ST.lip; g.fillRect(6, 4, 2, T + 8);
+    post(g, 6 - 0); 
+  }));
+  return (_plaza[k] = mk(T, 15, g => post(g, 6)));
+}
+function plazaTile(v) {   // mặt bệ: đá tấm lớn sáng màu, so le theo ô
+  const k = 'p' + v; if (_plaza[k] || typeof document === 'undefined') return _plaza[k];
+  return (_plaza[k] = mk(T, T, g => {
+    g.fillStyle = '#c9ccd6'; g.fillRect(0, 0, T, T);
+    g.fillStyle = '#a7abb8'; g.fillRect(0, 15, T, 1); g.fillRect(v ? 7 : 15, 0, 1, T); g.fillRect(0, 7, v ? 7 : T, 1);
+    g.fillStyle = '#dde0e8'; g.fillRect(0, 0, T, 1); g.fillRect(v ? 8 : 0, 8, v ? 8 : 15, 1);
+    for (let i = 0; i < 3; i++) { g.fillStyle = '#b8bcc8'; g.fillRect(Math.floor(hash(i, v, 31) * 14) + 1, Math.floor(hash(i, v, 32) * 14) + 1, 2, 1); }
+  }));
+}
+function groundTile(t, tx, ty, map) {
+  if (t === PLAZA) return plazaTile((tx + ty) & 1);
+  if (t === WALL && map) return wallTile(map.tileAt(tx, ty - 1) === WALL ? 1 : 0);
+  if (t === STAIR && map) return stairTile(map.tileAt(tx - 1, ty) !== STAIR, map.tileAt(tx + 1, ty) !== STAIR);
+  if (t === STONE || t === BUILDING || t === RAIL || t === WALL || t === STAIR) return stoneTile;
   if (t === DIRT) return dirtTile();
   return grassTiles[Math.floor(hash(tx, ty, 5) * grassTiles.length)];
 }
 function tileObj(map, tx, ty, props) {
   const t = map.tileAt(tx, ty), x = tx * T, y = ty * T;
+  if (t === RAIL) {   // M8: lan can quanh bệ pháp đài; nối theo ô lan can/vách bên cạnh
+    const n = d => { const u = map.tileAt(tx + d[0], ty + d[1]); return u === RAIL || u === WALL; };
+    const h = n([-1, 0]) || n([1, 0]), v = n([0, -1]) || n([0, 1]);
+    const img = railSpr(h ? 'h' : v ? 'v' : 'p'); if (!img) return null;
+    return { y: y + T, img, x, dy: y + T - img.height };
+  }
+  if (t === WALL && map.tileAt(tx, ty - 1) !== WALL) {   // lan can trên đỉnh vách (mép nam bệ): đứng trên bệ thì nhân vật sau lan can
+    const img = railSpr('h'); return img ? { y: y + 1, img, x, dy: y + 3 - img.height } : null;
+  }
   if (t === FENCE) {   // M8: mép bắc/nam rào là sprite hang_rao (map.sect.props); chỉ vẽ cọc rào cho mép đông/tây
     if (map.sect && (map.tileAt(tx - 1, ty) === FENCE || map.tileAt(tx + 1, ty) === FENCE)) return null;
     const f = fenceSpr(); return f ? { y: y + T, img: f, x, dy: y + T - f.height } : null;
@@ -157,7 +218,9 @@ function buildChunk(map, cx, cy, phase, props) {
   for (let ty = ty0; ty < ty0 + CH; ty++) for (let tx = tx0; tx < tx0 + CH; tx++) {
     const t = map.tileAt(tx, ty), x = tx * T, y = ty * T;
     if (t === WATER) { g.drawImage(waterTiles[(phase + tx + ty) & 1], x, y); if (map.tileAt(tx, ty - 1) !== WATER) g.drawImage(waterBank, x, y); }
-    else g.drawImage(groundTile(t, tx, ty), x, y);
+    else g.drawImage(groundTile(t, tx, ty, map), x, y);
+    const up = map.tileAt(tx, ty - 1);   // bóng đổ dưới chân vách bệ
+    if ((up === WALL || up === STAIR) && t !== WALL && t !== STAIR) { g.fillStyle = 'rgba(20,24,40,.32)'; g.fillRect(x, y, T, 3); g.fillStyle = 'rgba(20,24,40,.16)'; g.fillRect(x, y + 3, T, 3); }
   }
   // trang trí: cả các ô ngay dưới/bên khối (hình cao ~36 px, rộng ~42 px lấn vào khối này)
   if (props) for (let ty = ty0; ty < ty0 + CH + 3; ty++) for (let tx = tx0 - 3; tx < tx0 + CH + 3; tx++) {
@@ -206,7 +269,7 @@ function drawMap(ctx, map, camX, camY, time, objs, vis) {
       if (t === WATER) {
         ctx.drawImage(waterTiles[(Math.floor(time * 1.5) + tx + ty) & 1], x, y);
         if (map.tileAt(tx, ty - 1) !== WATER) ctx.drawImage(waterBank, x, y);
-      } else ctx.drawImage(groundTile(t, tx, ty), x, y);
+      } else ctx.drawImage(groundTile(t, tx, ty, map), x, y);
       if (props) {
         const d = hash(tx, ty, 8);
         if (t === GRASS && d < 0.05) decor.push([props[pick(DECOR_KINDS, d / 0.05)], x, y]);
@@ -221,7 +284,7 @@ function drawMap(ctx, map, camX, camY, time, objs, vis) {
       objs.push({ y: y + T - 2, img, x: x + 8 - img.ax, dy: y + T - 2 - img.ay });
     } else if (t === TREE) { const v = hash(tx, ty, 6); objs.push({ y: y + T, img: treeSprs[v < 0.12 ? 2 : v < 0.56 ? 0 : 1], x: x - 2, dy: y + T - 28 }); }
     else if (t === ROCK) objs.push({ y: y + T - 2, img: rockSpr, x: x + 1, dy: y + 5 });
-    else if (t === FENCE) { const o = tileObj(map, tx, ty, props); if (o) objs.push(o); }
+    else if (t === FENCE || t === RAIL || t === WALL) { const o = tileObj(map, tx, ty, props); if (o) objs.push(o); }
   }
   if (props) for (const [img, x, y] of decor) ctx.drawImage(img, x + 8 - img.ax, y + T - 1 - img.ay);
 }
