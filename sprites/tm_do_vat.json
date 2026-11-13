@@ -1,65 +1,63 @@
 {
  "frameSize": [
-  92,
-  88
+  55,
+  52
  ],
  "pivot": [
-  46,
-  87
+  27,
+  51
  ],
  "image": "tm_do_vat.png",
+ "source": "docs/concept/tong_mon_do_vat_chatgpt.png",
+ "tool": "tools/build_tong_mon.py (sprite_clean từng món)",
  "frames": {
   "den_da": [
    0,
    0
   ],
   "co_phuon": [
-   92,
+   55,
    0
   ],
   "lan_can": [
-   184,
+   110,
    0
   ],
   "bac_thang": [
-   276,
+   165,
    0
   ],
   "cau_da": [
-   368,
+   220,
    0
   ],
   "hang_rao": [
-   460,
+   275,
    0
   ],
   "cong_rao": [
-   552,
+   330,
    0
   ],
   "moc_nhan": [
-   644,
+   385,
    0
   ],
   "gia_binh_khi": [
-   736,
+   440,
    0
   ],
   "bia_lon": [
-   828,
+   495,
    0
   ],
   "bia_nho": [
-   920,
+   550,
    0
   ],
   "thac_nuoc": [
-   1012,
+   605,
    0
   ]
- },
- "source": "docs/concept/tong_mon_do_vat_chatgpt.png",
- "tool": "tools/sprite_clean.py",
- "scale": 4.0,
- "colors": 48
+ }
 }

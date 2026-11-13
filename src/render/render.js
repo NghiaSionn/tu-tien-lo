@@ -140,7 +140,10 @@ function groundTile(t, tx, ty) {
 }
 function tileObj(map, tx, ty, props) {
   const t = map.tileAt(tx, ty), x = tx * T, y = ty * T;
-  if (t === FENCE) { const f = fenceSpr(); return f ? { y: y + T, img: f, x, dy: y + T - f.height } : null; }
+  if (t === FENCE) {   // M8: mép bắc/nam rào là sprite hang_rao (map.sect.props); chỉ vẽ cọc rào cho mép đông/tây
+    if (map.sect && (map.tileAt(tx - 1, ty) === FENCE || map.tileAt(tx + 1, ty) === FENCE)) return null;
+    const f = fenceSpr(); return f ? { y: y + T, img: f, x, dy: y + T - f.height } : null;
+  }
   if (props && t === TREE) { const img = props[pick(TREE_KINDS, hash(tx, ty, 6))]; return { y: y + T, img, x: x + 8 - img.ax, dy: y + T - 1 - img.ay }; }
   if (props && t === ROCK) { const img = props[pick(ROCK_KINDS, hash(tx, ty, 7))]; return { y: y + T - 2, img, x: x + 8 - img.ax, dy: y + T - 2 - img.ay }; }
   if (t === TREE) { const v = hash(tx, ty, 6); return { y: y + T, img: treeSprs[v < 0.12 ? 2 : v < 0.56 ? 0 : 1], x: x - 2, dy: y + T - 28 }; }
@@ -752,6 +755,11 @@ export function render(ctx, g) {
     pxRing(ctx, map.cx, map.cy, HUB.FORM_R * 0.28, 8, time * 1.2, '#ffe08a', 2);
     ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
     }
+    if (g.sect && vis.tm) for (const o of g.sect.props) {   // M8: bậc thang sát đất, dưới nhân vật
+      const img = o.flat && vis.tm[o.s]; if (!img) continue;
+      const x = Math.round(o.x - img.width / 2), y = Math.round(o.y - img.height);
+      if (x < camX + W && x + img.width > camX && y < camY + H && o.y > camY) ctx.drawImage(img, x, y);
+    }
     if (FEATURES.run && g.portal && !vis.pfx) drawPortal(ctx, g.portal.x, g.portal.y, time, g.portal.near);
     if (g.trib && g.trib.interactive) drawTribulation(ctx, g.trib, time, false);
   } else {
@@ -781,7 +789,19 @@ export function render(ctx, g) {
   objs.push({ y: p.y, player: true });
   if (scene.kind === 'hub' && FEATURES.run && g.portal && vis.pfx) objs.push({ y: g.portal.y, portal: true });
   if (scene.kind === 'hub' && g.bia && vis.ct && vis.ct.bia) objs.push({ y: g.bia.y, bia: true });
-  if (scene.kind === 'hub' && g.sect) for (const b of g.sect.buildings) objs.push({ y: b.py + b.ph, sectB: b });   // M8-02
+  if (scene.kind === 'hub' && g.sect) {   // M8: công trình + đồ vật + cây tông môn (sprite tm_*, xếp theo chân); thiếu sprite -> khối tạm
+    const vis1 = (img, fx, fy) => fx - img.width / 2 < camX + W && fx + img.width / 2 > camX && fy - img.height < camY + H && fy > camY - 4;
+    for (const b of g.sect.buildings) {
+      const img = vis.tm && vis.tm[b.id];
+      if (!img) { objs.push({ y: b.py + b.ph, sectB: b }); continue; }
+      const f = b.footPx;
+      if (vis1(img, f.x, f.y)) objs.push({ y: f.y, img, x: Math.round(f.x - img.width / 2), dy: Math.round(f.y - img.height), label: b.name, door: b.doorPx });
+    }
+    if (vis.tm) for (const o of g.sect.props) {
+      const img = !o.flat && vis.tm[o.s];
+      if (img && vis1(img, o.x, o.y)) objs.push({ y: o.y, img, x: Math.round(o.x - img.width / 2), dy: Math.round(o.y - img.height) });
+    }
+  }
   objs.sort((a, b) => a.y - b.y);
   for (const o of objs) {
     if (o.img) {
@@ -792,6 +812,7 @@ export function render(ctx, g) {
       if (hide) ctx.globalAlpha = 0.45;
       ctx.drawImage(o.img, o.x, o.dy);
       ctx.globalAlpha = 1;
+      if (o.label && Math.hypot(p.x - o.door.x, p.y - o.door.y) < 96) txt(ctx, o.label, Math.round(o.x + o.img.width / 2), o.dy - 3, '#ffd978');
     }
     else if (o.m) drawMonster(ctx, o.m, time, vis);
     else if (o.portal) {

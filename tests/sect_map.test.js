@@ -1,11 +1,10 @@
-// M8-02: bản đồ tông môn — đi tới được mọi khu, không ô kẹt, quảng trường đủ cho thiên kiếp, map cũ không đổi
+// M8: bản đồ tông môn (rộng gấp 2, sprite tm_*) — đi tới được mọi khu, không ô kẹt, quảng trường đủ cho thiên kiếp, map cũ không đổi
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { makeHubMap, makeSectMap, BUILDING, FENCE, TREE, WATER, ROCK } from '../src/world/map.js';
-import { HUB, TRIBULATION, TILE as T } from '../src/core/config.js';
+import { makeHubMap, makeSectMap, TREE } from '../src/world/map.js';
+import { HUB, TRIBULATION, PLAYER, TILE as T } from '../src/core/config.js';
 import { SECT } from '../src/data/sect_layout.js';
 
-const solid = t => t === WATER || t === TREE || t === ROCK || t === BUILDING || t === FENCE;
 
 test('tắt cờ: động phủ cũ y hệt trước M8 (dấu vân tay ô)', () => {
   const m = makeHubMap();
@@ -15,6 +14,7 @@ test('tắt cờ: động phủ cũ y hệt trước M8 (dấu vân tay ô)', ()
 });
 
 const m = makeSectMap(), S = m.sect;
+const solidAt = (x, y) => m.solidTile(x, y);
 const spawn = { x: m.cx + HUB.RESPAWN.dx, y: m.cy + HUB.RESPAWN.dy };
 // flood-fill theo ô đi được, bắt đầu từ ô hồi sinh
 const reach = new Uint8Array(m.w * m.h);
@@ -25,7 +25,7 @@ const reach = new Uint8Array(m.w * m.h);
     const [x, y] = q.pop();
     for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
       const nx = x + dx, ny = y + dy;
-      if (nx < 0 || ny < 0 || nx >= m.w || ny >= m.h || reach[ny * m.w + nx] || solid(m.tileAt(nx, ny))) continue;
+      if (nx < 0 || ny < 0 || nx >= m.w || ny >= m.h || reach[ny * m.w + nx] || solidAt(nx, ny)) continue;
       reach[ny * m.w + nx] = 1; q.push([nx, ny]);
     }
   }
@@ -44,7 +44,7 @@ test('hồi sinh đứng được; tới được cửa mọi công trình, cổ
 test('không có ô đi được nào bị kẹt trong khung tông môn; viền khung kín', () => {
   for (let ly = 0; ly < SECT.H; ly++) for (let lx = 0; lx < SECT.W; lx++) {
     const x = S.ox + lx, y = S.oy + ly, t = m.tileAt(x, y);
-    if (!solid(t)) assert.ok(reach[y * m.w + x], `ô (${lx},${ly}) đi được nhưng không tới được`);
+    if (!solidAt(x, y)) assert.ok(reach[y * m.w + x], `ô (${lx},${ly}) đi được nhưng không tới được`);
     if (lx === 0 || ly === 0 || lx === SECT.W - 1 || ly === SECT.H - 1) assert.equal(t, TREE, `viền (${lx},${ly})`);
   }
 });
@@ -55,4 +55,22 @@ test('quảng trường trống cho thiên kiếp (mọi điểm trong ARENA_R +
     assert.ok(m.canStand(x, y), `thiên kiếp bị chặn tại (${Math.round(x - m.cx)},${Math.round(y - m.cy)})`);
   }
   for (const b of S.buildings) assert.ok(!m.canStand(b.px + b.pw / 2, b.py + b.ph / 2), b.id + ' không đi xuyên');
+});
+
+test('rộng gấp 2: đi từ pháp đài tới mỗi khu mất ≥ 4 s (đường ngắn nhất theo ô, PLAYER.SPEED)', () => {
+  // BFS từ tâm; khoảng cách ô × 16 / tốc độ
+  const dist = new Int32Array(m.w * m.h).fill(-1), q = [[Math.floor(m.cx / T), Math.floor(m.cy / T)]];
+  dist[q[0][1] * m.w + q[0][0]] = 0;
+  for (let i = 0; i < q.length; i++) {
+    const [x, y] = q[i];
+    for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+      const nx = x + dx, ny = y + dy, k = ny * m.w + nx;
+      if (dist[k] >= 0 || solidAt(nx, ny)) continue;
+      dist[k] = dist[y * m.w + x] + 1; q.push([nx, ny]);
+    }
+  }
+  const sec = p => dist[Math.floor(p.y / T) * m.w + Math.floor(p.x / T)] * T / PLAYER.SPEED;
+  const far = S.buildings.map(b => sec(b.doorPx));
+  for (const [i, s] of far.entries()) assert.ok(s >= 4 && s <= 9, `${S.buildings[i].id}: ${s.toFixed(1)} s`);
+  assert.ok(sec(S.portal) >= 3.5, 'cổng ' + sec(S.portal));
 });
