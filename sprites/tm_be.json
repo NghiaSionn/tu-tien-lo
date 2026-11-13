@@ -1,0 +1,21 @@
+{
+ "frameSize": [
+  724,
+  561
+ ],
+ "pivot": [
+  361,
+  560
+ ],
+ "image": "tm_be.png",
+ "frames": {
+  "be_phap_dai": [
+   0,
+   0
+  ]
+ },
+ "source": "docs/concept/tong_mon_be_phap_dai_4loi_chatgpt.png",
+ "tool": "tools/sprite_clean.py",
+ "scale": 1.6,
+ "colors": 96
+}

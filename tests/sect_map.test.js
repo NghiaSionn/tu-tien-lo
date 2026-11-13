@@ -75,19 +75,31 @@ test('rộng gấp 2: đi từ pháp đài tới mỗi khu mất ≥ 4 s (đư�
   assert.ok(sec(S.portal) >= 3.5, 'cổng ' + sec(S.portal));
 });
 
-test('bệ pháp đài nâng cao: vách nam + lan can bao quanh, chỉ lên được qua lối đường/bậc thang', async () => {
-  const { WALL, STAIR, RAIL, PLAZA } = await import('../src/world/map.js');
-  const at = (lx, ly) => m.tileAt(S.ox + lx, S.oy + ly), cx = SECT.W / 2, cy = SECT.H / 2;
-  assert.equal(at(cx, cy), PLAZA);
-  let wall = 0, stair = 0, rail = 0;
-  for (let ly = 0; ly < SECT.H; ly++) for (let lx = 0; lx < SECT.W; lx++) { const t = at(lx, ly); wall += t === WALL; stair += t === STAIR; rail += t === RAIL; }
-  assert.ok(wall >= 20 && stair >= 4 && rail >= 20, `vách ${wall}, bậc ${stair}, lan can ${rail}`);
-  // mọi ô sát mặt bệ (4 hướng) không phải mặt bệ thì là lan can/vách/bậc hoặc lối đường (STONE)
-  for (let ly = 1; ly < SECT.H - 1; ly++) for (let lx = 1; lx < SECT.W - 1; lx++) {
-    if (at(lx, ly) !== PLAZA) continue;
+test('bệ pháp đài (sprite): mặt sàn đi được, lan can/vách đặc, lên được qua 4 lối (bắc, bậc nam, cánh đông/tây)', async () => {
+  const { PLAZA } = await import('../src/data/sect_plaza.js');
+  const cx = Math.floor(m.cx / T), cy = Math.floor(m.cy / T);
+  const cell = (i, j) => PLAZA.rows[j][i];
+  let solidN = 0, walkN = 0;
+  for (let j = 0; j < PLAZA.rows.length; j++) for (let i = 0; i < PLAZA.rows[j].length; i++) {
+    const x = cx + PLAZA.x0 + i, y = cy + PLAZA.y0 + j;
+    if (cell(i, j) === '#') { solidN++; assert.ok(solidAt(x, y), `ô bệ (${i},${j}) phải đặc`); }
+    if (cell(i, j) === '.') { walkN++; assert.ok(!solidAt(x, y) && reach[y * m.w + x], `mặt sàn (${i},${j}) phải tới được`); }
+  }
+  assert.ok(solidN > 150 && walkN > 400, `đặc ${solidN}, sàn ${walkN}`);
+  // vào bệ chỉ qua 4 lối: bịt các lối đó (ô sàn xa tâm) thì từ ngoài không tới được tâm
+  const shut = new Set();
+  for (let j = 0; j < PLAZA.rows.length; j++) for (let i = 0; i < PLAZA.rows[j].length; i++) {
+    const y = cy + PLAZA.y0 + j; const x = cx + PLAZA.x0 + i; if (cell(i, j) === '.' && (y < cy - 8 || y > cy + 12 || Math.abs(x - cx) > 15)) shut.add(x + ',' + y);
+  }
+  const seen = new Set([cx + ',' + cy]), q = [[cx, cy]]; let out = false;
+  while (q.length && !out) {
+    const [x, y] = q.pop();
     for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
-      const t = at(lx + dx, ly + dy);
-      assert.ok(t === PLAZA || t === WALL || t === STAIR || t === RAIL || t === 2, `mép bệ hở tại (${lx + dx},${ly + dy}): ${t}`);
+      const nx = x + dx, ny = y + dy, k = nx + ',' + ny;
+      if (seen.has(k) || shut.has(k) || solidAt(nx, ny)) continue;
+      if (Math.abs(nx - cx) > 24 || Math.abs(ny - cy) > 19) { out = true; break; }
+      seen.add(k); q.push([nx, ny]);
     }
   }
+  assert.ok(!out, 'mép bệ có lỗ hở ngoài 4 lối');
 });

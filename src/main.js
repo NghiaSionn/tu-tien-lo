@@ -92,6 +92,20 @@ if (vis.congTrinh) vis.ct = cropFrames(vis.congTrinh);
 if (vis.bia) vis.ct = { ...(vis.ct || {}), ...cropFrames(vis.bia) };   // M7-14: bia, bia_sang
 // M8: công trình/đồ vật/cây tông môn (concept ảnh 1, tools/build_tong_mon.py)
 if (vis.tmCt || vis.tmDv || vis.tmCd) vis.tm = Object.assign({}, ...[vis.tmCt, vis.tmDv, vis.tmCd].filter(Boolean).map(cropFrames));
+// M8: bệ Tụ Linh Pháp Đài (sprite ×PLAZA.scale): ảnh nền vẽ dưới nhân vật + lớp "phía trước" (lan can, vách, cờ, đèn) cắt dải 16 px xếp theo y
+if (vis.tm) try {
+  const { PLAZA } = await import('./data/sect_plaza.js');
+  const ld = async src => { const i = new Image(); i.src = src; await i.decode(); return i; };
+  const [base, front] = await Promise.all([ld('sprites/tm_be.png'), ld('sprites/tm_be_front.png')]);
+  const k = PLAZA.scale, up = img => { const c = document.createElement('canvas'); c.width = img.width * k; c.height = img.height * k; const g = c.getContext('2d'); g.imageSmoothingEnabled = false; g.drawImage(img, 0, 0, c.width, c.height); return c; };
+  const B = up(base), F = up(front), strips = [];
+  for (let y = 0; y < F.height; y += 16) {
+    const c = document.createElement('canvas'); c.width = F.width; c.height = Math.min(16, F.height - y); c.getContext('2d').drawImage(F, 0, -y);
+    const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data; let any = false; for (let i = 3; i < d.length; i += 4) if (d[i]) { any = true; break; }
+    if (any) strips.push({ img: c, y });
+  }
+  vis.plaza = { base: B, strips, ax: PLAZA.anchor[0] * k, ay: PLAZA.anchor[1] * k };
+} catch (e) { console.warn('[sprite] bệ pháp đài:', e); }
 // biểu tượng công pháp cho UI (thay emoji); thiếu sheet thì UI giữ emoji
 if (vis.icons) UI.setIcons('sprites/' + vis.icons.meta.image, vis.icons.meta, vis.icons.img.width, vis.icons.img.height);
 // lần đầu mở trên web (GitHub Pages) mất vài giây tải ~130 file: chữ "Đang tải…" che màn đen tới đây

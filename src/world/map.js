@@ -2,23 +2,23 @@
 import { TILE as T, HUB } from '../core/config.js';
 import { hash, noise } from '../core/rng.js';
 import { SECT } from '../data/sect_layout.js';
+import { PLAZA } from '../data/sect_plaza.js';
 
 export const GRASS = 0, WATER = 1, STONE = 2, TREE = 3, ROCK = 4;
 export const BUILDING = 5, FENCE = 6, DIRT = 7;   // M8-02: nền công trình (đặc), hàng rào (đặc), sân đất (đi được)
-export const WALL = 8, STAIR = 9, RAIL = 10, PLAZA = 11;   // M8: vách bệ nâng (đặc), bậc thang, lan can đá (đặc), mặt bệ lát đá tấm
 
 function makeMap(w, h, seed, kind, gen) {
   const tiles = new Uint8Array(w * h);
   for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) tiles[y * w + x] = gen(x, y);
   const m = { w, h, seed, kind, tiles, pw: w * T, ph: h * T, cx: w / 2 * T, cy: h / 2 * T };
   m.tileAt = (tx, ty) => (tx < 0 || ty < 0 || tx >= w || ty >= h) ? TREE : tiles[ty * w + tx];
-  m.solidTile = (tx, ty) => { const t = m.tileAt(tx, ty); return t === WATER || t === TREE || t === ROCK || t === BUILDING || t === FENCE || t === WALL || t === RAIL; };
+  m.solidTile = (tx, ty) => { const t = m.tileAt(tx, ty); return t === WATER || t === TREE || t === ROCK || t === BUILDING || t === FENCE; };
   m.solidPx = (px, py) => m.solidTile(Math.floor(px / T), Math.floor(py / T));
   // x, y là vị trí bàn chân; hộp va chạm nhỏ quanh chân
   m.canStand = (x, y) => Number.isFinite(x) && Number.isFinite(y) &&
     !m.solidPx(x - 4, y - 5) && !m.solidPx(x + 4, y - 5) && !m.solidPx(x - 4, y) && !m.solidPx(x + 4, y);
   // đạn và tầm nhìn bị chặn bởi cây và đá (nước không chặn)
-  m.blocksShot = (px, py) => { const t = m.tileAt(Math.floor(px / T), Math.floor(py / T)); return t === TREE || t === ROCK || t === BUILDING || t === FENCE || t === WALL || t === RAIL; };
+  m.blocksShot = (px, py) => { const t = m.tileAt(Math.floor(px / T), Math.floor(py / T)); return t === TREE || t === ROCK || t === BUILDING || t === FENCE; };
   m.lineOfSight = (x0, y0, x1, y1) => {
     const d = Math.hypot(x1 - x0, y1 - y0), n = Math.ceil(d / 6);
     for (let i = 1; i < n; i++) { const k = i / n; if (m.blocksShot(x0 + (x1 - x0) * k, y0 + (y1 - y0) * k + 6)) return false; }
@@ -54,10 +54,7 @@ export function buildSectGrid(S = SECT) {
   const inb = (x, y) => x >= 0 && y >= 0 && x < S.W && y < S.H;
   const set = (x, y, t) => { if (inb(x, y)) g[y * S.W + x] = t; };
   const block = r => { for (let y = r.y0; y < r.y1; y++) for (let x = r.x0; x < r.x1; x++) if (inb(x, y)) solid[y * S.W + x] = 1; };
-  const cx = S.W / 2, cy = S.H / 2, A = S.PLAZA_R, pathM = new Uint8Array(S.W * S.H);
-  // mặt bệ pháp đài: bát giác (ảnh 1), cao hơn nền xung quanh
-  const top = (x, y) => { const dx = Math.abs(x + 0.5 - cx), dy = Math.abs(y + 0.5 - cy); return dx <= A && dy <= A && dx + dy <= A * 1.42; };
-  for (let y = 0; y < S.H; y++) for (let x = 0; x < S.W; x++) if (top(x, y)) set(x, y, PLAZA);
+  const cx = S.W / 2, cy = S.H / 2;
   for (let y = S.STREAM.y; y < S.STREAM.y + S.STREAM.h; y++) for (let x = 0; x < S.W; x++) set(x, y, x >= S.STREAM.bridge[0] && x <= S.STREAM.bridge[1] ? STONE : WATER);
   const P0 = S.POND; if (P0) for (let y = P0.y; y < P0.y + P0.h; y++) for (let x = P0.x; x < P0.x + P0.w; x++) set(x, y, WATER);
   const half = S.PATH_W / 2;
@@ -66,23 +63,15 @@ export function buildSectGrid(S = SECT) {
     for (let k = 0; k <= n; k++) {
       const px = x0 + (x1 - x0) * k / n, py = y0 + (y1 - y0) * k / n;
       for (let yy = Math.floor(py - half); yy < py + half; yy++) for (let xx = Math.floor(px - half); xx < px + half; xx++) {
-        if (!(inb(xx, yy) && (g[yy * S.W + xx] === WATER || g[yy * S.W + xx] === PLAZA))) { set(xx, yy, STONE); if (inb(xx, yy)) pathM[yy * S.W + xx] = 1; }   // không lấp ao/suối
+        if (!(inb(xx, yy) && g[yy * S.W + xx] === WATER)) set(xx, yy, STONE);   // không lấp ao/suối (cầu đá đã là đá)
       }
     }
   }
-  // bệ nâng: mép nam (ô ngay dưới mặt bệ) là vách đá cao 2 ô; chỗ đường đi qua thành bậc thang.
-  // Mép còn lại (bắc, đông, tây, góc) là lan can đá; chỗ đường đi qua để trống (lối lên bệ).
-  const isPath = (x, y) => inb(x, y) && pathM[y * S.W + x] === 1;
-  for (let y = 1; y < S.H; y++) for (let x = 0; x < S.W; x++) {
-    if (top(x, y) || !top(x, y - 1)) continue;
-    set(x, y, isPath(x, y) ? STAIR : WALL);
-    if (!top(x, y + 1)) set(x, y + 1, isPath(x, y + 1) ? STAIR : WALL);
-  }
-  for (let y = 0; y < S.H; y++) for (let x = 0; x < S.W; x++) {
-    const t = g[y * S.W + x];
-    if (top(x, y) || t === WALL || t === STAIR || isPath(x, y)) continue;
-    let near = false; for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) if (top(x + dx, y + dy)) near = true;
-    if (near) set(x, y, RAIL);
+  // bệ Tụ Linh Pháp Đài (sprite ChatGPT, data/sect_plaza.js sinh từ tools/build_be_phap_dai.py): tâm bệ = tâm khung
+  for (let j = 0; j < PLAZA.rows.length; j++) for (let i = 0; i < PLAZA.rows[j].length; i++) {
+    const c = PLAZA.rows[j][i], x = cx + PLAZA.x0 + i, y = cy + PLAZA.y0 + j;
+    if (c === '#') block({ x0: x, y0: y, x1: x + 1, y1: y + 1 });
+    else if (c === '.') set(x, y, STONE);
   }
   const P = S.PEN;
   for (let y = P.y; y < P.y + P.h; y++) for (let x = P.x; x < P.x + P.w; x++) {
