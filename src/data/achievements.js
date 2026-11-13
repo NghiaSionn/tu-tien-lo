@@ -1,14 +1,15 @@
 // Thành tựu (M4-02). Điều kiện đọc từ meta.stats (cập nhật khi nhận thưởng run / đột phá).
+// prog (M7-07): [hiện tại, mục tiêu] để màn kết quả gợi ý thành tựu gần nhất; không có = không gợi ý theo tiến độ.
 // Một số thành tựu mở công pháp — đây là lộ trình CHẮC CHẮN, không cần Truyền Thừa Các.
 export const ACHIEVEMENTS = [
-  { id: 'first_mini', name: 'Trảm Lang', desc: 'Hạ Lang Vương lần đầu', test: s => s.minis >= 1, reward: { skill: 'ice_needle', tickets: 1 } },
-  { id: 'first_win', name: 'Phá Bí Cảnh', desc: 'Hạ Ma Ảnh Yêu Vương lần đầu', test: s => s.wins >= 1, reward: { skill: 'ice_nova', tickets: 1 } },
-  { id: 'kills_1000', name: 'Vạn Yêu Lục', desc: 'Hạ tổng cộng 1000 yêu thú trong bí cảnh', test: s => s.kills >= 1000, reward: { tickets: 1, craftMats: 10 } },
-  { id: 'evo_3', name: 'Ngộ Đạo', desc: 'Tiến hóa 3 công thức khác nhau (qua nhiều lượt)', test: s => s.evos.length >= 3, reward: { tickets: 2 } },
+  { id: 'first_mini', name: 'Trảm Lang', desc: 'Hạ Lang Vương lần đầu', test: s => s.minis >= 1, prog: s => [s.minis, 1], reward: { skill: 'ice_needle', tickets: 1 } },
+  { id: 'first_win', name: 'Phá Bí Cảnh', desc: 'Hạ Ma Ảnh Yêu Vương lần đầu', test: s => s.wins >= 1, prog: s => [s.wins, 1], reward: { skill: 'ice_nova', tickets: 1 } },
+  { id: 'kills_1000', name: 'Vạn Yêu Lục', desc: 'Hạ tổng cộng 1000 yêu thú trong bí cảnh', test: s => s.kills >= 1000, prog: s => [s.kills, 1000], reward: { tickets: 1, craftMats: 10 } },
+  { id: 'evo_3', name: 'Ngộ Đạo', desc: 'Tiến hóa 3 công thức khác nhau (qua nhiều lượt)', test: s => s.evos.length >= 3, prog: s => [s.evos.length, 3], reward: { tickets: 2 } },
   { id: 'truc_co', name: 'Trúc Cơ', desc: 'Đạt Trúc Cơ', test: (s, m) => m.realmLevel >= 9, reward: { tickets: 2, craftMats: 10 } },
   { id: 'win_linh', name: 'Linh Cảnh', desc: 'Thắng bí cảnh độ khó Linh trở lên', test: s => s.bestDiffWin >= 1, reward: { tickets: 2, craftMats: 15 } },
   { id: 'kim_dan', name: 'Kết Đan', desc: 'Đạt Kim Đan', test: (s, m) => m.realmLevel >= 12, reward: { tickets: 3 } },
   // 12/11: 2 công pháp mới của GDD (Phong, Linh) — mở bằng lộ trình chắc chắn như Băng Châm/Hàn Khí
-  { id: 'runs_5', name: 'Lịch Luyện', desc: 'Vào bí cảnh 5 lần', test: s => s.runs >= 5, reward: { skill: 'wind_step', tickets: 1 } },
-  { id: 'kills_300', name: 'Trảm Yêu', desc: 'Hạ tổng cộng 300 yêu thú trong bí cảnh', test: s => s.kills >= 300, reward: { skill: 'spirit_orb', tickets: 1 } },
+  { id: 'runs_5', name: 'Lịch Luyện', desc: 'Vào bí cảnh 5 lần', test: s => s.runs >= 5, prog: s => [s.runs, 5], reward: { skill: 'wind_step', tickets: 1 } },
+  { id: 'kills_300', name: 'Trảm Yêu', desc: 'Hạ tổng cộng 300 yêu thú trong bí cảnh', test: s => s.kills >= 300, prog: s => [s.kills, 300], reward: { skill: 'spirit_orb', tickets: 1 } },
 ];

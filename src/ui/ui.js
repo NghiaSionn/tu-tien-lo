@@ -187,13 +187,23 @@ export function nextGoal(run, reward, meta) {
   return out;
 }
 
-export function showResults(run, reward, onClose, meta) {
+// extra (M7-07, FEATURES.resultGoals): { goals: [{text,cur,max,action}], onNext(action) } — nút đi tiếp; nhận thưởng vẫn đúng một lần
+export function showResults(run, reward, onClose, meta, extra = null) {
   const title = { WIN: `Hạ ${BOSS.FINAL.name}, vượt qua bí cảnh!`, LOSE: 'Trọng thương, rời bí cảnh', ABANDON: 'Đã rời bí cảnh', TIMEOUT: 'Hết thời gian, bí cảnh khép lại' }[run.outcome];
   const downs = run.rewards.map(r => BOSS[r.kind].name);
   const skills = run.skills.map(s => `${ic(s.evolved || s.id, SKILLS[s.id].icon, 1.3)} ${esc(skillName(s))}${s.evolved ? ' ★' : ' cấp ' + s.level}`).join('<br>');
   const pas = Object.entries(run.passives).map(([id, lv]) => `${ic(id, PASSIVES[id].icon, 1.3)} ${esc(PASSIVES[id].name)} ${lv}`).join(' · ');
   let closed = false;
   const close = () => { if (closed) return; closed = true; closeModal(); onClose(); };
+  const goals = extra && extra.goals || [];
+  const acts = new Set(goals.map(g => g.action));
+  const nextBtns = !extra ? [] : [
+    acts.has('break') && ['break', 'Nhận · đột phá (B)', 'KeyB'],
+    acts.has('meditate') && ['meditate', 'Nhận · tọa thiền (T)', 'KeyT'],
+    ['run', 'Nhận · vào bí cảnh mới (E)', 'KeyE'],
+  ].filter(Boolean);
+  const go = a => { if (closed) return; closed = true; closeModal(); extra.onNext(a); };
+  const goalHtml = goals.map(g => `<div class="goal"><span>${esc(g.text)}</span><div class="bar"><i style="width:${Math.round(Math.min(1, g.cur / g.max) * 100)}%"></i></div></div>`).join('');
   open(`<h2 class="${run.outcome === 'WIN' ? 'win' : 'lose'}">${title}</h2>
     <div class="stats"><div><b>${fmtTime(run.time)}</b>thời gian</div><div><b>${run.level}</b>cấp chiến đấu</div><div><b>${run.kills}</b>yêu thú</div><div><b>${run.evolutions.length}</b>tiến hóa</div></div>
     ${downs.length ? `<p class="sub">Đã hạ: ${downs.map(esc).join(', ')}</p>` : ''}
@@ -202,10 +212,16 @@ export function showResults(run, reward, onClose, meta) {
     <div class="stats reward">${[['💎', 'linhThach', 'linh thạch'], ['✨', 'lingQi', 'linh khí'], ['🔩', 'craftMats', 'luyện liệu'], ['🎫', 'tickets', 'vé Cơ Duyên']]
       .map(([ic, k, name]) => `<div><b>${ic} +${reward ? reward[k] : 0}</b>${name}</div>`).join('')}</div>
     ${reward && reward.firstClear ? '<p class="sub">Lần đầu hạ Yêu Vương: thêm vé Cơ Duyên.</p>' : ''}
-    <p class="sub">${run.outcome === 'WIN' ? 'Thắng: thưởng ×1,5.' : 'Thưởng theo tiến độ đã đạt.'} Cảnh giới, tu vi, đồ không đổi. Linh khí và luyện liệu sẽ dùng ở bản sau.</p>
-    <h3>Bước tiếp theo</h3><p class="sub">${nextGoal(run, reward, meta).map(esc).join('<br>')}</p>
-    <div class="row"><button data-act="close">Nhận thưởng · về động phủ (Enter)</button></div>`,
-  code => { if (code === 'Enter' || code === 'Escape' || code === 'Space') { close(); return true; } return false; });
+    <p class="sub">${run.outcome === 'WIN' ? 'Thắng: thưởng ×1,5.' : 'Thưởng theo tiến độ đã đạt.'} Cảnh giới, tu vi, đồ không đổi.</p>
+    <h3>Bước tiếp theo</h3><p class="sub">${(goals.length ? nextGoal(run, reward, meta).slice(0, 1) : nextGoal(run, reward, meta)).map(esc).join('<br>')}</p>${goalHtml}
+    <div class="row">${nextBtns.map(([a, t]) => `<button class="ghost" data-next="${a}">${t}</button>`).join('')}<button data-act="close">Nhận thưởng · về động phủ (Enter)</button></div>`,
+  code => {
+    if (code === 'Enter' || code === 'Escape' || code === 'Space') { close(); return true; }
+    const b = nextBtns.find(x => x[2] === code);
+    if (b) { go(b[0]); return true; }
+    return false;
+  });
+  $('modal').querySelectorAll('[data-next]').forEach(b => b.addEventListener('click', () => go(b.dataset.next)));
   $('modal').querySelector('[data-act=close]').addEventListener('click', close);
 }
 

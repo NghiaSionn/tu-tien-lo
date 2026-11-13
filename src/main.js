@@ -27,6 +27,7 @@ import { makeRunEnemy } from './systems/director.js';
 import { setupTouch } from './ui/touch.js';
 import { createPlaytestLog } from './systems/playtest.js';
 import { BUILD } from './core/config.js';
+import { metaGoals, previewAfterClaim } from './progression/goals.js';
 
 const { W, H } = VIEW;
 const $ = id => document.getElementById(id);
@@ -509,15 +510,21 @@ function finishRun() {
   const cause = r.outcome === 'LOSE' ? Object.entries(r.dmgBy).sort((a, b) => b[1] - a[1])[0]?.[0] : undefined;
   PT.log('run_end', { outcome: r.outcome, time: Math.round(r.time), level: r.level, kills: r.kills, cause, evolutions: [...r.evolutions], difficulty: r.diff }, r);
   Audio.play(r.outcome === 'WIN' ? 'win' : 'lose');
-  UI.showResults(r, reward, claimAndReturn, meta);
+  const extra = FEATURES.resultGoals ? { goals: metaGoals(previewAfterClaim(meta)), onNext: a => claimAndReturn(a) } : null;
+  UI.showResults(r, reward, () => claimAndReturn(), meta, extra);
 }
 // REWARDED -> HUB: cộng tài nguyên + xóa pending trong cùng một lần lưu; gọi lại lần nữa không cộng thêm
-function claimAndReturn() {
+function claimAndReturn(next = null) {
   if (view !== 'RESULTS') return;
   const got = claimReward(meta);
   if (got) UI.log(`Mang về: ${rewardText(got)}.`, 'good');
   checkAchievements();
   returnToHub();
+  // M7-07: đi tiếp ngay sau khi đã nhận thưởng (nhận vẫn một lần — claimReward ở trên)
+  metaAct('results:' + (next || 'hub'));
+  if (next === 'meditate') { p.x = CX; p.y = CY + 12; if (!p.med) toggleMed(); }
+  else if (next === 'break') tryBreak();
+  else if (next === 'run') { p.x = PORTAL.x; p.y = PORTAL.y + 10; PORTAL.near = true; openPrepare(); }
 }
 function returnToHub() {
   if (view !== 'RESULTS') return;

@@ -7,6 +7,7 @@ export const FEATURES = {
   run: true,            // M1: cổng bí cảnh + vòng run roguelite. false = game chạy như v0.1
   manualAttackInRun: true,
   pixelfxAssets: true,  // dùng sheet pixelfx cho cổng bí cảnh. false = cổng vẽ bằng code như cũ
+  resultGoals: true,    // M7-07 [GIẢ THUYẾT H2]: màn kết quả hiện tối đa 2 mục tiêu meta + nút Tọa thiền/Đột phá/Vào bí cảnh mới. false = như cũ
 };
 
 // 12/11 (chơi tay): 480×270 -> 640×360 = thu camera 1,33 lần, nhân vật/quái nhỏ lại trên màn, thấy rộng hơn

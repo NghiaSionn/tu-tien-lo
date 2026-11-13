@@ -350,6 +350,7 @@ Backlog chi tiết (ChatGPT đề xuất 13/11, người phát triển duyệt c
 - [ ] M7-03 Kiểm thử máy thật, âm thanh, tải và save (M, P0) — cần điện thoại thật
 - [x] M7-04 Ghi sự kiện playtest tại máy, opt-in, xuất JSON/CSV (M, P0) — xong 13/11: `src/systems/playtest.js` (khóa riêng `tutien_playtest_v1`, mặc định tắt, danh sách trắng, trần 3000 sự kiện), mục Ghi playtest trong Cài đặt (bật/tắt, xuất JSON/CSV, xóa, sao chép góp ý, link GitHub Issues), `tools/playtest_funnel.mjs`, hướng dẫn `docs/playtest/HUONG_DAN_LOG_PLAYTEST.md`. 158/158 test. Nút xuất file chưa bấm thử trong browser
 - [ ] M7-05 Baseline playtest người thật ≥8 người (M, P0) — cần người thật
+- [~] M7-07 Kết quả run dẫn sang mục tiêu tiếp theo [GIẢ THUYẾT H2] (S, P1) — phần làm xong 13/11 (`docs/playtest/M7_07.md`, cờ `FEATURES.resultGoals`), 163/163 test, 3 trạng thái thử trong browser. Còn phần đo với người thật (M7-05) → H2 INCONCLUSIVE
 - [ ] M7-06..11 (M7-B), M7-12..14 (M7-C, có điều kiện), M7-15..18 (M7-D): xem file backlog
 
 ---
