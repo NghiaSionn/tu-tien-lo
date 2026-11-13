@@ -87,6 +87,8 @@
   #touchE { display: none; }
   body.touch #touchE { display: block; position: absolute; right: 1em; bottom: 5em; width: 3.6em; height: 3.6em; border-radius: 50%; z-index: 6; font-size: 1.1em; }
   body.touch #help { display: none; }
+  body.touch[data-mode=hub] #touchE { bottom: 8.5em; }
+  body.touch[data-mode=hub] #log { bottom: calc(44px + 3em); }   /* M7-08: không chồng lên hàng nút động phủ */
   body.touch #actions button { min-height: 2.6em; min-width: 3.2em; }
   body.touch .card { min-height: 5em; }
   @media (max-width: 720px) { #panel { width: 13em; font-size: .9em; } #log { width: 16em; font-size: .8em; } .sheet { max-width: 94vw; } }
@@ -104,6 +106,8 @@
   #fbText { width: 100%; box-sizing: border-box; margin-top: .5em; font: inherit; font-size: .85em; background: #120e1c; color: #f3ead2; border: 1px solid #4b3f63; pointer-events: auto; }
   body.touch a.btnlink { min-height: 44px; }
   .goal { font-size: .82em; margin: .35em 0; opacity: .92; } .goal .bar > i { background: linear-gradient(#ffe08a, #c8961e); }
+  .card.cx { cursor: default; } .card.cx:hover { transform: none; background: rgba(30, 24, 46, .95); }
+  .card.lock { opacity: .6; border-style: dashed; } .card.unk { border-style: dashed; } .card.lock .ic, .card.unk .ic { color: var(--c, #6a5f80); font-weight: 700; }
   .sheet .warn { color: #ffb4b0; opacity: 1; } .sheet .note { color: #ffd978; }
   /* M7-02: bảng phủ cả màn hình (không bị bó trong khung game letterbox), chữ tối thiểu 12px */
   #modal { position: fixed; z-index: 20; font-size: max(1em, 12px); }
@@ -165,8 +169,9 @@
       <button id="btnForge">Luyện khí (G)</button>
       <button id="btnGacha">Truyền Thừa (H)</button>
       <button id="btnAch">Thành tựu (J)</button>
+      <button id="btnCodex">Đồ giám (K)</button>
     </div>
-    <div id="help">WASD / mũi tên: di chuyển · Space: phóng kiếm khí · T: tọa thiền · B: đột phá · 1: dùng đan · 2: mua đan · E: bí cảnh · G: luyện khí · H: Truyền Thừa Các · J: thành tựu</div>
+    <div id="help">WASD / mũi tên: di chuyển · Space: phóng kiếm khí · T: tọa thiền · B: đột phá · 1: dùng đan · 2: mua đan · E: bí cảnh · G: luyện khí · H: Truyền Thừa Các · J: thành tựu · K: đồ giám</div>
     <div id="modal" hidden></div>
   </div>
 </div>

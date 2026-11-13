@@ -28,6 +28,8 @@ import { setupTouch } from './ui/touch.js';
 import { createPlaytestLog } from './systems/playtest.js';
 import { BUILD } from './core/config.js';
 import { metaGoals, previewAfterClaim } from './progression/goals.js';
+import { newDiscoveries } from './progression/codex.js';
+import { SKILLS as SKILL_DEFS } from './data/skills.js';
 
 const { W, H } = VIEW;
 const $ = id => document.getElementById(id);
@@ -146,9 +148,11 @@ if (meta.tribPending) {
 }
 // M2-03: phần thưởng run còn treo (đóng/tải lại trang lúc đang ở bảng kết quả) -> nhận ngay, đúng một lần
 if (meta.pendingReward) {
+  const evosBefore = [...meta.stats.evos];
   const got = claimReward(meta);
   writeSave(storage, meta);
   if (got) startNotes.push([`Đã nhận phần thưởng bí cảnh còn treo: ${rewardText(got)}.`, 'good']);
+  for (const id of newDiscoveries(evosBefore, meta.stats.evos)) startNotes.push([`Đồ Giám: lần đầu khám phá tiến hóa ${EVOLUTIONS[id].name}! (K để xem)`, 'gold']);
 }
 // M7-04: nhật ký playtest opt-in (mặc định tắt, khóa riêng, không gửi mạng). setItem để ném lỗi để log tự bỏ bớt khi đầy.
 const PT = createPlaytestLog({
@@ -206,7 +210,7 @@ function realmUpNotes(r) {
 function checkAchievements() {
   for (const a of evaluateAchievements(meta)) {
     const r = a.reward;
-    UI.log(`Thành tựu: ${a.name}!${r.skill ? ` Mở công pháp ${r.skill === 'ice_needle' ? 'Băng Châm' : 'Hàn Khí'}.` : ''}${r.tickets ? ` +${r.tickets}🎫` : ''}${r.craftMats ? ` +${r.craftMats}🔩` : ''}`, 'gold');
+    UI.log(`Thành tựu: ${a.name}!${r.skill ? ` Mở công pháp ${SKILL_DEFS[r.skill].name}.` : ''}${r.tickets ? ` +${r.tickets}🎫` : ''}${r.craftMats ? ` +${r.craftMats}🔩` : ''}`, 'gold');
   }
 }
 
@@ -516,14 +520,17 @@ function finishRun() {
 // REWARDED -> HUB: cộng tài nguyên + xóa pending trong cùng một lần lưu; gọi lại lần nữa không cộng thêm
 function claimAndReturn(next = null) {
   if (view !== 'RESULTS') return;
+  const evosBefore = [...meta.stats.evos];
   const got = claimReward(meta);
   if (got) UI.log(`Mang về: ${rewardText(got)}.`, 'good');
+  for (const id of newDiscoveries(evosBefore, meta.stats.evos)) UI.log(`Đồ Giám: lần đầu khám phá tiến hóa ${EVOLUTIONS[id].name}! (K để xem)`, 'gold', 10000);
   checkAchievements();
   returnToHub();
   // M7-07: đi tiếp ngay sau khi đã nhận thưởng (nhận vẫn một lần — claimReward ở trên)
   metaAct('results:' + (next || 'hub'));
   if (next === 'meditate') { p.x = CX; p.y = CY + 12; if (!p.med) toggleMed(); }
   else if (next === 'break') tryBreak();
+  else if (next === 'codex') openCodex();
   else if (next === 'run') { p.x = PORTAL.x; p.y = PORTAL.y + 10; PORTAL.near = true; openPrepare(); }
 }
 function returnToHub() {
@@ -546,6 +553,11 @@ function download(text, name, type) {
   a.download = name;
   a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+function openCodex() {
+  if (view !== 'HUB' || trib) return;
+  metaAct('codex');
+  UI.showCodex(meta);
 }
 function openSettings() {
   if (view !== 'HUB' || trib) return;
@@ -605,6 +617,7 @@ function onAction(code) {
   else if (code === 'KeyG') openForge();
   else if (code === 'KeyH') openGacha();
   else if (code === 'KeyJ') UI.showAchievements(meta);
+  else if (code === 'KeyK') openCodex();
   else return false;
   return true;
 }
@@ -614,7 +627,7 @@ const keys = input.keys;
 const bind = (id, fn) => $(id).addEventListener('click', e => { fn(); e.currentTarget.blur(); });
 bind('btnMed', toggleMed); bind('btnBreak', tryBreak); bind('btnPill', usePill); bind('btnBuy', buyPill);
 bind('btnRun', openPrepare); bind('btnSettings', openSettings); bind('btnPause', pauseRun);
-bind('btnForge', () => openForge()); bind('btnGacha', () => openGacha()); bind('btnAch', () => { if (view === 'HUB' && !trib) UI.showAchievements(meta); });
+bind('btnForge', () => openForge()); bind('btnGacha', () => openGacha()); bind('btnAch', () => { if (view === 'HUB' && !trib) UI.showAchievements(meta); }); bind('btnCodex', openCodex);
 // M5-05: trình duyệt chỉ cho phát âm sau cử chỉ người dùng -> mở ở lần bấm/chạm đầu tiên
 const firstGesture = () => { Audio.unlockAudio(); Audio.applyAudioSettings(meta.settings); Audio.startMusic(); removeEventListener('keydown', firstGesture); removeEventListener('pointerdown', firstGesture); };
 addEventListener('keydown', firstGesture); addEventListener('pointerdown', firstGesture);

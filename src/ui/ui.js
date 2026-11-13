@@ -201,6 +201,7 @@ export function showResults(run, reward, onClose, meta, extra = null) {
     acts.has('break') && ['break', 'Nhận · đột phá (B)', 'KeyB'],
     acts.has('meditate') && ['meditate', 'Nhận · tọa thiền (T)', 'KeyT'],
     ['run', 'Nhận · vào bí cảnh mới (E)', 'KeyE'],
+    ['codex', 'Nhận · đồ giám (K)', 'KeyK'],
   ].filter(Boolean);
   const go = a => { if (closed) return; closed = true; closeModal(); extra.onNext(a); };
   const goalHtml = goals.map(g => `<div class="goal"><span>${esc(g.text)}</span><div class="bar"><i style="width:${Math.round(Math.min(1, g.cur / g.max) * 100)}%"></i></div></div>`).join('');
@@ -283,11 +284,32 @@ import { ITEMS_DEF, SLOTS, CRAFT, MAX_ITEM_LEVEL } from '../data/items.js';
 import { ACHIEVEMENTS } from '../data/achievements.js';
 import { GACHA } from '../core/config.js';
 import { canPay } from '../progression/gear.js';
+import { buildCodex } from '../progression/codex.js';
 
 const costText = c => Object.entries(c).map(([k, v]) => `${v}${{ craftMats: '🔩', linhThach: '💎' }[k]}`).join(' ');
 const resLine = meta => `💎 ${meta.linhThach} · 🔩 ${meta.craftMats} · ✨ ${Math.floor(meta.lingQi)} · 🎫 ${meta.coDuyenTicket} · 📜 ${meta.shards} mảnh`;
 
 // act(kind, ...args) do main.js xử lý (kiểm tra + lưu chắc chắn), rồi gọi lại hàm này để vẽ lại
+// M7-08: Công Pháp Đồ Giám — dữ liệu từ buildCodex (không chép tay ở đây)
+export function showCodex(meta, onClose = () => {}) {
+  const c = buildCodex(meta);
+  const sk = c.skills.map(s => s.state === 'locked'
+    ? `<div class="card cx lock" style="--c:${s.color}"><span class="ic">?</span><b>???</b><em>Hệ ${esc(s.elementName)} · chưa mở</em><p>Mở bằng ${esc(s.how)}.</p></div>`
+    : `<div class="card cx" style="--c:${s.color}"><span class="ic">${ic(s.id, s.icon, 2)}</span><b>${esc(s.name)}</b><em>Hệ ${esc(s.elementName)} · tối đa cấp ${s.maxLevel}</em><p>${esc(s.desc)}</p>
+       <small>${s.start ? 'Khởi đầu được' : s.startAt ? `Gặp trong bí cảnh · khởi đầu từ ${esc(s.startAt)}` : 'Gặp trong bí cảnh (thẻ)'}${s.evo ? ' · ★ có tiến hóa' : ''}</small></div>`).join('');
+  const ev = c.evolutions.map(e => e.state === 'found'
+    ? `<div class="card cx t-EVOLUTION" style="--c:${e.color}"><span class="ic">${ic(e.id, e.icon, 2)}</span><b>${esc(e.name)}</b><em>Đã khám phá</em><p>${esc(e.desc)}</p><small>${esc(e.recipe)}</small></div>`
+    : `<div class="card cx unk" style="--c:${e.color}"><span class="ic">?</span><b>Tiến hóa chưa khám phá</b><p>${esc(e.clue)}</p></div>`).join('')
+    + Array.from({ length: c.teaser }, () => `<div class="card cx lock"><span class="ic">…</span><b>Công thức chưa ghi lại</b><p>Còn công pháp chưa có tiến hóa — sẽ xuất hiện ở bản sau.</p></div>`).join('');
+  open(`<h2>Công Pháp Đồ Giám</h2>
+    <p class="sub">Công pháp ${c.counts.open}/${c.counts.total} đã mở · Tiến hóa ${c.counts.found}/${c.counts.evoTotal} đã khám phá. Chưa mở = cần điều kiện để vào bí cảnh; chưa khám phá = đã có, tự tìm ra cách hợp nhất trong bí cảnh.</p>
+    <h3>Công pháp</h3><div class="cards">${sk}</div>
+    <h3>Tiến hóa</h3><div class="cards">${ev}</div>
+    <div class="row"><button class="ghost" data-act="close">Đóng (Esc)</button></div>`,
+  code => { if (code === 'Escape' || code === 'KeyK') { closeModal(); onClose(); return true; } return false; });
+  $('modal').querySelector('[data-act=close]').addEventListener('click', () => { closeModal(); onClose(); });
+}
+
 export function showForge(meta, act, note = '') {
   const rows = Object.entries(SLOTS).map(([slot, sname]) => {
     const items = Object.entries(ITEMS_DEF).filter(([, d]) => d.slot === slot);
