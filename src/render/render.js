@@ -74,7 +74,8 @@ export function consumeEvents(vis, ev) {
       case 'boom': if (!e.fx && e.color === '#c070ff') { e.fx = 'hac_diem_no'; e.fxR = 30; }
         if (room && e.fx && vis.FX[e.fx] && vis.quality !== 'low') { spawnFx(vis, e.fx, e.x, e.y, { scale: e.r / e.fxR }); break; }
         vis.rings.push({ x: e.x, y: e.y, r: e.r * 0.4, to: e.r, life: 0.3, max: 0.3, color: e.color, fill: true }); burst(vis, e.x, e.y, 10, 60, e.color, 0.4); break;
-      case 'pulse': if (room && e.fx && vis.FX[e.fx] && vis.quality !== 'low') { spawnFx(vis, e.fx, e.x, e.y, { scale: e.r / e.fxR }); break; }
+      case 'pulse': if (e.sprite && vis.thx && vis.thx[e.sprite]) { vis.rings.push({ x: e.x, y: e.y - 6, r: e.r * 0.45, to: e.r, life: 0.4, max: 0.4, spr: vis.thx[e.sprite] }); break; }
+        if (room && e.fx && vis.FX[e.fx] && vis.quality !== 'low') { spawnFx(vis, e.fx, e.x, e.y, { scale: e.r / e.fxR }); break; }
         vis.rings.push({ x: e.x, y: e.y - 4, r: 6, to: e.r, life: 0.35, max: 0.35, color: e.color }); break;
       case 'death': burst(vis, e.x, e.y - 4, 12, 70, TIER_COLORS[e.tier] || '#fff', 0.6, 2); break;
       case 'announce': vis.banner = { text: e.text, color: e.color || '#ffd978', life: 2.6 }; break;
@@ -267,9 +268,14 @@ function drawMonster(ctx, m, time, vis) {
     if (m.st === 'windup' && !m.elite) { ctx.fillStyle = '#ff4a3a'; ctx.fillRect(x - 1, top - 8, 2, 4); ctx.fillRect(x - 1, top - 3, 2, 1); }
     if (m.burn && m.burn.t > 0 && Math.floor(time * 10 + m.ph) % 3 === 0) { ctx.fillStyle = '#ffb070'; ctx.fillRect(x - 6 + Math.floor(m.ph * 3) % 12, top + 6, 1, 2); }
     if (m.slow && m.slow.t > 0) { ctx.fillStyle = '#b48cff'; ctx.fillRect(x - 8, y, 16, 1); }
-    if (m.slow && m.slow.frozen && m.slow.t > 0) {   // M7-12: đóng băng — khối băng mờ phủ lên con quái
-      ctx.globalAlpha = 0.45; ctx.fillStyle = '#bfe8ff'; ctx.fillRect(x - 8, top + 6, 16, y - top - 6);
-      ctx.globalAlpha = 0.9; ctx.fillStyle = '#ffffff'; ctx.fillRect(x - 8, top + 6, 16, 1); ctx.fillRect(x - 8, top + 6, 1, y - top - 6); ctx.globalAlpha = 1;
+    const thx = vis.thx;
+    if (m.slow && m.slow.frozen && m.slow.t > 0) {   // M7-12: đóng băng — khối băng (sprite ChatGPT vẽ) phủ lên con quái
+      const kb = thx && thx.khoi_bang;
+      if (kb) { ctx.globalAlpha = 0.85; ctx.drawImage(kb, x - (kb.width >> 1), y + 1 - kb.height); ctx.globalAlpha = 1; }
+      else { ctx.globalAlpha = 0.45; ctx.fillStyle = '#bfe8ff'; ctx.fillRect(x - 8, top + 6, 16, y - top - 6); ctx.globalAlpha = 1; }
+    } else if (m.frost > 0 && (vis.runTime ?? 0) - (m.frostAt ?? -99) < 4 && thx && thx.han_an) {   // hàn ấn đang tích (1–2)
+      const ha = thx.han_an;
+      for (let i = 0; i < m.frost; i++) ctx.drawImage(ha, x - (m.frost * (ha.width + 1)) / 2 + i * (ha.width + 1), top - ha.height - 1);
     }
     if (m.elite || m.hp < m.max) {
       const w = m.elite ? 26 : 14;
@@ -549,8 +555,14 @@ function drawSeals(ctx, s, vis) {
   const spr = vis.ct && vis.ct.linh_chau, r = prm.anchorR;
   for (const an of ans) {
     const k = Math.min(1, an.t / 0.6);
-    ctx.globalAlpha = 0.35 * k; ctx.globalCompositeOperation = 'lighter';
-    pxRing(ctx, an.x, an.y - 2, r + 4, 16, -an.a * 0.5, '#f3a6c8', 1, 0.55);
+    const vr = vis.thx && vis.thx.vong_phong_an;
+    if (vr) {   // vòng phù văn (sprite ChatGPT vẽ) dưới chân, mờ dần khi sắp tan
+      const w = Math.round((r + 6) * 2), h = Math.round(vr.height * w / vr.width);
+      ctx.globalAlpha = 0.8 * k; ctx.drawImage(vr, Math.round(an.x - w / 2), Math.round(an.y - 2 - h / 2), w, h);
+    } else {
+      ctx.globalAlpha = 0.35 * k; ctx.globalCompositeOperation = 'lighter';
+      pxRing(ctx, an.x, an.y - 2, r + 4, 16, -an.a * 0.5, '#f3a6c8', 1, 0.55);
+    }
     ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = k;
     for (let i = 0; i < prm.anchorOrbs; i++) {
       const [x, y] = sealOrbPos(an, i, prm.anchorOrbs, r), bx = Math.round(x), by = Math.round(y);
@@ -659,6 +671,7 @@ function drawProjectiles(ctx, scene, FX, dt, quality) {
 // g: { scene, player, time, meta, run, vis, medFx, trib, inForm, portal }
 export function render(ctx, g) {
   const { scene, player: p, time, vis } = g, map = scene.map;
+  vis.runTime = g.run ? g.run.time : 0;   // M7-12: hàn ấn hết hạn theo thời gian trận
   vis.frameNo = (vis.frameNo || 0) + 1; vis.frameDt = g.dtWorld || 0;
   // đo thời gian từng phần (chỉ khi bật vis.prof = {} từ console/công cụ đo; mặc định tắt)
   const PR = vis.prof; let pt = PR ? performance.now() : 0;
@@ -749,7 +762,13 @@ export function render(ctx, g) {
   mark('fx');
 
   ctx.globalCompositeOperation = 'lighter';
-  for (const r of vis.rings) { ctx.globalAlpha = Math.min(1, r.life / r.max * 1.5); pxRing(ctx, r.x, r.y, r.r, Math.max(12, Math.round(r.r * 1.2)), 0, r.color, 2, 0.55); }
+  for (const r of vis.rings) {
+    ctx.globalAlpha = Math.min(1, r.life / r.max * 1.5);
+    if (r.spr) {   // M7-12: sprite nổ (gai băng) — vẽ đè thường, cỡ theo bán kính hiện tại
+      const k = (r.r * 2) / r.spr.width, w = Math.round(r.spr.width * k), h = Math.round(r.spr.height * k);
+      ctx.globalCompositeOperation = 'source-over'; ctx.drawImage(r.spr, Math.round(r.x - w / 2), Math.round(r.y - h / 2), w, h); ctx.globalCompositeOperation = 'lighter';
+    } else pxRing(ctx, r.x, r.y, r.r, Math.max(12, Math.round(r.r * 1.2)), 0, r.color, 2, 0.55);
+  }
   for (const c of vis.chains) for (let i = 1; i < c.pts.length; i++) {
     const [x0, y0] = c.pts[i - 1], [x1, y1] = c.pts[i];
     const mx = (x0 + x1) / 2 + rand(-4, 4), my = (y0 + y1) / 2 + rand(-4, 4);

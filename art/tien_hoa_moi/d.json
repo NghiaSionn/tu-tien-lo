@@ -1,0 +1,21 @@
+{
+ "frameSize": [
+  12,
+  10
+ ],
+ "pivot": [
+  5,
+  9
+ ],
+ "image": "d.png",
+ "frames": {
+  "han_an": [
+   0,
+   0
+  ]
+ },
+ "source": "docs/concept/tien_hoa_moi_chatgpt.png",
+ "tool": "tools/sprite_clean.py",
+ "scale": 12.0,
+ "colors": 12
+}

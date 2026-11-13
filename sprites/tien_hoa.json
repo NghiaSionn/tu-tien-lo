@@ -1,0 +1,31 @@
+{
+ "frameSize": [
+  56,
+  43
+ ],
+ "pivot": [
+  28,
+  42
+ ],
+ "image": "tien_hoa.png",
+ "source": "docs/concept/tien_hoa_moi_chatgpt.png",
+ "tool": "tools/sprite_clean.py + tools/merge_tien_hoa.py",
+ "frames": {
+  "han_an": [
+   0,
+   0
+  ],
+  "khoi_bang": [
+   56,
+   0
+  ],
+  "vong_phong_an": [
+   112,
+   0
+  ],
+  "bang_no": [
+   168,
+   0
+  ]
+ }
+}

@@ -71,21 +71,23 @@ async function loadSheet(name) {
   const tint = col => { const c = document.createElement('canvas'); c.width = img.width; c.height = img.height; const g = c.getContext('2d'); g.drawImage(img, 0, 0); g.globalCompositeOperation = 'source-in'; g.fillStyle = col; g.fillRect(0, 0, c.width, c.height); return c; };
   return { img, meta, white: tint('#ffffff'), glow: tint('#c070ff'), wind: tint('#7ff0c8') };   // wind: tàn ảnh Phong Ảnh Bộ
 }
-for (const [key, name] of [['hero', 'nhan_vat'], ['mobs', 'quai'], ['bosses', 'boss'], ['rung', 'rung'], ['congTrinh', 'cong_trinh'], ['icons', 'bieu_tuong']]) {
+for (const [key, name] of [['hero', 'nhan_vat'], ['mobs', 'quai'], ['bosses', 'boss'], ['rung', 'rung'], ['congTrinh', 'cong_trinh'], ['icons', 'bieu_tuong'], ['tienHoa', 'tien_hoa']]) {
   try { vis[key] = await loadSheet(name); } catch (e) { console.warn('[sprite] dùng hình cũ:', name, e); }
 }
-// công trình động phủ (cổng, tụ linh trận, Linh Mạch): cắt sát nội dung, nhớ tâm khung bao để đặt giữa
-if (vis.congTrinh) {
-  const { img, meta } = vis.congTrinh, [fw, fh] = meta.frameSize;
-  vis.ct = {};
+// công trình động phủ (cổng, tụ linh trận, Linh Mạch) + VFX tiến hóa M7-12: cắt sát nội dung từng khung
+function cropFrames(sheet) {
+  const { img, meta } = sheet, [fw, fh] = meta.frameSize, out = {};
   for (const [n, [sx, sy]] of Object.entries(meta.frames)) {
     const c = document.createElement('canvas'); c.width = fw; c.height = fh; const g = c.getContext('2d'); g.drawImage(img, sx, sy, fw, fh, 0, 0, fw, fh);
     const d = g.getImageData(0, 0, fw, fh).data; let x0 = fw, y0 = fh, x1 = 0, y1 = 0;
     for (let y = 0; y < fh; y++) for (let x = 0; x < fw; x++) if (d[(y * fw + x) * 4 + 3]) { x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); }
     const o = document.createElement('canvas'); o.width = x1 - x0 + 1; o.height = y1 - y0 + 1; o.getContext('2d').drawImage(c, -x0, -y0);
-    vis.ct[n] = o;
+    out[n] = o;
   }
+  return out;
 }
+if (vis.tienHoa) vis.thx = cropFrames(vis.tienHoa);   // han_an, khoi_bang, vong_phong_an, bang_no
+if (vis.congTrinh) vis.ct = cropFrames(vis.congTrinh);
 // biểu tượng công pháp cho UI (thay emoji); thiếu sheet thì UI giữ emoji
 if (vis.icons) UI.setIcons('sprites/' + vis.icons.meta.image, vis.icons.meta, vis.icons.img.width, vis.icons.img.height);
 // lần đầu mở trên web (GitHub Pages) mất vài giây tải ~130 file: chữ "Đang tải…" che màn đen tới đây

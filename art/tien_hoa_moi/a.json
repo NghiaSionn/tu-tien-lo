@@ -1,0 +1,25 @@
+{
+ "frameSize": [
+  48,
+  41
+ ],
+ "pivot": [
+  24,
+  40
+ ],
+ "image": "a.png",
+ "frames": {
+  "cuc_han_bang_tran": [
+   0,
+   0
+  ],
+  "linh_chau_phong_an": [
+   48,
+   0
+  ]
+ },
+ "source": "docs/concept/tien_hoa_moi_chatgpt.png",
+ "tool": "tools/sprite_clean.py",
+ "scale": 10.5,
+ "colors": 32
+}

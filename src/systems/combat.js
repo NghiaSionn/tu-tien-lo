@@ -110,7 +110,7 @@ export function frostHit(ctx, m, p) {
     hitMonster(ctx, o, p.burstDmg * ctx.atk, '#bfe8ff', true);
     frostHit(ctx, o, p);
   }
-  ctx.ev.push({ type: 'pulse', x: m.x, y: m.y, r, color: '#bfe8ff', fx: 'han_khi', fxR: 46 });
+  ctx.ev.push({ type: 'pulse', x: m.x, y: m.y, r, color: '#bfe8ff', fx: 'han_khi', fxR: 46, sprite: 'bang_no' });
 }
 
 // ---------------- từng loại công pháp ----------------
