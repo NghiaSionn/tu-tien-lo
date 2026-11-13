@@ -30,6 +30,7 @@ import { BUILD } from './core/config.js';
 import { metaGoals, previewAfterClaim } from './progression/goals.js';
 import { newDiscoveries } from './progression/codex.js';
 import { pickVariant, variantOf } from './systems/variants.js';
+import { shouldTip, tipText, markSeen, skipAll, replayTutorial } from './progression/tutorial.js';
 import { SKILLS as SKILL_DEFS } from './data/skills.js';
 
 const { W, H } = VIEW;
@@ -423,6 +424,7 @@ let nextRunSeed = null;
 function openPrepare() {
   if (!FEATURES.run || view !== 'HUB' || trib || !PORTAL.near) return;
   view = 'PREPARE'; p.med = false; input.clear();
+  if (tipShown === 'portal') tipSeen('portal');   // đã tìm được cổng
   if (nextRunSeed == null) nextRunSeed = (Date.now() ^ Math.floor(Math.random() * 0x7fffffff)) >>> 0;
   const vid = pickVariant(nextRunSeed);
   UI.showPrepare(meta, startRun, () => { view = 'HUB'; }, { id: vid, ...variantOf(vid) });
@@ -440,6 +442,8 @@ function startRun(skill, difficulty = 0) {
   view = 'RUN'; paused = false;
   PT.log('run_start', { skill, difficulty, realm: meta.realmLevel, variant: run.variant }, run);
   UI.setVariant(run.variant === 'thuong' ? '' : variantOf(run.variant).name);
+  UI.hideTip(); tipShown = null;
+  showTipIf('move', 12000);                       // tự tắt sau 12 s, xa trước mọi boss (3:30)
   if (run.variant !== 'thuong') UI.log(`Biến thể: ${variantOf(run.variant).name} — ${variantOf(run.variant).rules.join('; ')}.`, 'gold', 10000);
   UI.setMode('run');
   UI.log('Bước vào bí cảnh. Công pháp tự thi triển khi có yêu thú trong tầm.', 'gold');
@@ -466,6 +470,8 @@ function updateRunView(dt) {
 }
 function openDraft(given = null) {
   view = 'CARD_DRAFT'; input.clear();
+  if (tipShown) { UI.hideTip(); tipShown = null; }   // không để 2 gợi ý cùng lúc
+  const cardTip = shouldTip(meta, 'card') ? { text: tipText('card', isTouch()), onOff: tipsOff } : null;
   const cards = given || drawCards(run, run.rng);
   const r = run;
   // M7-09: đổi bảng thẻ (miễn phí, RUN.REROLLS lượt/run); thế giới vẫn dừng vì view vẫn là CARD_DRAFT
@@ -478,6 +484,7 @@ function openDraft(given = null) {
   };
   UI.showDraft(r, cards, card => {
     if (run !== r || view !== 'CARD_DRAFT') return;
+    if (cardTip && shouldTip(meta, 'card')) { markSeen(meta, 'card'); save(); }
     const ok = applyCard(r, card, {
       heal: f => { r.hp = Math.min(r.maxHp, r.hp + r.maxHp * f); },
       onMaxHpChange: () => refreshMaxHp(r, false),
@@ -495,7 +502,7 @@ function openDraft(given = null) {
       UI.log(`Tiến hóa: ${EVOLUTIONS[card.id].name}!`, 'gold'); Audio.play('evolve');
     }
     view = 'RUN'; input.clear();
-  }, FEATURES.draftReroll ? onReroll : null);
+  }, FEATURES.draftReroll ? onReroll : null, cardTip);
 }
 // M3-04: Linh Mạch — thế giới dừng khi đang chọn (như bảng thẻ); một lần mỗi run
 function openShrine() {
@@ -577,16 +584,29 @@ function openCodex() {
   metaAct('codex');
   UI.showCodex(meta);
 }
+// ---------- M7-06: gợi ý người mới ----------
+let tipShown = null, tipTimer = 0;
+const isTouch = () => document.body.classList.contains('touch');
+function tipSeen(id) { if (tipShown === id) { UI.hideTip(); tipShown = null; } markSeen(meta, id); save(); }
+function tipsOff() { UI.hideTip(); tipShown = null; skipAll(meta); save(); metaAct('tip_off'); }
+function showTipIf(id, autoHideMs = 0) {
+  if (!shouldTip(meta, id)) return false;
+  tipShown = id; clearTimeout(tipTimer);
+  UI.showTip(tipText(id, isTouch()), () => { tipSeen(id); metaAct('tip_ok:' + id); }, tipsOff);
+  if (autoHideMs) { markSeen(meta, id); save(); tipTimer = setTimeout(() => { if (tipShown === id) { UI.hideTip(); tipShown = null; } }, autoHideMs); }
+  return true;
+}
 function openSettings() {
   if (view !== 'HUB' || trib) return;
   view = 'SETTINGS'; p.med = false; input.clear();
   UI.showSettings(meta, {
-    onClose: () => { view = 'HUB'; },
+    onClose: () => { view = 'HUB'; if (!tipShown) showTipIf('portal'); },
     onSetting: (k, v) => { meta.settings[k] = v; applySettings(); save(); },
     onExport: () => { save(); download(exportSave(meta), `tutien_save_${new Date().toISOString().slice(0, 10)}.json`, 'application/json'); },
     // M7-04
     pt: PT,
     feedbackUrl: FEEDBACK_URL,
+    onReplayTutorial: () => { replayTutorial(meta); save(); metaAct('tip_replay'); },
     onPlaytest: on => { PT.setEnabled(on, () => ({ realm: meta.realmLevel, runs: meta.stats.runs })); UI.log(on ? 'Đã bật ghi playtest (chỉ lưu trên máy này).' : 'Đã tắt ghi playtest.', 'good'); },
     onPtExport: kind => download(kind === 'csv' ? PT.exportCSV() : PT.exportJSON(), `tutien_playtest_${PT.testId || 'chua_bat'}.${kind}`, kind === 'csv' ? 'text/csv' : 'application/json'),
     onPtClear: () => { if (confirm('Xóa toàn bộ log playtest trên máy này? (Không ảnh hưởng tiến độ chơi.)')) PT.clear(); },
@@ -714,6 +734,7 @@ for (let i = 0; i < HUB.MAX_MONSTERS; i++) spawnHubMonster(hub, p, Math.random);
 UI.setMode('hub');
 UI.log('Ngồi vào tụ linh trận và nhấn T để tu luyện.', 'gold');
 if (FEATURES.run) UI.log('Cổng bí cảnh ở phía bắc tụ linh trận — đứng gần và nhấn E.');
+if (FEATURES.run) setTimeout(() => { if (view === 'HUB') showTipIf('portal'); }, 600);   // M7-06: chờ setupTouch gắn class cảm ứng
 for (const [m, c] of startNotes) UI.log(m, c);
 UI.hubHud(meta, p, trib, false);
 

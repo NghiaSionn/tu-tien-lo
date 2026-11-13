@@ -31,6 +31,14 @@ export function log(msg, cls = '', ms = 6000) {
 }
 
 export function setMode(mode) { document.body.dataset.mode = mode; }
+// M7-06: banner gợi ý (không chặn input game; chỉ 2 nút nhận chạm)
+export function showTip(text, onOk, onOff) {
+  const el = $('tip'); if (!el) return;
+  $('tipText').textContent = text; el.hidden = false;
+  $('tipOk').onclick = () => { hideTip(); onOk(); };
+  $('tipOff').onclick = () => { hideTip(); onOff(); };
+}
+export function hideTip() { const el = $('tip'); if (el) el.hidden = true; }
 // M7-10: nhãn biến thể dưới HUD trận ('' = ẩn)
 export function setVariant(name) { const el = $('rVariant'); if (el) { el.textContent = name; el.hidden = !name; } }
 
@@ -148,7 +156,8 @@ export function showShrine(choices, onPick) {
 }
 
 // Bảng chọn thẻ: một lần chọn duy nhất; khóa input ngắn khi vừa mở để không bấm nhầm/bấm đúp.
-export function showDraft(run, cards, onPick, onReroll = null) {
+// tip (M7-06): { text, onOff } — dòng gợi ý lần chọn thẻ đầu
+export function showDraft(run, cards, onPick, onReroll = null, tip = null) {
   let done = false;
   const openedAt = performance.now();
   const pick = i => {
@@ -167,6 +176,7 @@ export function showDraft(run, cards, onPick, onReroll = null) {
   const typeName = { NEW_SKILL: 'Công pháp mới', UPGRADE_SKILL: 'Nâng cấp', PASSIVE: 'Bị động', EVOLUTION: 'TIẾN HÓA', FALLBACK: 'Dự phòng' };
   open(`<h2>Lên cấp ${run.level - run.pendingDrafts + 1}</h2>
     <p class="sub">Chọn 1 trong ${cards.length}${run.pendingDrafts > 1 ? ` · còn ${run.pendingDrafts - 1} lượt chọn` : ''}</p>
+    ${tip ? `<p class="tipline"><span>💡 ${esc(tip.text)}</span><button class="ghost" data-act="tipoff">Tắt hướng dẫn</button></p>` : ''}
     <div class="cards">${cards.map((c, i) => `<button class="card t-${c.type}" data-i="${i}" style="--c:${c.element ? ELEMENTS[c.element].color : '#ffd978'}">
       <span class="key">${i + 1}</span><span class="ic">${ic(c.id, c.icon, 2.2)}</span><b>${esc(c.name)}</b>
       <em>${esc(typeName[c.type])}${c.element ? ' · ' + esc(elementName(c.element)) : ''}${c.level !== '' ?` · ${c.type === 'EVOLUTION' ? 'MAX' : 'Cấp ' + c.level}` : ''}</em>
@@ -179,6 +189,8 @@ export function showDraft(run, cards, onPick, onReroll = null) {
     return false;
   });
   $('modal').querySelector('[data-act=reroll]')?.addEventListener('click', reroll);
+  const tipBtn = $('modal').querySelector('[data-act=tipoff]');
+  if (tipBtn) tipBtn.addEventListener('click', () => { tipBtn.parentElement.remove(); tip.onOff(); });
   $('modal').querySelectorAll('.card').forEach(b => b.addEventListener('click', () => pick(+b.dataset.i)));
 }
 
@@ -260,6 +272,7 @@ export function showSettings(meta, h) {
     <div class="row"><button data-act="ptJson">Xuất log (.json)</button><button data-act="ptCsv">Xuất log (.csv)</button><button class="ghost" data-act="ptClear">Xóa log</button></div>
     <div class="row"><button data-act="feedback">Sao chép tóm tắt góp ý</button><a class="btnlink" href="${h.feedbackUrl}" target="_blank" rel="noopener">Mở trang góp ý ↗</a></div>
     <textarea id="fbText" readonly hidden rows="6"></textarea>
+    <div class="row"><button class="ghost" data-act="tutorial">Hiện lại hướng dẫn người mới</button></div>
     <div class="row"><button class="ghost danger" data-act="reset">Chơi lại từ đầu</button><button data-act="close">Đóng (Esc)</button></div>`,
   code => { if (code === 'Escape') { closeModal(); h.onClose(); return true; } return false; });
   const m = $('modal');
@@ -274,6 +287,7 @@ export function showSettings(meta, h) {
   m.querySelector('[data-act=import]').addEventListener('click', () => file.click());
   file.addEventListener('change', async () => { const f = file.files[0]; if (f) h.onImport(await f.text()); });
   m.querySelector('[data-act=reset]').addEventListener('click', h.onReset);
+  m.querySelector('[data-act=tutorial]').addEventListener('click', e => { h.onReplayTutorial(); e.target.textContent = 'Sẽ hiện lại từ đầu ✓'; });
   // M7-04: nhật ký playtest
   const ptInfo = () => { m.querySelector('#ptInfo').textContent = h.pt.testId ? `Mã thử: ${h.pt.testId} · ${h.pt.count} sự kiện${h.pt.dropped ? ` (đã bỏ ${h.pt.dropped} sự kiện cũ vì đầy)` : ''}${h.pt.enabled ? '' : ' · đang tắt'}` : 'Chưa bật lần nào.'; };
   ptInfo();

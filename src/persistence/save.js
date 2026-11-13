@@ -7,6 +7,7 @@
 //   tutien_save_v2_bak      bản v2 tốt liền trước (xoay vòng mỗi lần lưu)
 //   tutien_save_v2_corrupt  bản v2 hỏng gần nhất, giữ lại để cứu dữ liệu
 import { REALM, ITEMS, REWARD } from '../core/config.js';
+import { defaultTutorial, sanitizeTutorial } from '../progression/tutorial.js';
 import { OUTCOMES, AMOUNT_KEYS } from '../progression/rewards.js';
 import { sanitizeGear } from '../progression/gear.js';
 import { ACHIEVEMENTS } from '../data/achievements.js';
@@ -34,6 +35,7 @@ export function defaultMeta(hubSpawn) {
     lastDifficulty: 0,
     settings: { reduceEffects: false, screenShake: true, quality: 'high', sfx: 0.7, music: 0.4, mute: false },   // M5-04/05
     stats: { runs: 0, wins: 0, bestTime: 0, bestLevel: 0, kills: 0, minis: 0, evos: [], bestDiffWin: -1 },
+    tutorial: defaultTutorial(),                                        // M7-06
   };
 }
 
@@ -74,6 +76,7 @@ export function sanitizeMeta(src, ctx, warnings = []) {
   else if (pos) warnings.push('vị trí không hợp lệ, đưa về tụ linh trận');
   if (src.unlocks && Array.isArray(src.unlocks.skills)) out.unlocks = { skills: src.unlocks.skills.filter(s => typeof s === 'string').slice(0, 64), tier: int(src.unlocks.tier, 0, 3, 0) };
   out.lastDifficulty = int(src.lastDifficulty, 0, 3, 0);
+  out.tutorial = sanitizeTutorial(src.tutorial);   // M7-06: save cũ chưa có -> mặc định (người đã chơi không thấy gợi ý vì runs > 0)
   if (src.settings && typeof src.settings === 'object') {
     const vol = (v, d) => { const n = num(v); return Number.isNaN(n) ? d : Math.min(1, Math.max(0, n)); };
     out.settings = { reduceEffects: src.settings.reduceEffects === true, screenShake: src.settings.screenShake !== false,

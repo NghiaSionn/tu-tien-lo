@@ -112,6 +112,15 @@
   #rVariant[hidden] { display: none; }
   .variant { border: 1px solid #ffd978; border-radius: .35em; padding: .4em .7em; margin: .5em 0; background: rgba(255, 217, 120, .07); font-size: .9em; }
   .variant.plain { border-color: #6a5f80; background: none; opacity: .85; } .variant ul { margin: .25em 0 0 1.1em; padding: 0; } .variant b { color: #ffd978; }
+  /* M7-06: gợi ý người mới — không chặn, chỉ nút của nó nhận chạm */
+  #tip { position: absolute; left: 50%; top: 3.6em; transform: translateX(-50%); width: min(30em, calc(100% - 2em)); box-sizing: border-box; z-index: 5;
+         background: rgba(18, 14, 28, .9); border: 1px solid #ffd978; border-radius: .4em; padding: .5em .7em; font-size: .9em; line-height: 1.4;
+         display: flex; flex-wrap: wrap; gap: .4em .6em; align-items: center; justify-content: flex-end; pointer-events: none; }
+  #tip[hidden] { display: none; } #tip #tipText { flex: 1 1 16em; } #tip #tipText::before { content: '💡 '; }
+  .tipBtns { display: flex; gap: .4em; } body.touch #tip button { min-height: 44px; }
+  body[data-mode=hub] #tip { top: auto; bottom: 5em; } body.touch[data-mode=hub] #tip { bottom: calc(44px + 6em); }
+  .tipline { border: 1px dashed #ffd978; border-radius: .35em; padding: .35em .6em; font-size: .85em; display: flex; gap: .5em; align-items: center; flex-wrap: wrap; }
+  .tipline span { flex: 1 1 14em; }
   .sheet .warn { color: #ffb4b0; opacity: 1; } .sheet .note { color: #ffd978; }
   /* M7-02: bảng phủ cả màn hình (không bị bó trong khung game letterbox), chữ tối thiểu 12px */
   #modal { position: fixed; z-index: 20; font-size: max(1em, 12px); }
@@ -164,6 +173,7 @@
       <button id="btnPause">Tạm dừng (Esc)</button>
     </div>
 
+    <div id="tip" hidden><span id="tipText"></span><span class="tipBtns"><button id="tipOk">Đã hiểu</button><button id="tipOff" class="ghost">Tắt hướng dẫn</button></span></div>
     <div id="log"></div>
     <div id="actions">
       <button id="btnMed">Tọa thiền (T)</button>
