@@ -9,12 +9,12 @@ import { makeHubMap } from '../src/world/map.js';
 const map = makeHubMap();
 const ctx = { canStand: map.canStand, hubSpawn: { x: map.cx, y: map.cy + 26 } };
 
-test('đủ 12 công pháp và 4 tiến hóa, lấy từ dữ liệu', () => {
+test('đủ 12 công pháp và 6 tiến hóa (M7-12 thêm 2), lấy từ dữ liệu', () => {
   const c = buildCodex(defaultMeta(ctx.hubSpawn));
   assert.equal(c.skills.length, Object.values(SKILLS).filter(d => d.implemented).length);
   assert.equal(c.skills.length, 12);
   assert.equal(c.evolutions.length, Object.keys(EVOLUTIONS).length);
-  assert.equal(c.evolutions.length, 4);
+  assert.equal(c.evolutions.length, 6);
 });
 
 test('công pháp khóa: giấu tên, nêu cách mở; mở rồi thì hiện tên', () => {

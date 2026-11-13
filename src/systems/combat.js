@@ -90,6 +90,29 @@ function explode(ctx, x, y, p) {
   ctx.ev.push({ type: 'boom', x, y, r, color: '#ff9a3c', fx: 'hoa_cau_no', fxR: 16 });
 }
 
+// M7-12 Cực Hàn Băng Trận: cộng hàn ấn; đủ ấn -> đóng băng (boss chỉ chậm) + nổ lan ấn. Trần: miễn đóng băng + ngân sách nổ/khung
+export function frostHit(ctx, m, p) {
+  if (m.dead) return;
+  if ((m.frostImm ?? -1) > ctx.time) return;
+  if (ctx.time - (m.frostAt ?? -99) > p.stackLife) m.frost = 0;
+  m.frostAt = ctx.time;
+  m.frost = (m.frost || 0) + 1;
+  if (m.frost < p.stacks) return;
+  m.frost = 0; m.frostImm = ctx.time + p.freezeTime + p.immune;
+  if (m.boss) applySlow(m, p.slow, p.freezeTime);
+  else m.slow = { f: Math.max(p.freezeSlow, m.slow && m.slow.t > 0 ? m.slow.f : 0), t: p.freezeTime, frozen: true };
+  if (ctx.frostBudget == null) ctx.frostBudget = p.burstBudget;   // ctx tạo mới mỗi khung -> ngân sách theo khung
+  if (!(ctx.frostBudget > 0)) return;
+  ctx.frostBudget--;
+  const r = p.burstR * ctx.stats.area;
+  for (const o of ctx.scene.monsters) {
+    if (o === m || o.dead || Math.hypot(o.x - m.x, o.y - m.y) > r + (o.hitR || 0)) continue;
+    hitMonster(ctx, o, p.burstDmg * ctx.atk, '#bfe8ff', true);
+    frostHit(ctx, o, p);
+  }
+  ctx.ev.push({ type: 'pulse', x: m.x, y: m.y, r, color: '#bfe8ff', fx: 'han_khi', fxR: 46 });
+}
+
 // ---------------- từng loại công pháp ----------------
 const KINDS = {
   bolt(ctx, s, p, dt) {
@@ -105,7 +128,7 @@ const KINDS = {
       const spread = ts.length < count ? (i - (count - 1) / 2) * fanStep(Math.hypot(dx, dy), 0.22) : 0;
       const a = Math.atan2(dy, dx) + spread;
       dx = Math.cos(a); dy = Math.sin(a);
-      pushProjectile(ctx, { kind: 'bolt', x: pl.x, y: pl.y - 8, vx: dx * p.speed, vy: dy * p.speed, life: p.range / p.speed * 1.4, dmg: p.dmg, pierce: p.pierce, hits: new Set(), fx: 'kiem_khi', heading: a, evo: s.evolved ? p : null, slow: p.slow, slowTime: p.slowTime, ice: !!p.slow });
+      pushProjectile(ctx, { kind: 'bolt', x: pl.x, y: pl.y - 8, vx: dx * p.speed, vy: dy * p.speed, life: p.range / p.speed * 1.4, dmg: p.dmg, pierce: p.pierce, hits: new Set(), fx: 'kiem_khi', heading: a, evo: s.evolved ? p : null, slow: p.slow, slowTime: p.slowTime, ice: !!p.slow, frost: p.stacks ? p : null });
     }
     s.st.cd = p.cd * ctx.stats.cooldown;
     ctx.ev.push({ type: 'cast', skill: s.id });
@@ -282,6 +305,43 @@ const KINDS = {
     }
   },
 
+  // M7-12 Cực Hàn Băng Trận: bắn như Băng Châm (đạn mang q.frost), hiệu ứng ấn ở frostHit
+  frost(ctx, s, p, dt) { KINDS.bolt(ctx, s, p, dt); },
+
+  // M7-12 Linh Châu Phong Ấn: châu quanh thân như Linh Châu + phong ấn rải theo đường chạy (đếm quãng như Phong Ảnh Bộ)
+  spiritSeal(ctx, s, p, dt) {
+    KINDS.spirit(ctx, s, p, dt);
+    const st = s.st, pl = ctx.player;
+    if (st.lx == null) { st.lx = pl.x; st.ly = pl.y; st.dist = 0; st.anchors = []; st.aid = 0; }
+    st.dist += Math.min(40, Math.hypot(pl.x - st.lx, pl.y - st.ly));
+    st.lx = pl.x; st.ly = pl.y;
+    if (st.dist >= p.every && st.anchors.length < p.maxAnchors) {
+      st.dist = 0;
+      st.anchors.push({ id: ++st.aid, x: pl.x, y: pl.y, t: p.life, max: p.life, a: st.angle || 0 });
+    }
+    const r = p.anchorR * ctx.stats.area;
+    for (let i = st.anchors.length - 1; i >= 0; i--) {
+      const an = st.anchors[i];
+      an.t -= dt; an.a += p.anchorSpin * dt;
+      if (an.t <= 0) { st.anchors.splice(i, 1); continue; }
+      for (const m of ctx.scene.monsters) {
+        if (m.dead) continue;
+        const dx = an.x - m.x, dy = an.y - m.y, d = Math.hypot(dx, dy);
+        if (!m.boss && d < r * 2.4 && d > 4) moveEntity(ctx.scene.map, m, dx / d * p.pull * dt, dy / d * p.pull * dt, null);
+      }
+      for (let k = 0; k < p.anchorOrbs; k++) {
+        const [bx, by] = sealOrbPos(an, k, p.anchorOrbs, r);
+        for (const m of ctx.scene.monsters) {
+          if (m.dead || Math.hypot(m.x - bx, m.y - (m.aimY || 4) - by) > 8 + (m.hitR || 0)) continue;
+          const key = 'seal:' + an.id + ':' + k;
+          if ((m.tags[key] ?? -1) > ctx.time) continue;
+          m.tags[key] = ctx.time + p.hitCd;
+          hitMonster(ctx, m, p.dmg * ctx.atk, '#f3a6c8');
+        }
+      }
+    }
+  },
+
   tornado(ctx, s, p, dt) {
     const st = s.st, pl = ctx.player;
     st.angle = (st.angle ?? 0) + p.spin * dt;
@@ -303,6 +363,12 @@ const KINDS = {
     }
   },
 };
+
+// vị trí châu thứ k quanh một phong ấn (dùng chung logic + render)
+export function sealOrbPos(an, k, n, r) {
+  const a = an.a + k * TAU / n;
+  return [an.x + Math.cos(a) * r, an.y - 10 + Math.sin(a) * r * 0.55, a];
+}
 
 // vị trí linh châu thứ i (dùng chung logic + render): vòng elip dẹt quanh ngực nhân vật
 export function spiritOrbPos(pl, angle, i, n, r) {
@@ -362,6 +428,7 @@ export function updateProjectiles(ctx, dt) {
       if (q.kind === 'orb') { explode(ctx, q.x, q.y, q.p); dead = true; q.exploded = true; break; }
       hitMonster(ctx, m, q.dmg * ctx.atk, q.kind === 'blade' ? '#c8ffe8' : '#fff');
       if (q.slow) applySlow(m, q.slow, q.slowTime);
+      if (q.frost) frostHit(ctx, m, q.frost);
       const e = q.evo;
       if (e && e.chains) chainLightning(ctx, m, e.chains, e.chainRange, e.chainDmg * ctx.atk, e.slow, e.slowTime);
       if (e && e.burn) applyBurn(m, e.burn * ctx.atk * ctx.stats.damage, e.burnTime);

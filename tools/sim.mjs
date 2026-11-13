@@ -25,6 +25,9 @@ export const BUILDS = {
   phi_kiem_hoa: { start: 'fire_orb', want: ['evo:liet_diem_kiem_tran', 'new:sword_array', 'up:sword_array', 'up:fire_orb', 'pas:linh_luc', 'pas:ngung_than', 'new:fire_ring'] },
   hoa_phong: { start: 'fire_orb', want: ['evo:hoa_long_quyen', 'new:fire_ring', 'up:fire_ring', 'new:wind_blade', 'up:fire_orb', 'pas:tu_khi', 'pas:linh_luc'] },
   loi_the: { start: 'thunder_strike', want: ['evo:loi_cuong_ho_the', 'new:body_aura', 'up:body_aura', 'new:thunder_field', 'up:thunder_strike', 'up:thunder_field', 'pas:ho_mach'] },
+  // M7-12: 2 build tiến hóa mới (công pháp khóa -> mở sẵn trong sim)
+  bang_han: { start: 'ice_needle', unlock: ['ice_needle', 'ice_nova'], want: ['evo:cuc_han_bang_tran', 'up:ice_needle', 'new:ice_nova', 'up:ice_nova', 'pas:linh_luc', 'pas:ngung_than', 'new:sword_qi'] },
+  linh_phong: { start: 'sword_qi', unlock: ['spirit_orb', 'wind_step'], want: ['evo:linh_chau_phong_an', 'new:spirit_orb', 'up:spirit_orb', 'new:wind_step', 'up:sword_qi', 'up:wind_step', 'pas:linh_luc', 'pas:ho_mach'] },
 };
 
 const NAIVE = !!process.env.NAIVE;
@@ -67,7 +70,7 @@ function dodge(run, p) {
 
 export function simulate(buildName, L, seed, maxTime = 720) {
   const b = BUILDS[buildName];
-  const run = createRun({ variant: process.env.VARIANT || 'thuong', seed, startSkill: b.start, realmLevel: L, difficulty: +(process.env.DIFF || 0) });
+  const run = createRun({ variant: process.env.VARIANT || 'thuong', unlocked: b.unlock || [], seed, startSkill: b.start, realmLevel: L, difficulty: +(process.env.DIFF || 0) });
   const p = { x: run.scene.map.cx, y: run.scene.map.cy, fx: 1, fy: 0, inv: 0, dead: false };
   const ev = [], dt = 1 / 30;
   const evoAt = {};

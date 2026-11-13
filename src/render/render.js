@@ -3,7 +3,7 @@ import { VIEW, TILE as T, HUB, FEATURES, ARCH, BOSS, TRIBULATION, SHRINE, BASIC_
 import { GRASS, WATER, STONE, TREE, ROCK } from '../world/map.js';
 import { SPR, TIERS, BOSS_WHITE, BOSS_SPR, grassTiles, waterTiles, waterBank, stoneTile, treeSprs, rockSpr, hash } from './sprites.js';
 import { createFx } from '../../lib/beanfx.js';
-import { skillKind, skillParams, spiritOrbPos } from '../systems/combat.js';
+import { skillKind, skillParams, spiritOrbPos, sealOrbPos } from '../systems/combat.js';
 
 const { W, H } = VIEW;
 // Chữ trên canvas (12/11, khung 640×360 làm chữ 8px quá nhỏ): đậm, viền tối 2 px để đọc rõ trên mọi nền
@@ -267,6 +267,10 @@ function drawMonster(ctx, m, time, vis) {
     if (m.st === 'windup' && !m.elite) { ctx.fillStyle = '#ff4a3a'; ctx.fillRect(x - 1, top - 8, 2, 4); ctx.fillRect(x - 1, top - 3, 2, 1); }
     if (m.burn && m.burn.t > 0 && Math.floor(time * 10 + m.ph) % 3 === 0) { ctx.fillStyle = '#ffb070'; ctx.fillRect(x - 6 + Math.floor(m.ph * 3) % 12, top + 6, 1, 2); }
     if (m.slow && m.slow.t > 0) { ctx.fillStyle = '#b48cff'; ctx.fillRect(x - 8, y, 16, 1); }
+    if (m.slow && m.slow.frozen && m.slow.t > 0) {   // M7-12: đóng băng — khối băng mờ phủ lên con quái
+      ctx.globalAlpha = 0.45; ctx.fillStyle = '#bfe8ff'; ctx.fillRect(x - 8, top + 6, 16, y - top - 6);
+      ctx.globalAlpha = 0.9; ctx.fillStyle = '#ffffff'; ctx.fillRect(x - 8, top + 6, 16, 1); ctx.fillRect(x - 8, top + 6, 1, y - top - 6); ctx.globalAlpha = 1;
+    }
     if (m.elite || m.hp < m.max) {
       const w = m.elite ? 26 : 14;
       ctx.fillStyle = '#1a1423'; ctx.fillRect(x - w / 2 - 1, top - 1, w + 2, 3);
@@ -498,7 +502,8 @@ function loiCuongFx(vis) {
 function drawSkillsUnder(ctx, run, p, time, vis, dt) {
   for (const s of run.skills) {
     if (skillKind(s) === 'orbit' && s.st.ready > 0) { ctx.globalCompositeOperation = 'lighter'; drawOrbit(ctx, s, s.st, p, vis, true); ctx.globalCompositeOperation = 'source-over'; }
-    if (skillKind(s) === 'spirit') drawSpiritOrbs(ctx, s, p, vis, true);
+    if (skillKind(s) === 'spirit' || skillKind(s) === 'spiritSeal') drawSpiritOrbs(ctx, s, p, vis, true);
+    if (skillKind(s) === 'spiritSeal') drawSeals(ctx, s, vis);
     if (skillKind(s) === 'step') drawAfterimages(ctx, s, vis);
     if (s.evolved === 'loi_cuong_ho_the' && s.st.hp > 0) {
       const f = loiCuongFx(vis);
@@ -537,6 +542,24 @@ function drawSpiritOrbs(ctx, s, p, vis, back) {
   }
   ctx.globalCompositeOperation = 'source-over';
 }
+// M7-12 Linh Châu Phong Ấn: vòng ấn mờ dần + cặp châu xoay tại chỗ (dùng lại sprite linh châu)
+function drawSeals(ctx, s, vis) {
+  const ans = s.st.anchors, prm = skillParams(s);
+  if (!ans || !ans.length) return;
+  const spr = vis.ct && vis.ct.linh_chau, r = prm.anchorR;
+  for (const an of ans) {
+    const k = Math.min(1, an.t / 0.6);
+    ctx.globalAlpha = 0.35 * k; ctx.globalCompositeOperation = 'lighter';
+    pxRing(ctx, an.x, an.y - 2, r + 4, 16, -an.a * 0.5, '#f3a6c8', 1, 0.55);
+    ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = k;
+    for (let i = 0; i < prm.anchorOrbs; i++) {
+      const [x, y] = sealOrbPos(an, i, prm.anchorOrbs, r), bx = Math.round(x), by = Math.round(y);
+      if (spr) ctx.drawImage(spr, bx - (spr.width >> 1), by - (spr.height >> 1));
+      else { ctx.fillStyle = '#f3a6c8'; ctx.fillRect(bx - 2, by - 2, 4, 4); ctx.fillStyle = '#fff4fa'; ctx.fillRect(bx - 1, by - 2, 2, 2); }
+    }
+  }
+  ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
+}
 // Phong Ảnh Bộ: tàn ảnh = bóng nhân vật tô xanh ngọc, mờ dần tới lúc nổ
 function drawAfterimages(ctx, s, vis) {
   const hero = vis.hero, ims = s.st.images;
@@ -573,7 +596,7 @@ function drawSkillsOver(ctx, run, p, time, vis) {
     const k = skillKind(s), prm = skillParams(s), st = s.st;
     ctx.globalCompositeOperation = 'lighter';
     if (k === 'orbit' && st.ready > 0) drawOrbit(ctx, s, st, p, vis, false);
-    else if (k === 'spirit') drawSpiritOrbs(ctx, s, p, vis, false);
+    else if (k === 'spirit' || k === 'spiritSeal') drawSpiritOrbs(ctx, s, p, vis, false);
     else if (k === 'shield' && st.hp > 0 && s.evolved === 'loi_cuong_ho_the' && vis.loiCuong && vis.quality !== 'low') {
       ctx.globalCompositeOperation = 'source-over';
       vis.loiCuong.front.draw(ctx);

@@ -194,6 +194,26 @@ export const EVOLUTIONS = {
     params: { cap: 0.45, recharge: 5, nova: { every: 2.5, radius: 66, dmg: 2.0, slow: 0.35, slowTime: 1 }, breakNova: { radius: 80, dmg: 2.5 } },
     hint: 'Hộ Thể Cương Khí cấp tối đa + một công pháp hệ Lôi',
   },
+  // M7-12 [GIẢ THUYẾT H6]: hai tiến hóa đổi cách đánh (không chỉ +% sát thương). VFX dùng lại Băng Châm/Hàn Khí/Linh Châu.
+  cuc_han_bang_tran: {
+    name: 'Cực Hàn Băng Trận', base: 'ice_needle', needAny: ['ice_nova'], minRunTime: 90,
+    element: 'bang', kind: 'frost', icon: '❄',
+    desc: 'Kim băng để lại hàn ấn; đủ 3 ấn thì yêu thú đóng băng tại chỗ và nổ hàn khí, lan ấn sang con bên cạnh.',
+    // stacks: số ấn để đóng băng; immune: giây miễn đóng băng sau đó; burstBudget: số vụ nổ lan tối đa mỗi khung (trần)
+    params: { cd: 0.45, dmg: 0.8, count: 3, pierce: 1, speed: 300, range: 170, slow: 0.3, slowTime: 1.2,
+      stacks: 3, stackLife: 4, freezeTime: 1.5, freezeSlow: 0.92, immune: 3, burstR: 36, burstDmg: 1.2, burstBudget: 4 },
+    hint: 'Băng Châm cấp tối đa + Hàn Khí',
+  },
+  linh_chau_phong_an: {
+    name: 'Linh Châu Phong Ấn', base: 'spirit_orb', needAny: ['wind_step'], minRunTime: 90,
+    element: 'linh', kind: 'spiritSeal', icon: '🔮',
+    desc: 'Linh châu xoay quanh thân; cứ chạy một đoạn, một cặp châu tách ra phong ấn chỗ đó — xoay tại chỗ, hút và đánh yêu thú vài giây.',
+    // every: px chạy để tạo 1 phong ấn; maxAnchors: trần số phong ấn cùng lúc
+    // 13/11 sim: bản đầu (châu 1,0 · 2 châu/ấn · 3 ấn · hút 28) -> lượt có tiến hóa thắng 1/5; nâng sức phong ấn
+    params: { orbs: 4, radius: 30, spin: 3.0, dmg: 1.2, hitCd: 0.4, knock: 0,
+      every: 60, life: 4, anchorOrbs: 3, anchorR: 22, anchorSpin: 4.5, pull: 40, maxAnchors: 4 },
+    hint: 'Linh Châu cấp tối đa + Phong Ảnh Bộ',
+  },
 };
 
 // Thẻ bị động
