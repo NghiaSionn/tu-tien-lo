@@ -100,7 +100,7 @@ Chú thích: PASS = chạy đúng bằng input thật; FAIL = sai/hỏng; NOT VE
 - **B1 — Phím game nuốt phím tắt UI.** `src/core/input.js` gán `Space`/`KeyJ` = attack và WASD = di chuyển, xử lý rồi `return` sớm nên không tới `onAction`/`modalKey`. Hỏng: J mở/đóng thành tựu (`main.js:557`, `ui.js:300`), Space quay gacha (`ui.js:287`), D đổi độ khó ở màn chuẩn bị (`ui.js:124`), Space đóng kết quả (`ui.js:208`). → M7-02.
 - **B2 — Màn dọc điện thoại không chơi được thoải mái.** Letterbox nhỏ, HUD + nút che cảnh. Cần lời nhắc xoay ngang hoặc layout dọc. → M7-02 (quyết định thiết kế, hỏi trước nếu tốn kém).
 - **B3 — Nút modal quá nhỏ cho cảm ứng** (Luyện 68×17 px). → M7-02.
-- **B4 — Thiên kiếp quá gắt cho người mới** (mất ~70% HP trong 2 s đứng yên). Đổi số ở config, cần đo lại. → M7-11/M7-02.
+- ~~**B4 — Thiên kiếp quá gắt cho người mới**~~ (mất ~70% HP trong 2 s đứng yên). **KHÔNG SỬA — quyết định của người phát triển 13/11:** muốn giữ độ khó của thiên kiếp. Không đề xuất giảm nữa trừ khi người phát triển tự nêu lại.
 - **B5 — Autopilot thua boss cuối trong browser dù sim thắng 8/8.** Có thể do bot browser kém hơn bot sim hoặc chênh lệch sim/game; cần điều tra trước khi chỉnh balance. → M7-11.
 
 ### Minor
