@@ -121,6 +121,10 @@
   body[data-mode=hub] #tip { top: auto; bottom: 5em; } body.touch[data-mode=hub] #tip { bottom: calc(44px + 6em); }
   .tipline { border: 1px dashed #ffd978; border-radius: .35em; padding: .35em .6em; font-size: .85em; display: flex; gap: .5em; align-items: center; flex-wrap: wrap; }
   .tipline span { flex: 1 1 14em; }
+  #btnLore.new { border-color: #ffe08a; box-shadow: 0 0 .5em #ffd978; } #btnLore.new::after { content: ' •'; color: #ffe08a; }
+  .lore { border-left: 2px solid #b89a54; padding: .2em .8em; margin: .6em 0; } .lore.locked { opacity: .5; border-left-style: dashed; }
+  .lore h3 { margin: .1em 0 .25em; } .lore.unread h3::after { content: ' · mới'; color: #ffe08a; font-size: .8em; }
+  .lore p { font-size: .92em; line-height: 1.55; margin: 0; font-style: italic; }
   .sheet .warn { color: #ffb4b0; opacity: 1; } .sheet .note { color: #ffd978; }
   /* M7-02: bảng phủ cả màn hình (không bị bó trong khung game letterbox), chữ tối thiểu 12px */
   #modal { position: fixed; z-index: 20; font-size: max(1em, 12px); }
@@ -185,8 +189,9 @@
       <button id="btnGacha">Truyền Thừa (H)</button>
       <button id="btnAch">Thành tựu (J)</button>
       <button id="btnCodex">Đồ giám (K)</button>
+      <button id="btnLore">Bia (L)</button>
     </div>
-    <div id="help">WASD / mũi tên: di chuyển · Space: phóng kiếm khí · T: tọa thiền · B: đột phá · 1: dùng đan · 2: mua đan · E: bí cảnh · G: luyện khí · H: Truyền Thừa Các · J: thành tựu · K: đồ giám</div>
+    <div id="help">WASD / mũi tên: di chuyển · Space: phóng kiếm khí · T: tọa thiền · B: đột phá · 1: dùng đan · 2: mua đan · E: bí cảnh · G: luyện khí · H: Truyền Thừa Các · J: thành tựu · K: đồ giám · L: bia truyền thừa</div>
     <div id="modal" hidden></div>
   </div>
 </div>

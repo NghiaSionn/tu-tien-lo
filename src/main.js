@@ -31,6 +31,7 @@ import { metaGoals, previewAfterClaim } from './progression/goals.js';
 import { newDiscoveries } from './progression/codex.js';
 import { pickVariant, variantOf } from './systems/variants.js';
 import { shouldTip, tipText, markSeen, skipAll, replayTutorial } from './progression/tutorial.js';
+import { unlockLore, loreEntries, markLoreRead } from './progression/lore.js';
 import { SKILLS as SKILL_DEFS } from './data/skills.js';
 
 const { W, H } = VIEW;
@@ -264,6 +265,7 @@ function levelUp() {
   UI.log(`Đột phá thành công: ${levelName(meta.realmLevel)}!`, 'gold');
   realmUpNotes(r);
   save();
+  loreCheck();
 }
 function tryBreak() {
   if (view !== 'HUB' || trib || !C.canBreak(meta)) return;
@@ -416,6 +418,7 @@ function afterMajor() {
   spawnFx(vis, 'dot_pha', p.x, p.y, { onHit: () => { addFlash(vis, 0.18); addShake(vis, 0.3); } });
   UI.log(`Đột phá thành công: ${levelName(meta.realmLevel)}!`, 'gold', 12000);
   save();
+  loreCheck();
 }
 
 // ---------- bí cảnh ----------
@@ -545,12 +548,13 @@ function finishRun() {
 // REWARDED -> HUB: cộng tài nguyên + xóa pending trong cùng một lần lưu; gọi lại lần nữa không cộng thêm
 function claimAndReturn(next = null) {
   if (view !== 'RESULTS') return;
-  const evosBefore = [...meta.stats.evos];
+  const evosBefore = [...meta.stats.evos], outcome = run && run.outcome;
   const got = claimReward(meta);
   if (got) UI.log(`Mang về: ${rewardText(got)}.`, 'good');
   for (const id of newDiscoveries(evosBefore, meta.stats.evos)) UI.log(`Đồ Giám: lần đầu khám phá tiến hóa ${EVOLUTIONS[id].name}! (K để xem)`, 'gold', 10000);
   checkAchievements();
   returnToHub();
+  loreCheck({ outcome });
   // M7-07: đi tiếp ngay sau khi đã nhận thưởng (nhận vẫn một lần — claimReward ở trên)
   metaAct('results:' + (next || 'hub'));
   if (next === 'meditate') { p.x = CX; p.y = CY + 12; if (!p.med) toggleMed(); }
@@ -578,6 +582,20 @@ function download(text, name, type) {
   a.download = name;
   a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+// ---------- M7-14: Bia Truyền Thừa ----------
+function loreCheck(ev = null) {
+  if (!FEATURES.lore) return;
+  const got = unlockLore(meta, ev);
+  if (!got.length) return;
+  save();
+  UI.log(got.length === 1 ? `Bia Truyền Thừa khắc thêm: "${got[0].title}" (L để đọc).` : `Bia Truyền Thừa khắc thêm ${got.length} đoạn (L để đọc).`, 'gold', 10000);
+}
+function openLore() {
+  if (!FEATURES.lore || view !== 'HUB' || trib) return;
+  const entries = loreEntries(meta);
+  markLoreRead(meta); save(); metaAct('lore_open');
+  UI.showLore(entries);
 }
 function openCodex() {
   if (view !== 'HUB' || trib) return;
@@ -656,6 +674,7 @@ function onAction(code) {
   else if (code === 'KeyH') openGacha();
   else if (code === 'KeyJ') UI.showAchievements(meta);
   else if (code === 'KeyK') openCodex();
+  else if (code === 'KeyL') openLore();
   else return false;
   return true;
 }
@@ -665,7 +684,8 @@ const keys = input.keys;
 const bind = (id, fn) => $(id).addEventListener('click', e => { fn(); e.currentTarget.blur(); });
 bind('btnMed', toggleMed); bind('btnBreak', tryBreak); bind('btnPill', usePill); bind('btnBuy', buyPill);
 bind('btnRun', openPrepare); bind('btnSettings', openSettings); bind('btnPause', pauseRun);
-bind('btnForge', () => openForge()); bind('btnGacha', () => openGacha()); bind('btnAch', () => { if (view === 'HUB' && !trib) UI.showAchievements(meta); }); bind('btnCodex', openCodex);
+bind('btnForge', () => openForge()); bind('btnGacha', () => openGacha()); bind('btnAch', () => { if (view === 'HUB' && !trib) UI.showAchievements(meta); }); bind('btnCodex', openCodex); bind('btnLore', openLore);
+if (!FEATURES.lore) document.getElementById('btnLore').hidden = true;
 // M5-05: trình duyệt chỉ cho phát âm sau cử chỉ người dùng -> mở ở lần bấm/chạm đầu tiên
 const firstGesture = () => { Audio.unlockAudio(); Audio.applyAudioSettings(meta.settings); Audio.startMusic(); removeEventListener('keydown', firstGesture); removeEventListener('pointerdown', firstGesture); };
 addEventListener('keydown', firstGesture); addEventListener('pointerdown', firstGesture);
@@ -734,7 +754,8 @@ for (let i = 0; i < HUB.MAX_MONSTERS; i++) spawnHubMonster(hub, p, Math.random);
 UI.setMode('hub');
 UI.log('Ngồi vào tụ linh trận và nhấn T để tu luyện.', 'gold');
 if (FEATURES.run) UI.log('Cổng bí cảnh ở phía bắc tụ linh trận — đứng gần và nhấn E.');
-if (FEATURES.run) setTimeout(() => { if (view === 'HUB') showTipIf('portal'); }, 600);   // M7-06: chờ setupTouch gắn class cảm ứng
+if (FEATURES.run) setTimeout(() => { if (view === 'HUB') showTipIf('portal'); }, 600);
+loreCheck();   // M7-14: save cũ đã qua mốc -> khắc ngay các đoạn tương ứng (một lần)   // M7-06: chờ setupTouch gắn class cảm ứng
 for (const [m, c] of startNotes) UI.log(m, c);
 UI.hubHud(meta, p, trib, false);
 

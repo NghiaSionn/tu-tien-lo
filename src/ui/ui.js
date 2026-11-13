@@ -64,6 +64,8 @@ export function hubHud(meta, p, trib, nearPortal) {
   $('btnPill').textContent = `Dùng đan (1) · +${pillQi(L)}✨`;
   $('btnBuy').disabled = meta.linhThach < ITEMS.PILL_COST;
   $('btnRun').hidden = !nearPortal;
+  const lb = $('btnLore');   // M7-14: nút Bia sáng khi có đoạn chưa đọc
+  if (lb) lb.classList.toggle('new', !!(meta.lore && meta.lore.unlocked.some(id => !meta.lore.read.includes(id))));
 }
 
 function skillCdFrac(s) {
@@ -336,6 +338,18 @@ export function showCodex(meta, onClose = () => {}) {
     <h3>Tiến hóa</h3><div class="cards">${ev}</div>
     <div class="row"><button class="ghost" data-act="close">Đóng (Esc)</button></div>`,
   code => { if (code === 'Escape' || code === 'KeyK') { closeModal(); onClose(); return true; } return false; });
+  $('modal').querySelector('[data-act=close]').addEventListener('click', () => { closeModal(); onClose(); });
+}
+
+// M7-14: Bia Truyền Thừa — đọc lại các đoạn đã mở; đoạn chưa mở chỉ là ô trống (không lộ điều kiện)
+export function showLore(entries, onClose = () => {}) {
+  const n = entries.filter(e => e.open).length;
+  open(`<h2>Bia Truyền Thừa</h2><p class="sub">Tổ sư khắc lại những gì người tu đi trước đã thấy. ${n}/${entries.length} đoạn đã hiện. Mỗi mốc trên đường tu sẽ khắc thêm một đoạn.</p>
+    ${entries.map(e => e.open
+      ? `<div class="lore${e.unread ? ' unread' : ''}"><h3>${esc(e.title)}</h3><p>${esc(e.text)}</p></div>`
+      : `<div class="lore locked"><h3>— chưa khắc —</h3></div>`).join('')}
+    <div class="row"><button class="ghost" data-act="close">Đóng (Esc)</button></div>`,
+  code => { if (code === 'Escape' || code === 'KeyL') { closeModal(); onClose(); return true; } return false; });
   $('modal').querySelector('[data-act=close]').addEventListener('click', () => { closeModal(); onClose(); });
 }
 

@@ -10,6 +10,7 @@ export const FEATURES = {
   resultGoals: true,
   draftReroll: true,    // M7-09 [GIẢ THUYẾT H4]: mỗi run có RUN.REROLLS lượt đổi bảng thẻ (miễn phí, không mua được). false = không có nút
   draftSynergy: false,
+  lore: true,           // M7-14 [GIẢ THUYẾT H8]: Bia Truyền Thừa (phím L) — mẩu truyện mở theo mốc. false = ẩn nút, không báo
   runVariants: true,    // M7-10 [GIẢ THUYẾT H5]: mỗi lượt bốc ngẫu nhiên (theo seed) một biến thể bí cảnh, báo luật ở màn chuẩn bị. false = luôn Bình thường  // M7-09 [GIẢ THUYẾT H4]: thẻ công pháp mới ghép được tiến hóa với công pháp đang có nặng ×RUN.SYNERGY_MULT. Tắt tới khi playtest    // M7-07 [GIẢ THUYẾT H2]: màn kết quả hiện tối đa 2 mục tiêu meta + nút Tọa thiền/Đột phá/Vào bí cảnh mới. false = như cũ
 };
 

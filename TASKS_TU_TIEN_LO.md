@@ -355,6 +355,7 @@ Backlog chi tiết (ChatGPT đề xuất 13/11, người phát triển duyệt c
 - [~] M7-08 Sổ công pháp & gợi ý tiến hóa [GIẢ THUYẾT H3] (M, P1) — phần làm xong 13/11 (`docs/playtest/M7_08.md`): Công Pháp Đồ Giám (K) dựng từ dữ liệu, giấu công pháp khóa/lời giải tiến hóa, báo khám phá lần đầu; sửa tên công pháp sai trong log thành tựu. 168/168 test. Còn đo với người thật → H3 INCONCLUSIVE
 - [~] M7-09 Một lần reroll + điều chỉnh pool thẻ có kiểm soát [GIẢ THUYẾT H4] (M, P1) — phần làm xong 13/11 (`docs/playtest/M7_09.md`): đổi bảng 1 lần/run (`FEATURES.draftReroll` bật), ưu tiên ghép tiến hóa ×1.3 (`FEATURES.draftSynergy` tắt), log reroll/maxed, sim REROLL/SYNERGY. 174/174 test. Còn đánh giá với người thật trước khi khóa trọng số → H4 INCONCLUSIVE
 - [~] M7-10 Biến thể bí cảnh bằng config [GIẢ THUYẾT H5] (M, P1) — phần làm xong 13/11 (`docs/playtest/M7_10.md`): 3 biến thể + Bình thường bốc theo seed (người phát triển chọn ngẫu nhiên), báo luật ở chuẩn bị/HUD/kết quả, sim từng biến thể (Phong Linh đã giảm sau sim). 180/180 test. Còn hỏi người thử → H5 INCONCLUSIVE
+- [~] M7-14 Mẩu truyện tu tiên phản hồi sau run [GIẢ THUYẾT H8] (S/M, P2) — phần làm xong 13/11, người phát triển duyệt làm trước GATE B (`docs/playtest/M7_14.md`): Bia Truyền Thừa (L), 7 đoạn ≤ 80 từ mở 1 lần theo mốc, không bật giữa trận, `FEATURES.lore`. 188/188 test. Còn ≥5 người đọc thử → H8 INCONCLUSIVE
 - [ ] M7-06..11 (M7-B), M7-12..14 (M7-C, có điều kiện), M7-15..18 (M7-D): xem file backlog
 
 ---
