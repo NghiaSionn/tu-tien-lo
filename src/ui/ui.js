@@ -144,7 +144,7 @@ export function showShrine(choices, onPick) {
 }
 
 // Bảng chọn thẻ: một lần chọn duy nhất; khóa input ngắn khi vừa mở để không bấm nhầm/bấm đúp.
-export function showDraft(run, cards, onPick) {
+export function showDraft(run, cards, onPick, onReroll = null) {
   let done = false;
   const openedAt = performance.now();
   const pick = i => {
@@ -154,18 +154,27 @@ export function showDraft(run, cards, onPick) {
     closeModal();
     onPick(cards[i]);
   };
+  // M7-09: đổi bảng — cùng khóa input ngắn như chọn thẻ
+  const reroll = () => {
+    if (done || !onReroll || !(run.rerolls > 0)) return;
+    if (performance.now() - openedAt < RUN.DRAFT_INPUT_DELAY * 1000) return;
+    done = true; closeModal(); onReroll();
+  };
   const typeName = { NEW_SKILL: 'Công pháp mới', UPGRADE_SKILL: 'Nâng cấp', PASSIVE: 'Bị động', EVOLUTION: 'TIẾN HÓA', FALLBACK: 'Dự phòng' };
   open(`<h2>Lên cấp ${run.level - run.pendingDrafts + 1}</h2>
     <p class="sub">Chọn 1 trong ${cards.length}${run.pendingDrafts > 1 ? ` · còn ${run.pendingDrafts - 1} lượt chọn` : ''}</p>
     <div class="cards">${cards.map((c, i) => `<button class="card t-${c.type}" data-i="${i}" style="--c:${c.element ? ELEMENTS[c.element].color : '#ffd978'}">
       <span class="key">${i + 1}</span><span class="ic">${ic(c.id, c.icon, 2.2)}</span><b>${esc(c.name)}</b>
       <em>${esc(typeName[c.type])}${c.element ? ' · ' + esc(elementName(c.element)) : ''}${c.level !== '' ?` · ${c.type === 'EVOLUTION' ? 'MAX' : 'Cấp ' + c.level}` : ''}</em>
-      <p>${esc(c.desc)}</p>${c.hint ? `<small>${esc(c.hint)}</small>` : ''}</button>`).join('')}</div>`,
+      <p>${esc(c.desc)}</p>${c.hint ? `<small>${esc(c.hint)}</small>` : ''}</button>`).join('')}</div>
+    ${onReroll ? `<div class="row"><button class="ghost" data-act="reroll" ${run.rerolls > 0 ? '' : 'disabled'}>${run.rerolls > 0 ? `Đổi bảng thẻ (R) · còn ${run.rerolls}` : 'Đã dùng lượt đổi bảng'}</button></div>` : ''}`,
   code => {
     const i = { Digit1: 0, Digit2: 1, Digit3: 2, Numpad1: 0, Numpad2: 1, Numpad3: 2 }[code];
     if (i != null) { pick(i); return true; }
+    if (code === 'KeyR') { reroll(); return true; }
     return false;
   });
+  $('modal').querySelector('[data-act=reroll]')?.addEventListener('click', reroll);
   $('modal').querySelectorAll('.card').forEach(b => b.addEventListener('click', () => pick(+b.dataset.i)));
 }
 

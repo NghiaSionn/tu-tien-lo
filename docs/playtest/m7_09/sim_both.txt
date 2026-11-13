@@ -1,0 +1,6 @@
+Bot biết né cảnh báo · cảnh giới 0 · 16 seed/build
+build         thắng  hạ LV  tiến hóa  t trung vị  chết trung vị  thắng lúc  cấp  💎   chết vì
+kiem_loi      14/16  15/16  16/16      7:06        6:02         7:08    32  383  miniboss:dash×1 miniboss×1
+phi_kiem_hoa  12/16  15/16  15/16      6:52        6:19         6:57    32  381  miniboss:dash×2 boss×1 boss:slam×1
+hoa_phong     13/16  16/16  15/16      7:21        6:36         7:25    33  388  boss×1 shot×1 miniboss:dash×1
+loi_the       12/16  16/16  16/16      9:07        7:15         9:30    34  407  boss:slam×3 chaser×1

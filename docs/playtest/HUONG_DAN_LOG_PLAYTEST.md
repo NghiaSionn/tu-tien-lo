@@ -20,8 +20,9 @@ Mỗi sự kiện: `v` (schema), `build`, `tid` (mã thử ngẫu nhiên tạo k
 | first_card, card_picked | card, cardType, level, time |
 | evolution | evo, time |
 | miniboss_result | result (killed / died / abandoned), time |
-| run_end | outcome, time, level, kills, cause (nguồn sát thương lớn nhất khi thua), evolutions, difficulty |
-| meta_action | action (breakthrough, trib_start, trib_win, trib_fail, pill_use, pill_buy, craft, upgrade, equip, unequip, gacha_pull, gacha_shop), ok, realm |
+| run_end | outcome, time, level, kills, cause (nguồn sát thương lớn nhất khi thua), evolutions, difficulty, rerolls, maxed (số công pháp tối đa/tiến hóa), skills |
+| reroll | level, time, left (M7-09) |
+| meta_action | action (breakthrough, trib_start, trib_win, trib_fail, pill_use, pill_buy, craft, upgrade, equip, unequip, gacha_pull, gacha_shop, codex, results:hub/run/meditate/break/codex), ok, realm |
 | session_end | duration (giây), runsInSession — ghi khi đóng/rời trang (pagehide); trình duyệt di động có thể không kịp ghi |
 
 Trường ngoài danh sách trắng bị bỏ khi ghi. Giới hạn 3000 sự kiện; quá thì bỏ sự kiện cũ nhất (số đã bỏ ghi ở `dropped`). Bộ nhớ trình duyệt đầy cũng bỏ bớt sự kiện cũ, không làm lỗi game.

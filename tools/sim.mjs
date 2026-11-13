@@ -8,11 +8,15 @@
 //   node tools/sim.mjs kiem_loi 0 5        # một build
 //   node tools/sim.mjs --summary 0 10      # bảng tổng hợp mọi build, cảnh giới 0, 10 seed
 //   DMG=1 node tools/sim.mjs ...           # in sát thương nhận theo nguồn
+//   REROLL=1 ...                           # M7-09: bot đổi bảng thẻ khi không có thẻ nào trong danh sách muốn
+//   SYNERGY=1 ...                          # M7-09: bật FEATURES.draftSynergy (ưu tiên nhẹ thẻ ghép tiến hóa)
 import { createRun, updateRun, refreshMaxHp } from '../src/systems/run.js';
-import { drawCards, applyCard } from '../src/progression/draft.js';
+import { drawCards, applyCard, rerollDraft } from '../src/progression/draft.js';
 import { runStats } from '../src/systems/combat.js';
 import { moveEntity } from '../src/entities/monsters.js';
-import { PLAYER, ARCH, BOSS } from '../src/core/config.js';
+import { PLAYER, ARCH, BOSS, FEATURES } from '../src/core/config.js';
+if (process.env.SYNERGY) FEATURES.draftSynergy = true;
+const REROLL = !!process.env.REROLL;
 import { computeRunReward } from '../src/progression/rewards.js';
 
 export const BUILDS = {
@@ -88,8 +92,9 @@ export function simulate(buildName, L, seed, maxTime = 720) {
     updateRun(run, p, dt, ev);
     ev.length = 0;
     while (run.pendingDrafts > 0 && run.status === 'RUNNING') {
-      const cards = drawCards(run, run.rng);
+      let cards = drawCards(run, run.rng);
       const rank = c => { const i = b.want.findIndex(w => c.key === w); return i < 0 ? 99 : i; };
+      if (REROLL && cards.every(c => rank(c) === 99)) cards = rerollDraft(run, run.rng, cards) || cards;
       cards.sort((a, c) => rank(a) - rank(c));
       applyCard(run, cards[0], { heal: f => { run.hp = Math.min(run.maxHp, run.hp + run.maxHp * f); }, onMaxHpChange: () => refreshMaxHp(run, false) });
       if (cards[0].type === 'EVOLUTION') evoAt[cards[0].id] = Math.round(run.time);

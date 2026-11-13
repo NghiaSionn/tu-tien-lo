@@ -7,7 +7,9 @@ export const FEATURES = {
   run: true,            // M1: cổng bí cảnh + vòng run roguelite. false = game chạy như v0.1
   manualAttackInRun: true,
   pixelfxAssets: true,  // dùng sheet pixelfx cho cổng bí cảnh. false = cổng vẽ bằng code như cũ
-  resultGoals: true,    // M7-07 [GIẢ THUYẾT H2]: màn kết quả hiện tối đa 2 mục tiêu meta + nút Tọa thiền/Đột phá/Vào bí cảnh mới. false = như cũ
+  resultGoals: true,
+  draftReroll: true,    // M7-09 [GIẢ THUYẾT H4]: mỗi run có RUN.REROLLS lượt đổi bảng thẻ (miễn phí, không mua được). false = không có nút
+  draftSynergy: false,  // M7-09 [GIẢ THUYẾT H4]: thẻ công pháp mới ghép được tiến hóa với công pháp đang có nặng ×RUN.SYNERGY_MULT. Tắt tới khi playtest    // M7-07 [GIẢ THUYẾT H2]: màn kết quả hiện tối đa 2 mục tiêu meta + nút Tọa thiền/Đột phá/Vào bí cảnh mới. false = như cũ
 };
 
 // 12/11 (chơi tay): 480×270 -> 640×360 = thu camera 1,33 lần, nhân vật/quái nhỏ lại trên màn, thấy rộng hơn
@@ -64,6 +66,7 @@ export const RUN = {
   TIME_LIMIT: 900,              // trần an toàn: chưa hạ boss cuối sau 15 phút -> kết thúc 'TIMEOUT' (thắng = hạ boss, BOSS.FINAL)
   START_SKILLS: ['sword_qi', 'fire_orb', 'thunder_strike'],
   MAX_ACTIVE: 4, MAX_PASSIVE: 4,
+  REROLLS: 1, SYNERGY_MULT: 1.3,   // M7-09 [THỬ NGHIỆM]
   XP_BASE: 4, XP_GROWTH: 1.13, XP_LINEAR: 1,
   MAGNET: 56, PICKUP: 10, ORB_SPEED: 160,
   REGEN: 0.005,                 // hồi khí huyết mỗi giây trong run (tỉ lệ khí huyết tối đa)

@@ -352,6 +352,7 @@ Backlog chi tiết (ChatGPT đề xuất 13/11, người phát triển duyệt c
 - [ ] M7-05 Baseline playtest người thật ≥8 người (M, P0) — cần người thật
 - [~] M7-07 Kết quả run dẫn sang mục tiêu tiếp theo [GIẢ THUYẾT H2] (S, P1) — phần làm xong 13/11 (`docs/playtest/M7_07.md`, cờ `FEATURES.resultGoals`), 163/163 test, 3 trạng thái thử trong browser. Còn phần đo với người thật (M7-05) → H2 INCONCLUSIVE
 - [~] M7-08 Sổ công pháp & gợi ý tiến hóa [GIẢ THUYẾT H3] (M, P1) — phần làm xong 13/11 (`docs/playtest/M7_08.md`): Công Pháp Đồ Giám (K) dựng từ dữ liệu, giấu công pháp khóa/lời giải tiến hóa, báo khám phá lần đầu; sửa tên công pháp sai trong log thành tựu. 168/168 test. Còn đo với người thật → H3 INCONCLUSIVE
+- [~] M7-09 Một lần reroll + điều chỉnh pool thẻ có kiểm soát [GIẢ THUYẾT H4] (M, P1) — phần làm xong 13/11 (`docs/playtest/M7_09.md`): đổi bảng 1 lần/run (`FEATURES.draftReroll` bật), ưu tiên ghép tiến hóa ×1.3 (`FEATURES.draftSynergy` tắt), log reroll/maxed, sim REROLL/SYNERGY. 174/174 test. Còn đánh giá với người thật trước khi khóa trọng số → H4 INCONCLUSIVE
 - [ ] M7-06..11 (M7-B), M7-12..14 (M7-C, có điều kiện), M7-15..18 (M7-D): xem file backlog
 
 ---

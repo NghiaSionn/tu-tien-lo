@@ -13,7 +13,8 @@ export const EVENTS = {
   card_picked: ['card', 'cardType', 'level', 'time'],
   evolution: ['evo', 'time'],
   miniboss_result: ['result', 'time'],
-  run_end: ['outcome', 'time', 'level', 'kills', 'cause', 'evolutions', 'difficulty'],
+  run_end: ['outcome', 'time', 'level', 'kills', 'cause', 'evolutions', 'difficulty', 'rerolls', 'maxed', 'skills'],
+  reroll: ['level', 'time', 'left'],   // M7-09
   meta_action: ['action', 'ok', 'realm'],
   session_end: ['duration', 'runsInSession'],
 };

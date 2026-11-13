@@ -1,5 +1,5 @@
 // Bốc 1 trong 3 thẻ. Thuần logic: nhận run + rng, trả thẻ; applyCard áp dụng đúng một lần.
-import { RUN } from '../core/config.js';
+import { RUN, FEATURES } from '../core/config.js';
 import { SKILLS, EVOLUTIONS, PASSIVES, ELEMENTS, FALLBACK_CARD } from '../data/skills.js';
 
 export const WEIGHTS = { NEW_SKILL: 1.0, UPGRADE_SKILL: 2.0, PASSIVE: 0.7, EVOLUTION: 100 };   // [THỬ NGHIỆM]
@@ -25,14 +25,18 @@ export function evolutionHint(skillId) {
   return e ? `★ Tiến hóa: ${e.hint}` : '';
 }
 
-export function candidates(run) {
+// M7-09: công pháp mới này ghép được một công thức tiến hóa với công pháp đang có (làm gốc hoặc làm phần phụ)
+export const pairsWithOwned = (run, id) => Object.values(EVOLUTIONS).some(e =>
+  (e.base === id && e.needAny.some(x => owns(run, x))) || (e.needAny.includes(id) && owns(run, e.base)));
+
+export function candidates(run, synergy = FEATURES.draftSynergy) {
   const out = [];
   for (const [id, def] of Object.entries(SKILLS)) {
     if (!def.implemented || (def.locked && !(run.unlocked || []).includes(id))) continue;   // M4-02: công pháp khóa chỉ vào pool khi đã mở
     const s = run.skills.find(k => k.id === id);
     if (!s) {
       if (run.skills.length < RUN.MAX_ACTIVE)
-        out.push({ key: 'new:' + id, type: 'NEW_SKILL', id, name: def.name, icon: def.icon, element: def.element, level: 1, desc: def.levelText[0] + '. ' + def.desc, hint: evolutionHint(id), w: WEIGHTS.NEW_SKILL });
+        out.push({ key: 'new:' + id, type: 'NEW_SKILL', id, name: def.name, icon: def.icon, element: def.element, level: 1, desc: def.levelText[0] + '. ' + def.desc, hint: evolutionHint(id), w: WEIGHTS.NEW_SKILL * (synergy && pairsWithOwned(run, id) ? RUN.SYNERGY_MULT : 1) });
     } else if (!s.evolved && s.level < def.maxLevel) {
       out.push({ key: 'up:' + id, type: 'UPGRADE_SKILL', id, name: def.name, icon: def.icon, element: def.element, level: s.level + 1, desc: def.levelText[s.level], hint: evolutionHint(id), w: WEIGHTS.UPGRADE_SKILL * (evolutionPathBase(run, id) ? EVO_BASE_UPGRADE_MULT : 1) });
     }
@@ -51,8 +55,10 @@ export function candidates(run) {
 }
 
 // Chọn tối đa n thẻ không trùng theo trọng số. Thẻ tiến hóa luôn được ưu tiên vào bảng.
-export function drawCards(run, rng, n = 3) {
-  const pool = candidates(run);
+// exclude: key thẻ không bốc lại (dùng khi đổi bảng); nếu loại hết thì bốc từ pool đầy đủ
+export function drawCards(run, rng, n = 3, exclude = null) {
+  let pool = candidates(run);
+  if (exclude && exclude.size) { const rest = pool.filter(c => c.type === 'EVOLUTION' || !exclude.has(c.key)); if (rest.length) pool = rest; }
   const picked = [];
   while (picked.length < n && pool.length) {
     const total = pool.reduce((a, c) => a + c.w, 0);
@@ -62,6 +68,13 @@ export function drawCards(run, rng, n = 3) {
   }
   if (!picked.length) picked.push({ ...FALLBACK_CARD, key: FALLBACK_CARD.id, element: null, level: '' });
   return picked;
+}
+
+// M7-09: đổi bảng thẻ — trừ lượt trước rồi mới bốc; hết lượt -> null (không làm gì)
+export function rerollDraft(run, rng, current = []) {
+  if (!(run.rerolls > 0)) return null;
+  run.rerolls--; run.rerollsUsed = (run.rerollsUsed || 0) + 1;
+  return drawCards(run, rng, 3, new Set(current.map(c => c.key)));
 }
 
 export const elementName = el => el ? ELEMENTS[el].name : 'Bị động';

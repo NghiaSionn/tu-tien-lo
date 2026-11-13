@@ -3,7 +3,7 @@ import { VIEW, HUB, PLAYER, BASIC_ATTACK, MEDITATION, HUB_MONSTER as HM, REALM, 
 import { makeInput } from './core/input.js';
 import { makeHubMap } from './world/map.js';
 import { levelName, maxHp, atk, need, isMajor, realmOf, REALMS, MAX_L, grantUnlocks } from './progression/realm.js';
-import { drawCards, applyCard } from './progression/draft.js';
+import { drawCards, applyCard, rerollDraft } from './progression/draft.js';
 import * as C from './systems/cultivation.js';
 import { createTrib, updateTrib, clampToArena, phaseDef } from './systems/tribulation.js';
 import { TRIBULATION } from './core/config.js';
@@ -455,10 +455,18 @@ function updateRunView(dt) {
   if (run.status === 'ENDED') { finishRun(); return; }
   if (run.pendingDrafts > 0) openDraft();
 }
-function openDraft() {
+function openDraft(given = null) {
   view = 'CARD_DRAFT'; input.clear();
-  const cards = drawCards(run, run.rng);
+  const cards = given || drawCards(run, run.rng);
   const r = run;
+  // M7-09: đổi bảng thẻ (miễn phí, RUN.REROLLS lượt/run); thế giới vẫn dừng vì view vẫn là CARD_DRAFT
+  const onReroll = () => {
+    if (run !== r || view !== 'CARD_DRAFT') return;
+    const next = rerollDraft(r, r.rng, cards);
+    if (!next) { openDraft(cards); return; }
+    PT.log('reroll', { level: r.level, time: Math.round(r.time), left: r.rerolls }, r);
+    openDraft(next);
+  };
   UI.showDraft(r, cards, card => {
     if (run !== r || view !== 'CARD_DRAFT') return;
     const ok = applyCard(r, card, {
@@ -478,7 +486,7 @@ function openDraft() {
       UI.log(`Tiến hóa: ${EVOLUTIONS[card.id].name}!`, 'gold'); Audio.play('evolve');
     }
     view = 'RUN'; input.clear();
-  });
+  }, FEATURES.draftReroll ? onReroll : null);
 }
 // M3-04: Linh Mạch — thế giới dừng khi đang chọn (như bảng thẻ); một lần mỗi run
 function openShrine() {
@@ -512,7 +520,8 @@ function finishRun() {
   save();
   if (r.dir.mini === 'ALIVE') PT.log('miniboss_result', { result: r.outcome === 'LOSE' ? 'died' : 'abandoned', time: Math.round(r.time) }, r);
   const cause = r.outcome === 'LOSE' ? Object.entries(r.dmgBy).sort((a, b) => b[1] - a[1])[0]?.[0] : undefined;
-  PT.log('run_end', { outcome: r.outcome, time: Math.round(r.time), level: r.level, kills: r.kills, cause, evolutions: [...r.evolutions], difficulty: r.diff }, r);
+  const maxed = r.skills.filter(s => s.evolved || s.level >= SKILL_DEFS[s.id].maxLevel).length;   // độ hoàn thiện build
+  PT.log('run_end', { outcome: r.outcome, time: Math.round(r.time), level: r.level, kills: r.kills, cause, evolutions: [...r.evolutions], difficulty: r.diff, rerolls: r.rerollsUsed || 0, maxed, skills: r.skills.length }, r);
   Audio.play(r.outcome === 'WIN' ? 'win' : 'lose');
   const extra = FEATURES.resultGoals ? { goals: metaGoals(previewAfterClaim(meta)), onNext: a => claimAndReturn(a) } : null;
   UI.showResults(r, reward, () => claimAndReturn(), meta, extra);
