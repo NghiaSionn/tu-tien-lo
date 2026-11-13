@@ -316,6 +316,12 @@ function drawTelegraphsTop(ctx, scene) {
     if (m.arch === 'charger') L = ARCH.charger.DASH_SPEED * ARCH.charger.DASH_TIME;
     else if (m.boss && m.pat === 'dash') L = BOSS.MINI.DASH.SPEED * BOSS.MINI.DASH.TIME;
     else if (m.arch === 'elite') { ctx.globalAlpha = 0.5; pxRing(ctx, m.x, m.y, ARCH.elite.SLAM_R, 60, 0, '#ff4a3a', 1, 1); }
+    else if (m.boss && m.pat === 'howlDash') {   // M7-13: hú rồi lao — viền lớp trên để thân boss ×2 / tán cây không che
+      const prog = 1 - Math.max(0, m.stT) / (m.stMax || 1);
+      const ry = 16 + prog * 30;
+      ctx.globalAlpha = 0.85; pxRing(ctx, m.x, m.y - 10, ry, Math.round(ry * 6), 0, '#ffd978', 1, 1);
+      ctx.globalAlpha = 0.85; pxRing(ctx, m.x, m.y - 10, 52, 320, 0, '#ff4a3a', 1, 1);
+    }
     if (L) { ctx.globalAlpha = 0.35; pxLine(ctx, m.x, m.y - 3, m.x + m.dirX * L, m.y - 3 + m.dirY * L, '#ff4a3a', 1); }
   }
   ctx.globalAlpha = 1;
@@ -360,9 +366,10 @@ function drawBossTelegraph(ctx, m) {
     ctx.globalAlpha = 0.5; pxLine(ctx, x0, y0, x0 + m.dirX * L, y0 + m.dirY * L, '#ff4a3a', 3);
     ctx.globalAlpha = 0.95; pxLine(ctx, x0, y0, x0 + m.dirX * L * prog, y0 + m.dirY * L * prog, '#ffd978', 1);
     ctx.fillStyle = '#ff4a3a'; ctx.fillRect(Math.round(x0 + m.dirX * L) - 3, Math.round(y0 + m.dirY * L) - 3, 6, 6);
-  } else if (m.pat === 'howl') {
+  } else if (m.pat === 'howl' || m.pat === 'howlDash') {
     ctx.globalAlpha = 0.8; pxRing(ctx, m.x, m.y - 10, 16 + prog * 30, 36, 0, '#ffd978', 2, 1);
-  } else if (m.pat === 'burst') {
+    if (m.pat === 'howlDash') { ctx.globalAlpha = 0.9; pxRing(ctx, m.x, m.y - 10, 50, 36, 0, '#ff4a3a', 1, 1); }   // vòng đỏ ngoài: sắp lao
+  } else if (m.pat === 'burst' || m.pat === 'prison') {
     // từng hướng đạn sẽ bay: đứng giữa hai tia là né được
     for (let i = 0; i < m.burstN; i++) {
       const a = m.burstA0 + i * 6.283 / m.burstN, c = Math.cos(a), s = Math.sin(a), y0 = m.y - 10;

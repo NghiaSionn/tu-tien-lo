@@ -10,6 +10,7 @@ export const FEATURES = {
   resultGoals: true,
   draftReroll: true,    // M7-09 [GIẢ THUYẾT H4]: mỗi run có RUN.REROLLS lượt đổi bảng thẻ (miễn phí, không mua được). false = không có nút
   draftSynergy: false,
+  bossRemix: true,      // M7-13 [GIẢ THUYẾT H7]: mỗi boss thêm 1 chiêu phối từ cảnh báo có sẵn, chỉ từ độ khó BOSS.REMIX_MIN_DIFF. false = như cũ
   lore: true,           // M7-14 [GIẢ THUYẾT H8]: Bia Truyền Thừa (phím L) — mẩu truyện mở theo mốc. false = ẩn nút, không báo
   runVariants: true,    // M7-10 [GIẢ THUYẾT H5]: mỗi lượt bốc ngẫu nhiên (theo seed) một biến thể bí cảnh, báo luật ở màn chuẩn bị. false = luôn Bình thường  // M7-09 [GIẢ THUYẾT H4]: thẻ công pháp mới ghép được tiến hóa với công pháp đang có nặng ×RUN.SYNERGY_MULT. Tắt tới khi playtest    // M7-07 [GIẢ THUYẾT H2]: màn kết quả hiện tối đa 2 mục tiêu meta + nút Tọa thiền/Đột phá/Vào bí cảnh mới. false = như cũ
 };
@@ -149,11 +150,14 @@ export const BOSS = {
   // 12/11 (chơi tay: boss phải to): sprite vẽ ×2 (~100 px). Thân to -> trúng đòn rộng hơn, nhắm vào giữa thân, cắn từ xa hơn
   DRAW_SCALE: 2, BODY: { hitR: 14, aimY: 24, reach: 20 },
   TRICKLE_MULT: 2,              // khi boss còn sống, quái thường sinh thưa hơn bấy nhiêu lần; không có tinh anh
+  REMIX_MIN_DIFF: 1,            // M7-13: chiêu phối chỉ có từ độ khó Linh (Phàm giữ nguyên để người mới học chiêu gốc)
   MINI: {
     AT: 210, name: 'Lang Vương', tier: 0, hp: 40, dmg: 1.4, speed: 0.95, xp: 40, size: 3,
     GAP: 1.6, RECOVER: 1.4, ORDER: ['dash', 'dash', 'howl'],
     DASH: { WINDUP: 0.75, SPEED: 260, TIME: 0.42, REST: 0.35, COUNT: 3, DMG: 1.3, HIT_R: 22 },   // 16 -> 22: thân ×2
     HOWL: { WINDUP: 0.9, N: 4, R: 40 },
+    // M7-13 "Hú bầy rồi lao": hú (cảnh báo vòng 0,9 s) xong nối ngay COUNT cú lao (mỗi cú vẫn gồng + đường cảnh báo DASH.WINDUP)
+    REMIX: { ORDER: ['dash', 'howlDash', 'dash', 'howl'], HOWL_DASH: { COUNT: 2 } },
   },
   FINAL: {
     AT: 360, name: 'Ma Ảnh Yêu Vương', tier: 3, hp: 70, dmg: 1.6, speed: 0.8, xp: 0, size: 3,
@@ -163,6 +167,9 @@ export const BOSS = {
     ZONES: { WINDUP: 1.4, N: 3, N2: 4, R: 26, SPREAD: 55, DMG: 1.6 },   // M2-04: chơi thử chết nhiều nhất vì chiêu này -> gồng lâu hơn, vùng nhỏ hơn
     PHASE2: 0.5, PHASE2_GAP: 0.7,            // dưới 50% máu: nghỉ ngắn hơn, nhiều đạn/vùng hơn
     ENRAGE_AFTER: 150, ENRAGE_GAP: 0.5, ENRAGE_DMG: 1.5, MAX_HAZARDS: 12,
+    // M7-13 "Ma Ảnh Lao Tù": N vùng nổ khép vòng bán kính RING quanh người chơi (giữa vòng an toàn), gồng WINDUP;
+    // lúc nổ boss bắn BURST_N tia đạn thưa (cảnh báo tia như chiêu bắn). Không cộng dồn với zones cùng lúc.
+    REMIX: { ORDER: ['burst', 'prison', 'zones'], PRISON: { WINDUP: 1.5, N: 6, RING: 46, R: 24, DMG: 1.6, BURST_N: 8 } },
   },
 };
 

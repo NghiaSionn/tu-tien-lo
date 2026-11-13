@@ -51,7 +51,17 @@ export function bossAI(m, player, dx, dy, d, dt, io) {
   const pat = pickPattern(m, B, d);
   m.pat = pat;
   if (pat === 'dash') { m.dashLeft = B.DASH.COUNT; aimDash(m, player, B); }
-  else if (pat === 'howl') windup(m, B.HOWL.WINDUP);
+  else if (pat === 'howl' || pat === 'howlDash') windup(m, B.HOWL.WINDUP);
+  else if (pat === 'prison') {   // M7-13 Ma Ảnh Lao Tù: vòng vùng nổ quanh người chơi + đạn thưa khi nổ
+    const P = B.REMIX.PRISON;
+    windup(m, P.WINDUP);
+    m.burstN = P.BURST_N; m.burstA0 = io.rng() * Math.PI * 2 / m.burstN;
+    const a0 = io.rng() * Math.PI * 2;
+    for (let i = 0; i < P.N; i++) {
+      const a = a0 + i * Math.PI * 2 / P.N;
+      addHazard(io, B, { x: player.x + Math.cos(a) * P.RING, y: player.y + Math.sin(a) * P.RING, r: P.R, t: P.WINDUP, dmg: m.dmg * P.DMG, owner: m, src: 'boss:prison' });
+    }
+  }
   else if (pat === 'slam') {
     windup(m, B.SLAM.WINDUP);
     addHazard(io, B, { x: m.x, y: m.y, r: B.SLAM.R, t: B.SLAM.WINDUP, dmg: m.dmg * B.SLAM.DMG, owner: m, src: 'boss:slam' });
@@ -71,7 +81,8 @@ export function bossAI(m, player, dx, dy, d, dt, io) {
 
 function pickPattern(m, B, d) {
   if (m.bossKind === 'FINAL' && d < B.SLAM.TRIGGER) return 'slam';
-  const p = B.ORDER[m.patIdx % B.ORDER.length]; m.patIdx++;
+  const order = m.remix && B.REMIX ? B.REMIX.ORDER : B.ORDER;   // M7-13: chuỗi chiêu có chiêu phối
+  const p = order[m.patIdx % order.length]; m.patIdx++;
   return p;
 }
 
@@ -88,10 +99,16 @@ function toRecover(m, B, io) {
 
 function release(m, player, B, io, phase2) {
   if (m.pat === 'dash') { m.st = 'dash'; m.stT = B.DASH.TIME; return true; }
+  if (m.pat === 'howlDash') {   // M7-13: hú xong -> chuỗi lao (mỗi cú vẫn gồng + cảnh báo đường lao)
+    io.summon(m, B.HOWL.N, B.HOWL.R);
+    io.ev.push({ type: 'pulse', x: m.x, y: m.y, r: 60, color: '#ffd978' });
+    m.pat = 'dash'; m.dashLeft = B.REMIX.HOWL_DASH.COUNT; aimDash(m, player, B);
+    return true;
+  }
   if (m.pat === 'howl') {
     io.summon(m, B.HOWL.N, B.HOWL.R);
     io.ev.push({ type: 'pulse', x: m.x, y: m.y, r: 60, color: '#ffd978' });
-  } else if (m.pat === 'burst') {
+  } else if (m.pat === 'burst' || m.pat === 'prison') {
     for (let i = 0; i < m.burstN; i++) {
       if (io.shots.length >= RUN.MAX_ENEMY_SHOTS) break;
       const a = m.burstA0 + i * Math.PI * 2 / m.burstN;
@@ -141,7 +158,8 @@ export function updateHazards(scene, player, dt, ev, onHit) {
   }
 }
 
-export function initBoss(m, kind) {
+export function initBoss(m, kind, remix = false) {
+  m.remix = !!remix;   // M7-13: có chiêu phối (theo cờ + độ khó, quyết lúc sinh boss)
   m.boss = true; m.bossKind = kind; m.arch = kind === 'MINI' ? 'miniboss' : 'boss';
   m.st = 'move'; m.stT = 0; m.gapT = BOSS[kind].GAP; m.patIdx = 0; m.vuln = 0; m.age = 0;
   m.hitCap = Math.max(1, Math.round(m.max * BOSS.HIT_CAP));

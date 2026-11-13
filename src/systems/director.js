@@ -1,6 +1,6 @@
 // Director bí cảnh (M2-01): quyết định sinh quái gì, ở đâu, khi nào. Thuần logic, chỉ dùng run.rng -> cùng seed + cùng
 // input thì cùng kết quả. Thông số ở DIRECTOR / ARCH trong config.
-import { TILE as T, RUN, DIRECTOR as D, ARCH, BOSS, DIFFICULTY, VIEW } from '../core/config.js';
+import { TILE as T, RUN, DIRECTOR as D, ARCH, BOSS, DIFFICULTY, VIEW, FEATURES } from '../core/config.js';
 import { makeMonster } from '../entities/monsters.js';
 import { initBoss } from '../entities/bosses.js';
 import { vmod } from './variants.js';
@@ -60,7 +60,7 @@ export function makeBoss(run, kind, x, y, realmPower) {
   const hp = Math.round(E.HP_BASE * (1 + t * E.HP_TIME) * 2.2 * scale * B.hp);
   const dmg = Math.max(1, Math.round(E.DMG_BASE * (1 + t * E.DMG_TIME) * 1.8 * scale * B.dmg));
   const m = makeMonster(x, y, 10 + Math.floor(t / 60), { tier: B.tier, hp, dmg, speed: (E.SPEED + t * E.SPEED_TIME) * B.speed, aggro: true, xp: B.xp, ph: 0 });
-  run.scene.monsters.push(initBoss(m, kind));
+  run.scene.monsters.push(initBoss(m, kind, FEATURES.bossRemix && (run.diff || 0) >= BOSS.REMIX_MIN_DIFF));
   return m;
 }
 

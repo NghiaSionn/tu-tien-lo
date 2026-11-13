@@ -1,0 +1,2 @@
+KHÔNG chiêu phối {"kiem_loi":13,"phi_kiem_hoa":10,"hoa_phong":4,"loi_the":10} tổng 37/64 thua vì {"miniboss:dash":5,"boss:slam":8,"elite":3,"shot":4,"chaser":5,"boss":1,"miniboss":1}
+CÓ chiêu phối  {"kiem_loi":14,"phi_kiem_hoa":8,"hoa_phong":2,"loi_the":8} tổng 32/64 thua vì {"boss:slam":10,"miniboss":2,"miniboss:dash":6,"elite":3,"chaser":4,"boss":3,"shot":3,"elite:windup":1}
