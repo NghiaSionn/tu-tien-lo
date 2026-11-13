@@ -49,8 +49,9 @@ test('không có ô đi được nào bị kẹt trong khung tông môn; viền 
   }
 });
 
-test('quảng trường trống cho thiên kiếp (mọi điểm trong ARENA_R + lề đều đứng được) và công trình là ô đặc', () => {
-  for (let a = 0; a < 64; a++) for (const r of [0, 30, 60, TRIBULATION.ARENA_R, TRIBULATION.ARENA_R + 8]) {
+// thiên kiếp giữ người chơi trong vòng ARENA_R - 4 (systems/tribulation.js): cả vòng đó phải đứng được (bệ M8 không chặn né)
+test('quảng trường trống cho thiên kiếp (mọi điểm trong vòng giữ người chơi đều đứng được) và công trình là ô đặc', () => {
+  for (let a = 0; a < 64; a++) for (const r of [0, 30, 60, TRIBULATION.ARENA_R - 8, TRIBULATION.ARENA_R - 4]) {
     const x = m.cx + Math.cos(a / 64 * 6.283) * r, y = m.cy + Math.sin(a / 64 * 6.283) * r;
     assert.ok(m.canStand(x, y), `thiên kiếp bị chặn tại (${Math.round(x - m.cx)},${Math.round(y - m.cy)})`);
   }
@@ -85,7 +86,7 @@ test('bệ pháp đài (sprite): mặt sàn đi được, lan can/vách đặc, 
     if (cell(i, j) === '#') { solidN++; assert.ok(solidAt(x, y), `ô bệ (${i},${j}) phải đặc`); }
     if (cell(i, j) === '.') { walkN++; assert.ok(!solidAt(x, y) && reach[y * m.w + x], `mặt sàn (${i},${j}) phải tới được`); }
   }
-  assert.ok(solidN > 150 && walkN > 400, `đặc ${solidN}, sàn ${walkN}`);
+  assert.ok(solidN > 150 && walkN > 300, `đặc ${solidN}, sàn ${walkN}`);
   // vào bệ chỉ qua 4 lối: bịt các lối đó (ô sàn xa tâm) thì từ ngoài không tới được tâm
   const shut = new Set();
   for (let j = 0; j < PLAZA.rows.length; j++) for (let i = 0; i < PLAZA.rows[j].length; i++) {

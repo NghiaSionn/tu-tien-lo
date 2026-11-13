@@ -92,17 +92,26 @@ if (vis.congTrinh) vis.ct = cropFrames(vis.congTrinh);
 if (vis.bia) vis.ct = { ...(vis.ct || {}), ...cropFrames(vis.bia) };   // M7-14: bia, bia_sang
 // M8: công trình/đồ vật/cây tông môn (concept ảnh 1, tools/build_tong_mon.py)
 if (vis.tmCt || vis.tmDv || vis.tmCd) vis.tm = Object.assign({}, ...[vis.tmCt, vis.tmDv, vis.tmCd].filter(Boolean).map(cropFrames));
-// M8: bệ Tụ Linh Pháp Đài (sprite ×PLAZA.scale): ảnh nền vẽ dưới nhân vật + lớp "phía trước" (lan can, vách, cờ, đèn) cắt dải 16 px xếp theo y
+// M8: bệ Tụ Linh Pháp Đài (sprite ×PLAZA.scale): ảnh nền vẽ dưới nhân vật + lớp "phía trước" (lan can, vách, cờ, đèn).
+// Lớp trước xếp theo CHÂN của từng dải đục liền theo cột (cờ = chân bệ cờ, lan can nam = chân vách) rồi gom theo nấc 8 px
+// -> nhân vật đứng sau cờ/lan can bị che đúng, đứng trước thì không (cắt dải ngang cũ sai với vật cao).
 if (vis.tm) try {
   const { PLAZA } = await import('./data/sect_plaza.js');
   const ld = async src => { const i = new Image(); i.src = src; await i.decode(); return i; };
   const [base, front] = await Promise.all([ld('sprites/tm_be.png'), ld('sprites/tm_be_front.png')]);
   const k = PLAZA.scale, up = img => { const c = document.createElement('canvas'); c.width = img.width * k; c.height = img.height * k; const g = c.getContext('2d'); g.imageSmoothingEnabled = false; g.drawImage(img, 0, 0, c.width, c.height); return c; };
-  const B = up(base), F = up(front), strips = [];
-  for (let y = 0; y < F.height; y += 16) {
-    const c = document.createElement('canvas'); c.width = F.width; c.height = Math.min(16, F.height - y); c.getContext('2d').drawImage(F, 0, -y);
-    const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data; let any = false; for (let i = 3; i < d.length; i += 4) if (d[i]) { any = true; break; }
-    if (any) strips.push({ img: c, y });
+  const B = up(base), F = up(front), fw = F.width, fh = F.height;
+  const src = F.getContext('2d').getImageData(0, 0, fw, fh), d = src.data, key = new Int32Array(fw * fh).fill(-1);
+  for (let x = 0; x < fw; x++) { let bot = -1; for (let y = fh - 1; y >= 0; y--) { const o = y * fw + x; if (d[o * 4 + 3]) { if (bot < 0) bot = y; key[o] = bot; } else bot = -1; } }
+  for (const [x0, y0, x1, y1, foot] of PLAZA.banners || []) for (let y = Math.floor(y0 * k); y <= Math.min(fh - 1, y1 * k); y++) for (let x = Math.floor(x0 * k); x <= Math.min(fw - 1, x1 * k); x++) if (key[y * fw + x] >= 0) key[y * fw + x] = Math.round(foot * k);   // cờ: theo chân bệ cờ
+  const bins = new Map();
+  for (let o = 0; o < key.length; o++) if (key[o] >= 0) { const b = key[o] >> 3; let r = bins.get(b); if (!r) bins.set(b, r = { x0: fw, y0: fh, x1: 0, y1: 0, px: [] }); const x = o % fw, y = (o / fw) | 0; r.px.push(o); if (x < r.x0) r.x0 = x; if (x > r.x1) r.x1 = x; if (y < r.y0) r.y0 = y; if (y > r.y1) r.y1 = y; }
+  const strips = [];
+  for (const [b, r] of bins) {
+    const w = r.x1 - r.x0 + 1, h = r.y1 - r.y0 + 1, c = document.createElement('canvas'); c.width = w; c.height = h;
+    const g = c.getContext('2d'), id = g.createImageData(w, h);
+    for (const o of r.px) { const x = o % fw - r.x0, y = ((o / fw) | 0) - r.y0, t = (y * w + x) * 4; for (let q = 0; q < 4; q++) id.data[t + q] = d[o * 4 + q]; }
+    g.putImageData(id, 0, 0); strips.push({ img: c, x: r.x0, y: r.y0, foot: b * 8 + 7 });
   }
   vis.plaza = { base: B, strips, ax: PLAZA.anchor[0] * k, ay: PLAZA.anchor[1] * k };
 } catch (e) { console.warn('[sprite] bệ pháp đài:', e); }

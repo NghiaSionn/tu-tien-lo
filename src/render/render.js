@@ -798,9 +798,9 @@ export function render(ctx, g) {
       const f = b.footPx;
       if (vis1(img, f.x, f.y)) objs.push({ y: f.y, img, x: Math.round(f.x - img.width / 2), dy: Math.round(f.y - img.height), label: b.name, door: b.doorPx });
     }
-    if (vis.plaza) {   // lớp trước của bệ: mỗi dải 16 px xếp theo đáy dải (nhân vật trên sàn đứng trước lan can bắc, sau lan can nam)
+    if (vis.plaza) {   // lớp trước của bệ: từng nhóm điểm ảnh xếp theo chân cột đục của nó (xem main.js)
       const x = Math.round(map.cx - vis.plaza.ax), y0 = Math.round(map.cy - vis.plaza.ay);
-      for (const s of vis.plaza.strips) { const dy = y0 + s.y; if (dy < camY + H && dy + 16 > camY) objs.push({ y: dy + s.img.height, img: s.img, x, dy, noFade: true }); }
+      for (const s of vis.plaza.strips) { const dy = y0 + s.y; if (dy < camY + H && dy + s.img.height > camY) objs.push({ y: y0 + s.foot, img: s.img, x: x + s.x, dy, noFade: true }); }
     }
     if (vis.tm) for (const o of g.sect.props) {
       const img = !o.flat && vis.tm[o.s];
