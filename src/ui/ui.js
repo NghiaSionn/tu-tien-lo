@@ -31,6 +31,8 @@ export function log(msg, cls = '', ms = 6000) {
 }
 
 export function setMode(mode) { document.body.dataset.mode = mode; }
+// M7-10: nhãn biến thể dưới HUD trận ('' = ẩn)
+export function setVariant(name) { const el = $('rVariant'); if (el) { el.textContent = name; el.hidden = !name; } }
 
 export function hubHud(meta, p, trib, nearPortal) {
   const L = meta.realmLevel, n = need(L), mh = maxHp(L), full = isFull(meta);
@@ -103,7 +105,8 @@ export function closeModal() { $('modal').hidden = true; $('modal').innerHTML = 
 
 // M3-02: công pháp khởi đầu = mặc định + đã mở khóa theo đại cảnh giới; độ khó tới mức đã mở (phím D đổi)
 export const startSkillIds = meta => [...RUN.START_SKILLS, ...meta.unlocks.skills.filter(id => SKILLS[id] && SKILLS[id].implemented && !RUN.START_SKILLS.includes(id))].slice(0, 6);
-export function showPrepare(meta, onPick, onCancel) {
+// variant (M7-10): { id, name, rules } — biến thể đã bốc cho lượt này, chỉ để báo trước
+export function showPrepare(meta, onPick, onCancel, variant = null) {
   const ids = startSkillIds(meta), opts = ids.map(id => SKILLS[id]);
   const maxTier = meta.unlocks.tier || 0;
   let diff = Math.min(meta.lastDifficulty || 0, maxTier);
@@ -112,6 +115,7 @@ export function showPrepare(meta, onPick, onCancel) {
   open(`<h2>Bí Cảnh · Rừng Linh Thú</h2>
     <p class="sub">${esc(levelName(meta.realmLevel))} · Công ${atk(meta.realmLevel)} · Khí huyết ${maxHp(meta.realmLevel)}</p>
     <p class="sub">${esc(BOSS.MINI.name)} chặn đường lúc ${fmtTime(BOSS.MINI.AT)}; ${esc(BOSS.FINAL.name)} xuất hiện lúc ${fmtTime(BOSS.FINAL.AT)} — hạ nó để vượt bí cảnh. Đánh yêu thú lấy chiến ý, đủ thì chọn công pháp mới. Chết trong bí cảnh không mất tu vi hay cảnh giới.</p>
+    ${variant ? `<div class="variant${variant.id === 'thuong' ? ' plain' : ''}"><b>Biến thể lượt này: ${esc(variant.name)}</b>${variant.id === 'thuong' ? '' : `<ul>${variant.rules.map(r => `<li>${esc(r)}</li>`).join('')}</ul>`}</div>` : ''}
     <h3>Độ khó (D)</h3><div class="row diff">${diffHtml()}</div>
     ${nextLock ? `<p class="sub">Đột phá ${esc(levelName(+nextLock[0]))} để mở: ${esc(nextLock[1].text)}.</p>` : ''}
     <h3>Chọn công pháp khởi đầu</h3>
@@ -214,7 +218,8 @@ export function showResults(run, reward, onClose, meta, extra = null) {
   ].filter(Boolean);
   const go = a => { if (closed) return; closed = true; closeModal(); extra.onNext(a); };
   const goalHtml = goals.map(g => `<div class="goal"><span>${esc(g.text)}</span><div class="bar"><i style="width:${Math.round(Math.min(1, g.cur / g.max) * 100)}%"></i></div></div>`).join('');
-  open(`<h2 class="${run.outcome === 'WIN' ? 'win' : 'lose'}">${title}</h2>
+  const vname = run.variant && run.variant !== 'thuong' ? variantOf(run.variant).name : '';
+  open(`<h2 class="${run.outcome === 'WIN' ? 'win' : 'lose'}">${title}</h2>${vname ? `<p class="sub">Biến thể: ${esc(vname)}</p>` : ''}
     <div class="stats"><div><b>${fmtTime(run.time)}</b>thời gian</div><div><b>${run.level}</b>cấp chiến đấu</div><div><b>${run.kills}</b>yêu thú</div><div><b>${run.evolutions.length}</b>tiến hóa</div></div>
     ${downs.length ? `<p class="sub">Đã hạ: ${downs.map(esc).join(', ')}</p>` : ''}
     <h3>Công pháp</h3><p>${skills}</p>${pas ? `<p class="sub">${pas}</p>` : ''}
@@ -294,6 +299,7 @@ import { ACHIEVEMENTS } from '../data/achievements.js';
 import { GACHA } from '../core/config.js';
 import { canPay } from '../progression/gear.js';
 import { buildCodex } from '../progression/codex.js';
+import { variantOf } from '../systems/variants.js';
 
 const costText = c => Object.entries(c).map(([k, v]) => `${v}${{ craftMats: '🔩', linhThach: '💎' }[k]}`).join(' ');
 const resLine = meta => `💎 ${meta.linhThach} · 🔩 ${meta.craftMats} · ✨ ${Math.floor(meta.lingQi)} · 🎫 ${meta.coDuyenTicket} · 📜 ${meta.shards} mảnh`;

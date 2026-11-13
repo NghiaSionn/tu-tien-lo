@@ -29,6 +29,7 @@ import { createPlaytestLog } from './systems/playtest.js';
 import { BUILD } from './core/config.js';
 import { metaGoals, previewAfterClaim } from './progression/goals.js';
 import { newDiscoveries } from './progression/codex.js';
+import { pickVariant, variantOf } from './systems/variants.js';
 import { SKILLS as SKILL_DEFS } from './data/skills.js';
 
 const { W, H } = VIEW;
@@ -417,21 +418,29 @@ function afterMajor() {
 }
 
 // ---------- bí cảnh ----------
+// M7-10: seed (và biến thể) của lượt tới bốc lúc mở cổng, giữ nguyên tới khi lượt đó bắt đầu — đóng/mở lại cổng không đổi được biến thể
+let nextRunSeed = null;
 function openPrepare() {
   if (!FEATURES.run || view !== 'HUB' || trib || !PORTAL.near) return;
   view = 'PREPARE'; p.med = false; input.clear();
-  UI.showPrepare(meta, startRun, () => { view = 'HUB'; });
+  if (nextRunSeed == null) nextRunSeed = (Date.now() ^ Math.floor(Math.random() * 0x7fffffff)) >>> 0;
+  const vid = pickVariant(nextRunSeed);
+  UI.showPrepare(meta, startRun, () => { view = 'HUB'; }, { id: vid, ...variantOf(vid) });
 }
 function startRun(skill, difficulty = 0) {
   meta.lastDifficulty = difficulty;
   hubPosBeforeRun = { x: p.x, y: p.y };
   meta.hubPos = { ...hubPosBeforeRun };
   save();
-  run = createRun({ seed: (Date.now() ^ Math.floor(Math.random() * 0x7fffffff)) >>> 0, startSkill: skill, realmLevel: meta.realmLevel, difficulty, unlocked: meta.unlocks.skills, gear: gearMods(meta) });
+  const seed = nextRunSeed ?? ((Date.now() ^ Math.floor(Math.random() * 0x7fffffff)) >>> 0);
+  nextRunSeed = null;
+  run = createRun({ seed, variant: pickVariant(seed), startSkill: skill, realmLevel: meta.realmLevel, difficulty, unlocked: meta.unlocks.skills, gear: gearMods(meta) });
   p.x = run.scene.map.cx; p.y = run.scene.map.cy; p.inv = 1; p.med = false; p.cd = 0;
   hubShots.length = 0; clearVis(vis); input.clear(); ev.length = 0;
   view = 'RUN'; paused = false;
-  PT.log('run_start', { skill, difficulty, realm: meta.realmLevel }, run);
+  PT.log('run_start', { skill, difficulty, realm: meta.realmLevel, variant: run.variant }, run);
+  UI.setVariant(run.variant === 'thuong' ? '' : variantOf(run.variant).name);
+  if (run.variant !== 'thuong') UI.log(`Biến thể: ${variantOf(run.variant).name} — ${variantOf(run.variant).rules.join('; ')}.`, 'gold', 10000);
   UI.setMode('run');
   UI.log('Bước vào bí cảnh. Công pháp tự thi triển khi có yêu thú trong tầm.', 'gold');
 }
@@ -521,7 +530,7 @@ function finishRun() {
   if (r.dir.mini === 'ALIVE') PT.log('miniboss_result', { result: r.outcome === 'LOSE' ? 'died' : 'abandoned', time: Math.round(r.time) }, r);
   const cause = r.outcome === 'LOSE' ? Object.entries(r.dmgBy).sort((a, b) => b[1] - a[1])[0]?.[0] : undefined;
   const maxed = r.skills.filter(s => s.evolved || s.level >= SKILL_DEFS[s.id].maxLevel).length;   // độ hoàn thiện build
-  PT.log('run_end', { outcome: r.outcome, time: Math.round(r.time), level: r.level, kills: r.kills, cause, evolutions: [...r.evolutions], difficulty: r.diff, rerolls: r.rerollsUsed || 0, maxed, skills: r.skills.length }, r);
+  PT.log('run_end', { outcome: r.outcome, time: Math.round(r.time), level: r.level, kills: r.kills, cause, evolutions: [...r.evolutions], difficulty: r.diff, variant: r.variant, rerolls: r.rerollsUsed || 0, maxed, skills: r.skills.length }, r);
   Audio.play(r.outcome === 'WIN' ? 'win' : 'lose');
   const extra = FEATURES.resultGoals ? { goals: metaGoals(previewAfterClaim(meta)), onNext: a => claimAndReturn(a) } : null;
   UI.showResults(r, reward, () => claimAndReturn(), meta, extra);

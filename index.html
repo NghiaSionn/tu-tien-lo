@@ -108,6 +108,10 @@
   .goal { font-size: .82em; margin: .35em 0; opacity: .92; } .goal .bar > i { background: linear-gradient(#ffe08a, #c8961e); }
   .card.cx { cursor: default; } .card.cx:hover { transform: none; background: rgba(30, 24, 46, .95); }
   .card.lock { opacity: .6; border-style: dashed; } .card.unk { border-style: dashed; } .card.lock .ic, .card.unk .ic { color: var(--c, #6a5f80); font-weight: 700; }
+  #rVariant { margin-top: .4em; display: inline-block; font-size: .8em; color: #ffd978; background: rgba(18, 14, 28, .78); border: 1px solid #b89a54; border-radius: .3em; padding: .15em .5em; }
+  #rVariant[hidden] { display: none; }
+  .variant { border: 1px solid #ffd978; border-radius: .35em; padding: .4em .7em; margin: .5em 0; background: rgba(255, 217, 120, .07); font-size: .9em; }
+  .variant.plain { border-color: #6a5f80; background: none; opacity: .85; } .variant ul { margin: .25em 0 0 1.1em; padding: 0; } .variant b { color: #ffd978; }
   .sheet .warn { color: #ffb4b0; opacity: 1; } .sheet .note { color: #ffd978; }
   /* M7-02: bảng phủ cả màn hình (không bị bó trong khung game letterbox), chữ tối thiểu 12px */
   #modal { position: fixed; z-index: 20; font-size: max(1em, 12px); }
@@ -156,6 +160,7 @@
         <div class="box"><span id="rTime">8:00</span></div>
       </div>
       <div id="rSkills"></div>
+      <div id="rVariant" hidden></div>
       <button id="btnPause">Tạm dừng (Esc)</button>
     </div>
 

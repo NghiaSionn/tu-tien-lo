@@ -7,13 +7,13 @@ export const PLAYTEST = { KEY: 'tutien_playtest_v1', SCHEMA: 1, MAX_EVENTS: 3000
 // type -> các trường payload được phép
 export const EVENTS = {
   session_start: ['sessionNo', 'day', 'realm', 'runs'],
-  run_start: ['skill', 'difficulty', 'realm', 'runInSession'],
+  run_start: ['skill', 'difficulty', 'realm', 'runInSession', 'variant'],
   second_run_start: ['runInSession'],
   first_card: ['card', 'cardType', 'level', 'time'],
   card_picked: ['card', 'cardType', 'level', 'time'],
   evolution: ['evo', 'time'],
   miniboss_result: ['result', 'time'],
-  run_end: ['outcome', 'time', 'level', 'kills', 'cause', 'evolutions', 'difficulty', 'rerolls', 'maxed', 'skills'],
+  run_end: ['outcome', 'time', 'level', 'kills', 'cause', 'evolutions', 'difficulty', 'variant', 'rerolls', 'maxed', 'skills'],
   reroll: ['level', 'time', 'left'],   // M7-09
   meta_action: ['action', 'ok', 'realm'],
   session_end: ['duration', 'runsInSession'],

@@ -3,6 +3,7 @@
 import { TILE as T, RUN, DIRECTOR as D, ARCH, BOSS, DIFFICULTY, VIEW } from '../core/config.js';
 import { makeMonster } from '../entities/monsters.js';
 import { initBoss } from '../entities/bosses.js';
+import { vmod } from './variants.js';
 
 export const createDirector = () => ({ spawnT: 0, waveIdx: 0, eliteT: D.ELITE.FIRST, mini: 'PENDING', final: 'PENDING' });   // boss: PENDING -> ALIVE -> DEAD
 
@@ -40,7 +41,7 @@ export function makeRunEnemy(run, arch, x, y, realmPower) {
   const hp = Math.round(E.HP_BASE * (1 + t * E.HP_TIME) * (1 + grade * 0.6) * scale * A.hp);
   const dmg = Math.max(1, Math.round(E.DMG_BASE * (1 + t * E.DMG_TIME) * (1 + grade * 0.4) * scale * A.dmg));
   const lvl = 1 + grade * 3 + Math.floor(t / 60);
-  const m = makeMonster(x, y, lvl, { tier: A.tier, hp, dmg, speed: (E.SPEED + t * E.SPEED_TIME + grade * 3) * A.speed, aggro: true, xp: (1 + grade) * A.xp, ph: rng() * 6 });
+  const m = makeMonster(x, y, lvl, { tier: A.tier, hp, dmg, speed: (E.SPEED + t * E.SPEED_TIME + grade * 3) * A.speed * vmod(run, 'enemySpeed'), aggro: true, xp: (1 + grade) * A.xp, ph: rng() * 6 });
   m.arch = arch; m.st = 'move'; m.stT = 0; m.skCd = 0.5 + rng() * 1.5; m.dirX = 0; m.dirY = 0;
   if (arch === 'elite') m.elite = true;
   run.scene.monsters.push(m);
@@ -143,18 +144,19 @@ export function updateDirector(run, player, dt, ev, power) {
   const boss = aliveBoss(sc);
   dir.spawnT -= dt;
   while (dir.spawnT <= 0) {
-    dir.spawnT += ph.every * (boss ? BOSS.TRICKLE_MULT : 1);
+    dir.spawnT += ph.every * (boss ? BOSS.TRICKLE_MULT : 1) * vmod(run, 'spawnEvery');
     const arch = pickArch(ph.mix, run.rng);
     if (aliveCost(sc) + ARCH[arch].cost <= budgetAt(t)) spawnAround(run, player, arch, power);
   }
   while (dir.waveIdx < D.WAVES.length && t >= D.WAVES[dir.waveIdx].t) {
-    const w = D.WAVES[dir.waveIdx++];
+    const w0 = D.WAVES[dir.waveIdx++], form = vmod(run, 'waveForm', null);   // M7-10: biến thể đổi đội hình/số con
+    const w = form ? { ...w0, form, n: Math.round(w0.n * vmod(run, 'waveN')), text: form === 'ring' && w0.form !== 'ring' ? w0.text.replace(/!$/, '') + ' — vây bốn phía!' : w0.text } : w0;
     if (spawnWave(run, player, w, power) > 0) ev.push({ type: 'announce', x: player.x, y: player.y - 30, text: w.text, color: '#ffb070' });
   }
   if (t >= dir.eliteT && !boss) {
-    dir.eliteT += D.ELITE.EVERY;
+    dir.eliteT += D.ELITE.EVERY * vmod(run, 'eliteEvery');
     const alive = sc.monsters.filter(m => m.elite && !m.dead).length;
-    if (alive < D.ELITE.MAX_ALIVE && spawnAround(run, player, 'elite', power))
+    if (alive < vmod(run, 'eliteMax', D.ELITE.MAX_ALIVE) && spawnAround(run, player, 'elite', power))
       ev.push({ type: 'announce', x: player.x, y: player.y - 30, text: D.ELITE.TEXT, color: '#d9a8ff' });
   }
 }

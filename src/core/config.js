@@ -9,7 +9,8 @@ export const FEATURES = {
   pixelfxAssets: true,  // dùng sheet pixelfx cho cổng bí cảnh. false = cổng vẽ bằng code như cũ
   resultGoals: true,
   draftReroll: true,    // M7-09 [GIẢ THUYẾT H4]: mỗi run có RUN.REROLLS lượt đổi bảng thẻ (miễn phí, không mua được). false = không có nút
-  draftSynergy: false,  // M7-09 [GIẢ THUYẾT H4]: thẻ công pháp mới ghép được tiến hóa với công pháp đang có nặng ×RUN.SYNERGY_MULT. Tắt tới khi playtest    // M7-07 [GIẢ THUYẾT H2]: màn kết quả hiện tối đa 2 mục tiêu meta + nút Tọa thiền/Đột phá/Vào bí cảnh mới. false = như cũ
+  draftSynergy: false,
+  runVariants: true,    // M7-10 [GIẢ THUYẾT H5]: mỗi lượt bốc ngẫu nhiên (theo seed) một biến thể bí cảnh, báo luật ở màn chuẩn bị. false = luôn Bình thường  // M7-09 [GIẢ THUYẾT H4]: thẻ công pháp mới ghép được tiến hóa với công pháp đang có nặng ×RUN.SYNERGY_MULT. Tắt tới khi playtest    // M7-07 [GIẢ THUYẾT H2]: màn kết quả hiện tối đa 2 mục tiêu meta + nút Tọa thiền/Đột phá/Vào bí cảnh mới. false = như cũ
 };
 
 // 12/11 (chơi tay): 480×270 -> 640×360 = thu camera 1,33 lần, nhân vật/quái nhỏ lại trên màn, thấy rộng hơn
@@ -106,6 +107,21 @@ export const DIRECTOR = {
   ],
   ELITE: { FIRST: 165, EVERY: 90, MAX_ALIVE: 2, TEXT: 'Ma Ảnh tinh anh xuất hiện!' },
   RING_R: 235, PACK_R: 265, ARC_R: 225,   // ×1,33 theo khung nhìn 640×360: đội hình hiện sát mép màn như cũ
+};
+
+// M7-10 [GIẢ THUYẾT H5][THỬ NGHIỆM]: biến thể bí cảnh — cùng rừng/quái/boss, khác luật. Mọi hệ số cố định (không cộng dồn theo thời gian).
+// Bốc theo seed của lượt (luồng ngẫu nhiên riêng, không làm lệch run.rng). weight: tỉ lệ bốc.
+// mods: xp (chiến ý nhặt), enemySpeed (quái thường, không gồm boss), spawnEvery (nhịp sinh lẻ, <1 = dày hơn),
+//       waveForm/waveN (đổi đội hình + số con các đợt), eliteFirst/eliteEvery/eliteMax (tinh anh),
+//       reward (nhân mọi phần thưởng), winReward (nhân thêm khi thắng)
+export const RUN_VARIANTS = {
+  thuong:     { name: 'Bình thường', weight: 2, mods: {}, rules: ['Bí cảnh như mọi khi.'] },
+  linh_trieu: { name: 'Linh Triều', weight: 1, mods: { xp: 1.4, enemySpeed: 1.15 },
+    rules: ['Chiến ý nhặt được ×1,4 — lên cấp nhanh hơn', 'Yêu thú chạy nhanh hơn 15%'] },
+  ma_anh:     { name: 'Ma Ảnh Xâm Lấn', weight: 1, mods: { eliteFirst: 100, eliteEvery: 0.6, eliteMax: 3, winReward: 1.3 },
+    rules: ['Tinh anh Ma Ảnh tới sớm (1:40) và dày hơn, tối đa 3 con', 'Vượt bí cảnh: thưởng ×1,3 (tinh anh rơi thêm luyện liệu)'] },
+  phong_linh: { name: 'Phong Linh Loạn Lưu', weight: 1, mods: { spawnEvery: 0.9, waveForm: 'ring', waveN: 1, reward: 1.15 },   // 13/11 sim: 0,85/1,2 -> Hỏa+Phong 5/16 (gốc 11/16) — quá gắt
+    rules: ['Mọi đợt yêu thú đều vây tròn từ bốn phía', 'Yêu thú lẻ kéo tới dày hơn 10%', 'Thưởng ×1,15'] },
 };
 
 // Kiểu quái trong bí cảnh. tier = loài (màu sprite): 0 Dã Lang, 1 Hỏa Hồ, 2 Huyền Băng Thú, 3 Ma Ảnh.

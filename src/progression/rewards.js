@@ -3,6 +3,7 @@
 // Nhận đúng một lần: claimReward cộng tài nguyên và xóa pending trong CÙNG một lần ghi save; id run đã nhận nằm trong
 // meta.rewardLog nên bấm lại / tải lại trang / stage lại cùng run đều không cộng thêm.
 import { REWARD, DIFFICULTY } from '../core/config.js';
+import { variantOf } from '../systems/variants.js';
 import { runSummary, applySummary } from './achievements.js';
 
 export const OUTCOMES = ['WIN', 'LOSE', 'ABANDON', 'TIMEOUT'];
@@ -20,13 +21,14 @@ export function computeRunReward(run, meta) {
   for (const b of bosses) for (const k of AMOUNT_KEYS) r[k] += REWARD.BOSS[b][k];
   const win = run.outcome === 'WIN';
   const dm = DIFFICULTY[run.diff || 0].reward;
-  const mult = (win ? REWARD.WIN_MULT : 1) * (1 + meta.realmLevel * REWARD.REALM_MULT) * dm;
+  const vm = variantOf(run.variant).mods, vr = (vm.reward || 1) * (win ? vm.winReward || 1 : 1);   // M7-10
+  const mult = (win ? REWARD.WIN_MULT : 1) * (1 + meta.realmLevel * REWARD.REALM_MULT) * dm * vr;
   const firstClear = win && !meta.firstClear;
   return {
     id: run.uid, outcome: run.outcome, bosses, firstClear, summary: runSummary(run),   // M4-02: thống kê cộng khi nhận
     linhThach: Math.round(r.linhThach * mult),
     lingQi: Math.round(r.lingQi * mult),
-    craftMats: Math.round(r.craftMats * (win ? REWARD.WIN_MULT : 1) * dm),
+    craftMats: Math.round(r.craftMats * (win ? REWARD.WIN_MULT : 1) * dm * vr),
     tickets: r.tickets + (firstClear ? REWARD.FIRST_CLEAR_TICKETS : 0),
   };
 }

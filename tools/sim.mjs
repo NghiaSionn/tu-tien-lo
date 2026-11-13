@@ -10,6 +10,7 @@
 //   DMG=1 node tools/sim.mjs ...           # in sát thương nhận theo nguồn
 //   REROLL=1 ...                           # M7-09: bot đổi bảng thẻ khi không có thẻ nào trong danh sách muốn
 //   SYNERGY=1 ...                          # M7-09: bật FEATURES.draftSynergy (ưu tiên nhẹ thẻ ghép tiến hóa)
+//   VARIANT=linh_trieu ...                 # M7-10: ép biến thể bí cảnh (mặc định: Bình thường, để so với kết quả cũ)
 import { createRun, updateRun, refreshMaxHp } from '../src/systems/run.js';
 import { drawCards, applyCard, rerollDraft } from '../src/progression/draft.js';
 import { runStats } from '../src/systems/combat.js';
@@ -66,7 +67,7 @@ function dodge(run, p) {
 
 export function simulate(buildName, L, seed, maxTime = 720) {
   const b = BUILDS[buildName];
-  const run = createRun({ seed, startSkill: b.start, realmLevel: L, difficulty: +(process.env.DIFF || 0) });
+  const run = createRun({ variant: process.env.VARIANT || 'thuong', seed, startSkill: b.start, realmLevel: L, difficulty: +(process.env.DIFF || 0) });
   const p = { x: run.scene.map.cx, y: run.scene.map.cy, fx: 1, fy: 0, inv: 0, dead: false };
   const ev = [], dt = 1 / 30;
   const evoAt = {};

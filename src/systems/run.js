@@ -9,11 +9,12 @@ import { archetypeAI, updateEnemyShots } from '../entities/archetypes.js';
 import { createDirector, updateDirector, summonAround } from './director.js';
 import { updateHazards } from '../entities/bosses.js';
 import { placeShrine } from './shrine.js';
+import { variantOf, vmod } from './variants.js';
 import { runStats, updateSkills, updateProjectiles, updateZones, absorbDamage } from './combat.js';
 
 let runCounter = 0;
 
-export function createRun({ seed, startSkill, realmLevel, difficulty = 0, unlocked = [], gear = null }) {
+export function createRun({ seed, startSkill, realmLevel, difficulty = 0, unlocked = [], gear = null, variant = 'thuong' }) {
   const map = makeArenaMap(RUN.ARENA_W, RUN.ARENA_H, seed);
   const run = {
     diff: Math.max(0, Math.min(DIFFICULTY.length - 1, difficulty | 0)),   // M3-02: độ khó bí cảnh
@@ -22,9 +23,11 @@ export function createRun({ seed, startSkill, realmLevel, difficulty = 0, unlock
     level: 1, xp: 0, pendingDrafts: 0, skills: [{ id: startSkill, level: 1, evolved: null, st: {} }],
     passives: {}, evolutions: [], kills: 0, damageTaken: 0, dmgBy: {}, dir: createDirector(), outcome: null,
     rerolls: FEATURES.draftReroll ? RUN.REROLLS : 0, rerollsUsed: 0,   // M7-09
+    variant: variantOf(variant) === variantOf('thuong') && variant !== 'thuong' ? 'thuong' : variant,   // M7-10 (id lạ -> Bình thường)
     rewards: [],                 // M2-02 reward hook: { kind: 'MINI' | 'FINAL', t } — M2-03 trao thưởng một lần
     realmLevel, baseMaxHp: maxHp(realmLevel), hp: 0, maxHp: 0,
   };
+  if (vmod(run, 'eliteFirst', null) != null) run.dir.eliteT = vmod(run, 'eliteFirst');
   run.scene = { kind: 'run', map, monsters: [], projectiles: [], zones: [], orbs: [], enemyShots: [], hazards: [] };
   refreshMaxHp(run, true);
   return run;
@@ -109,7 +112,7 @@ export function updateRun(run, player, dt, ev, realmPowerOverride) {
   const mag = RUN.MAGNET * ctx.stats.magnet;
   for (let i = sc.orbs.length - 1; i >= 0; i--) {
     const o = sc.orbs[i], dx = player.x - o.x, dy = (player.y - 6) - o.y, d = Math.hypot(dx, dy);
-    if (d < RUN.PICKUP) { addRunXp(run, o.v * ctx.stats.xp); sc.orbs.splice(i, 1); ev.push({ type: 'sfx', name: 'pickup' }); continue; }
+    if (d < RUN.PICKUP) { addRunXp(run, o.v * ctx.stats.xp * vmod(run, 'xp')); sc.orbs.splice(i, 1); ev.push({ type: 'sfx', name: 'pickup' }); continue; }
     if (d < mag) { const sp = RUN.ORB_SPEED * dt * (1.5 - d / mag); o.x += dx / d * sp; o.y += dy / d * sp; }
   }
   if (finalDown) { endRun(run, 'WIN'); return; }
