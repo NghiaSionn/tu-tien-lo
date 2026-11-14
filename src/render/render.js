@@ -593,8 +593,8 @@ function drawPlayer(ctx, p, time, medFx, inForm, vis, float = false) {
     if (fl) { ctx.fillStyle = 'rgba(0,0,0,.18)'; ctx.fillRect(Math.round(p.x) - 6, sy0 - 2, 12, 3); }
     medFx.x = Math.round(p.x); medFx.y = fy2; medFx.lightGain = fl ? 0.12 : inForm ? 1 : 0.6; medFx.draw(ctx);   // bay giữa trận: hào quang dịu lại để thấy âm dương xoay
     const bob = Math.round(Math.sin(time * 2) * 1.5 + 1.5);
-    if (hero && p.lift > 0.05) {   // đang bay: vẽ ở toạ độ lẻ (dưới 1 px) có nội suy -> lơ lửng trôi liên tục, không nhảy từng nấc 1 px
-      ctx.imageSmoothingEnabled = true; heroFrame(ctx, hero, 'sit1', p.x, fy - p.lift); ctx.imageSmoothingEnabled = false;
+    if (hero && p.lift > 0.05) {   // đang bay: vẽ ở toạ độ lẻ trên lớp nét cao -> trôi liên tục, không nhảy nấc 1 px, không nhoè
+      vis.hiDraw = { name: 'sit1', x: p.x, y: fy - p.lift };   // vẽ ở lớp nét cao (main.js #hi): trôi mượt mà không nhoè
     } else if (hero) heroFrame(ctx, hero, Math.sin(time * 2) > 0 ? 'sit1' : 'sit0', p.x, fy2);   // thở: 2 khung
     else ctx.drawImage(SPR.sit, x, fy2 - 14 - bob);
     return;
@@ -801,7 +801,7 @@ export function render(ctx, g) {
   let camX = Math.round(Math.max(0, Math.min(map.pw - W, p.x - W / 2)));
   let camY = Math.round(Math.max(0, Math.min(map.ph - H, p.y - 8 - H / 2)));
   if (vis.shake > 0) { camX += Math.round(rand(-2, 2)); camY += Math.round(rand(-2, 2)); }
-  ctx.setTransform(1, 0, 0, 1, -camX, -camY);
+  ctx.setTransform(1, 0, 0, 1, -camX, -camY); vis.cam = { x: camX, y: camY };
 
   const objs = [];
   drawMap(ctx, map, camX, camY, time, objs, vis);
