@@ -1,78 +1,120 @@
-"""M8: bệ Tụ Linh Pháp Đài (ChatGPT vẽ: docs/concept/tong_mon_be_phap_dai_4loi_chatgpt.png -> sprite_clean --scale 1.8 --colors 96 -> sprites/tm_be.png).
-Từ sprite + đa giác mặt sàn/bậc thang (đo tay trên sprite, toạ độ px sprite) sinh:
-  - sprites/tm_be_front.png: chỉ phần KHÔNG phải mặt sàn/bậc (lan can, vách, cột cờ, đèn) — game cắt thành dải xếp theo y để che nhân vật đúng
-  - src/data/sect_plaza.js: lưới ô đặc quanh tâm pháp đài (tâm bản đồ) cho va chạm
-Độ thu 1.8 (bệ ~89% bản 1.6, người phát triển thấy to quá) vẫn để mặt sàn đủ cho thiên kiếp (giữ người chơi trong ARENA_R - 4 = 92 px).
-Cũng xoá điểm ảnh ám magenta còn sót (viền + khe lan can) thẳng trên sprites/tm_be.png.
+"""M8: bệ Tụ Linh Pháp Đài (ChatGPT vẽ: docs/concept/tong_mon_be_phap_dai_4loi_chatgpt.png
+     -> tools/sprite_clean.py --scale 1.9 --colors 96 --tol 60 -> sprites/tm_be.png).
+Sinh từ sprite:
+  - xoá điểm ám magenta còn sót (viền + khe lan can) ngay trên sprites/tm_be.png
+  - mặt sàn: LOANG từ tâm qua điểm ảnh sáng (dừng ở viền tối), cắt nhánh mảnh lan lên lan can/trụ bằng phép mở hình thái học
+    + bậc nam, lối bắc, 2 cánh đông/tây khoanh tay (đo trên sprite 1.9, trong khe giữa má bậc/trụ)
+  - va chạm MỊN 4 px: vật nằm PHÍA BẮC mặt sàn (lan can bắc, trụ, bệ cờ, lan can trên cánh) chỉ đặc ở chân (FOOT px cuối mỗi dải đục
+    theo cột) -> đứng sau được và bị che; vật PHÍA NAM (vách, lan can nam, đèn, trụ dưới cánh) đặc cả khối; vải cờ bắc trên không
+  - sprites/tm_be_front.png: phần không phải sàn/bậc (lớp che, game xếp theo chân cột)
+  - src/data/sect_plaza.js: lưới ô 16 px (cho test / BFS) + lưới mịn 4 px (cho di chuyển) + vị trí 4 cây cờ
+Độ thu 1.9: bệ ~84% bản đầu (người phát triển thấy to); mặt sàn vẫn phải chứa vòng giữ người chơi của thiên kiếp (test sect_map).
 Dùng: .venv/Scripts/python.exe tools/build_be_phap_dai.py
 """
 import json
+from collections import deque
 from pathlib import Path
 
 import numpy as np
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFilter
 
 ROOT = Path(__file__).resolve().parent.parent
-SCALE = 1
-F = 1.6 / 1.8                  # các số đo dưới đây đo trên bản làm sạch --scale 1.6; nhân F cho bản --scale 1.8
-ANCHOR = (364, 283.5)          # tâm mặt sàn trong sprite (px sprite) = tâm bản đồ / tụ linh trận
-FLOOR = [(314, 171), (418, 171), (525, 214), (546, 243), (546, 318), (429, 396), (304, 396), (182, 318), (182, 243), (204, 214)]
-STAIRS = [(304, 394, 421, 590), (318, 110, 411, 176), (0, 250, 184, 309), (544, 250, 724, 309)]   # (x0, y0, x1, y1): bậc nam, lối bắc, cánh tây, cánh đông
-AIR = [(128, 0, 215, 150), (518, 0, 593, 150)]   # vải cờ phía bắc: lơ lửng trên cao, không chặn đường đi phía sau
-KEEP = [(112, 268, 198, 410), (540, 268, 626, 410)]   # cờ phía nam treo trên cánh đông/tây: giữ ở lớp trước (che người đi trên cánh)
-# 4 cây cờ (x0, y0, x1, y1, chân): cả vải + cán + bệ xếp theo CHÂN bệ cờ (vải treo hở bên dưới nên không tự nối xuống chân được)
-BANNERS = [(124, 0, 219, 190, 190), (514, 0, 597, 190, 190), (112, 268, 198, 472, 472), (540, 268, 626, 472, 472)]
+LUM_MIN, OPEN_R = 80, 4         # loang: điểm sáng hơn LUM_MIN; mở hình thái bán kính OPEN_R
+MIRROR = 609                    # trục đối xứng x' = MIRROR - x (bậc nam 258..352, lối bắc 270..336)
+# vùng đi được khoanh tay (px sprite 1.9): bậc nam, lối bắc, cánh tây (chiếu nghỉ + dải bậc xuống, chừa trụ khắc chữ 43..70 x 262..)
+RECTS = [(260, 335, 350, 473), (270, 96, 336, 150)]
+WING_W = [(165, 216), (58, 216), (6, 262), (6, 300), (42, 300), (42, 262), (72, 262), (72, 281), (165, 281)]   # tới x 165: nối vào mặt sàn, dưới vải cờ nam (vải treo, không chặn)
+WING_E = [(MIRROR - x, y) for x, y in WING_W]
+F = 1.6 / 1.9                   # các khung dưới đo trên bản 1.6
 sc = lambda v: tuple(round(c * F, 1) for c in v)
-BANNERS = [sc(b) for b in BANNERS]
-ANCHOR, FLOOR = sc(ANCHOR), [sc(p) for p in FLOOR]
-STAIRS, AIR, KEEP = [sc(r) for r in STAIRS], [sc(r) for r in AIR], [sc(r) for r in KEEP]
+AIR = [sc(r) for r in [(128, 0, 215, 150), (518, 0, 593, 150)]]            # vải cờ phía bắc: trên không, không chặn
+KEEP = [sc(r) for r in [(112, 268, 198, 410), (540, 268, 626, 410)]]       # cờ phía nam treo trên cánh: giữ ở lớp che
+BANNERS = [sc(b) for b in [(124, 0, 219, 190, 190), (514, 0, 597, 190, 190), (112, 268, 198, 472, 472), (540, 268, 626, 472, 472)]]
+FLOOR_BOTTOM = 341            # mép nam mặt sàn (chỗ bắt đầu bậc nam), px sprite 1.9
+FOOT = 10                       # px chân đặc của vật phía bắc
+T, C = 16, 4                    # ô bản đồ, ô mịn
 
 
 def drop_magenta(a):
-    # nền magenta lọt qua khe lan can / viền lem: hồng-tím (r, b cao hơn g nhiều, r ~ b) -> trong suốt. Bệ không có màu tím thật
     r, g, b = [a[..., i].astype(int) for i in range(3)]
     m = (r - g > 45) & (b - g > 45) & (np.abs(r - b) < 90)
     a[m, 3] = 0
     return int(m.sum())
-T = 16
+
+
+def mask(W, H, polys=(), rects=()):
+    im = Image.new('L', (W, H), 0); d = ImageDraw.Draw(im)
+    for p in polys: d.polygon(p, fill=255)
+    for r in rects: d.rectangle(r, fill=255)
+    return np.array(im) > 0
+
+
+def flood(ok, seed):
+    H, W = ok.shape; out = np.zeros_like(ok); q = deque([seed]); out[seed[1], seed[0]] = True
+    while q:
+        x, y = q.popleft()
+        for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            nx, ny = x + dx, y + dy
+            if 0 <= nx < W and 0 <= ny < H and ok[ny, nx] and not out[ny, nx]: out[ny, nx] = True; q.append((nx, ny))
+    return out
+
+
+def morph(m, r, op):
+    f = ImageFilter.MinFilter(2 * r + 1) if op == 'erode' else ImageFilter.MaxFilter(2 * r + 1)
+    return np.array(Image.fromarray((m * 255).astype(np.uint8)).filter(f)) > 127
 
 
 def main():
-    spr = Image.open(ROOT / 'sprites/tm_be.png').convert('RGBA'); W, H = spr.size
-    a0 = np.array(spr); print('xoá điểm magenta:', drop_magenta(a0)); spr = Image.fromarray(a0); spr.save(ROOT / 'sprites/tm_be.png')
-    walk = Image.new('L', (W, H), 0); d = ImageDraw.Draw(walk)
-    d.polygon(FLOOR, fill=255)
-    for r in STAIRS: d.rectangle(r, fill=255)
-    walk = np.array(walk) > 0
-    air = Image.new('L', (W, H), 0); da = ImageDraw.Draw(air)
-    for r in AIR: da.rectangle(r, fill=255)
-    air = np.array(air) > 0
-    keep = Image.new('L', (W, H), 0); dk = ImageDraw.Draw(keep)
-    for r in KEEP: dk.rectangle(r, fill=255)
-    keep = np.array(keep) > 0
-    a = np.array(spr); alpha = a[..., 3] > 0
+    path = ROOT / 'sprites/tm_be.png'
+    a = np.array(Image.open(path).convert('RGBA')); print('xoá điểm magenta:', drop_magenta(a)); Image.fromarray(a).save(path)
+    H, W = a.shape[:2]; alpha = a[..., 3] > 0
+    lum = 0.3 * a[..., 0] + 0.59 * a[..., 1] + 0.11 * a[..., 2]
+    seed = (W // 2, int(H * 0.53))
+    raw = flood(alpha & (lum > LUM_MIN), seed)
+    floor = morph(flood(morph(raw, OPEN_R, 'erode'), seed), OPEN_R, 'dilate') & raw
+    walk = floor | mask(W, H, [WING_W, WING_E], RECTS)
+    ys, xs = np.where(floor & ~mask(W, H, rects=RECTS))   # tâm mặt sàn (bỏ bậc dính vào vùng loang) = tâm tụ linh trận
+    ax, ay = float(MIRROR + 1) / 2, (ys.min() + FLOOR_BOTTOM) / 2   # đáy sàn đo tay (vùng loang dính mặt má bậc nên không dùng max)
+    air = mask(W, H, rects=AIR); keep = mask(W, H, rects=KEEP)
     front = a.copy(); front[walk & ~keep] = 0
     Image.fromarray(front).save(ROOT / 'sprites/tm_be_front.png')
-    # lưới ô (16 px game) quanh tâm: ô đặc nếu tâm ô không thuộc sàn/bậc và phần đục (trừ vải cờ trên không) chiếm >= 15% ô
-    ax, ay = ANCHOR
-    gx0, gy0 = int(np.floor(-ax * SCALE / T)), int(np.floor(-ay * SCALE / T))
-    gx1, gy1 = int(np.ceil((W - ax) * SCALE / T)), int(np.ceil((H - ay) * SCALE / T))
+    # đặc từng điểm ảnh: phía nam đỉnh vùng đi được của cột -> đặc cả khối; phía bắc -> chỉ FOOT px cuối của dải đục
+    solid = np.zeros((H, W), bool); body = alpha & ~walk & ~air
+    for x in range(W):
+        wy = np.where(walk[:, x])[0]; top = wy.min() if wy.size else H
+        run_end = -1
+        for y in range(H - 1, -1, -1):
+            if not body[y, x]: run_end = -1; continue
+            if run_end < 0: run_end = y
+            solid[y, x] = y > top or y > run_end - FOOT
+    # lưới mịn 4 px (đặt từ góc sprite) + lưới ô 16 px quanh tâm (cho test)
+    fw, fh = (W + C - 1) // C, (H + C - 1) // C
+    fine = []
+    for j in range(fh):
+        fine.append(''.join('#' if solid[j * C:(j + 1) * C, i * C:(i + 1) * C].mean() >= 0.3 else '.' for i in range(fw)))
+    gx0, gy0 = int(np.floor(-ax / T)), int(np.floor(-ay / T)); gx1, gy1 = int(np.ceil((W - ax) / T)), int(np.ceil((H - ay) / T))
     rows = []
     for ty in range(gy0, gy1):
         r = ''
         for tx in range(gx0, gx1):
-            sx0, sy0 = ax + tx * T / SCALE, ay + ty * T / SCALE; n = T // SCALE
-            xs, ys = slice(max(0, int(sx0)), min(W, int(sx0) + n)), slice(max(0, int(sy0)), min(H, int(sy0) + n))
-            cx, cy = min(W - 1, max(0, int(sx0 + n / 2))), min(H - 1, max(0, int(sy0 + n / 2)))   # ô lấn mép ảnh: lấy điểm gần nhất
-            on_walk = 0 <= cx < W and 0 <= cy < H and walk[cy, cx]
-            cover = (alpha[ys, xs] & ~air[ys, xs]).mean() if alpha[ys, xs].size else 0
-            r += '.' if on_walk else ('#' if cover >= 0.15 else ' ')   # 15%: trụ/chân cờ phủ ít ô vẫn đặc
+            x0, y0 = int(round(ax + tx * T)), int(round(ay + ty * T))
+            xs_, ys_ = slice(max(0, x0), min(W, x0 + T)), slice(max(0, y0), min(H, y0 + T))
+            cx, cy = min(W - 1, max(0, x0 + T // 2)), min(H - 1, max(0, y0 + T // 2))
+            sf = solid[ys_, xs_].mean() if solid[ys_, xs_].size else 0
+            r += '.' if walk[cy, cx] and sf < 0.5 else ('#' if sf >= 0.25 else ' ')
         rows.append(r)
+    data = {'scale': 1, 'anchor': [ax, ay], 'banners': BANNERS, 'x0': gx0, 'y0': gy0, 'rows': rows, 'cell': C, 'fine': fine}
     js = ('// SINH TỰ ĐỘNG bởi tools/build_be_phap_dai.py — đừng sửa tay. Bệ Tụ Linh Pháp Đài (sprites/tm_be*.png).\n'
-          '// rows: lưới ô quanh tâm bản đồ, ô (x0 + i, y0 + j) tính theo ô từ tâm; "#" đặc, "." mặt sàn/bậc (đi được), " " ngoài bệ.\n'
-          f'export const PLAZA = {json.dumps({"scale": SCALE, "anchor": list(ANCHOR), "banners": BANNERS, "x0": gx0, "y0": gy0, "rows": rows}, ensure_ascii=False, indent=1)};\n')
+          '// anchor: tâm mặt sàn trong sprite (= tâm bản đồ). rows: lưới ô 16 px quanh tâm, ô (x0 + i, y0 + j); "#" đặc, "." sàn/bậc, " " ngoài.\n'
+          '// fine: lưới mịn `cell` px tính từ góc trên-trái sprite (đặt tại tâm bản đồ - anchor, làm tròn) — "#" đặc; dùng cho di chuyển.\n'
+          f'export const PLAZA = {json.dumps(data, ensure_ascii=False)};\n')
     (ROOT / 'src/data/sect_plaza.js').write_text(js, encoding='utf-8')
-    print('lưới', gx1 - gx0, 'x', gy1 - gy0, 'ô; từ', (gx0, gy0)); print('\n'.join(rows))
+    print('sprite', W, 'x', H, 'tâm', (ax, ay), 'sàn y', ys.min(), ys.max(), 'nửa sàn dọc', (ys.max() + 1 - ys.min()) / 2, 'ngang', (xs.max() + 1 - xs.min()) / 2)
+    print('\n'.join(rows))
+    # ảnh kiểm tra: xanh = đi được, đỏ = đặc
+    ov = a.copy(); ov[walk & ~solid, 1] = 255; ov[solid, 0] = 255
+    bg = Image.new('RGBA', (W, H), (20, 20, 40, 255)); bg.alpha_composite(Image.fromarray(ov))
+    bg.resize((W * 2, H * 2), Image.NEAREST).save(ROOT / 'docs/playtest/M8_be_va_cham.png')
 
 
 if __name__ == '__main__':

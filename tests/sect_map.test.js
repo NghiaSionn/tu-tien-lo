@@ -14,23 +14,27 @@ test('tắt cờ: động phủ cũ y hệt trước M8 (dấu vân tay ô)', ()
 });
 
 const m = makeSectMap(), S = m.sect;
-const solidAt = (x, y) => m.solidTile(x, y);
 const spawn = { x: m.cx + HUB.RESPAWN.dx, y: m.cy + HUB.RESPAWN.dy };
-// flood-fill theo ô đi được, bắt đầu từ ô hồi sinh
-const reach = new Uint8Array(m.w * m.h);
-{
-  const q = [[Math.floor(spawn.x / T), Math.floor(spawn.y / T)]];
-  reach[q[0][1] * m.w + q[0][0]] = 1;
-  while (q.length) {
-    const [x, y] = q.pop();
+// loang theo đúng hàm đứng được của game (m.canStand), bước G px — bệ pháp đài va chạm theo lưới mịn 4 px nên không loang theo ô 16 px
+const G = 4, GW = Math.ceil(m.pw / G), GH = Math.ceil(m.ph / G);
+const node = p => Math.floor(p.y / G) * GW + Math.floor(p.x / G);
+function bfs(from, blocked = () => false) {
+  const dist = new Int32Array(GW * GH).fill(-1), q = [node(from)]; dist[q[0]] = 0;
+  for (let i = 0; i < q.length; i++) {
+    const k = q[i], x = k % GW, y = (k / GW) | 0;
     for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
-      const nx = x + dx, ny = y + dy;
-      if (nx < 0 || ny < 0 || nx >= m.w || ny >= m.h || reach[ny * m.w + nx] || solidAt(nx, ny)) continue;
-      reach[ny * m.w + nx] = 1; q.push([nx, ny]);
+      const nx = x + dx, ny = y + dy, nk = ny * GW + nx;
+      if (nx < 0 || ny < 0 || nx >= GW || ny >= GH || dist[nk] >= 0) continue;
+      const px = nx * G + G / 2, py = ny * G + G / 2;
+      if (!m.canStand(px, py) || blocked(px, py)) continue;
+      dist[nk] = dist[k] + 1; q.push(nk);
     }
   }
+  return dist;
 }
-const reachable = p => reach[Math.floor(p.y / T) * m.w + Math.floor(p.x / T)] === 1;
+const reach = bfs(spawn);
+// tới được điểm p: một nút trong vòng 8 px quanh p đã loang tới
+const reachable = p => { for (let dy = -8; dy <= 8; dy += G) for (let dx = -8; dx <= 8; dx += G) if (reach[node({ x: p.x + dx, y: p.y + dy })] >= 0) return true; return false; };
 
 test('hồi sinh đứng được; tới được cửa mọi công trình, cổng rào, cổng bí cảnh, bia', () => {
   assert.ok(m.canStand(spawn.x, spawn.y));
@@ -41,10 +45,10 @@ test('hồi sinh đứng được; tới được cửa mọi công trình, cổ
   assert.ok(reachable({ x: S.pen.px + S.pen.pw / 2, y: S.pen.py + S.pen.ph / 2 }));
 });
 
-test('không có ô đi được nào bị kẹt trong khung tông môn; viền khung kín', () => {
+test('không có chỗ đứng được nào bị kẹt trong khung tông môn; viền khung kín', () => {
   for (let ly = 0; ly < SECT.H; ly++) for (let lx = 0; lx < SECT.W; lx++) {
-    const x = S.ox + lx, y = S.oy + ly, t = m.tileAt(x, y);
-    if (!solidAt(x, y)) assert.ok(reach[y * m.w + x], `ô (${lx},${ly}) đi được nhưng không tới được`);
+    const x = S.ox + lx, y = S.oy + ly, t = m.tileAt(x, y), c = { x: x * T + 8, y: y * T + 8 };
+    if (m.canStand(c.x, c.y)) assert.ok(reachable(c), `ô (${lx},${ly}) đứng được nhưng không tới được`);
     if (lx === 0 || ly === 0 || lx === SECT.W - 1 || ly === SECT.H - 1) assert.equal(t, TREE, `viền (${lx},${ly})`);
   }
 });
@@ -58,49 +62,29 @@ test('quảng trường trống cho thiên kiếp (mọi điểm trong vòng gi�
   for (const b of S.buildings) assert.ok(!m.canStand(b.px + b.pw / 2, b.py + b.ph / 2), b.id + ' không đi xuyên');
 });
 
-test('rộng gấp 2: đi từ pháp đài tới mỗi khu mất ≥ 4 s (đường ngắn nhất theo ô, PLAYER.SPEED)', () => {
-  // BFS từ tâm; khoảng cách ô × 16 / tốc độ
-  const dist = new Int32Array(m.w * m.h).fill(-1), q = [[Math.floor(m.cx / T), Math.floor(m.cy / T)]];
-  dist[q[0][1] * m.w + q[0][0]] = 0;
-  for (let i = 0; i < q.length; i++) {
-    const [x, y] = q[i];
-    for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
-      const nx = x + dx, ny = y + dy, k = ny * m.w + nx;
-      if (dist[k] >= 0 || solidAt(nx, ny)) continue;
-      dist[k] = dist[y * m.w + x] + 1; q.push([nx, ny]);
-    }
-  }
-  const sec = p => dist[Math.floor(p.y / T) * m.w + Math.floor(p.x / T)] * T / PLAYER.SPEED;
-  const far = S.buildings.map(b => sec(b.doorPx));
-  for (const [i, s] of far.entries()) assert.ok(s >= 4 && s <= 9, `${S.buildings[i].id}: ${s.toFixed(1)} s`);
+test('rộng gấp 2: đi từ pháp đài tới mỗi khu mất 4–9 s (đường ngắn nhất, PLAYER.SPEED)', () => {
+  const dist = bfs({ x: m.cx, y: m.cy });
+  const sec = p => { let best = Infinity; for (let dy = -8; dy <= 8; dy += G) for (let dx = -8; dx <= 8; dx += G) { const d = dist[node({ x: p.x + dx, y: p.y + dy })]; if (d >= 0) best = Math.min(best, d); } return best * G / PLAYER.SPEED; };
+  for (const b of S.buildings) { const s = sec(b.doorPx); assert.ok(s >= 4 && s <= 9, `${b.id}: ${s.toFixed(1)} s`); }
   assert.ok(sec(S.portal) >= 3.5, 'cổng ' + sec(S.portal));
 });
 
-test('bệ pháp đài (sprite): mặt sàn đi được, lan can/vách đặc, lên được qua 4 lối (bắc, bậc nam, cánh đông/tây)', async () => {
+test('bệ pháp đài (sprite): mặt sàn tới được, chỉ lên/xuống qua 4 lối (bắc, bậc nam, cánh đông/tây)', async () => {
   const { PLAZA } = await import('../src/data/sect_plaza.js');
   const cx = Math.floor(m.cx / T), cy = Math.floor(m.cy / T);
-  const cell = (i, j) => PLAZA.rows[j][i];
-  let solidN = 0, walkN = 0;
+  let walkN = 0;
   for (let j = 0; j < PLAZA.rows.length; j++) for (let i = 0; i < PLAZA.rows[j].length; i++) {
-    const x = cx + PLAZA.x0 + i, y = cy + PLAZA.y0 + j;
-    if (cell(i, j) === '#') { solidN++; assert.ok(solidAt(x, y), `ô bệ (${i},${j}) phải đặc`); }
-    if (cell(i, j) === '.') { walkN++; assert.ok(!solidAt(x, y) && reach[y * m.w + x], `mặt sàn (${i},${j}) phải tới được`); }
+    if (PLAZA.rows[j][i] !== '.') continue;
+    const c = { x: (cx + PLAZA.x0 + i) * T + 8, y: (cy + PLAZA.y0 + j) * T + 8 };
+    if (m.canStand(c.x, c.y)) { walkN++; assert.ok(reachable(c), `mặt sàn (${i},${j}) phải tới được`); }
   }
-  assert.ok(solidN > 150 && walkN > 300, `đặc ${solidN}, sàn ${walkN}`);
-  // vào bệ chỉ qua 4 lối: bịt các lối đó (ô sàn xa tâm) thì từ ngoài không tới được tâm
-  const shut = new Set();
-  for (let j = 0; j < PLAZA.rows.length; j++) for (let i = 0; i < PLAZA.rows[j].length; i++) {
-    const y = cy + PLAZA.y0 + j; const x = cx + PLAZA.x0 + i; if (cell(i, j) === '.' && (y < cy - 8 || y > cy + 12 || Math.abs(x - cx) > 15)) shut.add(x + ',' + y);
+  assert.ok(walkN > 200, `sàn ${walkN}`);
+  // bịt 4 lối (vùng bậc/cánh) thì từ tâm không ra được ngoài khung sprite -> mép bệ kín
+  const W = PLAZA.fine[0].length * PLAZA.cell, H = PLAZA.fine.length * PLAZA.cell, x0 = Math.round(m.cx - PLAZA.anchor[0]), y0 = Math.round(m.cy - PLAZA.anchor[1]);
+  const exit = (x, y) => (Math.abs(x - m.cx) < 48 && (y < m.cy - 90 || y > m.cy + 92)) || Math.abs(x - m.cx) > 175;
+  const d = bfs({ x: m.cx, y: m.cy }, exit);
+  for (let k = 0; k < d.length; k++) if (d[k] >= 0) {
+    const x = (k % GW) * G, y = ((k / GW) | 0) * G;
+    assert.ok(x > x0 && y > y0 && x < x0 + W && y < y0 + H, `mép bệ hở: ra được tới (${x - m.cx},${y - m.cy}) không qua lối`);
   }
-  const seen = new Set([cx + ',' + cy]), q = [[cx, cy]]; let out = false;
-  while (q.length && !out) {
-    const [x, y] = q.pop();
-    for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
-      const nx = x + dx, ny = y + dy, k = nx + ',' + ny;
-      if (seen.has(k) || shut.has(k) || solidAt(nx, ny)) continue;
-      if (Math.abs(nx - cx) > 24 || Math.abs(ny - cy) > 19) { out = true; break; }
-      seen.add(k); q.push([nx, ny]);
-    }
-  }
-  assert.ok(!out, 'mép bệ có lỗ hở ngoài 4 lối');
 });

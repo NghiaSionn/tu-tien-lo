@@ -8,8 +8,8 @@
 export const SECT = {
   W: 88, H: 64, PAD: 10,
   // Tụ Linh Pháp Đài: sprite bệ đá nâng cao ChatGPT vẽ (sprites/tm_be*.png), va chạm sinh sẵn ở data/sect_plaza.js
-  // (tools/build_be_phap_dai.py). Bệ chiếm ~x 23–64, y 16–47; 4 lối lên: bắc (x 42–45, y ~22), bậc nam (x 41–46, chân y 47),
-  // cánh tây (chân x 23, y 30–32), cánh đông (chân x 64, y 30–32)
+  // (tools/build_be_phap_dai.py). Bệ chiếm ~x 25–63, y 17–46; 4 lối lên: bắc (x 42–46, y ~23), bậc nam (x 41–46, chân y 46),
+  // cánh tây (chân x 25, y 33–35), cánh đông (chân x 63, y 33–35)
   PATH_W: 3,                    // bề rộng đường lát đá (ô)
   // 5 công trình có chức năng (cửa = điểm đứng tương tác, ngay dưới bậc thềm)
   BUILDINGS: [
@@ -29,8 +29,8 @@ export const SECT = {
     [[44, 15], [58, 15], [68, 17]],               // rẽ đông → Luyện Khí Phường
     [[44, 47], [44, 55]],                         // chân bậc nam → vườn bia
     [[44, 51], [30, 51], [18, 49]],               // chân bậc nam → tây → Công Đức Đường
-    [[24, 31.5], [13, 33]],                         // cánh tây → Tàng Kinh Các
-    [[64, 31.5], [75, 33]],                         // cánh đông → Đan Dược Phòng
+    [[25, 34.5], [13, 33]],                         // cánh tây → Tàng Kinh Các
+    [[63, 34.5], [75, 33]],                         // cánh đông → Đan Dược Phòng
     [[44, 51], [58, 51], [62, 43], [68.5, 42.5]], // chân bậc nam → đông → cổng rào Luyện Võ Trường
     [[18, 49], [22, 53], [27.5, 57], [27.5, 63]], // Công Đức Đường → cầu đá qua suối
   ],
@@ -45,8 +45,8 @@ export const SECT = {
     ['co_phuon', 40.5, 9, [1, 1]], ['co_phuon', 47.5, 9, [1, 1]],
     // đèn đá dọc đường
     ['den_da', 41.5, 20, [1, 1]], ['den_da', 46.5, 20, [1, 1]], ['den_da', 32.5, 12, [1, 1]], ['den_da', 24.5, 12.5, [1, 1]], ['den_da', 24.5, 19.5, [1, 1]],
-    ['den_da', 55.5, 12, [1, 1]], ['den_da', 63.5, 12.5, [1, 1]], ['den_da', 17.5, 30, [1, 1]], ['den_da', 17.5, 36, [1, 1]],
-    ['den_da', 33.5, 54, [1, 1]], ['den_da', 70.5, 30, [1, 1]], ['den_da', 70.5, 36, [1, 1]], ['den_da', 24.5, 59.5, [1, 1]], ['den_da', 30.5, 59.5, [1, 1]],
+    ['den_da', 55.5, 12, [1, 1]], ['den_da', 63.5, 12.5, [1, 1]], ['den_da', 17.5, 31, [1, 1]], ['den_da', 17.5, 38.5, [1, 1]],
+    ['den_da', 33.5, 54, [1, 1]], ['den_da', 70.5, 31, [1, 1]], ['den_da', 70.5, 38.5, [1, 1]], ['den_da', 24.5, 59.5, [1, 1]], ['den_da', 30.5, 59.5, [1, 1]],
     ['den_da', 40.5, 57, [1, 1]], ['den_da', 47.5, 57, [1, 1]],
     // vườn bia
     ['bia_lon', 38.5, 56, [2, 1]], ['bia_nho', 50, 56, [2, 1]], ['bia_nho', 36, 54.5, [2, 1]],

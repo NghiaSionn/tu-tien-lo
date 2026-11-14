@@ -67,12 +67,10 @@ export function buildSectGrid(S = SECT) {
       }
     }
   }
-  // bệ Tụ Linh Pháp Đài (sprite ChatGPT, data/sect_plaza.js sinh từ tools/build_be_phap_dai.py): tâm bệ = tâm khung
-  for (let j = 0; j < PLAZA.rows.length; j++) for (let i = 0; i < PLAZA.rows[j].length; i++) {
-    const c = PLAZA.rows[j][i], x = cx + PLAZA.x0 + i, y = cy + PLAZA.y0 + j;
-    if (c === '#') block({ x0: x, y0: y, x1: x + 1, y1: y + 1 });
-    else if (c === '.') set(x, y, STONE);
-  }
+  // bệ Tụ Linh Pháp Đài (sprite ChatGPT, data/sect_plaza.js sinh từ tools/build_be_phap_dai.py): tâm bệ = tâm khung.
+  // Va chạm của bệ nằm ở makeSectMap (lưới mịn 4 px); ở đây chỉ lát đá dưới mặt sàn
+  for (let j = 0; j < PLAZA.rows.length; j++) for (let i = 0; i < PLAZA.rows[j].length; i++)
+    if (PLAZA.rows[j][i] === '.') set(cx + PLAZA.x0 + i, cy + PLAZA.y0 + j, STONE);
   const P = S.PEN;
   for (let y = P.y; y < P.y + P.h; y++) for (let x = P.x; x < P.x + P.w; x++) {
     const edge = x === P.x || y === P.y || x === P.x + P.w - 1 || y === P.y + P.h - 1;
@@ -97,7 +95,17 @@ export function makeSectMap(S = SECT) {
     return hash(x, y, 2, SEED) < 0.35 ? TREE : GRASS;   // rừng dày ngoài tông môn
   });
   const tileSolid = m.solidTile;
-  m.solidTile = (tx, ty) => { const lx = tx - ox, ly = ty - oy; return tileSolid(tx, ty) || (lx >= 0 && ly >= 0 && lx < S.W && ly < S.H && solid[ly * S.W + lx] === 1); };
+  const base = (tx, ty) => { const lx = tx - ox, ly = ty - oy; return tileSolid(tx, ty) || (lx >= 0 && ly >= 0 && lx < S.W && ly < S.H && solid[ly * S.W + lx] === 1); };
+  // bệ pháp đài: lưới ô (thô, cho test/BFS) + lưới mịn PLAZA.cell px (di chuyển bám sát hình: lan can bắc chỉ chặn ở chân, vách nam chặn cả khối)
+  const ctx = ox + S.W / 2, cty = oy + S.H / 2, P0 = PLAZA, cell = P0.cell;
+  const fx0 = Math.round(m.cx - P0.anchor[0]), fy0 = Math.round(m.cy - P0.anchor[1]), fW = P0.fine[0].length * cell, fH = P0.fine.length * cell;
+  const plazaTile = (tx, ty) => { const r = P0.rows[ty - cty - P0.y0]; return r ? r[tx - ctx - P0.x0] : undefined; };
+  m.solidTile = (tx, ty) => base(tx, ty) || plazaTile(tx, ty) === '#';
+  m.solidPx = (x, y) => {
+    const tx = Math.floor(x / T), ty = Math.floor(y / T), fx = x - fx0, fy = y - fy0;
+    if (fx >= 0 && fy >= 0 && fx < fW && fy < fH) return P0.fine[Math.floor(fy / cell)][Math.floor(fx / cell)] === '#' || base(tx, ty);
+    return m.solidTile(tx, ty);
+  };
   const px = ([x, y]) => ({ x: (ox + x) * T, y: (oy + y) * T });
   m.sect = {
     ox, oy,

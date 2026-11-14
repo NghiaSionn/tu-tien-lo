@@ -372,7 +372,20 @@ function movePlayer(map, dt, speedMult) {
   const l = Math.hypot(dx, dy); dx /= l; dy /= l;
   p.fx = dx; p.fy = dy;
   if (Math.abs(dx) > Math.abs(dy)) { p.face = 'side'; p.flip = dx < 0; } else p.face = dy < 0 ? 'up' : 'down';
-  moveEntity(map, p, dx * PLAYER.SPEED * speedMult * dt, dy * PLAYER.SPEED * speedMult * dt, null);
+  const sx = dx * PLAYER.SPEED * speedMult * dt, sy = dy * PLAYER.SPEED * speedMult * dt, x0 = p.x, y0 = p.y;
+  moveEntity(map, p, sx, sy, null);
+  // M8: sảnh tông môn — nắn góc: giữ một hướng mà bị chặn, nếu lệch ngang ≤ 6 px là đi tiếp được (mép bậc dốc ở cánh bệ,
+  // góc trụ) thì trượt về phía đó; đâm thẳng vào tường phẳng thì đứng yên (không trôi dọc tường)
+  if (map.sect && p.x === x0 && p.y === y0 && (!sx || !sy)) {
+    const s = Math.abs(sx || sy);
+    found: for (let d = 1; d <= 6; d++) for (const k of [1, -1]) {
+      const ox = sx ? 0 : k * d, oy = sx ? k * d : 0;
+      if (map.canStand(p.x + ox, p.y + oy) && map.canStand(p.x + ox + sx, p.y + oy + sy)) {
+        const st = Math.min(d, s); p.x += sx ? 0 : k * st; p.y += sx ? k * st : 0;
+        break found;
+      }
+    }
+  }
   p.anim += dt * 8;
   return true;
 }
