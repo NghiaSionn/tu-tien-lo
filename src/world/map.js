@@ -98,7 +98,7 @@ export function makeSectMap(S = SECT) {
   const base = (tx, ty) => { const lx = tx - ox, ly = ty - oy; return tileSolid(tx, ty) || (lx >= 0 && ly >= 0 && lx < S.W && ly < S.H && solid[ly * S.W + lx] === 1); };
   // bệ pháp đài: lưới ô (thô, cho test/BFS) + lưới mịn PLAZA.cell px (di chuyển bám sát hình: lan can bắc chỉ chặn ở chân, vách nam chặn cả khối)
   const ctx = ox + S.W / 2, cty = oy + S.H / 2, P0 = PLAZA, cell = P0.cell;
-  const fx0 = Math.round(m.cx - P0.anchor[0]), fy0 = Math.round(m.cy - P0.anchor[1]), fW = P0.fine[0].length * cell, fH = P0.fine.length * cell;
+  const fx0 = Math.round(m.cx - P0.anchor[0]) - (P0.pad || 0), fy0 = Math.round(m.cy - P0.anchor[1]) - (P0.pad || 0), fW = P0.fine[0].length * cell, fH = P0.fine.length * cell;
   const plazaTile = (tx, ty) => { const r = P0.rows[ty - cty - P0.y0]; return r ? r[tx - ctx - P0.x0] : undefined; };
   m.solidTile = (tx, ty) => base(tx, ty) || plazaTile(tx, ty) === '#';
   m.solidPx = (x, y) => {

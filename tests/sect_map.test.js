@@ -80,7 +80,7 @@ test('bệ pháp đài (sprite): mặt sàn tới được, chỉ lên/xuống q
   }
   assert.ok(walkN > 200, `sàn ${walkN}`);
   // bịt 4 lối (vùng bậc/cánh) thì từ tâm không ra được ngoài khung sprite -> mép bệ kín
-  const W = PLAZA.fine[0].length * PLAZA.cell, H = PLAZA.fine.length * PLAZA.cell, x0 = Math.round(m.cx - PLAZA.anchor[0]), y0 = Math.round(m.cy - PLAZA.anchor[1]);
+  const W = PLAZA.fine[0].length * PLAZA.cell, H = PLAZA.fine.length * PLAZA.cell, x0 = Math.round(m.cx - PLAZA.anchor[0]) - PLAZA.pad, y0 = Math.round(m.cy - PLAZA.anchor[1]) - PLAZA.pad;
   const exit = (x, y) => (Math.abs(x - m.cx) < 48 && (y < m.cy - 90 || y > m.cy + 92)) || Math.abs(x - m.cx) > 175;
   const d = bfs({ x: m.cx, y: m.cy }, exit);
   for (let k = 0; k < d.length; k++) if (d[k] >= 0) {

@@ -31,6 +31,8 @@ AIR = [sc(r) for r in [(128, 0, 215, 150), (518, 0, 593, 150)]]            # v�
 KEEP = [sc(r) for r in [(112, 268, 198, 410), (540, 268, 626, 410)]]       # cờ phía nam treo trên cánh: giữ ở lớp che
 BANNERS = [sc(b) for b in [(124, 0, 219, 190, 190), (514, 0, 597, 190, 190), (112, 268, 198, 472, 472), (540, 268, 626, 472, 472)]]
 FLOOR_BOTTOM = 341            # mép nam mặt sàn (chỗ bắt đầu bậc nam), px sprite 1.9
+GROW = 6                        # nới vùng đặc ra ngoài (không lấn mặt sàn): nhân vật không áp sát trụ/đèn/vách -> bớt bị lớp che đè
+PAD = 8                         # lưới mịn rộng hơn sprite PAD px mỗi phía để phần nới ở mép ảnh không bị cụt
 FOOT = 10                       # px chân đặc của vật phía bắc
 T, C = 16, 4                    # ô bản đồ, ô mịn
 
@@ -75,23 +77,37 @@ def main():
     walk = floor | mask(W, H, [WING_W, WING_E], RECTS)
     ys, xs = np.where(floor & ~mask(W, H, rects=RECTS))   # tâm mặt sàn (bỏ bậc dính vào vùng loang) = tâm tụ linh trận
     ax, ay = float(MIRROR + 1) / 2, (ys.min() + FLOOR_BOTTOM) / 2   # đáy sàn đo tay (vùng loang dính mặt má bậc nên không dùng max)
-    air = mask(W, H, rects=AIR); keep = mask(W, H, rects=KEEP)
+    air = mask(W, H, rects=AIR)
+    # cờ phía nam: chỉ giữ ĐIỂM ẢNH CỜ (vải kem/vàng, cán vàng, hoa văn xanh, ngọc + viền tối sát chúng), không lấy cả khung
+    # (khung chữ nhật cũ ôm cả sàn đá cánh -> sàn đè lên nhân vật như cùng lớp với cờ)
+    r_, g_, b_ = [a[..., i].astype(int) for i in range(3)]
+    tint = (r_ - b_ > 18) | ((b_ - r_ > 35) & (b_ > 110))
+    flag = morph(alpha & tint, 2, 'dilate') & alpha & (tint | (lum < 80))
+    keep = mask(W, H, rects=KEEP) & flag
     front = a.copy(); front[walk & ~keep] = 0
     Image.fromarray(front).save(ROOT / 'sprites/tm_be_front.png')
     # đặc từng điểm ảnh: phía nam đỉnh vùng đi được của cột -> đặc cả khối; phía bắc -> chỉ FOOT px cuối của dải đục
-    solid = np.zeros((H, W), bool); body = alpha & ~walk & ~air
+    solid = np.zeros((H, W), bool); south = np.zeros((H, W), bool); body = alpha & ~walk & ~air
     for x in range(W):
         wy = np.where(walk[:, x])[0]; top = wy.min() if wy.size else H
         run_end = -1
         for y in range(H - 1, -1, -1):
             if not body[y, x]: run_end = -1; continue
             if run_end < 0: run_end = y
+            south[y, x] = y > top
             solid[y, x] = y > top or y > run_end - FOOT
-    # lưới mịn 4 px (đặt từ góc sprite) + lưới ô 16 px quanh tâm (cho test)
-    fw, fh = (W + C - 1) // C, (H + C - 1) // C
+    # nới vùng đặc GROW px ra ngoài (trên khung đệm PAD), không phủ mặt sàn loang (giữ chỗ né thiên kiếp)
+    # chỉ nới quanh khối PHÍA NAM (vách, đèn, má bậc, trụ dưới cánh, bệ cờ nam); chân lan can bắc giữ nguyên (đứng sau thì bị che là đúng)
+    sp = np.zeros((H + 2 * PAD, W + 2 * PAD), bool); sp[PAD:PAD + H, PAD:PAD + W] = solid
+    ss = np.zeros_like(sp); ss[PAD:PAD + H, PAD:PAD + W] = south
+    fl = np.zeros_like(sp); fl[PAD:PAD + H, PAD:PAD + W] = floor
+    solidP = sp | (morph(ss, GROW, 'dilate') & ~fl)
+    solid = solidP[PAD:PAD + H, PAD:PAD + W]
+    # lưới mịn C px tính từ góc sprite lùi PAD + lưới ô 16 px quanh tâm (cho test)
+    HP, WP = solidP.shape; fw, fh = (WP + C - 1) // C, (HP + C - 1) // C
     fine = []
     for j in range(fh):
-        fine.append(''.join('#' if solid[j * C:(j + 1) * C, i * C:(i + 1) * C].mean() >= 0.3 else '.' for i in range(fw)))
+        fine.append(''.join('#' if solidP[j * C:(j + 1) * C, i * C:(i + 1) * C].mean() >= 0.3 else '.' for i in range(fw)))
     gx0, gy0 = int(np.floor(-ax / T)), int(np.floor(-ay / T)); gx1, gy1 = int(np.ceil((W - ax) / T)), int(np.ceil((H - ay) / T))
     rows = []
     for ty in range(gy0, gy1):
@@ -103,10 +119,10 @@ def main():
             sf = solid[ys_, xs_].mean() if solid[ys_, xs_].size else 0
             r += '.' if walk[cy, cx] and sf < 0.5 else ('#' if sf >= 0.25 else ' ')
         rows.append(r)
-    data = {'scale': 1, 'anchor': [ax, ay], 'banners': BANNERS, 'x0': gx0, 'y0': gy0, 'rows': rows, 'cell': C, 'fine': fine}
+    data = {'scale': 1, 'anchor': [ax, ay], 'banners': BANNERS, 'x0': gx0, 'y0': gy0, 'rows': rows, 'cell': C, 'pad': PAD, 'fine': fine}
     js = ('// SINH TỰ ĐỘNG bởi tools/build_be_phap_dai.py — đừng sửa tay. Bệ Tụ Linh Pháp Đài (sprites/tm_be*.png).\n'
           '// anchor: tâm mặt sàn trong sprite (= tâm bản đồ). rows: lưới ô 16 px quanh tâm, ô (x0 + i, y0 + j); "#" đặc, "." sàn/bậc, " " ngoài.\n'
-          '// fine: lưới mịn `cell` px tính từ góc trên-trái sprite (đặt tại tâm bản đồ - anchor, làm tròn) — "#" đặc; dùng cho di chuyển.\n'
+          '// fine: lưới mịn `cell` px tính từ góc trên-trái sprite lùi `pad` px (sprite đặt tại tâm bản đồ - anchor, làm tròn) — "#" đặc; dùng cho di chuyển.\n'
           f'export const PLAZA = {json.dumps(data, ensure_ascii=False)};\n')
     (ROOT / 'src/data/sect_plaza.js').write_text(js, encoding='utf-8')
     print('sprite', W, 'x', H, 'tâm', (ax, ay), 'sàn y', ys.min(), ys.max(), 'nửa sàn dọc', (ys.max() + 1 - ys.min()) / 2, 'ngang', (xs.max() + 1 - xs.min()) / 2)
