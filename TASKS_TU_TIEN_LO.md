@@ -395,6 +395,7 @@ Thiết kế + backlog đầy đủ (ChatGPT, 13/11): **`docs/chatgpt_tong_mon_M
   - [x] M8-03b (14/11) Góp ý giao diện: ẩn hàng nút + dòng phím ở sảnh (`body.sect`; cảm ứng vẫn giữ hàng nút); mọi chữ vẽ trên canvas game chuyển sang lớp nét cao `#hi` theo đúng độ phân giải màn hình (`setTextQueue`/`drawTextQueue`) -> hết mờ; tách nhắc tương tác: tên khu cố định ngay trên vật thể + khung `#prompt` cố định giữa đáy ("[E] Dùng Tụ Khí Đan · Mua Tụ Khí Đan"); 209/209
   - [x] (14/11) Khung E: bỏ nền, chỉ hiện việc chính ("E Tọa thiền"; khu nhiều việc E vẫn mở bảng chọn), đặt ngay dưới chân nhân vật (bám theo vị trí trên màn)
   - [x] (14/11) Phím pixel (ChatGPT vẽ theo mẫu "simple keys" người phát triển gửi: `docs/concept/phim_pixel_chatgpt.png` -> `sprites/phim.*` 34×31: e, e_nhan (vỡ nét, chưa dùng), 1, 2, t, b, esc, g); khung nhắc E và bảng chọn dùng ảnh phím (`UI.setKeycaps`/`UI.keycap`)
+  - [x] (14/11) Pháp đài: E = tọa thiền ngay (bỏ bảng chọn); sảnh tông môn tự đột phá tầng nhỏ khi đủ tu vi (`autoBreak`); đủ tu vi đại cảnh giới -> trong trận (kể cả đang thiền) hiện "E Thiên kiếp", E bắt đầu thiên kiếp; đang thiền mà không có nhắc thì E = thôi thiền. Động phủ cũ giữ B. Thử: tầng 3 tự lên 8 rồi dừng ở thiên kiếp, E -> thiên kiếp bắt đầu
 - [ ] M8-04 Cổng Bí Cảnh (S, P0)
 - [ ] M8-05 Tụ Linh Pháp Đài (M, P0) → GATE M8-A
 - [ ] M8-06..11 (M8-B, từng công trình), M8-12..16 (M8-C, HUD/dẫn đường/cảm ứng/art/save), M8-17..18 (M8-D, playtest): xem file thiết kế

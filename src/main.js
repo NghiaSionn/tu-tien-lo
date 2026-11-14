@@ -245,16 +245,20 @@ const inForm = () => SECT_MAP ? ((p.x - CX) / HUB.SECT_FORM.rx) ** 2 + ((p.y - C
 const inSafe = () => Math.hypot(p.x - SAFE.x, p.y - SAFE.y) < SAFE.r;
 
 // ---------- động phủ: hành động (giữ nguyên hành vi v0.1) ----------
+// M8: ở sảnh tông môn tầng nhỏ tự đột phá khi đủ tu vi; đại cảnh giới (thiên kiếp) thì nhắc đến pháp đài bấm E
+const fullMsg = () => meta.realmLevel >= MAX_L ? 'Đã tới đỉnh phong của bản thử nghiệm này.'
+  : SECT_MAP ? (isMajor(meta.realmLevel) ? 'Tu vi viên mãn! Ngồi vào Tụ Linh Pháp Đài, nhấn E để độ thiên kiếp.' : null)
+  : isMajor(meta.realmLevel) ? 'Tu vi viên mãn! Nhấn B để độ thiên kiếp.' : 'Tu vi viên mãn! Nhấn B để đột phá.';
 function gainTuvi(v) {
-  if (C.gainTuvi(meta, v) && !readyNotified) {
-    readyNotified = true;
-    UI.log(meta.realmLevel >= MAX_L ? 'Đã tới đỉnh phong của bản thử nghiệm này.' : 'Tu vi viên mãn! Nhấn B để đột phá.', 'gold');
-  }
+  if (C.gainTuvi(meta, v) && !readyNotified) { readyNotified = true; const s = fullMsg(); if (s) UI.log(s, 'gold'); }
 }
 function notifyFull() {
   if (!C.isFull(meta) || readyNotified) return;
-  readyNotified = true;
-  UI.log(meta.realmLevel >= MAX_L ? 'Đã tới đỉnh phong của bản thử nghiệm này.' : isMajor(meta.realmLevel) ? 'Tu vi viên mãn! Nhấn B để độ thiên kiếp.' : 'Tu vi viên mãn! Nhấn B để đột phá.', 'gold');
+  readyNotified = true; const s = fullMsg(); if (s) UI.log(s, 'gold');
+}
+const tribReady = () => C.canBreak(meta) && isMajor(meta.realmLevel);
+function autoBreak() {   // M8: tầng nhỏ đủ tu vi -> đột phá ngay (vẫn có hiệu ứng đột phá); thiên kiếp thì chờ người chơi bấm E
+  if (SECT_MAP && view === 'HUB' && !trib && C.canBreak(meta) && !isMajor(meta.realmLevel)) { levelUp(); metaAct('breakthrough'); }
 }
 function toggleMed() {
   if (trib || view !== 'HUB') return;
@@ -484,7 +488,9 @@ function updateHub(dt) {
   PORTAL.near = FEATURES.run && Math.hypot(p.x - PORTAL.x, p.y - PORTAL.y) < HUB.PORTAL.r;
   BIA.near = FEATURES.lore && Math.hypot(p.x - BIA.x, p.y - BIA.y) < HUB.BIA.r;
   BIA.lit = !!(meta.lore && meta.lore.unlocked.some(id => !meta.lore.read.includes(id)));
-  if (SECT_MAP) INTERACT.cur = p.med ? null : nearestPoint(SECT_POINTS, p.x, p.y, INTERACT.cur);   // M8-03
+  autoBreak();
+  // M8-03: đang thiền thì chỉ pháp đài (hiện "E Thiên kiếp" khi đủ tu vi đại cảnh giới), còn lại không nhắc
+  if (SECT_MAP) INTERACT.cur = p.med ? (tribReady() && inForm() ? SECT_POINTS.find(q => q.id === 'phap_dai') : null) : nearestPoint(SECT_POINTS, p.x, p.y, INTERACT.cur);
   if ((saveT += dt) > 3) { saveT = 0; save(); }
 }
 function updateInteractiveTrib(dt) {
@@ -768,7 +774,8 @@ const SECT_POINTS = !SECT_MAP ? [] : [
   { id: 'portal', name: 'Cổng Bí Cảnh', x: PORTAL.x, y: PORTAL.y, r: HUB.PORTAL.r, when: () => FEATURES.run, actions: [{ id: 'run', label: 'Vào bí cảnh', run: () => openPrepare() }] },
   { id: 'bia', name: 'Bia Truyền Thừa', x: BIA.x, y: BIA.y, r: HUB.BIA.r, when: () => FEATURES.lore, actions: [{ id: 'lore', label: 'Đọc bia', run: () => openLore() }] },
   { id: 'phap_dai', name: 'Tụ Linh Pháp Đài', x: CX, y: CY, r: HUB.SECT_FORM.rx, when: () => inForm(),
-    actions: [{ id: 'med', label: 'Tọa thiền', run: () => toggleMed() }, { id: 'break', label: 'Đột phá', run: () => tryBreak() }] },
+    actions: [{ id: 'trib', label: 'Thiên kiếp', when: () => tribReady(), run: () => tryBreak() },   // đủ tu vi đại cảnh giới
+      { id: 'med', label: 'Tọa thiền', when: () => !tribReady(), run: () => toggleMed() }] },
 ];
 
 // M8-03b: khung nhắc cố định giữa đáy màn hình (tên khu hiện riêng ngay trên vật thể, vẽ ở render)
@@ -800,7 +807,7 @@ function onAction(code) {
   else if (code === 'Digit1') usePill();
   else if (code === 'Digit2') buyPill();
   else if (code === 'KeyE') {
-    if (SECT_MAP) { if (!trib) INTERACT.ix.press(INTERACT.cur, (pt, acts) => UI.showChoice(pt.name, acts)); }   // M8-03: tương tác theo khu
+    if (SECT_MAP) { if (!trib && !INTERACT.ix.press(INTERACT.cur, (pt, acts) => UI.showChoice(pt.name, acts)) && p.med) toggleMed(); }   // M8-03: tương tác theo khu; đang thiền ngoài nhắc -> E thôi thiền
     else if (BIA.near) openLore(); else openPrepare();   // M7-14: đứng cạnh bia thì E = đọc bia
   }
   else if (code === 'KeyG') openForge();
