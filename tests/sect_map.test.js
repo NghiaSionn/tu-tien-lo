@@ -81,7 +81,9 @@ test('bệ pháp đài (sprite): mặt sàn tới được, chỉ lên/xuống q
   assert.ok(walkN > 80, `sàn ${walkN}`);
   // bịt 4 lối (vùng bậc/cánh) thì từ tâm không ra được ngoài khung sprite -> mép bệ kín
   const W = PLAZA.fine[0].length * PLAZA.cell, H = PLAZA.fine.length * PLAZA.cell, x0 = Math.round(m.cx - PLAZA.anchor[0]) - PLAZA.pad, y0 = Math.round(m.cy - PLAZA.anchor[1]) - PLAZA.pad;
-  const exit = (x, y) => (Math.abs(x - m.cx) < 64 && (y < m.cy - 105 || y > m.cy + 112)) || (Math.abs(x - m.cx) > 189 && Math.abs(y - m.cy - 32) < 48);   // 4 lối (bệ --scale 1.78)
+  // vùng 4 lối tính theo cỡ bệ (tỉ lệ đo ở bản --scale 1.78): bắc/nam quanh trục dọc, đông/tây quanh tầm cánh
+  const ax = PLAZA.anchor[0], ay = PLAZA.anchor[1], hb = H - 2 * PLAZA.pad - ay;
+  const exit = (x, y) => (Math.abs(x - m.cx) < 0.2 * ax && (y < m.cy - 0.41 * ay || y > m.cy + 0.45 * hb)) || (Math.abs(x - m.cx) > 0.58 * ax && Math.abs(y - m.cy - 0.125 * ay) < 0.19 * ay);
   const d = bfs({ x: m.cx, y: m.cy }, exit);
   for (let k = 0; k < d.length; k++) if (d[k] >= 0) {
     const x = (k % GW) * G, y = ((k / GW) | 0) * G;

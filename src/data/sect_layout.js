@@ -8,8 +8,8 @@
 export const SECT = {
   W: 88, H: 64, PAD: 10,
   // Tụ Linh Pháp Đài: sprite bệ đá nâng cao ChatGPT vẽ (sprites/tm_be*.png), va chạm sinh sẵn ở data/sect_plaza.js
-  // (tools/build_be_phap_dai.py). Bệ chiếm ~x 24–64, y 16–48; 4 lối lên: bắc (chân y ~22), bậc nam (chân y ~48),
-  // cánh tây (chân x ~24, y 34–36), cánh đông (chân x ~64, y 34–36)
+  // (tools/build_be_phap_dai.py). Bệ chiếm ~x 28–60, y 19–44; 4 lối lên: bắc (chân y ~24), bậc nam (chân y ~44),
+  // cánh tây (chân x ~28, y 33–35), cánh đông (chân x ~60, y 33–35)
   PATH_W: 3,                    // bề rộng đường lát đá (ô)
   // 5 công trình có chức năng (cửa = điểm đứng tương tác, ngay dưới bậc thềm)
   BUILDINGS: [
@@ -24,13 +24,13 @@ export const SECT = {
   PORTAL: [44, 10],             // chân cổng bí cảnh (bắc, cuối đường thẳng từ lối bắc của bệ)
   BIA: [44, 55],                // Bia Truyền Thừa (bia động phủ hiện có) giữa vườn bia, dưới chân bậc nam
   PATHS: [
-    [[44, 22], [44, 10]],                         // lối bắc của bệ → cổng bí cảnh
+    [[44, 24], [44, 10]],                         // lối bắc của bệ → cổng bí cảnh
     [[44, 15], [30, 15], [20, 17]],               // rẽ tây → Truyền Thừa Các
     [[44, 15], [58, 15], [68, 17]],               // rẽ đông → Luyện Khí Phường
-    [[44, 47], [44, 55]],                         // chân bậc nam → vườn bia
+    [[44, 44], [44, 55]],                         // chân bậc nam → vườn bia
     [[44, 51], [30, 51], [18, 49]],               // chân bậc nam → tây → Công Đức Đường
-    [[25, 35], [13, 33]],                         // cánh tây → Tàng Kinh Các
-    [[63, 35], [75, 33]],                         // cánh đông → Đan Dược Phòng
+    [[28.5, 34], [13, 33]],                         // cánh tây → Tàng Kinh Các
+    [[59.5, 34], [75, 33]],                         // cánh đông → Đan Dược Phòng
     [[44, 51], [58, 51], [62, 43], [68.5, 42.5]], // chân bậc nam → đông → cổng rào Luyện Võ Trường
     [[18, 49], [22, 53], [27.5, 57], [27.5, 63]], // Công Đức Đường → cầu đá qua suối
   ],

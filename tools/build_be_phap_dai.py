@@ -21,7 +21,7 @@ from PIL import Image, ImageDraw, ImageFilter
 
 ROOT = Path(__file__).resolve().parent.parent
 LUM_MIN, OPEN_R = 80, 3         # loang: điểm sáng hơn LUM_MIN; mở hình thái bán kính OPEN_R
-CLEAN = 1.84                    # độ thu sprite_clean (14/11: bệ to ×1.55 so với bản 2.85)
+CLEAN = 2.25                    # độ thu sprite_clean (14/11: cỡ vừa, giữa bản 2.85 quá nhỏ và 1.78 quá to)
 K = 1.9 / CLEAN                 # số đo tay dưới đây làm trên bản 1.9; nhân K cho bản CLEAN
 k1 = lambda v: tuple(round(c * K, 1) for c in v)
 MIRROR = 609 * K                # trục đối xứng x' = MIRROR - x
