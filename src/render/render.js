@@ -200,6 +200,21 @@ function paintPath(g, map, tx, ty, x, y) {   // đá cuội: từng viên không
   const corner = (cx0, cy0, sx, sy) => { for (let i = 0; i < 6; i++) g.drawImage(gt, cx0 + (sx > 0 ? 0 : 0), 0, 6 - i, 1, x + (sx > 0 ? T - (6 - i) : 0), y + (sy > 0 ? T - 1 - i : i), 6 - i, 1); };
   if (n && w) corner(0, 0, -1, -1); if (n && e) corner(0, 0, 1, -1); if (s && w) corner(0, 0, -1, 1); if (s && e) corner(0, 0, 1, 1);
 }
+// M8 (16/11): cỏ + đá phiến theo concept bằng tileset sprites/tm_co_da.png (ChatGPT vẽ, maps/tilesets/co_da.tsx). Đá ghép theo GÓC:
+// đỉnh ô là đá khi >= 2 trong 4 ô quanh đỉnh là đá -> ô có góc đá/cỏ lẫn lộn dùng ô viền, góc trong; đường tự bo cong theo lưới
+let CODA = null;
+export function setCoDa(img) { CODA = img; }
+const CODA_IDX = { '1121': 32, '1122': 33, '1112': 34, '1221': 40, '2222': 41, '2112': 42, '1211': 48, '2211': 49, '2111': 50, '1222': 35, '2122': 36, '2221': 43, '2212': 44 };
+function paintCoDa(g, map, tx, ty, x, y) {
+  const st = (a, b) => map.tileAt(a, b) === STONE ? 1 : 0;
+  const v = (a, b) => (st(a - 1, b - 1) + st(a, b - 1) + st(a - 1, b) + st(a, b) >= 2 ? '2' : '1');
+  const k = v(tx, ty) + v(tx + 1, ty) + v(tx + 1, ty + 1) + v(tx, ty + 1), h = hash(tx, ty, 71);
+  let id;
+  if (k === '2222') id = (h < 0.75 ? 16 : 24) + Math.floor(hash(tx, ty, 72) * 8);
+  else if (k === '1111') id = map.tileAt(tx, ty) === STONE ? 16 + Math.floor(h * 8) : (h < 0.1 ? 8 : 0) + Math.floor(hash(tx, ty, 72) * 8);
+  else id = CODA_IDX[k] ?? 41;
+  g.drawImage(CODA, (id & 7) * T, (id >> 3) * T, T, T, x, y, T, T);
+}
 function paintCliff(g, map, tx, ty, x, y) {   // mặt vách dọc: nhìn 3/4 thấy mặt đá dưới mép đảo; càng xuống càng tối
   let depth = 0; while (depth < 6 && map.tileAt(tx, ty - depth - 1) === CLIFF) depth++;
   const top = isWalkT(map.tileAt(tx, ty - 1)) || map.tileAt(tx, ty - 1) === WATER;
@@ -233,6 +248,7 @@ function buildChunk(map, cx, cy, phase, props) {
   for (let ty = ty0; ty < ty0 + CH; ty++) for (let tx = tx0; tx < tx0 + CH; tx++) {
     const t = map.tileAt(tx, ty), x = tx * T, y = ty * T;
     if (t === WATER) { g.drawImage(waterTiles[(phase + tx + ty) & 1], x, y); if (map.tileAt(tx, ty - 1) !== WATER) g.drawImage(waterBank, x, y); }
+    else if (map.sect && CODA && (t === STONE || t === GRASS || t === BUILDING)) paintCoDa(g, map, tx, ty, x, y);
     else if (map.sect && t === STONE) paintPath(g, map, tx, ty, x, y);
     else if (map.sect && (t === CLIFF || t === FALL)) paintCliff(g, map, tx, ty, x, y);
     else if (map.sect && t === CLOUD) paintCloud(g, tx, ty, x, y);

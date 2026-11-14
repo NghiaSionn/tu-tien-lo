@@ -22,7 +22,7 @@ const BF = BOCUC.buildings, TF = BOCUC.tf,
   tfx = x => Math.round(TF.c[0] + (x - TF.c_old[0]) * TF.sx), tfy = y => Math.round(TF.c[1] + (y - TF.c_old[1]) * TF.sy), them = id => (id === 'truyen_thua' ? 'them_vuong' : 'them_ngang');
 const footOf = id => { const [x, y] = BF[id].foot, t = THEM[them(id)]; return [x, y - (t.h - t.foot) / 16]; };
 // đồ trong/quanh Luyện Võ Trường đi theo rào (rào đặt lại dưới ngã ba nam: BOCUC.pen), dời theo ô concept
-const PEN_PROPS = new Set(['luyen_vo', 'moc_nhan', 'gia_binh_khi']), PEN_DY = (BOCUC.pen.y - tfy(44)) / TF.sy + 0.4;
+const PEN_PROPS = new Set(['luyen_vo', 'moc_nhan', 'gia_binh_khi']), PEN_DY = (BOCUC.pen.y - tfy(44)) / TF.sy;
 export const SECT = {
   W: BOCUC.nx, H: BOCUC.ny, MW: BOCUC.nx + 20, MH: BOCUC.ny + 20,
   PADL: (BOCUC.nx + 20) / 2 - Math.floor(BOCUC.plaza.c[0]), PADT: (BOCUC.ny + 20) / 2 - Math.floor(BOCUC.plaza.c[1]),   // tâm bản đồ = tâm bệ

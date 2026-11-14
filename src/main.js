@@ -16,7 +16,7 @@ import { spawnHubMonster, updateMonsters, reapMonsters, damageMonster, moveEntit
 import { loadSave, writeSave, commitMigration, exportSave, importSave, defaultMeta, KEYS } from './persistence/save.js';
 import { loadFx, createFx } from '../lib/beanfx.js';
 import { loadPixelfx } from './render/pixelfx.js';
-import { makeVis, consumeEvents, updateVis, clearVis, render, setTextQueue, drawTextQueue, spawnFx, burst, floatText, addShake, addFlash, part, PART_CAP } from './render/render.js';
+import { makeVis, consumeEvents, updateVis, clearVis, render, setTextQueue, drawTextQueue, setCoDa, spawnFx, burst, floatText, addShake, addFlash, part, PART_CAP } from './render/render.js';
 import * as UI from './ui/ui.js';
 import { EVOLUTIONS } from './data/skills.js';
 import { computeRunReward, stageReward, claimReward, rewardText } from './progression/rewards.js';
@@ -115,6 +115,7 @@ if (vis.tm && vis.tm.tran) {
 // M8: bệ Tụ Linh Pháp Đài (sprite ×PLAZA.scale): ảnh nền vẽ dưới nhân vật + lớp "phía trước" (lan can, vách, cờ, đèn).
 // Lớp trước xếp theo CHÂN của từng dải đục liền theo cột (cờ = chân bệ cờ, lan can nam = chân vách) rồi gom theo nấc 8 px
 // -> nhân vật đứng sau cờ/lan can bị che đúng, đứng trước thì không (cắt dải ngang cũ sai với vật cao).
+if (vis.tm) try { setCoDa(await loadImg('sprites/tm_co_da.png')); } catch (e) { console.warn('[sprite] co_da', e); }   // M8: cỏ/đá theo concept
 if (vis.tm) try {
   const { PLAZA } = await import('./data/sect_plaza.js');
   const ld = loadImg;
