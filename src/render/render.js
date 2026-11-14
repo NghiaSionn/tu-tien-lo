@@ -583,7 +583,12 @@ function drawPlayer(ctx, p, time, medFx, inForm, vis, float = false) {
   ctx.fillStyle = 'rgba(0,0,0,.25)'; if (hero) ctx.fillRect(x - 3, sy0 - 2, 18, 3); else ctx.fillRect(x + 1, sy0 - 1, 10, 2);
   if (p.med) {
     // M8: thiền giữa tụ linh trận sảnh tông môn -> bay lơ lửng (nâng lên dần, rồi lên xuống nhẹ); bóng giữ ở đất
-    p.lift = (p.lift || 0) + ((float ? 9 + Math.sin(time * 1.6) * 2.5 : 0) - (p.lift || 0)) * Math.min(1, (vis && vis.frameDt || 0.016) * 4);
+    // nâng lên theo đường cong êm (smoothstep ~1,2 s), rồi lơ lửng theo sóng sin chậm (chu kỳ ~3,4 s, biên 2 px) tính trực tiếp từ đồng hồ
+    // (không đuổi theo mục tiêu -> không giật; mỗi lần lệch đúng 1 px, cách đều)
+    const dtv = vis && vis.frameDt || 0.016;
+    p.liftK = Math.max(0, Math.min(1, (p.liftK || 0) + (float ? dtv : -dtv * 1.5) / 1.2));
+    const ease = p.liftK * p.liftK * (3 - 2 * p.liftK);
+    p.lift = ease * (8 + Math.sin(time * 1.85) * 2);
     const fl = Math.round(p.lift), fy2 = fy - fl;
     if (fl) { ctx.fillStyle = 'rgba(0,0,0,.18)'; ctx.fillRect(Math.round(p.x) - 6, sy0 - 2, 12, 3); }
     medFx.x = Math.round(p.x); medFx.y = fy2; medFx.lightGain = fl ? 0.12 : inForm ? 1 : 0.6; medFx.draw(ctx);   // bay giữa trận: hào quang dịu lại để thấy âm dương xoay
@@ -592,7 +597,7 @@ function drawPlayer(ctx, p, time, medFx, inForm, vis, float = false) {
     else ctx.drawImage(SPR.sit, x, fy2 - 14 - bob);
     return;
   }
-  p.lift = 0;
+  p.lift = 0; p.liftK = 0;
   if (hero) {
     const st = p.hurtT > 0 ? 'hurt' : p.cd > BASIC_ATTACK.CD - 0.12 ? 'atk' : 'walk' + (p.moving ? Math.floor(p.anim) % 4 : 0);
     const dir = p.face === 'side' ? (p.flip ? 'left' : 'right') : p.face;   // trái/phải là khung riêng, không lật
