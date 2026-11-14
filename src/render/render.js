@@ -430,15 +430,15 @@ function drawSectBuilding(ctx, b) {
 
 // M8: âm dương giữa tụ linh trận sảnh tông môn — vẽ từng điểm ảnh (giữ chất pixel), elip theo góc nhìn 3/4 (khớp hình trận tm_tran:
 // tâm cách đỉnh hình trận cy px, bán trục rx×ry), quay theo chiều kim đồng hồ ~1 vòng/14 s; 72 khung xoay dựng sẵn khi cần
-const TAIJI = { rx: 25, ry: 14, cy: 55, period: 14, steps: 72 };
+const TAIJI = { rx: 25, ry: 14, cy: 55, period: 14, steps: 240 };
 const _taiji = new Map();
-function taijiFrame(time, lit) {
-  const k = Math.floor((time / TAIJI.period % 1) * TAIJI.steps), key = k + (lit ? 'L' : '');
+function taijiFrame(turn, lit) {   // turn: 0..1 vòng
+  const k = Math.floor(turn * TAIJI.steps) % TAIJI.steps, key = k + (lit ? 'L' : '');
   let c = _taiji.get(key); if (c) return c;
   const { rx, ry } = TAIJI, W = rx * 2 + 1, H = ry * 2 + 1;
   c = document.createElement('canvas'); c.width = W; c.height = H; const g = c.getContext('2d'), id = g.createImageData(W, H), d = id.data;
   const a = k / TAIJI.steps * Math.PI * 2, ca = Math.cos(a), sa = Math.sin(a);
-  const LIGHT = lit ? [196, 255, 244] : [158, 236, 220], DARK = lit ? [10, 72, 80] : [12, 74, 80], RIM = lit ? [120, 255, 230] : [60, 170, 160], BACK = [8, 48, 56];
+  const LIGHT = lit ? [168, 226, 214] : [140, 204, 192], DARK = [12, 66, 72], RIM = lit ? [96, 206, 188] : [56, 150, 142], BACK = [8, 48, 56];
   for (let j = 0; j < H; j++) for (let i = 0; i < W; i++) {
     const u0 = (i - rx) / rx, v0 = (j - ry) / ry, r2 = u0 * u0 + v0 * v0;
     let col = null;
@@ -809,8 +809,11 @@ export function render(ctx, g) {
       const on = p.med && g.inForm;
       ctx.drawImage(t, x, y);
       if (on && TR.tranGlow) { ctx.globalCompositeOperation = 'lighter'; ctx.drawImage(TR.tranGlow, x, y); ctx.globalCompositeOperation = 'source-over'; }
-      const tj = taijiFrame(time, on);   // âm dương giữa trận xoay chậm theo chiều kim đồng hồ, liên tục
-      ctx.drawImage(tj, Math.round(map.cx - tj.width / 2), y + TAIJI.cy - (tj.height >> 1));
+      // âm dương: chỉ xoay khi đang tọa thiền trong trận (chậm, theo chiều kim đồng hồ); không thiền -> đứng yên.
+      // Góc giữ lại giữa các lần thiền; vào/ra thiền tăng/giảm tốc dần
+      vis.taijiW = (vis.taijiW || 0) + ((on ? 1 : 0) - (vis.taijiW || 0)) * Math.min(1, (g.dtWorld || 0) * 2);
+      vis.taijiA = ((vis.taijiA || 0) + vis.taijiW * (g.dtWorld || 0) / TAIJI.period) % 1;
+      const tj = taijiFrame(vis.taijiA, on); ctx.drawImage(tj, Math.round(map.cx - tj.width / 2), y + TAIJI.cy - (tj.height >> 1));   // không thiền: đứng yên ở góc đang có (không nhảy hình)
     } else if (TR && TR.tran) {   // tụ linh trận (ChatGPT vẽ): thiền trong trận thì sáng rực, bình thường nhịp sáng nhẹ
       const t = TR.tran, s = TR.tran_sang, on = p.med && g.inForm;
       ctx.drawImage(t, Math.round(map.cx - t.width / 2), Math.round(map.cy - t.height / 2));

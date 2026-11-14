@@ -96,9 +96,13 @@ if (vis.bia) vis.ct = { ...(vis.ct || {}), ...cropFrames(vis.bia) };   // M7-14:
 if (vis.tmCt || vis.tmDv || vis.tmCd) vis.tm = Object.assign({}, ...[vis.tmCt, vis.tmDv, vis.tmCd, vis.tmTran].filter(Boolean).map(cropFrames));
 // tụ linh trận sáng: lấy từ CHÍNH hình trận nghỉ (chỉ các đường khắc xanh ngọc) -> sáng lên đúng chỗ, không lệch như ô "sáng" ChatGPT vẽ riêng
 if (vis.tm && vis.tm.tran) {
-  const t = vis.tm.tran, c = document.createElement('canvas'); c.width = t.width; c.height = t.height; const g = c.getContext('2d'); g.drawImage(t, 0, 0);
+  const t = vis.tm.tran, tg = t.getContext('2d'), td = tg.getImageData(0, 0, t.width, t.height);
+  // dịu màu (người phát triển: hơi chói): đường khắc xanh ngọc tối & bớt rực ~25%
+  for (let i = 0; i < td.data.length; i += 4) { const d = td.data, cyan = d[i + 1] > 140 && d[i + 2] > 120 && d[i] < d[i + 1] - 20; if (cyan) { d[i] *= 0.7; d[i + 1] *= 0.78; d[i + 2] *= 0.78; } }
+  tg.putImageData(td, 0, 0);
+  const c = document.createElement('canvas'); c.width = t.width; c.height = t.height; const g = c.getContext('2d'); g.drawImage(t, 0, 0);
   const id = g.getImageData(0, 0, c.width, c.height), d = id.data;
-  for (let i = 0; i < d.length; i += 4) { const cyan = d[i + 1] > 140 && d[i + 2] > 120 && d[i] < d[i + 1] - 20; d[i + 3] = cyan ? 200 : 0; }
+  for (let i = 0; i < d.length; i += 4) { const cyan = d[i + 1] > 105 && d[i + 2] > 95 && d[i] < d[i + 1] - 20; d[i + 3] = cyan ? 110 : 0; }
   g.putImageData(id, 0, 0); vis.tm.tranGlow = c;
 }
 // M8: bệ Tụ Linh Pháp Đài (sprite ×PLAZA.scale): ảnh nền vẽ dưới nhân vật + lớp "phía trước" (lan can, vách, cờ, đèn).
