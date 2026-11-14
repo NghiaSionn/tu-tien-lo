@@ -215,6 +215,29 @@ function paintCoDa(g, map, tx, ty, x, y) {
   else id = CODA_IDX[k] ?? 41;
   g.drawImage(CODA, (id & 7) * T, (id >> 3) * T, T, T, x, y, T, T);
 }
+// M8 (16/11): vách núi, suối, thác theo concept bằng tileset sprites/tm_vach_nuoc.png (ChatGPT vẽ). Hàng: 0 mặt vách, 1 mép trên vách
+// (cỏ rủ), 2 chân vách tan vào mây (0-3) / cạnh trái (4) / cạnh phải (7), 3 nước, 4 bờ suối (trên 0-1, dưới 2-3, trái 4, phải 5, sen 6-7),
+// 5 thác (đỉnh 0, thân 4 khung 1-4, chân bọt 5-6)
+let VN = null;
+export function setVachNuoc(img) { VN = img; }
+const vnTile = (g, id, x, y) => g.drawImage(VN, (id & 7) * T, (id >> 3) * T, T, T, x, y, T, T);
+function paintCliffVN(g, map, tx, ty, x, y) {
+  const up = map.tileAt(tx, ty - 1), h = hash(tx, ty, 81), v = Math.floor(hash(tx, ty, 82) * 8);
+  let id;
+  if (isWalkT(up) || up === WATER) id = 8 + v;                                   // mép trên: cỏ rủ xuống vách
+  else if (map.tileAt(tx, ty + 1) === CLOUD) id = 16 + (v & 3);                  // chân vách tan vào mây
+  else if (map.tileAt(tx - 1, ty) === CLOUD) id = 20;                            // cạnh trái
+  else if (map.tileAt(tx + 1, ty) === CLOUD) id = 23;                            // cạnh phải
+  else id = h < 0.12 ? 21 + (v & 1) : v;                                         // mặt vách
+  vnTile(g, id, x, y);
+}
+function paintWaterVN(g, map, tx, ty, x, y, phase) {
+  const land = (dx, dy) => isWalkT(map.tileAt(tx + dx, ty + dy)), v = Math.floor(hash(tx, ty, 83) * 2);
+  let id;
+  if (land(0, -1)) id = 32 + v; else if (land(0, 1)) id = 34 + v; else if (land(-1, 0)) id = 36; else if (land(1, 0)) id = 37;
+  else id = hash(tx, ty, 84) < 0.05 ? 38 + v : 24 + ((Math.floor(hash(tx, ty, 85) * 8) + phase) & 7);
+  vnTile(g, id, x, y);
+}
 function paintCliff(g, map, tx, ty, x, y) {   // mặt vách dọc: nhìn 3/4 thấy mặt đá dưới mép đảo; càng xuống càng tối
   let depth = 0; while (depth < 6 && map.tileAt(tx, ty - depth - 1) === CLIFF) depth++;
   const top = isWalkT(map.tileAt(tx, ty - 1)) || map.tileAt(tx, ty - 1) === WATER;
@@ -247,7 +270,9 @@ function buildChunk(map, cx, cy, phase, props) {
   const tx0 = cx * CH, ty0 = cy * CH;
   for (let ty = ty0; ty < ty0 + CH; ty++) for (let tx = tx0; tx < tx0 + CH; tx++) {
     const t = map.tileAt(tx, ty), x = tx * T, y = ty * T;
-    if (t === WATER) { g.drawImage(waterTiles[(phase + tx + ty) & 1], x, y); if (map.tileAt(tx, ty - 1) !== WATER) g.drawImage(waterBank, x, y); }
+    if (t === WATER && !(map.sect && VN)) { g.drawImage(waterTiles[(phase + tx + ty) & 1], x, y); if (map.tileAt(tx, ty - 1) !== WATER) g.drawImage(waterBank, x, y); }
+    else if (map.sect && VN && t === WATER) paintWaterVN(g, map, tx, ty, x, y, phase);
+    else if (map.sect && VN && (t === CLIFF || t === FALL)) paintCliffVN(g, map, tx, ty, x, y);
     else if (map.sect && CODA && (t === STONE || t === GRASS || t === BUILDING)) paintCoDa(g, map, tx, ty, x, y);
     else if (map.sect && t === STONE) paintPath(g, map, tx, ty, x, y);
     else if (map.sect && (t === CLIFF || t === FALL)) paintCliff(g, map, tx, ty, x, y);
@@ -917,6 +942,8 @@ export function render(ctx, g) {
       for (let ty = ty0; ty <= ty0 + Math.ceil(H / T); ty++) for (let tx = tx0; tx <= tx0 + Math.ceil(W / T); tx++) {
         if (map.tileAt(tx, ty) !== FALL) continue;
         const x = tx * T, y = ty * T, off = Math.floor(time * 40) % 8;
+        if (VN) { const top = map.tileAt(tx, ty - 1) !== FALL, bot = map.tileAt(tx, ty + 1) !== FALL;   // thác bằng tileset: đỉnh / thân 4 khung / chân bọt
+          vnTile(ctx, top ? 40 : bot ? 45 + (Math.floor(time * 6) & 1) : 41 + ((Math.floor(time * 10) + ty) & 3), x, y); continue; }
         ctx.fillStyle = '#5fb4e6'; ctx.fillRect(x, y, T, T);
         for (let i = 0; i < 4; i++) { const sx = x + i * 4 + Math.floor(hash(tx, i, 66) * 2); ctx.fillStyle = (i & 1) ? '#9bd8f5' : '#cdeffc';
           for (let k = -1; k < 3; k++) ctx.fillRect(sx, y + ((off + k * 8 + i * 3) & 15) - 2, 2, 5); }
