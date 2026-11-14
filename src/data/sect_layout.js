@@ -21,6 +21,8 @@ const BF = BOCUC.buildings, TF = BOCUC.tf,
   tf = ([x, y, ...r]) => [TF.c[0] + (x - TF.c_old[0]) * TF.sx, TF.c[1] + (y - TF.c_old[1]) * TF.sy, ...r],
   tfx = x => Math.round(TF.c[0] + (x - TF.c_old[0]) * TF.sx), tfy = y => Math.round(TF.c[1] + (y - TF.c_old[1]) * TF.sy), them = id => (id === 'truyen_thua' ? 'them_vuong' : 'them_ngang');
 const footOf = id => { const [x, y] = BF[id].foot, t = THEM[them(id)]; return [x, y - (t.h - t.foot) / 16]; };
+// đồ trong/quanh Luyện Võ Trường đi theo rào (rào đặt lại dưới ngã ba nam: BOCUC.pen), dời theo ô concept
+const PEN_PROPS = new Set(['luyen_vo', 'moc_nhan', 'gia_binh_khi']), PEN_DY = (BOCUC.pen.y - tfy(44)) / TF.sy + 0.4;
 export const SECT = {
   W: BOCUC.nx, H: BOCUC.ny, MW: BOCUC.nx + 20, MH: BOCUC.ny + 20,
   PADL: (BOCUC.nx + 20) / 2 - Math.floor(BOCUC.plaza.c[0]), PADT: (BOCUC.ny + 20) / 2 - Math.floor(BOCUC.plaza.c[1]),   // tâm bản đồ = tâm bệ
@@ -34,7 +36,7 @@ export const SECT = {
     { id: 'dan_duoc', name: 'Đan Dược Phòng', foot: footOf('dan_duoc'), base: [7, 3], them: them('dan_duoc') },
   ],
   // Luyện Võ Trường: sân đất (elip trong lưới) + rào chữ nhật bên trong, cổng rào phía bắc lệch trái (đầu đường đông nam)
-  PEN: { id: 'luyen_vo', name: 'Luyện Võ Trường', x: tfx(82), y: tfy(44), w: tfx(108) - tfx(82), h: tfy(57) - tfy(44), gate: [tfx(83.5), tfx(83.5) + 4], door: tf([84.5, 43.2]) },
+  PEN: { id: 'luyen_vo', name: 'Luyện Võ Trường', ...BOCUC.pen },
   PORTAL: tf([60.5, 17.5]),
   BIA: tf([60.5, 52.5]),
   PROPS: [
@@ -52,5 +54,5 @@ export const SECT = {
     ['cay_tron', 100, 58, [2, 1]], ['cay_tron', 22, 56, [2, 1]], ['bui_cay', 44, 40, [2, 1]], ['bui_cay', 76, 40, [2, 1]],
     ['da_lon', 50, 23, [2, 1]], ['da_nho', 70, 41, [2, 1]], ['khom_hoa', 58, 56], ['khom_hoa', 63, 57], ['khom_hoa', 52, 42], ['khom_hoa', 70, 30],
     ['sen', 41, 22.5], ['sen', 55, 60.5],
-  ].map(([n, x, y, ...r]) => [n, ...tf([x, y]), ...r]),
+  ].map(([n, x, y, ...r]) => [n, ...tf([x, y + (PEN_PROPS.has(n) || (n === 'co_phuon' && x > 80) ? PEN_DY : 0)]), ...r]),
 };

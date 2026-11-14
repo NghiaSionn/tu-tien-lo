@@ -15,9 +15,9 @@ ROOT = Path(__file__).resolve().parent.parent
 # concept (34,5×26,75 ô so với ~28×18) -> cả bố cục phóng ra quanh tâm bệ theo SX, SY (lớn hơn tỉ lệ bệ một chút để công trình lùi xa,
 # đường rộng hơn). Đường đi KHÔNG phóng từ concept mà dựng lại từ 4 lối bậc thật của sprite bệ (EXIT).
 C_OLD = (60.5, 33)
-SX, SY = 1.45, 1.55
-NX, NY = 174, 106
-C = (87.5, 51)                                                                # tâm bệ trong khung mới (x.5 như cũ)
+SX, SY = 1.45, 1.3                                                            # dọc thu lại (15/11: bản 1,55 quá dài)
+NX, NY = 174, 88
+C = (87.5, 43)                                                                # tâm bệ trong khung mới (x.5 như cũ)
 
 
 def tf(p): return (C[0] + (p[0] - C_OLD[0]) * SX, C[1] + (p[1] - C_OLD[1]) * SY)
@@ -33,7 +33,9 @@ WATER = [
     tfs([(37, 19), (47, 19), (48, 23), (44, 25), (38, 24)]),                  # ao + thác nhỏ cạnh tháp
     tfs([(26, 56), (40, 55), (56, 57), (66, 58), (80, 58), (84, 60), (72, 62), (46, 61), (30, 60)]),   # suối nam (dưới cầu -> 2 thác)
 ]
-DIRT = [(tf((95, 50)), 15 * SX, 7 * SY)]                                      # Luyện Võ Trường: elip tâm, bán trục x, y
+# Luyện Võ Trường: rào chữ nhật (ô khung; cổng rào ở cạnh bắc, gate = cột x đầu/cuối lỗ cổng) + sân đất elip phủ quanh rào
+PEN = dict(x=118, y=C[1] + 18, w=38, h=14, gate=[119, 123], door=[121.5, C[1] + 17.2])
+DIRT = [((PEN['x'] + PEN['w'] / 2, PEN['y'] + PEN['h'] / 2), PEN['w'] / 2 + 3, PEN['h'] / 2 + 2.5)]
 PLAZA = dict(c=C, rx=14, ry=9)   # nền đá ngay dưới sprite bệ (34,5×26,75 ô) — nhỏ hơn khung để cỏ lộ quanh, chỉ đường nối vào 4 lối
 # 4 lối bậc của sprite bệ (đo trong src/data/sect_plaza.js): chân bậc nam y+13, đỉnh bậc bắc y-8, bậc cánh tây/đông x∓17,5 y+0,5
 EXIT = dict(n=(C[0], C[1] - 8), s=(C[0], C[1] + 13), w=(C[0] - 17.5, C[1] + 0.5), e=(C[0] + 17.5, C[1] + 0.5))
@@ -43,29 +45,39 @@ BUILDINGS = {
     'truyen_thua': dict(box=tfbox((17, 0, 36, 21)), foot=tf((35, 24)), name='Truyền Thừa Các (tháp)'),
     'tang_kinh': dict(box=tfbox((10, 21, 34, 37)), foot=tf((34, 37)), name='Tàng Kinh Các'),
     'cong_duc': dict(box=tfbox((14, 40, 40, 52)), foot=tf((32, 53)), name='Công Đức Đường'),
-    'luyen_khi': dict(box=tfbox((78, 4, 110, 21)), foot=tf((80, 22)), name='Luyện Khí Phường'),
-    'dan_duoc': dict(box=tfbox((86, 21, 114, 37)), foot=tf((88, 38)), name='Đan Dược Phòng'),
+    # bên phải: chân bậc = đối xứng bên trái qua trục dọc của bệ (concept: hai bên đường cân nhau)
+    'luyen_khi': dict(box=tfbox((78, 4, 110, 21)), foot=None, name='Luyện Khí Phường'),
+    'dan_duoc': dict(box=tfbox((86, 21, 114, 37)), foot=None, name='Đan Dược Phòng'),
     'luyen_vo_choi': dict(box=tfbox((98, 39, 108, 46)), foot=tf((98, 46)), name='chòi Luyện Võ'),
 }
 BIA = dict(box=tfbox((50, 46, 66, 56)))
 BRIDGE = dict(box=tfbox((33, 54, 38, 60)))   # chỉ để ghi nhãn: đường dừng ở bờ suối, cầu đá là vật trang trí đặt trên nước
 FALLS = [tfbox(f) for f in [(5, 4, 9, 26), (31, 59, 37, 68), (80, 58, 86, 68)]]   # thác nước (vẽ trang trí, đặc)
+def mir(q): return (2 * C[0] - q[0], q[1])
+def mirs(line): return [mir(q) for q in line]
+
+
+BUILDINGS['luyen_khi']['foot'] = mir(BUILDINGS['truyen_thua']['foot'])
+BUILDINGS['dan_duoc']['foot'] = mir(BUILDINGS['tang_kinh']['foot'])
 F = {k: v['foot'] for k, v in BUILDINGS.items()}
 PATH_W = 6
 BR = tf((35.5, 55))                                                           # đầu cầu đá (bờ bắc suối)
-PEN_DOOR = tf((84.5, 43.2))
+JW, JS = (C[0] - 24, C[1] + 0.5), (C[0], C[1] + 14)                           # ngã ba tây (ngoài bậc cánh), ngã ba nam (dưới bậc nam)
+# đường đối xứng qua trục dọc của bệ: vẽ nửa trái, nửa phải là ảnh gương (concept: hai bên đường giống nhau)
+LEFT = [
+    [EXIT['w'], JW],                                                          # bậc tây -> ngã ba tây
+    [JW, (C[0] - 28, C[1] - 6), (F['truyen_thua'][0] + 2, F['truyen_thua'][1] + 2), F['truyen_thua']],   # -> tháp Truyền Thừa
+    [JW, (F['tang_kinh'][0] + 4, F['tang_kinh'][1]), F['tang_kinh']],         # -> Tàng Kinh Các
+    [JS, (C[0] - 12, JS[1]), (C[0] - 30, JS[1])],                             # ngã ba nam -> tây nam
+]
+RIGHT_END = [(C[0] + 30, JS[1]), (PEN['door'][0], JS[1]), (PEN['door'][0], PEN['door'][1] + 0.5)]   # đông nam -> cổng rào
 PATHS = [
     [EXIT['n'], (C[0], GATE['y'][1] - 1)],                                    # bậc bắc -> cổng bí cảnh
-    [EXIT['w'], (C[0] - 24, C[1] + 0.5)],                                     # bậc tây -> ngã ba tây
-    [(C[0] - 24, C[1] + 0.5), (C[0] - 28, C[1] - 6), (F['truyen_thua'][0] + 2, F['truyen_thua'][1] + 2), F['truyen_thua']],
-    [(C[0] - 24, C[1] + 0.5), (F['tang_kinh'][0] + 4, F['tang_kinh'][1]), F['tang_kinh']],
     [EXIT['s'], (C[0], BIA['box'][1] + 1)],                                   # bậc nam -> vườn bia
-    [(C[0], C[1] + 15), (C[0] - 10, C[1] + 18), (F['cong_duc'][0] + 10, F['cong_duc'][1] - 4), F['cong_duc']],   # nam -> Công Đức
-    [(F['cong_duc'][0] + 10, F['cong_duc'][1] - 4), (BR[0] + 3, BR[1] - 2), BR],                                  # -> cầu đá
-    [(C[0], C[1] + 15), (C[0] + 12, C[1] + 16), (PEN_DOOR[0] - 4, PEN_DOOR[1] - 1), (PEN_DOOR[0], PEN_DOOR[1] + 1)],   # nam -> cổng rào
-    [EXIT['e'], (C[0] + 24, C[1] + 0.5)],                                     # bậc đông -> ngã ba đông
-    [(C[0] + 24, C[1] + 0.5), (F['dan_duoc'][0] - 6, F['dan_duoc'][1]), F['dan_duoc']],
-    [(C[0] + 24, C[1] + 0.5), (C[0] + 27, C[1] - 8), (F['luyen_khi'][0] - 1, F['luyen_khi'][1] + 4), F['luyen_khi']],
+    *LEFT, *[mirs(l) for l in LEFT],
+    [(C[0] - 30, JS[1]), (F['cong_duc'][0] + 4, F['cong_duc'][1] - 2), F['cong_duc']],   # tây nam -> Công Đức Đường
+    [(F['cong_duc'][0] + 4, F['cong_duc'][1] - 2), (BR[0] + 2, BR[1] - 2), BR],          # -> cầu đá
+    RIGHT_END,
 ]
 COLORS = {'.': (78, 150, 70), '=': (190, 182, 170), '~': (70, 150, 210), 'd': (196, 160, 105), '^': (95, 95, 120), 'T': (60, 50, 100),
           'B': (170, 70, 70), 'P': (220, 220, 235), 'G': (150, 90, 200), 'X': (225, 230, 245), 'b': (130, 130, 130), 'W': (150, 210, 250)}
@@ -79,12 +91,12 @@ def build():
     poly(d, ISLAND, ord('.'))
     poly(d, FOREST, ord('T'))
     for (cx, cy), rx, ry in DIRT: d.ellipse([cx - rx, cy - ry, cx + rx, cy + ry], fill=ord('d'))
+    for b in BUILDINGS.values(): d.rectangle(b['box'], fill=ord('B'))   # chỗ chừa nhà (cỏ) — đường vẽ đè lên để tới chân bậc
     for w in WATER: poly(d, w, ord('~'))
     for line in PATHS: d.line(line, fill=ord('='), width=PATH_W, joint='curve')
     for w in WATER[1:]: poly(d, w, ord('~'))   # suối nam đè đường (đường dừng ở bờ, cầu là vật trang trí)
     c = PLAZA['c']; d.ellipse([c[0] - PLAZA['rx'], c[1] - PLAZA['ry'], c[0] + PLAZA['rx'], c[1] + PLAZA['ry']], fill=ord('P'))
     d.rectangle([GATE['x'][0], GATE['y'][0], GATE['x'][1], GATE['y'][1]], fill=ord('G'))
-    for b in BUILDINGS.values(): d.rectangle(b['box'], fill=ord('B'))
     d.rectangle(BIA['box'], fill=ord('b'))
     for f in FALLS: d.rectangle(f, fill=ord('W'))
     g = np.array(L)
@@ -117,7 +129,7 @@ def main():
     NL = chr(10)
     (ROOT / 'src/data/sect_bocuc.js').write_text('// SINH TỰ ĐỘNG bởi tools/sect_bo_cuc.py — bố cục sảnh theo concept ảnh 1 (lưới ô). Đừng sửa tay.' + NL
         + '// . cỏ, = đường đá, ~ nước, d sân đất, ^ vách núi, T rừng, B chỗ công trình, P bệ, G cổng, X mây, b vườn bia, W thác' + NL
-        + 'export const BOCUC = ' + json.dumps({"nx": NX, "ny": NY, "rows": rows, "buildings": BUILDINGS, "plaza": PLAZA, "gate": GATE, "tf": {"c_old": C_OLD, "c": C, "sx": SX, "sy": SY}}, ensure_ascii=False) + ';' + NL,
+        + 'export const BOCUC = ' + json.dumps({"nx": NX, "ny": NY, "rows": rows, "buildings": BUILDINGS, "plaza": PLAZA, "gate": GATE, "tf": {"c_old": C_OLD, "c": C, "sx": SX, "sy": SY}, "pen": PEN}, ensure_ascii=False) + ';' + NL,
         encoding='utf-8')
     (ROOT / 'docs/bo_cuc_sanh.json').write_text(json.dumps({'nx': NX, 'ny': NY, 'rows': rows, 'buildings': BUILDINGS, 'plaza': PLAZA,
                                                             'gate': GATE, 'paths': PATHS, 'falls': FALLS}, ensure_ascii=False, indent=1), encoding='utf-8')

@@ -1,14 +1,12 @@
 {
  "nx": 174,
- "ny": 106,
+ "ny": 88,
  "rows": [
   "XXXXXXXXXXXXXXXXXXXXXX^^BBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^^^TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT^^^^^^^^^^^^^^XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
   "XXXXXXXXXXXXXXXXXXXXXX^^BBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^^^TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT^^^^^^^^^^^^^^XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
   "XXXXXXXXXXXXXXXXXXXXXX^^BBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^^^TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT^^XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-  "XXXXXXXXXXXXXXXXXXXXXX^^BBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^^^TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT^^XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
   "XXXXX^^^^^^^^^^^XXXXXX^^BBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^^^TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^XXXXXXXXXXXX",
   "XXXXX^^^^^^^^^^^XXXXXX^^BBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^^^TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^XXXXXXXXXXXX",
-  "XXXXX^^WWWWWWW^^XXXXXX^^BBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^^^TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^XXXXXXXXXXXX",
   "XXXXX^^WWWWWWW^^XXXXXX^^BBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^^^TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^XXXXXXXXXXXX",
   "XXXXX^^WWWWWWW^^XXXXXX^^BBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^^^TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^XXXXXXXXXXXX",
   "XXXXX^^WWWWWWW^^XXXXXX^^BBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^^^TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^XXXXXXXXXXXX",
@@ -17,97 +15,81 @@
   "XXXXX^^WWWWWWW^^XXXXXX^^BBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^^^TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT......BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^XXXXXXXXXXXX",
   "XXXXX^^WWWWWWW^^XXXXXX^^BBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^^^TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.......BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^XXXXXXXXXXXX",
   "XXXXX^^WWWWWWW^^XXXXXX^^BBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^^^TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.........BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^XXXXXXXXXXXX",
-  "XXXXX^^WWWWWWW^^XXXXXX^^BBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^^^TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT...........BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^XXXXXXXXXXXX",
-  "XXXXX^^WWWWWWW^^XXXXXX^^BBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^^^TTTTTTTTTTTTTTT.........................................BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^^XXXXXXXXXXX",
-  "XXXXX^^WWWWWWW^^XXXXXX^^BBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^^^TTTTTTTTTTTT.............GGGGGGGGGGGG...................BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^^XXXXXXXXXXX",
-  "XXXXX^^WWWWWWW^^XXXXXX^^BBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^^^TTTTTTTT.................GGGGGGGGGGGG...................BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB.^^^XXXXXXXXXX",
+  "XXXXX^^WWWWWWW^^XXXXXX^^BBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^^^TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT...........BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^^XXXXXXXXXXX",
+  "XXXXX^^WWWWWWW^^XXXXXX^^BBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^^^TTTTTTTTTTTTTT...........GGGGGGGGGGGG...................BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^^XXXXXXXXXXX",
+  "XXXXX^^WWWWWWW^^XXXXXX^^BBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^^^TTTTTTTTTT...............GGGGGGGGGGGG...................BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB.^^^XXXXXXXXXX",
   "XXXXX^^WWWWWWW^^^^^^^^^^BBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^^^TTTTT....................GGGGGGGGGGGG...................BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB.^^^^XXXXXXXXX",
   "XXXXX^^WWWWWWW^^^^^^^^^^BBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^^^T........................GGGGGGGGGGGG...................BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB..^^^XXXXXXXXX",
   "XXXXX^^WWWWWWW^^^.......BBBBBBBBBBBBBBBBBBBBBBBBBBBBB.............................GGGGGGGGGGGG...................BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB...^^XXXXXXXXX",
   "XXXXX^^WWWWWWW^^^.......BBBBBBBBBBBBBBBBBBBBBBBBBBBBB.............................GGGGGGGGGGGG...................BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB...^^XXXXXXXXX",
-  "XXXXX^^WWWWWWW^^^.......BBBBBBBBBBBBBBBBBBBBBBBBBBBBB.............................GGGGGGGGGGGG...................BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB...^^XXXXXXXXX",
   "XXXXX^^WWWWWWW^^........BBBBBBBBBBBBBBBBBBBBBBBBBBBBB.............................GGGGGGGGGGGG...................BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB...^^^XXXXXXXX",
   "XXXXX^^WWWWWWW^^........BBBBBBBBBBBBBBBBBBBBBBBBBBBBB.............................GGGGGGGGGGGG...................BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB...^^^XXXXXXXX",
   "XXXXX^^WWWWWWW^^........BBBBBBBBBBBBBBBBBBBBBBBBBBBBB.............................GGGGGGGGGGGG...................BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB....^^XXXXXXXX",
   "XXXXX^^WWWWWWW^^........BBBBBBBBBBBBBBBBBBBBBBBBBBBBB.............................GGGGGGGGGGGG...................BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB....^^XXXXXXXX",
-  "XXXXX^^WWWWWWW^.........BBBBBBBBBBBBBBBBBBBBBBBBBBBBB.............................GGGGGGGGGGGG...................BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB....^^XXXXXXXX",
   "XXXXX^^WWWWWWW^.........BBBBBBBBBBBBBBBBBBBBBBBBBBBBB~~~~~~~~~~~~~~~..............GGGGGGGGGGGG...................BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB....^^XXXXXXXX",
-  "XXXXX^^WWWWWWW^.........BBBBBBBBBBBBBBBBBBBBBBBBBBBBB~~~~~~~~~~~~~~~................======.......................BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB....^^^^XXXXXX",
+  "XXXXX^^WWWWWWW^.........BBBBBBBBBBBBBBBBBBBBBBBBBBBBB~~~~~~~~~~~~~~~..............GGGGGGGGGGGG...................BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB....^^^^XXXXXX",
   "XXXXX^^WWWWWWW^.........BBBBBBBBBBBBBBBBBBBBBBBBBBBBB~~~~~~~~~~~~~~~~...............======.......................BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB....^^^^XXXXXX",
   "XXXXX^^WWWWWWWBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB~~~~~~~~~~~~~~~~...............======.......................BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^XXXXXX",
-  "XXXXX^^WWWWWWWBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB....~~~~~~~~~~~~~~~...............======......................=...........BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^XXXXXX",
-  "XXXXX^^WWWWWWWBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB....~~~~~~~~~~~~~~~~..............======......................======......BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^XXXXXX",
-  "XXXXX^^WWWWWWWBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB.=..~~~~~~~~~~~~~~~~..............======......................======......BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^XXXXXX",
-  "XXXXX^^WWWWWWWBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB===.~~~~~~~~~~~~~~................======.....................======.......BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^XXXXXX",
-  "XXXXX^^WWWWWWWBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB====~~~~~~~~~~~~..................======.....................======.......BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^XXXXXX",
-  "XXXXX^^WWWWWWWBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=====........~....................======.....................======.......BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^XXXXXX",
-  "XXXXX^^WWWWWWWBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB======............................======.....................======.......BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^XXXXXX",
-  "XXXXX^^WWWWWWWBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=======...........................======.....................======.......BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^XXXXXX",
-  "XXXXX^^^^^^^^.BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=========.........................======.....................======.......BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^XXXXXX",
-  "XXXXX^^^^^^^^.BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB.=========.......................PPPPPPPPP...................======.......BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^XXXXXX",
-  "XXXXXXX^^^^^..BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB..==========..................PPPPPPPPPPPPPPP................======.......BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^XXXXXX",
-  "XXXXXXX^^^^^..BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB....=========...............PPPPPPPPPPPPPPPPPPP.............=======.......BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^XXXXXX",
-  "XXXXXXX^^^^^..BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB.....========.............PPPPPPPPPPPPPPPPPPPPPPP...........=======.......BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^XXXXXX",
-  "XXXXXXX^^^^^..BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB......========...........PPPPPPPPPPPPPPPPPPPPPPPPP..........======........BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^XXXXXX",
-  "XXXXXXX^^^^^..BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB.......========.........PPPPPPPPPPPPPPPPPPPPPPPPPPP........=======........BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^XXXXXX",
-  "XXXXXXX^^^^^..BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB........=============...PPPPPPPPPPPPPPPPPPPPPPPPPPP........======.........BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^XXXXXX",
-  "XXXXXXX^^^^...BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB.........============..PPPPPPPPPPPPPPPPPPPPPPPPPPPPP...==========.........BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^XXXXXX",
-  "XXXXXXXXX^^...BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB.........============..PPPPPPPPPPPPPPPPPPPPPPPPPPPPP...==========.........BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^XXXXXX",
-  "XXXXXXXXX^^...BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB.......==============..PPPPPPPPPPPPPPPPPPPPPPPPPPPPP...============.......BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^XXXXXX",
-  "XXXXXXXXX^^...BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB.....================..PPPPPPPPPPPPPPPPPPPPPPPPPPPPP...=============......BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^XXXXXX",
-  "XXXXXXXXX^^...BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB....=================..PPPPPPPPPPPPPPPPPPPPPPPPPPPPP...===============....BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^XXXXXX",
-  "XXXXXXXXX^^...BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB==============..........PPPPPPPPPPPPPPPPPPPPPPPPPPP....================...BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^XXXXXX",
-  "XXXXXXXXX^^...BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=============...........PPPPPPPPPPPPPPPPPPPPPPPPPPP............==========.BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^XXXXXX",
-  "XXXXXXXXX^^^..BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB===========..............PPPPPPPPPPPPPPPPPPPPPPPPP..............==========BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^XXXXXX",
-  "XXXXXXXXX^^^..BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=========.................PPPPPPPPPPPPPPPPPPPPPPP.................========BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^XXXXXX",
-  "XXXXXXXXXX^^.....................................=========....................PPPPPPPPPPPPPPPPPPP....................===========....................................^^^^XXXXXX",
-  "XXXXXXXXXX^^.....................................=======........................PPPPPPPPPPPPPPP........................=========...................................^^^^^XXXXXX",
-  "XXXXXXXXXX^^.......................................................................PPPPPPPPP............................========..............BBBBBBBBBBBBBBB......^^^XXXXXXXX",
-  "XXXXXXXXXX^^.............................................................................................................=======..............BBBBBBBBBBBBBBB......^^^XXXXXXXX",
+  "XXXXX^^WWWWWWWBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB....~~~~~~~~~~~~~~~...............======..................................BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^XXXXXX",
+  "XXXXX^^WWWWWWWBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB.=..~~~~~~~~~~~~~~~~..............======..................................BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^XXXXXX",
+  "XXXXX^^WWWWWWWBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB====~~~~~~~~~~~~~~~~..............======................................=.BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^XXXXXX",
+  "XXXXX^^WWWWWWWBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=======~~~~~~~~~~~.................======...............................===BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^XXXXXX",
+  "XXXXX^^WWWWWWWBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=========......~....................======.............................======BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^XXXXXX",
+  "XXXXX^^WWWWWWWBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB==========.........................======............................========BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^XXXXXX",
+  "XXXXX^^WWWWWWWBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB===========......................PPPPPPPPP........................=========BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^XXXXXX",
+  "XXXXX^^^^^^^^.BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB.===========..................PPPPPPPPPPPPPPP...................==========BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^XXXXXX",
+  "XXXXX^^^^^^^^.BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB...==========...............PPPPPPPPPPPPPPPPPPP................===========BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^XXXXXX",
+  "XXXXXXX^^^^^..BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB.....========.............PPPPPPPPPPPPPPPPPPPPPPP.............==========..BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^XXXXXX",
+  "XXXXXXX^^^^^..BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB......========...........PPPPPPPPPPPPPPPPPPPPPPPPP............========....BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^XXXXXX",
+  "XXXXXXX^^^^^..BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB........=======.........PPPPPPPPPPPPPPPPPPPPPPPPPPP..........========.....BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^XXXXXX",
+  "XXXXXXX^^^^^..BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB........=============...PPPPPPPPPPPPPPPPPPPPPPPPPPP.........=======.......BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^XXXXXX",
+  "XXXXXXX^^^^^..BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB.........============..PPPPPPPPPPPPPPPPPPPPPPPPPPPPP...============.......BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^XXXXXX",
+  "XXXXXXX^^^^...BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB........=============..PPPPPPPPPPPPPPPPPPPPPPPPPPPPP...===========........BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^XXXXXX",
+  "XXXXXXX^^^^...BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB......===============..PPPPPPPPPPPPPPPPPPPPPPPPPPPPP...============.......BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^XXXXXX",
+  "XXXXXXXXX^^...BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB....=================..PPPPPPPPPPPPPPPPPPPPPPPPPPPPP...==============.....BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^XXXXXX",
+  "XXXXXXXXX^^...BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB======================..PPPPPPPPPPPPPPPPPPPPPPPPPPPPP...================...BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^XXXXXX",
+  "XXXXXXXXX^^...BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB==============...........PPPPPPPPPPPPPPPPPPPPPPPPPPP....=====================BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^XXXXXX",
+  "XXXXXXXXX^^^..BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB============.............PPPPPPPPPPPPPPPPPPPPPPPPPPP...........==============BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^XXXXXX",
+  "XXXXXXXXX^^^..BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB==========................PPPPPPPPPPPPPPPPPPPPPPPPP..............============BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB^^XXXXXX",
+  "XXXXXXXXXX^^.....................................========...................PPPPPPPPPPPPPPPPPPPPPPP.................==========......................................^^^^XXXXXX",
+  "XXXXXXXXXX^^.....................................======.......................PPPPPPPPPPPPPPPPPPP.....................========.....................................^^^^^XXXXXX",
+  "XXXXXXXXXX^^....................................................................PPPPPPPPPPPPPPP.........................======................BBBBBBBBBBBBBBB......^^^XXXXXXXX",
+  "XXXXXXXXXX^^^.......BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB........................PPPPPPPPP..................................................BBBBBBBBBBBBBBB......^^^XXXXXXXX",
   "XXXXXXXXXX^^^.......BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB...................................................................................BBBBBBBBBBBBBBB......^^^XXXXXXXX",
-  "XXXXXXXXXX^^^.......BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB...........................=...............................==......................BBBBBBBBBBBBBBB.......^^XXXXXXXX",
-  "XXXXXXXXXXX^^.......BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB........................========..................=============....................BBBBBBBBBBBBBBB.......^^^XXXXXXX",
-  "XXXXXXXXXXX^^.......BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB....................=============================================..................BBBBBBBBBBBBBBB.......^^^XXXXXXX",
-  "XXXXXXXXXXX^^.......BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB.................================================================.......dddddddddddBBBBBBBBBBBBBBB........^^XXXXXXX",
-  "XXXXXXXXXXX^^.......BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB...............=================================================...ddddddddddddddddBBBBBBBBBBBBBBB........^^XXXXXXX",
-  "XXXXXXXXXXX^^^......BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB............====================================================.ddddddddddddddddddBBBBBBBBBBBBBBB........^^^XXXXXX",
-  "XXXXXXXXXXX^^^......BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB..........========================================..........===ddddddddddddddddddddBBBBBBBBBBBBBBB........^^^XXXXXX",
-  "XXXXXXXXXXXX^^......BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB........===============...======........=....................d=ddddddddddddddddddddBBBBBBBBBBBBBBB.........^^XXXXXX",
-  "XXXXXXXXXXXX^^......BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB.....========bbbbbbbbbbbbbbbbbbbbbbbb......................ddddddddddddddddddddddddBBBBBBBBBBBBBBB.........^^^XXXXX",
-  "XXXXXXXXXXXX^^^.....BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB...==========bbbbbbbbbbbbbbbbbbbbbbbb.....................ddddddddddddddddddddddddddddddddddddddddd........^^^XXXXX",
-  "XXXXXXXXXXXX^^^.....BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB.============bbbbbbbbbbbbbbbbbbbbbbbb.....................ddddddddddddddddddddddddddddddddddddddddd.........^^XXXXX",
-  "XXXXXXXXXXXXX^^^....BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=============bbbbbbbbbbbbbbbbbbbbbbbb....................ddddddddddddddddddddddddddddddddddddddddddd........^^^XXXX",
-  "XXXXXXXXXXXXX^^^....BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB===========..bbbbbbbbbbbbbbbbbbbbbbbb...................ddddddddddddddddddddddddddddddddddddddddddddd.......^^^XXXX",
-  "XXXXXXXXXXXXX^^^^...BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB========.....bbbbbbbbbbbbbbbbbbbbbbbb...................ddddddddddddddddddddddddddddddddddddddddddddd........^^XXXX",
-  "XXXXXXXXXXXXXX^^^...BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB======.......bbbbbbbbbbbbbbbbbbbbbbbb...................ddddddddddddddddddddddddddddddddddddddddddddd........^^XXXX",
-  "XXXXXXXXXXXXXX^^^^..BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB====.........bbbbbbbbbbbbbbbbbbbbbbbb...................ddddddddddddddddddddddddddddddddddddddddddddd.......^^^XXXX",
-  "XXXXXXXXXXXXXX^^^^..BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=............bbbbbbbbbbbbbbbbbbbbbbbb...................ddddddddddddddddddddddddddddddddddddddddddddd.......^^^XXXX",
-  "XXXXXXXXXXXXXX^^^^^.BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=............bbbbbbbbbbbbbbbbbbbbbbbb....................ddddddddddddddddddddddddddddddddddddddddddd.......^^^XXXXX",
-  "XXXXXXXXXXXXXXX^^^^...........................=============.............bbbbbbbbbbbbbbbbbbbbbbbb.....................ddddddddddddddddddddddddddddddddddddddddd.......^^^^XXXXX",
-  "XXXXXXXXXXXXXXX^^^^^..........................=============.............bbbbbbbbbbbbbbbbbbbbbbbb.....................ddddddddddddddddddddddddddddddddddddddddd.......^^^XXXXXX",
-  "XXXXXXXXXXXXXXXX^^^^...........................===========..............bbbbbbbbbbbbbbbbbbbbbbbb......................ddddddddddddddddddddddddddddddddddddddd.......^^^^XXXXXX",
-  "XXXXXXXXXXXXXXXX^^^^^..........................=...=======..............bbbbbbbbbbbbbbbbbbbbbbbb........................ddddddddddddddddddddddddddddddddddd........^^^^^XXXXXX",
-  "XXXXXXXXXXXXXXXXX^^^^...............................=====~..............bbbbbbbbbbbbbbbbbbbbbbbb.........................ddddddddddddddddddddddddddddddddd.........^^^^^XXXXXX",
-  "XXXXXXXXXXXXXXXXX^^^^^...............~~~~~~~~~~~~~~~~~~~~~~~~~~~~~......bbbbbbbbbbbbbbbbbbbbbbbb............................ddddddddddddddddddddddddddd...........^^^^^^XXXXXX",
-  "XXXXXXXXXXXXXXXXXX^^^^^^^^^...........~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~bbbbbbbbbbbbbbbbbbbbbbbb..............................ddddddddddddddddddddddd............^^^^^^XXXXXXX",
-  "XXXXXXXXXXXXXXXXXX^^^^^^^^^^^^^^.......~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~..................................................ddddddddddddd.................^^^^^^XXXXXXX",
-  "XXXXXXXXXXXXXXXXXXX^^^^^^^^^^^^^^^^^^...~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~............................................^^^^^^XXXXXXXX",
-  "XXXXXXXXXXXXXXXXXXX^^^^^^^^^^^^^^^^^^^^^^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~WWWWWWWWW...............................^^^^^^^^^XXXXXXXXX",
-  "XXXXXXXXXXXXXXXXXXXX^^^^^^^^^^^^^^^^^^^^^^~~~WWWWWWWWW~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~WWWWWWWWW............................^^^^^^^^^^^^XXXXXXXXX",
-  "XXXXXXXXXXXXXXXXXXXX^^^^^^^^^^^^^^^^^^^^^^^~~WWWWWWWWW~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~WWWWWWWWW........................^^^^^^^^^^^^^^^XXXXXXXXXX",
-  "XXXXXXXXXXXXXXXXXXXXX^^^^^^^^^^^^^^^^^^^^^^^^WWWWWWWWW^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~WWWWWWWWW^^...................^^^^^^^^^^^^^^^^^XXXXXXXXXXX",
-  "XXXXXXXXXXXXXXXXXXXXX^^^^^^^^^^^^^^^^^^^^^^^^WWWWWWWWW^^^^^^^^^^^^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^WWWWWWWWW^^^^^^^..........^^^^^^^^^^^^^^^^^^^^^XXXXXXXXXXX",
-  "XXXXXXXXXXXXXXXXXXXXXX^^^^^^^^^^^^^^^^^^^^^^^WWWWWWWWW^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^~^^^^^^^^^^^WWWWWWWWW^^^^^^^^^^^^^.^^^^^^^^^^^^^^^^^^^^^^^XXXXXXXXXXXX",
-  "XXXXXXXXXXXXXXXXXXXXXXXXXXX^^^^^^^^^^^^^^^^^^WWWWWWWWW^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^WWWWWWWWW^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^XXXXXXXXXXXXX",
+  "XXXXXXXXXXX^^.......BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB===============================......................................................BBBBBBBBBBBBBBB.......^^^XXXXXXX",
+  "XXXXXXXXXXX^^.......BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=B==================================================================...................BBBBBBBBBBBBBBB.......^^^XXXXXXX",
+  "XXXXXXXXXXX^^.......BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB======================================================================..................BBBBBBBBBBBBBBB........^^XXXXXXX",
+  "XXXXXXXXXXX^^^......BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=======================================================================.................BBBBBBBBBBBBBBB........^^^XXXXXX",
+  "XXXXXXXXXXX^^^......BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB========================================================================......dddddddddddBBBBBBBBBBBBBBB........^^^XXXXXX",
+  "XXXXXXXXXXXX^^......BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=========================================================================.ddddddddddddddddBBBBBBBBBBBBBBB.........^^XXXXXX",
+  "XXXXXXXXXXXX^^^.....BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=======.............bbbbbbbbbbbbbbbbbbbbbbbb=============================dddddddddddddddddBBBBBBBBBBBBBBB.........^^^XXXXX",
+  "XXXXXXXXXXXX^^^.....BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=======B.............bbbbbbbbbbbbbbbbbbbbbbbb........................ddddddddddddddddddddddddddddddddddd...........^^^XXXXX",
+  "XXXXXXXXXXXXX^^^....BBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=======BB.............bbbbbbbbbbbbbbbbbbbbbbbb.......................ddddddddddddddddddddddddddddddddddddd...........^^^XXXX",
+  "XXXXXXXXXXXXX^^^....BBBBBBBBBBBBBBBBBBBBBBBBBBBBB=======BBB.............bbbbbbbbbbbbbbbbbbbbbbbb......................ddddddddddddddddddddddddddddddddddddddd..........^^^XXXX",
+  "XXXXXXXXXXXXX^^^^...BBBBBBBBBBBBBBBBBBBBBBBBBBBBB=======BBB.............bbbbbbbbbbbbbbbbbbbbbbbb.....................ddddddddddddddddddddddddddddddddddddddddd..........^^XXXX",
+  "XXXXXXXXXXXXX^^^^^..BBBBBBBBBBBBBBBBBBBBBBBBBBB========BBBB.............bbbbbbbbbbbbbbbbbbbbbbbb....................ddddddddddddddddddddddddddddddddddddddddddd.........^^XXXX",
+  "XXXXXXXXXXXXXX^^^^..BBBBBBBBBBBBBBBBBBBBBBBBB=========BBBBB.............bbbbbbbbbbbbbbbbbbbbbbbb...................ddddddddddddddddddddddddddddddddddddddddddddd.......^^^XXXX",
+  "XXXXXXXXXXXXXX^^^^^.BBBBBBBBBBBBBBBBBBBBBBBBB===========BBB.............bbbbbbbbbbbbbbbbbbbbbbbb...................ddddddddddddddddddddddddddddddddddddddddddddd......^^^^XXXX",
+  "XXXXXXXXXXXXXX^^^^^^BBBBBBBBBBBBBBBBBBBBBBBBBB==========BBB.............bbbbbbbbbbbbbbbbbbbbbbbb...................ddddddddddddddddddddddddddddddddddddddddddddd......^^^XXXXX",
+  "XXXXXXXXXXXXXXX^^^^^..........................==========................bbbbbbbbbbbbbbbbbbbbbbbb...................ddddddddddddddddddddddddddddddddddddddddddddd.....^^^XXXXXX",
+  "XXXXXXXXXXXXXXX^^^^^^..........................===.=====................bbbbbbbbbbbbbbbbbbbbbbbb....................ddddddddddddddddddddddddddddddddddddddddddd.....^^^^XXXXXX",
+  "XXXXXXXXXXXXXXXX^^^^^..........................=....===..~..............bbbbbbbbbbbbbbbbbbbbbbbb.....................ddddddddddddddddddddddddddddddddddddddddd.....^^^^^XXXXXX",
+  "XXXXXXXXXXXXXXXX^^^^^^...............~~~~~~~~~~~~~~~~~~~~~~~~~~~~~......bbbbbbbbbbbbbbbbbbbbbbbb......................ddddddddddddddddddddddddddddddddddddddd.....^^^^^^XXXXXX",
+  "XXXXXXXXXXXXXXXXX^^^^^^^^^^...........~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~bbbbbbbbbbbbbbbbbbbbbbbb.......................ddddddddddddddddddddddddddddddddddddd......^^^^^^XXXXXX",
+  "XXXXXXXXXXXXXXXXXX^^^^^^^^^^^^^^.......~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~.......................................ddddddddddddddddddddddddddddddddddd......^^^^^^^XXXXXX",
+  "XXXXXXXXXXXXXXXXXX^^^^^^^^^^^^^^^^^^^...~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~.......ddddddddddddddddddddddddddddd........^^^^^^^XXXXXXX",
+  "XXXXXXXXXXXXXXXXXXX^^^^^^^^^^^^^^^^^^^^^^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~WWWWWWWWW.ddddddddddddddddddddddd.......^^^^^^^^^^XXXXXXXX",
+  "XXXXXXXXXXXXXXXXXXXX^^^^^^^^^^^^^^^^^^^^^^~~~WWWWWWWWW~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~WWWWWWWWW......ddddddddddddd........^^^^^^^^^^^^^^XXXXXXXX",
+  "XXXXXXXXXXXXXXXXXXXX^^^^^^^^^^^^^^^^^^^^^^^~~WWWWWWWWW~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~WWWWWWWWW......................^^^^^^^^^^^^^^^^^^XXXXXXXXX",
+  "XXXXXXXXXXXXXXXXXXXXX^^^^^^^^^^^^^^^^^^^^^^^^WWWWWWWWW^^^^^^^^^^^^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^WWWWWWWWW^^^^^.............^^^^^^^^^^^^^^^^^^^^^XXXXXXXXXX",
+  "XXXXXXXXXXXXXXXXXXXXX^^^^^^^^^^^^^^^^^^^^^^^^WWWWWWWWW^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^~^^^^^^^^^^^WWWWWWWWW^^^^^^^^^^^^^.^^^^^^^^^^^^^^^^^^^^^^^^XXXXXXXXXXX",
+  "XXXXXXXXXXXXXXXXXXXXXX^^^^^^^^^^^^^^^^^^^^^^^WWWWWWWWW^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^WWWWWWWWW^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^XXXXXXXXXXXX",
+  "XXXXXXXXXXXXXXXXXXXXXXXXXXX^^^^^^^^^^^^^^^^^^WWWWWWWWW^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^WWWWWWWWW^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^XXXXXXXXXXXX",
   "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX^^^^^^^^^^^^^WWWWWWWWW^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^WWWWWWWWW^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^XXXXXXXXXXXXX",
   "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX^^^^^^^^WWWWWWWWW^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^WWWWWWWWW^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^XXXXXXXXXXXXXX",
   "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX^^^^WWWWWWWWW^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^WWWWWWWWW^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^XXXXXXXXXXXXXXXXXX",
-  "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX^^^WWWWWWWWW^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^WWWWWWWWW^^^^^^^^^^^^^^^^^^^^^^^^^^^^XXXXXXXXXXXXXXXXXXXXX",
-  "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX^^WWWWWWWWW^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^WWWWWWWWW^^^^^^^^^^^^^^^^^^^^^^^^XXXXXXXXXXXXXXXXXXXXXXXXX",
-  "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX^^WWWWWWWWW^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^WWWWWWWWW^^^^^^^^^^^^^^^^^^^^^XXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-  "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX^^WWWWWWWWW^^XXXXXXXXXX^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^XXX^^WWWWWWWWW^^XXXXX^^^^^^^^^^XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-  "XXXXXXXXXXXXXXXXXXXXXX^^^^^^^^^^^^^^^^^^^^^^^WWWWWWWWW^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^WWWWWWWWW^^XXXXXXXXXXX^XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-  "XXXXXXXXXXXXXXXXXXXXXX^^^^^^^^^^^^^^^^^^^^^^^WWWWWWWWW^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^WWWWWWWWW^^XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+  "XXXXXXXXXXXXXXXXXXXXXX^^^^^^^^^^^^^^^^^^^^^^^WWWWWWWWW^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^WWWWWWWWW^^^^^^^^^^^^^^^^^^^^^^^^^^^XXXXXXXXXXXXXXXXXXXXXX",
+  "XXXXXXXXXXXXXXXXXXXXXX^^^^^^^^^^^^^^^^^^^^^^^WWWWWWWWW^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^WWWWWWWWW^^^^^^^^^^^^^^^^^^^^^^XXXXXXXXXXXXXXXXXXXXXXXXXXX"
  ],
  "buildings": {
   "truyen_thua": {
@@ -115,76 +97,76 @@
     24,
     0,
     52,
-    32
+    27
    ],
    "foot": [
     50.525,
-    37.05
+    31.299999999999997
    ],
    "name": "Truyền Thừa Các (tháp)"
   },
   "tang_kinh": {
    "box": [
     14,
-    32,
+    27,
     49,
-    57
+    48
    ],
    "foot": [
     49.075,
-    57.2
+    48.2
    ],
    "name": "Tàng Kinh Các"
   },
   "cong_duc": {
    "box": [
     20,
-    62,
+    52,
     58,
-    80
+    68
    ],
    "foot": [
     46.175000000000004,
-    82.0
+    69.0
    ],
    "name": "Công Đức Đường"
   },
   "luyen_khi": {
    "box": [
     113,
-    6,
+    5,
     159,
-    32
+    27
    ],
    "foot": [
-    115.775,
-    33.95
+    124.475,
+    31.299999999999997
    ],
    "name": "Luyện Khí Phường"
   },
   "dan_duoc": {
    "box": [
     124,
-    32,
+    27,
     165,
-    57
+    48
    ],
    "foot": [
-    127.375,
-    58.75
+    125.925,
+    48.2
    ],
    "name": "Đan Dược Phòng"
   },
   "luyen_vo_choi": {
    "box": [
     142,
-    60,
+    51,
     156,
-    71
+    60
    ],
    "foot": [
     141.875,
-    71.15
+    59.900000000000006
    ],
    "name": "chòi Luyện Võ"
   }
@@ -192,7 +174,7 @@
  "plaza": {
   "c": [
    87.5,
-   51
+   43
   ],
   "rx": 14,
   "ry": 9
@@ -203,184 +185,204 @@
    93
   ],
   "y": [
-   17,
-   29
+   14,
+   25
   ]
  },
  "paths": [
   [
    [
     87.5,
-    43
+    35
    ],
    [
     87.5,
-    28
+    24
+   ]
+  ],
+  [
+   [
+    87.5,
+    56
+   ],
+   [
+    87.5,
+    61
    ]
   ],
   [
    [
     70.0,
-    51.5
+    43.5
    ],
    [
     63.5,
-    51.5
+    43.5
    ]
   ],
   [
    [
     63.5,
-    51.5
+    43.5
    ],
    [
     59.5,
-    45
+    37
    ],
    [
     52.525,
-    39.05
+    33.3
    ],
    [
     50.525,
-    37.05
+    31.299999999999997
    ]
   ],
   [
    [
     63.5,
-    51.5
+    43.5
    ],
    [
     53.075,
-    57.2
+    48.2
    ],
    [
     49.075,
-    57.2
+    48.2
    ]
   ],
   [
    [
     87.5,
-    64
+    57
    ],
    [
-    87.5,
-    72
-   ]
-  ],
-  [
-   [
-    87.5,
-    66
+    75.5,
+    57
    ],
    [
-    77.5,
-    69
-   ],
-   [
-    56.175000000000004,
-    78.0
-   ],
-   [
-    46.175000000000004,
-    82.0
-   ]
-  ],
-  [
-   [
-    56.175000000000004,
-    78.0
-   ],
-   [
-    54.25,
-    83.1
-   ],
-   [
-    51.25,
-    85.1
-   ]
-  ],
-  [
-   [
-    87.5,
-    66
-   ],
-   [
-    99.5,
-    67
-   ],
-   [
-    118.3,
-    65.81
-   ],
-   [
-    122.3,
-    67.81
+    57.5,
+    57
    ]
   ],
   [
    [
     105.0,
-    51.5
+    43.5
    ],
    [
     111.5,
-    51.5
+    43.5
    ]
   ],
   [
    [
     111.5,
-    51.5
+    43.5
    ],
    [
-    121.375,
-    58.75
+    115.5,
+    37
    ],
    [
-    127.375,
-    58.75
+    122.475,
+    33.3
+   ],
+   [
+    124.475,
+    31.299999999999997
    ]
   ],
   [
    [
     111.5,
-    51.5
+    43.5
    ],
    [
-    114.5,
-    43
+    121.925,
+    48.2
    ],
    [
-    114.775,
-    37.95
+    125.925,
+    48.2
+   ]
+  ],
+  [
+   [
+    87.5,
+    57
    ],
    [
-    115.775,
-    33.95
+    99.5,
+    57
+   ],
+   [
+    117.5,
+    57
+   ]
+  ],
+  [
+   [
+    57.5,
+    57
+   ],
+   [
+    50.175000000000004,
+    67.0
+   ],
+   [
+    46.175000000000004,
+    69.0
+   ]
+  ],
+  [
+   [
+    50.175000000000004,
+    67.0
+   ],
+   [
+    53.25,
+    69.6
+   ],
+   [
+    51.25,
+    71.6
+   ]
+  ],
+  [
+   [
+    117.5,
+    57
+   ],
+   [
+    121.5,
+    57
+   ],
+   [
+    121.5,
+    60.7
    ]
   ]
  ],
  "falls": [
   [
    7,
-   6,
+   5,
    13,
-   40
+   34
   ],
   [
    45,
-   91,
+   77,
    53,
-   105
+   88
   ],
   [
    116,
-   90,
+   76,
    124,
-   105
+   88
   ]
  ]
 }
