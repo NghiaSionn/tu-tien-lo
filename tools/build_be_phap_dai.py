@@ -32,7 +32,7 @@ WING_E = [(MIRROR - x, y) for x, y in WING_W]
 F = 1.6 / CLEAN                  # các khung dưới đo trên bản 1.6
 sc = lambda v: tuple(round(c * F, 1) for c in v)
 AIR = [sc(r) for r in [(128, 0, 215, 150), (518, 0, 593, 150)]]            # vải cờ phía bắc: trên không, không chặn
-KEEP = [sc(r) for r in [(112, 268, 198, 410), (540, 268, 626, 410)]]       # cờ phía nam treo trên cánh: giữ ở lớp che
+KEEP = [sc(r) for r in [(86, 255, 224, 410), (514, 255, 652, 410)]]        # cờ phía nam treo trên cánh: giữ ở lớp che (rộng đủ 2 núm tròn)
 BANNERS = [sc(b) for b in [(124, 0, 219, 190, 190), (514, 0, 597, 190, 190), (112, 268, 198, 472, 472), (540, 268, 626, 472, 472)]]
 FLOOR_BOTTOM = 341 * K        # mép nam mặt sàn (chỗ bắt đầu bậc nam)
 PILLARS = [k1(r) for r in [(38, 250, 76, 335)]]   # trụ khắc chữ đầu cánh tây (đối xứng sang đông) — nguồn che duy nhất cần tránh
@@ -44,8 +44,9 @@ FOOT = 10                       # (không dùng nữa: 14/11 mọi phần bệ n
 # vùng bậc (px sprite) cho mẹo "cầu thang 2D" (video UnitOfTime): đi ngang trên bậc nghiêng thì cộng lệch dọc kx·dx (xuống bậc = xuống màn
 # hình) và chậm lại; bậc thẳng bắc/nam chỉ chậm lại. kx tây: đi trái (dx<0) -> dy>0
 STAIR_W = k1((4, 214, 62, 302))
-STAIR_ZONES = [dict(r=STAIR_W, kx=-0.88), dict(r=(MIRROR - STAIR_W[2], STAIR_W[1], MIRROR - STAIR_W[0], STAIR_W[3]), kx=0.88),
-               dict(r=RECTS[0], kx=0), dict(r=RECTS[1], kx=0)]
+# upx/upy: hướng LEO LÊN bệ (tây: đi phải; đông: đi trái; bậc nam: đi lên màn hình; bậc bắc: đi xuống màn hình)
+STAIR_ZONES = [dict(r=STAIR_W, kx=-0.88, upx=1, upy=0), dict(r=(MIRROR - STAIR_W[2], STAIR_W[1], MIRROR - STAIR_W[0], STAIR_W[3]), kx=0.88, upx=-1, upy=0),
+               dict(r=RECTS[0], kx=0, upx=0, upy=-1), dict(r=RECTS[1], kx=0, upx=0, upy=1)]
 STAIR_SLOW = 0.8
 T, C = 16, 4                    # ô bản đồ, ô mịn
 
@@ -96,15 +97,14 @@ def main():
     # cờ phía nam: chỉ giữ ĐIỂM ẢNH CỜ (vải kem/vàng, cán vàng, hoa văn xanh, ngọc + viền tối sát chúng), không lấy cả khung
     # (khung chữ nhật cũ ôm cả sàn đá cánh -> sàn đè lên nhân vật như cùng lớp với cờ)
     r_, g_, b_ = [a[..., i].astype(int) for i in range(3)]
-    inK = mask(W, H, rects=KEEP)
-    tint = alpha & ((r_ - b_ > 18) | ((b_ - r_ > 35) & (b_ > 110))) & inK
-    # cờ = màu cờ + viền tối sát màu cờ (nối núm tròn/ngọc vào thân cờ); giữ các mảng liền >= 30 px -> bỏ vụn rêu/vệt vàng trên sàn
-    cand = tint | (morph(tint, 2, 'dilate') & alpha & (lum < 90) & inK)
-    keep = np.zeros_like(cand); seen = np.zeros_like(cand)
-    for y0, x0 in zip(*np.where(cand)):
-        if seen[y0, x0]: continue
-        comp = flood(cand & ~seen, (x0, y0)); seen |= comp
-        if comp.sum() >= 30: keep |= comp
+    # cờ phía nam: đa giác bao đúng hình cờ (ngọc, thanh ngang + 2 núm tròn, vải, cán) đo tay trên bản --scale 2.1, đối xứng sang đông;
+    # trong đa giác bỏ điểm ảnh màu sàn đá (xám sáng, b ≳ r) lọt giữa các núm. Cách lọc màu cũ lẫn đá ấm của cánh / mất núm
+    q = 2.1 / CLEAN
+    FW = [(109, 212), (129, 212), (131, 224), (142, 223), (145, 236), (136, 243), (136, 300), (126, 312), (126, 326), (114, 326),
+          (114, 312), (100, 300), (100, 243), (90, 239), (87, 227), (99, 223), (107, 224)]
+    FW = [(x * q, y * q) for x, y in FW]; FE = [(MIRROR - x, y) for x, y in FW]
+    stone = (lum > 120) & ((b_ - r_) > -3) & ((b_ - r_) < 25)
+    keep = alpha & mask(W, H, [FW, FE]) & ~stone
     front = a.copy(); front[walk & ~keep] = 0
     Image.fromarray(front).save(ROOT / 'sprites/tm_be_front.png')
     fm = np.zeros((H, W, 4), np.uint8); fm[keep] = 255

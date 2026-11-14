@@ -108,7 +108,7 @@ export function makeSectMap(S = SECT) {
   };
   // vùng bậc thang của bệ (mẹo cầu thang 2D): trả {kx, slow} nếu (x, y) nằm trên bậc
   const sx0 = fx0 + (P0.pad || 0), sy0 = fy0 + (P0.pad || 0);
-  m.stairAt = (x, y) => { for (const z of P0.stairs || []) { const [a, b, c, d] = z.r; if (x >= sx0 + a && x <= sx0 + c && y >= sy0 + b && y <= sy0 + d) return { kx: z.kx, slow: P0.stairSlow || 1 }; } return null; };
+  m.stairAt = (x, y) => { for (const z of P0.stairs || []) { const [a, b, c, d] = z.r; if (x >= sx0 + a && x <= sx0 + c && y >= sy0 + b && y <= sy0 + d) return { kx: z.kx, upx: z.upx || 0, upy: z.upy || 0, slow: P0.stairSlow || 1 }; } return null; };
   const px = ([x, y]) => ({ x: (ox + x) * T, y: (oy + y) * T });
   m.sect = {
     ox, oy,

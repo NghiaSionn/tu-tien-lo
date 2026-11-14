@@ -525,8 +525,8 @@ function drawPlayer(ctx, p, time, medFx, inForm, vis) {
   const hero = vis && vis.hero;
   if (hero && p.hurtT > 0) p.hurtT -= vis.frameDt || 0;   // chỉ dùng để vẽ
   if (p.inv > 0 && Math.floor(time * 20) % 2) return;
-  const x = Math.round(p.x - 6), fy = Math.round(p.y);
-  ctx.fillStyle = 'rgba(0,0,0,.25)'; if (hero) ctx.fillRect(x - 3, fy - 2, 18, 3); else ctx.fillRect(x + 1, fy - 1, 10, 2);
+  const x = Math.round(p.x - 6), sy0 = Math.round(p.y), fy = Math.round(p.y + (p.bob || 0));   // bob: nhún khi đi trên bậc (M8)
+  ctx.fillStyle = 'rgba(0,0,0,.25)'; if (hero) ctx.fillRect(x - 3, sy0 - 2, 18, 3); else ctx.fillRect(x + 1, sy0 - 1, 10, 2);
   if (p.med) {
     medFx.x = Math.round(p.x); medFx.y = fy; medFx.lightGain = inForm ? 1 : 0.6; medFx.draw(ctx);
     const bob = Math.round(Math.sin(time * 2) * 1.5 + 1.5);
