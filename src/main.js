@@ -74,7 +74,7 @@ async function loadSheet(name) {
   return { img, meta, white: tint('#ffffff'), glow: tint('#c070ff'), wind: tint('#7ff0c8') };   // wind: tàn ảnh Phong Ảnh Bộ
 }
 for (const [key, name] of [['hero', 'nhan_vat'], ['mobs', 'quai'], ['bosses', 'boss'], ['rung', 'rung'], ['congTrinh', 'cong_trinh'], ['icons', 'bieu_tuong'], ['tienHoa', 'tien_hoa'], ['bia', 'bia'],
-  ...(FEATURES.sectHub || /[?&]sect=1/.test(location.search) ? [['tmCt', 'tm_cong_trinh'], ['tmDv', 'tm_do_vat'], ['tmCd', 'tm_cay_da']] : [])]) {
+  ...(FEATURES.sectHub || /[?&]sect=1/.test(location.search) ? [['tmCt', 'tm_cong_trinh'], ['tmDv', 'tm_do_vat'], ['tmCd', 'tm_cay_da'], ['tmTran', 'tm_tran']] : [])]) {
   try { vis[key] = await loadSheet(name); } catch (e) { console.warn('[sprite] dùng hình cũ:', name, e); }
 }
 // công trình động phủ (cổng, tụ linh trận, Linh Mạch) + VFX tiến hóa M7-12: cắt sát nội dung từng khung
@@ -93,7 +93,7 @@ if (vis.tienHoa) vis.thx = cropFrames(vis.tienHoa);   // han_an, khoi_bang, vong
 if (vis.congTrinh) vis.ct = cropFrames(vis.congTrinh);
 if (vis.bia) vis.ct = { ...(vis.ct || {}), ...cropFrames(vis.bia) };   // M7-14: bia, bia_sang
 // M8: công trình/đồ vật/cây tông môn (concept ảnh 1, tools/build_tong_mon.py)
-if (vis.tmCt || vis.tmDv || vis.tmCd) vis.tm = Object.assign({}, ...[vis.tmCt, vis.tmDv, vis.tmCd].filter(Boolean).map(cropFrames));
+if (vis.tmCt || vis.tmDv || vis.tmCd) vis.tm = Object.assign({}, ...[vis.tmCt, vis.tmDv, vis.tmCd, vis.tmTran].filter(Boolean).map(cropFrames));
 // M8: bệ Tụ Linh Pháp Đài (sprite ×PLAZA.scale): ảnh nền vẽ dưới nhân vật + lớp "phía trước" (lan can, vách, cờ, đèn).
 // Lớp trước xếp theo CHÂN của từng dải đục liền theo cột (cờ = chân bệ cờ, lan can nam = chân vách) rồi gom theo nấc 8 px
 // -> nhân vật đứng sau cờ/lan can bị che đúng, đứng trước thì không (cắt dải ngang cũ sai với vật cao).

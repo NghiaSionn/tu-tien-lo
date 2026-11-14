@@ -744,8 +744,9 @@ export function render(ctx, g) {
   if (scene.kind === 'hub') {
     const ct = vis.ct;
     if (g.sect && vis.plaza) ctx.drawImage(vis.plaza.base, Math.round(map.cx - vis.plaza.ax), Math.round(map.cy - vis.plaza.ay));   // M8: bệ pháp đài
-    if (ct && ct.tran) {   // tụ linh trận (ChatGPT vẽ): thiền trong trận thì sáng rực, bình thường nhịp sáng nhẹ
-      const t = ct.tran, s = ct.tran_sang, on = p.med && g.inForm;
+    const TR = g.sect && vis.tm && vis.tm.tran ? vis.tm : ct;   // M8: sảnh tông môn dùng tụ linh trận vẽ theo concept ảnh 1 (sprites/tm_tran)
+    if (TR && TR.tran) {   // tụ linh trận (ChatGPT vẽ): thiền trong trận thì sáng rực, bình thường nhịp sáng nhẹ
+      const t = TR.tran, s = TR.tran_sang, on = p.med && g.inForm;
       ctx.drawImage(t, Math.round(map.cx - t.width / 2), Math.round(map.cy - t.height / 2));
       if (s) { ctx.globalAlpha = on ? 0.75 + 0.25 * Math.sin(time * 3) : 0.18 + 0.12 * Math.sin(time * 1.5); ctx.drawImage(s, Math.round(map.cx - s.width / 2), Math.round(map.cy - s.height / 2)); ctx.globalAlpha = 1; }
     } else {

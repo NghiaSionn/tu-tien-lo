@@ -1,0 +1,25 @@
+{
+ "frameSize": [
+  250,
+  161
+ ],
+ "pivot": [
+  125,
+  160
+ ],
+ "image": "tm_tran.png",
+ "frames": {
+  "tran": [
+   0,
+   0
+  ],
+  "tran_sang": [
+   250,
+   0
+  ]
+ },
+ "source": "docs/concept/tong_mon_tu_linh_tran_chatgpt.png",
+ "tool": "tools/sprite_clean.py",
+ "scale": 3.4,
+ "colors": 64
+}

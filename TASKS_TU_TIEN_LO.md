@@ -384,6 +384,7 @@ Thiết kế + backlog đầy đủ (ChatGPT, 13/11): **`docs/chatgpt_tong_mon_M
   - [x] M8-02o (14/11) Cờ nam: mặt nạ = đa giác đúng hình cờ (ngọc, thanh ngang + 2 núm, vải, cán) đo tay, bỏ màu đá lọt giữa (`docs/playtest/M8_02o_mat_na_co.png`); bậc bắc/nam cũng có hiệu ứng cầu thang: lên chậm (×0.8), xuống nhanh (×1.2) + nhún 0–2 px theo từng bậc (`p.bob`, chỉ vẽ, bóng giữ dưới chân); 204/204; đã thử phím thật bằng `__game.step` (khung bị ẩn), ảnh `docs/playtest/M8_02o_thu_phim.png`
   - [x] M8-02p (14/11) Cầu thang mượt: nhún êm 0..-1,5 px + làm mượt, giảm tốc nhẹ (0.95; lên ×0.92, xuống ×1.06); 204/204
   - [x] (14/11) Người phát triển duyệt: BẬT `FEATURES.sectHub` mặc định (web mở thẳng sảnh tông môn); `?sect=0` = động phủ cũ. Lưu ý: chưa có tương tác E ở công trình (M8-03) — các chức năng vẫn qua hàng nút
+  - [x] (14/11) Tụ linh trận mới theo concept ảnh 1 (ChatGPT vẽ, chat "Vẽ concept art tông môn": `docs/concept/tong_mon_tu_linh_tran_chatgpt.png`, 2 ô nghỉ/kích hoạt) → `sprites/tm_tran.*` (`sprite_clean --scale 3.4`, 250×161, xoá viền magenta); sảnh tông môn dùng thay trận cũ (động phủ cũ giữ trận cũ). Bán kính ngồi thiền `HUB.FORM_R` 34 px chưa đổi. Ảnh `docs/playtest/M8_tran_nghi.png`, `M8_tran_thien.png`
 - [ ] M8-03 Hệ thống tương tác công trình dùng chung (M, P0)
 - [ ] M8-04 Cổng Bí Cảnh (S, P0)
 - [ ] M8-05 Tụ Linh Pháp Đài (M, P0) → GATE M8-A
