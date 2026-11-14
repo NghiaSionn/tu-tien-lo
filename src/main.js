@@ -386,10 +386,11 @@ function movePlayer(map, dt, speedMult) {
   let sx = dx * PLAYER.SPEED * speedMult * sm * dt, sy = dy * PLAYER.SPEED * speedMult * sm * dt;
   if (st && st.kx && sx && !sy) sy = sx * st.kx;
   if (st) {   // leo lên chậm, bước xuống nhanh hơn; nhún 1–2 px theo từng bậc (bậc ~6 px) -> thấy rõ đang lên/xuống cả ở bậc thẳng
-    const climb = sx * st.upx + sy * st.upy, f = climb > 0 ? 0.8 : climb < 0 ? 1.2 : 1;
+    const climb = sx * st.upx + sy * st.upy, f = climb > 0 ? 0.92 : climb < 0 ? 1.06 : 1;
     sx *= f; sy *= f; p.stairD = (p.stairD || 0) + Math.hypot(sx, sy);
-    p.bob = -Math.abs(Math.sin(p.stairD / 6 * Math.PI)) * 2;
-  } else p.bob = 0;
+    p.bobT = -(1 - Math.cos(p.stairD / 12 * Math.PI)) * 0.75;   // nhún êm 0..-1,5 px, chu kỳ 2 bậc
+  } else p.bobT = 0;
+  p.bob = (p.bob || 0) + ((p.bobT || 0) - (p.bob || 0)) * Math.min(1, dt * 12);   // làm mượt, không giật khi vào/ra bậc
   const x0 = p.x, y0 = p.y;
   moveEntity(map, p, sx, sy, null);
   // M8: sảnh tông môn — nắn góc: giữ một hướng mà bị chặn, nếu lệch ngang ≤ 10 px là đi tiếp được (mép bậc dốc ở cánh bệ,

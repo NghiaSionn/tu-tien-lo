@@ -47,7 +47,7 @@ STAIR_W = k1((4, 214, 62, 302))
 # upx/upy: hướng LEO LÊN bệ (tây: đi phải; đông: đi trái; bậc nam: đi lên màn hình; bậc bắc: đi xuống màn hình)
 STAIR_ZONES = [dict(r=STAIR_W, kx=-0.88, upx=1, upy=0), dict(r=(MIRROR - STAIR_W[2], STAIR_W[1], MIRROR - STAIR_W[0], STAIR_W[3]), kx=0.88, upx=-1, upy=0),
                dict(r=RECTS[0], kx=0, upx=0, upy=-1), dict(r=RECTS[1], kx=0, upx=0, upy=1)]
-STAIR_SLOW = 0.8
+STAIR_SLOW = 0.95
 T, C = 16, 4                    # ô bản đồ, ô mịn
 
 
