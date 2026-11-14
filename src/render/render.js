@@ -1002,6 +1002,10 @@ export function render(ctx, g) {
         if (st) txt(ctx, st.s, Math.round(n.x + n.w / 2), n.y, st.hot ? '#ffe9a0' : '#cfc6b0', 8);
       }
     }
+    if (g.sect.bg && vis.nenChe) {   // lớp che cắt từ ảnh nền (cây, đèn, bia, đồ đạc, rào): dải dọc xếp theo chân
+      const bx = g.sect.bg.x, by = g.sect.bg.y;
+      for (const s of vis.nenChe) { const x = bx + s.x, dy = by + s.y; if (x < camX + W && x + s.img.width > camX && dy < camY + H && dy + s.img.height > camY) objs.push({ y: by + s.foot, img: s.img, x, dy }); }
+    }
     if (vis.plaza) {   // lớp trước của bệ: từng nhóm điểm ảnh xếp theo chân cột đục của nó (xem main.js)
       const x = Math.round(map.cx - vis.plaza.ax), y0 = Math.round(map.cy - vis.plaza.ay);
       for (const s of vis.plaza.strips) { const dy = y0 + s.y; if (dy < camY + H && dy + s.img.height > camY) objs.push({ y: y0 + s.foot, img: s.img, x: x + s.x, dy, noFade: true }); }
