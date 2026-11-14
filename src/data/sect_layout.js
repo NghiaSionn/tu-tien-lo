@@ -11,21 +11,48 @@ export const THEM = {
   them_ngang: { w: 177, h: 89, foot: 56, inner: [62, 50, 112, 60], stair: [62, 54, 112, 89] },
   them_vuong: { w: 110, h: 98, foot: 62, inner: [33, 56, 79, 66], stair: [33, 60, 79, 98] },
 };
-// M8 (16/11): sảnh dùng ẢNH CONCEPT làm nền cố định (sprites/tm_nen.png, tools/sect_nen.py) — khung 120×68 ô = ảnh 1920×1088.
-// Lưới va chạm dò tay trên ảnh (data/sect_bocuc.js). Công trình, cây, bia, rào, cổng đều là phần vẽ trong ảnh: không có sprite
-// riêng (paint), chỉ có điểm bấm E (door) và khối đặc chính (body). Bệ pháp đài vẫn là sprite; tâm bệ = tâm bản đồ.
+// M8 (15/11): sảnh theo concept ảnh 1 — lưới ô sinh từ tools/sect_bo_cuc.py (data/sect_bocuc.js), khung 120×68 ô.
+// Bản đồ = khung + đệm mây; đệm chọn để TÂM BỆ PHÁP ĐÀI (ô 60.5, 33 trong khung) trùng tâm bản đồ (thiên kiếp, tụ linh trận dùng tâm bản đồ).
+// Công trình: tạm dùng sprite nhỏ cũ + thềm, đặt sao cho chân bậc thềm đúng điểm `foot` của bố cục (đầu đường); sẽ thay bằng nhà
+// tách đúng từ concept. PATHS/STREAM/POND không dùng nữa (đã nằm trong lưới).
 import { BOCUC } from './sect_bocuc.js';
-const CX0 = Math.floor(BOCUC.plaza.c[0]), CY0 = Math.floor(BOCUC.plaza.c[1]);
+const BF = BOCUC.buildings, TF = BOCUC.tf,
+  // toạ độ đo trên concept (lưới 120×68) -> khung đã phóng quanh tâm bệ (tools/sect_bo_cuc.py: tf)
+  tf = ([x, y, ...r]) => [TF.c[0] + (x - TF.c_old[0]) * TF.sx, TF.c[1] + (y - TF.c_old[1]) * TF.sy, ...r],
+  tfx = x => Math.round(TF.c[0] + (x - TF.c_old[0]) * TF.sx), tfy = y => Math.round(TF.c[1] + (y - TF.c_old[1]) * TF.sy), them = id => (id === 'truyen_thua' ? 'them_vuong' : 'them_ngang');
+const footOf = id => { const [x, y] = BF[id].foot, t = THEM[them(id)]; return [x, y - (t.h - t.foot) / 16]; };
+// đồ trong/quanh Luyện Võ Trường đi theo rào (rào đặt lại dưới ngã ba nam: BOCUC.pen), dời theo ô concept
+const PEN_PROPS = new Set(['luyen_vo', 'moc_nhan', 'gia_binh_khi']), PEN_DY = (BOCUC.pen.y - tfy(44)) / TF.sy + 0.4;
 export const SECT = {
-  // bản đồ ôm sát ảnh (camera không lộ ra ngoài ảnh); chỉ thêm vài cột để tâm bản đồ = tâm bệ (cột thêm vẽ kéo dài mép ảnh)
-  W: BOCUC.nx, H: BOCUC.ny, MW: Math.max(BOCUC.nx, 2 * CX0), MH: Math.max(BOCUC.ny, 2 * CY0),
-  PADL: Math.max(BOCUC.nx, 2 * CX0) / 2 - CX0, PADT: Math.max(BOCUC.ny, 2 * CY0) / 2 - CY0,   // tâm bản đồ = tâm bệ
+  W: BOCUC.nx, H: BOCUC.ny, MW: BOCUC.nx + 20, MH: BOCUC.ny + 20,
+  PADL: (BOCUC.nx + 20) / 2 - Math.floor(BOCUC.plaza.c[0]), PADT: (BOCUC.ny + 20) / 2 - Math.floor(BOCUC.plaza.c[1]),   // tâm bản đồ = tâm bệ
   ROWS: BOCUC.rows,
-  BG: BOCUC.bg,
   PATH_W: 4, PATHS: [],
-  BUILDINGS: Object.entries(BOCUC.buildings).map(([id, b]) => ({ id, name: b.name, paint: true, door: b.door, body: b.body })),
+  BUILDINGS: [
+    { id: 'truyen_thua', name: 'Truyền Thừa Các', foot: footOf('truyen_thua'), base: [4, 3], them: them('truyen_thua') },
+    { id: 'tang_kinh', name: 'Tàng Kinh Các', foot: footOf('tang_kinh'), base: [6, 3], them: them('tang_kinh') },
+    { id: 'cong_duc', name: 'Công Đức Đường', foot: footOf('cong_duc'), base: [7, 3], them: them('cong_duc') },
+    { id: 'luyen_khi', name: 'Luyện Khí Phường', foot: footOf('luyen_khi'), base: [6, 3], them: them('luyen_khi') },
+    { id: 'dan_duoc', name: 'Đan Dược Phòng', foot: footOf('dan_duoc'), base: [7, 3], them: them('dan_duoc') },
+  ],
+  // Luyện Võ Trường: sân đất (elip trong lưới) + rào chữ nhật bên trong, cổng rào phía bắc lệch trái (đầu đường đông nam)
   PEN: { id: 'luyen_vo', name: 'Luyện Võ Trường', ...BOCUC.pen },
-  PORTAL: BOCUC.portal,
-  BIA: BOCUC.bia,
-  PROPS: [],
+  PORTAL: tf([60.5, 17.5]),
+  BIA: tf([60.5, 52.5]),
+  PROPS: [
+    ['co_phuon', 55.5, 18, [1, 1]], ['co_phuon', 65.5, 18, [1, 1]],
+    ['den_da', 57.5, 22, [1, 1]], ['den_da', 63.5, 22, [1, 1]], ['den_da', 41.5, 30, [1, 1]], ['den_da', 37.5, 38.5, [1, 1]],
+    ['den_da', 46.5, 47, [1, 1]], ['den_da', 74.5, 44, [1, 1]], ['den_da', 79.5, 32, [1, 1]], ['den_da', 75.5, 24, [1, 1]],
+    ['den_da', 35.5, 52, [1, 1]], ['den_da', 44.5, 55, [1, 1]], ['den_da', 55.5, 47, [1, 1]], ['den_da', 66.5, 47, [1, 1]],
+    ['bia_nho', 54.5, 53.5, [2, 1]], ['bia_nho', 66, 54, [2, 1]],
+    ['cau_da', 37, 56.6],
+    ['luyen_vo', 103.5, 47, [4, 2]], ['moc_nhan', 90.5, 49, [1, 1]], ['moc_nhan', 94.5, 49, [1, 1]], ['moc_nhan', 92.5, 52, [1, 1]],
+    ['gia_binh_khi', 98, 46, [2, 1]], ['co_phuon', 84.5, 45, [1, 1]], ['co_phuon', 106.5, 55, [1, 1]],
+    ['anh_dao_lon', 46, 16, [2, 1]], ['anh_dao_lon', 14, 34, [2, 1]], ['anh_dao_lon', 12, 50, [2, 1]], ['anh_dao_lon', 106, 24, [2, 1]],
+    ['anh_dao_lon', 74, 51, [2, 1]], ['anh_dao_lon', 47, 54, [2, 1]], ['anh_dao_lon', 69, 56, [2, 1]], ['anh_dao_nho', 38, 46, [1, 1]],
+    ['tung_cao', 14, 16, [1, 1]], ['tung_cao', 108, 16, [1, 1]], ['tung_bonsai', 52, 16, [2, 1]], ['tung_bonsai', 70, 18, [2, 1]],
+    ['cay_tron', 100, 58, [2, 1]], ['cay_tron', 22, 56, [2, 1]], ['bui_cay', 44, 40, [2, 1]], ['bui_cay', 76, 40, [2, 1]],
+    ['da_lon', 50, 23, [2, 1]], ['da_nho', 70, 41, [2, 1]], ['khom_hoa', 58, 56], ['khom_hoa', 63, 57], ['khom_hoa', 52, 42], ['khom_hoa', 70, 30],
+    ['sen', 41, 22.5], ['sen', 55, 60.5],
+  ].map(([n, x, y, ...r]) => [n, ...tf([x, y + (PEN_PROPS.has(n) || (n === 'co_phuon' && x > 80) ? PEN_DY : 0)]), ...r]),
 };

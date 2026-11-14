@@ -79,12 +79,12 @@ export function buildSectGrid(S = SECT) {
   for (let j = 0; j < PLAZA.rows.length; j++) for (let i = 0; i < PLAZA.rows[j].length; i++)
     if (PLAZA.rows[j][i] === '.') set(cx + PLAZA.x0 + i, cy + PLAZA.y0 + j, STONE);
   const P = S.PEN;
-  if (!S.BG) for (let y = P.y; y < P.y + P.h; y++) for (let x = P.x; x < P.x + P.w; x++) {
+  for (let y = P.y; y < P.y + P.h; y++) for (let x = P.x; x < P.x + P.w; x++) {
     const edge = x === P.x || y === P.y || x === P.x + P.w - 1 || y === P.y + P.h - 1;
     const gate = y === P.y && x >= P.gate[0] && x <= P.gate[1];
     set(x, y, edge && !gate ? FENCE : DIRT);
   }
-  for (const b of S.BUILDINGS) { if (b.nha || b.paint) continue; const r = solidRect(b.foot, b.base); for (let y = r.y0; y < r.y1; y++) for (let x = r.x0; x < r.x1; x++) set(x, y, BUILDING); }
+  for (const b of S.BUILDINGS) { if (b.nha) continue; const r = solidRect(b.foot, b.base); for (let y = r.y0; y < r.y1; y++) for (let x = r.x0; x < r.x1; x++) set(x, y, BUILDING); }
   for (const [, x, y, sd] of S.PROPS) if (sd) block(solidRect([x, y], sd));
   if (!S.ROWS) {
     for (let x = 0; x < S.W; x++) { set(x, 0, TREE); set(x, S.H - 1, TREE); }
@@ -129,17 +129,12 @@ export function makeSectMap(S = SECT) {
   const px = ([x, y]) => ({ x: (ox + x) * T, y: (oy + y) * T });
   m.sect = {
     ox, oy,
-    bg: S.BG ? { ...S.BG, x: ox * T, y: oy * T } : null,
     buildings: S.BUILDINGS.map(b => {
-      const r = b.paint ? null : solidRect(b.foot, b.base);
+      const r = solidRect(b.foot, b.base);
       if (b.nha && NHA[b.nha]) {   // nhà lớn đi vào được: đặt theo giữa đáy bậc; E ở đồ vật chính bên trong
         const N = NHA[b.nha], at = px(b.at), x = Math.round(at.x - N.foot[0]), y = Math.round(at.y - N.foot[1]);
         const nha = { id: b.nha, x, y, ...N };
         return { ...b, px: x, py: y, pw: N.w, ph: N.h, footPx: at, doorPx: { x: x + N.interact[0], y: y + N.interact[1] }, them: null, nha };
-      }
-      if (b.paint) {   // nền ảnh (16/11): nhà là phần vẽ trong ảnh; body = khối đặc chính [x0,y0,x1,y1] ô, door = chỗ bấm E
-        const [x0, y0, x1, y1] = b.body, d = px(b.door);
-        return { ...b, px: (ox + x0) * T, py: (oy + y0) * T, pw: (x1 - x0) * T, ph: (y1 - y0) * T, footPx: d, doorPx: d, them: null };
       }
       const fp = px(b.foot), th = b.them && THEM[b.them];
       // có thềm: cửa = giữa bậc thềm (người chơi leo bậc tới công trình)
@@ -153,11 +148,11 @@ export function makeSectMap(S = SECT) {
   };
   // hàng rào Luyện Võ Trường: sprite hang_rao dọc mép bắc/nam (bỏ chỗ cổng) + cổng rào; mép đông/tây vẽ cọc rào theo ô
   const P = S.PEN;
-  if (!S.BG) for (const ey of [P.y, P.y + P.h - 1]) for (let x = P.x; x < P.x + P.w - 1; x += 2) {
+  for (const ey of [P.y, P.y + P.h - 1]) for (let x = P.x; x < P.x + P.w - 1; x += 2) {
     if (ey === P.y && x + 1 >= P.gate[0] && x <= P.gate[1]) continue;
     m.sect.props.push({ s: 'hang_rao', ...px([x + 1, ey + 1]), flat: false });
   }
-  if (!S.BG) m.sect.props.push({ s: 'cong_rao', ...px([(P.gate[0] + P.gate[1] + 1) / 2, P.y + 1]), flat: false });
+  m.sect.props.push({ s: 'cong_rao', ...px([(P.gate[0] + P.gate[1] + 1) / 2, P.y + 1]), flat: false });
   return m;
 }
 
