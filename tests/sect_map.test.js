@@ -66,7 +66,7 @@ test('mặt sàn bệ chứa trọn trận thiên kiếp (elip SECT_ARENA) và c
 test('rộng gấp 2: đi từ pháp đài tới mỗi khu mất 4–9 s (đường ngắn nhất, PLAYER.SPEED)', () => {
   const dist = bfs({ x: m.cx, y: m.cy });
   const sec = p => { let best = Infinity; for (let dy = -8; dy <= 8; dy += G) for (let dx = -8; dx <= 8; dx += G) { const d = dist[node({ x: p.x + dx, y: p.y + dy })]; if (d >= 0) best = Math.min(best, d); } return best * G / PLAYER.SPEED; };
-  for (const b of S.buildings) { const s = sec(b.doorPx); assert.ok(s >= 3 && s <= 12, `${b.id}: ${s.toFixed(1)} s`); }   // sảnh theo concept (15/11) rộng hơn
+  for (const b of S.buildings) { const s = sec(b.doorPx); assert.ok(s >= 3 && s <= 18, `${b.id}: ${s.toFixed(1)} s`); }   // sảnh phóng quanh bệ (15/11): công trình lùi xa, đường rộng
   assert.ok(sec(S.portal) >= 2.5, 'cổng ' + sec(S.portal));   // concept: cổng sát bệ
 });
 

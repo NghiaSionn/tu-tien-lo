@@ -11,42 +11,62 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
 ROOT = Path(__file__).resolve().parent.parent
-NX, NY = 120, 68
-# đảo đi được (đa giác, ô): mép vách trái ~x10, phải ~x112, đáy ~y60, đỉnh giáp rừng ~y14
-ISLAND = [(12, 14), (40, 13), (52, 10), (70, 10), (78, 6), (106, 6), (112, 14), (114, 30), (112, 40), (116, 50), (110, 58), (96, 62),
-          (84, 60), (72, 62), (60, 62), (46, 60), (40, 58), (26, 58), (16, 56), (10, 46), (8, 34), (10, 22)]
-FOREST = [(40, 0), (78, 0), (78, 6), (70, 10), (52, 10), (40, 13)]          # rừng tím sau cổng (đặc, chỉ để nhìn)
+# Toạ độ dưới đây đo trên lưới 120×68 phủ concept (giữ nguyên để so concept). Bệ pháp đài trong game là sprite to hơn bệ trong
+# concept (34,5×26,75 ô so với ~28×18) -> cả bố cục phóng ra quanh tâm bệ theo SX, SY (lớn hơn tỉ lệ bệ một chút để công trình lùi xa,
+# đường rộng hơn). Đường đi KHÔNG phóng từ concept mà dựng lại từ 4 lối bậc thật của sprite bệ (EXIT).
+C_OLD = (60.5, 33)
+SX, SY = 1.45, 1.55
+NX, NY = 174, 106
+C = (87.5, 51)                                                                # tâm bệ trong khung mới (x.5 như cũ)
+
+
+def tf(p): return (C[0] + (p[0] - C_OLD[0]) * SX, C[1] + (p[1] - C_OLD[1]) * SY)
+def tfs(pts): return [tf(q) for q in pts]
+def tfbox(b): x0, y0 = tf(b[:2]); x1, y1 = tf(b[2:]); return (round(x0), round(y0), round(x1), round(y1))
+
+
+# đảo đi được (đa giác, ô concept): mép vách trái ~x10, phải ~x112, đáy ~y60, đỉnh giáp rừng ~y14
+ISLAND = tfs([(12, 14), (40, 13), (52, 10), (70, 10), (78, 6), (106, 6), (112, 14), (114, 30), (112, 40), (116, 50), (110, 58), (96, 62),
+              (84, 60), (72, 62), (60, 62), (46, 60), (40, 58), (26, 58), (16, 56), (10, 46), (8, 34), (10, 22)])
+FOREST = tfs([(40, 0), (78, 0), (78, 6), (70, 10), (52, 10), (40, 13)])     # rừng tím sau cổng (đặc, chỉ để nhìn)
 WATER = [
-    [(37, 19), (47, 19), (48, 23), (44, 25), (38, 24)],                       # ao + thác nhỏ cạnh tháp
-    [(26, 56), (40, 55), (56, 57), (66, 58), (80, 58), (84, 60), (72, 62), (46, 61), (30, 60)],   # suối nam (dưới cầu -> 2 thác)
+    tfs([(37, 19), (47, 19), (48, 23), (44, 25), (38, 24)]),                  # ao + thác nhỏ cạnh tháp
+    tfs([(26, 56), (40, 55), (56, 57), (66, 58), (80, 58), (84, 60), (72, 62), (46, 61), (30, 60)]),   # suối nam (dưới cầu -> 2 thác)
 ]
-DIRT = [((95, 50), 15, 7)]                                                    # Luyện Võ Trường: elip tâm, bán trục x, y
-PATH_W = 4
-PATHS = [
-    [(60.5, 19), (60.5, 25)],                                                 # cổng -> bệ
-    [(48, 29), (40, 27), (35, 24)],                                           # bệ tây bắc -> bậc tháp Truyền Thừa
-    [(47, 33), (40, 35), (34, 37)],                                           # bệ tây -> Tàng Kinh Các
-    [(50, 38), (44, 43), (38, 48), (32, 53)],                                 # bệ tây nam -> Công Đức Đường
-    [(58, 45), (52, 48), (46, 52), (40, 55), (34, 56)],                       # bậc nam -> cầu đá
-    [(60.5, 45), (60.5, 50)],                                                 # bậc nam -> vườn bia
-    [(64, 45), (70, 46), (76, 47), (82, 48)],                                 # bậc nam -> cổng rào Luyện Võ
-    [(72, 34), (80, 36), (88, 38)],                                           # bệ đông -> Đan Dược Phòng
-    [(72, 28), (76, 25), (80, 22)],                                           # bệ đông bắc -> Luyện Khí Phường
-]
-PLAZA = dict(c=(60.5, 33), rx=14, ry=9)                                       # bệ pháp đài (sprite hiện có, đặt lại)
-GATE = dict(x=(57, 64), y=(11, 19))
+DIRT = [(tf((95, 50)), 15 * SX, 7 * SY)]                                      # Luyện Võ Trường: elip tâm, bán trục x, y
+PLAZA = dict(c=C, rx=14, ry=9)   # nền đá ngay dưới sprite bệ (34,5×26,75 ô) — nhỏ hơn khung để cỏ lộ quanh, chỉ đường nối vào 4 lối
+# 4 lối bậc của sprite bệ (đo trong src/data/sect_plaza.js): chân bậc nam y+13, đỉnh bậc bắc y-8, bậc cánh tây/đông x∓17,5 y+0,5
+EXIT = dict(n=(C[0], C[1] - 8), s=(C[0], C[1] + 13), w=(C[0] - 17.5, C[1] + 0.5), e=(C[0] + 17.5, C[1] + 0.5))
+GATE = dict(x=(round(tf((57, 0))[0]), round(tf((64, 0))[0])), y=(round(tf((0, 11))[1]), round(tf((0, 19))[1])))
 # chỗ dành cho công trình (khung ô x0,y0,x1,y1) + điểm chân bậc (đường nối vào)
 BUILDINGS = {
-    'truyen_thua': dict(box=(17, 0, 36, 21), foot=(35, 24), name='Truyền Thừa Các (tháp)'),
-    'tang_kinh': dict(box=(10, 21, 34, 37), foot=(34, 37), name='Tàng Kinh Các'),
-    'cong_duc': dict(box=(14, 40, 40, 52), foot=(32, 53), name='Công Đức Đường'),
-    'luyen_khi': dict(box=(78, 4, 110, 21), foot=(80, 22), name='Luyện Khí Phường'),
-    'dan_duoc': dict(box=(86, 21, 114, 37), foot=(88, 38), name='Đan Dược Phòng'),
-    'luyen_vo_choi': dict(box=(98, 39, 108, 46), foot=(98, 46), name='chòi Luyện Võ'),
+    'truyen_thua': dict(box=tfbox((17, 0, 36, 21)), foot=tf((35, 24)), name='Truyền Thừa Các (tháp)'),
+    'tang_kinh': dict(box=tfbox((10, 21, 34, 37)), foot=tf((34, 37)), name='Tàng Kinh Các'),
+    'cong_duc': dict(box=tfbox((14, 40, 40, 52)), foot=tf((32, 53)), name='Công Đức Đường'),
+    'luyen_khi': dict(box=tfbox((78, 4, 110, 21)), foot=tf((80, 22)), name='Luyện Khí Phường'),
+    'dan_duoc': dict(box=tfbox((86, 21, 114, 37)), foot=tf((88, 38)), name='Đan Dược Phòng'),
+    'luyen_vo_choi': dict(box=tfbox((98, 39, 108, 46)), foot=tf((98, 46)), name='chòi Luyện Võ'),
 }
-BIA = dict(box=(50, 43, 66, 56))
-BRIDGE = dict(box=(33, 54, 38, 60))   # chỉ để ghi nhãn: đường dừng ở bờ suối, cầu đá là vật trang trí đặt trên nước
-FALLS = [(5, 4, 9, 26), (31, 59, 37, 68), (80, 58, 86, 68)]                   # thác nước (vẽ trang trí, đặc)
+BIA = dict(box=tfbox((50, 46, 66, 56)))
+BRIDGE = dict(box=tfbox((33, 54, 38, 60)))   # chỉ để ghi nhãn: đường dừng ở bờ suối, cầu đá là vật trang trí đặt trên nước
+FALLS = [tfbox(f) for f in [(5, 4, 9, 26), (31, 59, 37, 68), (80, 58, 86, 68)]]   # thác nước (vẽ trang trí, đặc)
+F = {k: v['foot'] for k, v in BUILDINGS.items()}
+PATH_W = 6
+BR = tf((35.5, 55))                                                           # đầu cầu đá (bờ bắc suối)
+PEN_DOOR = tf((84.5, 43.2))
+PATHS = [
+    [EXIT['n'], (C[0], GATE['y'][1] - 1)],                                    # bậc bắc -> cổng bí cảnh
+    [EXIT['w'], (C[0] - 24, C[1] + 0.5)],                                     # bậc tây -> ngã ba tây
+    [(C[0] - 24, C[1] + 0.5), (C[0] - 28, C[1] - 6), (F['truyen_thua'][0] + 2, F['truyen_thua'][1] + 2), F['truyen_thua']],
+    [(C[0] - 24, C[1] + 0.5), (F['tang_kinh'][0] + 4, F['tang_kinh'][1]), F['tang_kinh']],
+    [EXIT['s'], (C[0], BIA['box'][1] + 1)],                                   # bậc nam -> vườn bia
+    [(C[0], C[1] + 15), (C[0] - 10, C[1] + 18), (F['cong_duc'][0] + 10, F['cong_duc'][1] - 4), F['cong_duc']],   # nam -> Công Đức
+    [(F['cong_duc'][0] + 10, F['cong_duc'][1] - 4), (BR[0] + 3, BR[1] - 2), BR],                                  # -> cầu đá
+    [(C[0], C[1] + 15), (C[0] + 12, C[1] + 16), (PEN_DOOR[0] - 4, PEN_DOOR[1] - 1), (PEN_DOOR[0], PEN_DOOR[1] + 1)],   # nam -> cổng rào
+    [EXIT['e'], (C[0] + 24, C[1] + 0.5)],                                     # bậc đông -> ngã ba đông
+    [(C[0] + 24, C[1] + 0.5), (F['dan_duoc'][0] - 6, F['dan_duoc'][1]), F['dan_duoc']],
+    [(C[0] + 24, C[1] + 0.5), (C[0] + 27, C[1] - 8), (F['luyen_khi'][0] - 1, F['luyen_khi'][1] + 4), F['luyen_khi']],
+]
 COLORS = {'.': (78, 150, 70), '=': (190, 182, 170), '~': (70, 150, 210), 'd': (196, 160, 105), '^': (95, 95, 120), 'T': (60, 50, 100),
           'B': (170, 70, 70), 'P': (220, 220, 235), 'G': (150, 90, 200), 'X': (225, 230, 245), 'b': (130, 130, 130), 'W': (150, 210, 250)}
 
@@ -59,8 +79,9 @@ def build():
     poly(d, ISLAND, ord('.'))
     poly(d, FOREST, ord('T'))
     for (cx, cy), rx, ry in DIRT: d.ellipse([cx - rx, cy - ry, cx + rx, cy + ry], fill=ord('d'))
-    for line in PATHS: d.line(line, fill=ord('='), width=PATH_W, joint='curve')
     for w in WATER: poly(d, w, ord('~'))
+    for line in PATHS: d.line(line, fill=ord('='), width=PATH_W, joint='curve')
+    for w in WATER[1:]: poly(d, w, ord('~'))   # suối nam đè đường (đường dừng ở bờ, cầu là vật trang trí)
     c = PLAZA['c']; d.ellipse([c[0] - PLAZA['rx'], c[1] - PLAZA['ry'], c[0] + PLAZA['rx'], c[1] + PLAZA['ry']], fill=ord('P'))
     d.rectangle([GATE['x'][0], GATE['y'][0], GATE['x'][1], GATE['y'][1]], fill=ord('G'))
     for b in BUILDINGS.values(): d.rectangle(b['box'], fill=ord('B'))
@@ -77,7 +98,7 @@ def build():
     for x in range(NX):
         ys = np.where(inside[:, x])[0]
         if ys.size:
-            for y in range(ys.max() + 1, min(NY, ys.max() + 7)):
+            for y in range(ys.max() + 1, min(NY, ys.max() + 10)):
                 if g[y, x] == ord('X'): g[y, x] = ord('^')
     # mảnh đất đi được không nối với bệ (dải cỏ sau suối...) -> vách núi (concept: mép vách ngay dưới suối)
     walk = np.isin(g, [ord(c) for c in '.=dPbBG'])
@@ -96,7 +117,7 @@ def main():
     NL = chr(10)
     (ROOT / 'src/data/sect_bocuc.js').write_text('// SINH TỰ ĐỘNG bởi tools/sect_bo_cuc.py — bố cục sảnh theo concept ảnh 1 (lưới ô). Đừng sửa tay.' + NL
         + '// . cỏ, = đường đá, ~ nước, d sân đất, ^ vách núi, T rừng, B chỗ công trình, P bệ, G cổng, X mây, b vườn bia, W thác' + NL
-        + 'export const BOCUC = ' + json.dumps({"nx": NX, "ny": NY, "rows": rows, "buildings": BUILDINGS, "plaza": PLAZA, "gate": GATE}, ensure_ascii=False) + ';' + NL,
+        + 'export const BOCUC = ' + json.dumps({"nx": NX, "ny": NY, "rows": rows, "buildings": BUILDINGS, "plaza": PLAZA, "gate": GATE, "tf": {"c_old": C_OLD, "c": C, "sx": SX, "sy": SY}}, ensure_ascii=False) + ';' + NL,
         encoding='utf-8')
     (ROOT / 'docs/bo_cuc_sanh.json').write_text(json.dumps({'nx': NX, 'ny': NY, 'rows': rows, 'buildings': BUILDINGS, 'plaza': PLAZA,
                                                             'gate': GATE, 'paths': PATHS, 'falls': FALLS}, ensure_ascii=False, indent=1), encoding='utf-8')
@@ -110,9 +131,10 @@ def main():
     for n, b in BUILDINGS.items():
         x0, y0, x1, y1 = b['box']; lab((x0 * k + 6, y0 * k + 6), b['name'])
     lab((BIA['box'][0] * k + 6, BIA['box'][1] * k + 6), 'Vườn bia'); lab((GATE['x'][0] * k - 30, GATE['y'][0] * k - 26), 'Cổng bí cảnh')
-    lab((PLAZA['c'][0] * k - 80, PLAZA['c'][1] * k - 10), 'Bệ Tụ Linh Pháp Đài'); lab((88 * k, 50 * k), 'Luyện Võ Trường')
-    lab((BRIDGE['box'][0] * k, BRIDGE['box'][1] * k - 24), 'Cầu đá'); lab((45 * k, 21 * k), 'Ao + thác nhỏ')
-    lab((1 * k, 27 * k), 'Thác'); lab((32 * k, 64 * k), 'Thác'); lab((81 * k, 64 * k), 'Thác'); lab((50 * k, 2 * k), 'Rừng (không vào)')
+    lab((PLAZA['c'][0] * k - 80, PLAZA['c'][1] * k - 10), 'Bệ Tụ Linh Pháp Đài'); lab((tf((88, 50))[0] * k, tf((88, 50))[1] * k), 'Luyện Võ Trường')
+    lab((BRIDGE['box'][0] * k, BRIDGE['box'][1] * k - 24), 'Cầu đá'); lab((tf((45, 21))[0] * k, tf((45, 21))[1] * k), 'Ao + thác nhỏ')
+    for f in FALLS: lab((f[0] * k, f[3] * k - 30), 'Thác')
+    lab((tf((50, 2))[0] * k, 2 * k), 'Rừng (không vào)')
     for b in BUILDINGS.values():
         fx, fy = b['foot']; d.ellipse([fx * k - 5, fy * k - 5, fx * k + 5, fy * k + 5], fill=(255, 230, 0))
     im.save(ROOT / 'docs/playtest/M8_bo_cuc_luoi.png')

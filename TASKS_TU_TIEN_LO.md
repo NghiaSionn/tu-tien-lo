@@ -409,6 +409,7 @@ Thiết kế + backlog đầy đủ (ChatGPT, 13/11): **`docs/chatgpt_tong_mon_M
   - [x] b. (15/11) Đường lát đá vẽ bằng code (`paintPath` trong render.js): đá cuội, viền bó vỉa giáp cỏ, bo góc
   - [x] c. (15/11) Suối phía nam: đường dừng ở bờ, cầu đá đặt trên mặt nước; ô FALL + lớp thác động ở 3 thác (trái, 2 thác nam)
   - [x] d. (15/11) Vách núi (`paintCliff`, mép cỏ trên, mặt vách nam kéo dài 6 ô) + mây phẳng ngoài đảo (`paintCloud`, `cloudPuffs`). Ảnh xem trong game, test 209/209
+  - [x] i. (15/11) Phóng bố cục quanh bệ (bệ sprite to hơn bệ trong concept): toạ độ concept x1,45 / y1,55 quanh tâm bệ (khung 174×106, bản đồ 194×126); đường lát rộng 6 ô dựng lại từ 4 lối bậc của bệ (bắc -> cổng, tây/đông -> ngã ba -> công trình, nam -> bia, Công Đức + cầu, cổng rào); công trình lùi xa; test đi bộ tới nhà nới 12 -> 18 s. Ảnh `docs/playtest/M8_sanh_phong_toan_canh.png`
   - [ ] e. Luyện Võ Trường: hàng rào/cổng rào liền, sân đất có viền
   - [ ] f. Cổng bí cảnh: bậc + sân trước cổng như concept ảnh 1
 - [ ] M8-07..11 kiểm từng khu, M8-12 HUD, M8-14 cảm ứng, M8-16 save/regression, M8-17..18 playtest: sau khi xong M8-15
