@@ -389,6 +389,7 @@ Thiết kế + backlog đầy đủ (ChatGPT, 13/11): **`docs/chatgpt_tong_mon_M
   - [x] (14/11) VFX tụ linh trận (ý tưởng người phát triển): âm dương giữa trận vẽ từng điểm ảnh, xoay chậm theo chiều kim đồng hồ (~14 s/vòng, `TAIJI` + `taijiFrame` trong render.js); nhấn T trong trận -> vào giữa trận, bay lơ lửng (nâng ~9 px, lên xuống ±2,5 px, bóng giữ ở đất, hào quang dịu đi); linh khí bay lên quanh trận khi thiền (`updateQiParts`/`drawQiParts`); 204/204; ảnh `docs/playtest/M8_tran_vfx.png`
   - [x] (14/11) Chỉnh VFX trận: âm dương chỉ xoay khi đang thiền (tăng/giảm tốc dần, dừng giữ nguyên góc), 240 nấc xoay cho mượt; màu trận dịu đi ~25%, lớp sáng khi thiền nhẹ hơn; ảnh `docs/playtest/M8_tran_vfx.png`
   - [x] (14/11) Bay lơ lửng mượt: nâng theo smoothstep 1,2 s (hạ 0,8 s), lơ lửng sin chu kỳ ~3,4 s biên 2 px tính thẳng từ đồng hồ (bỏ đuổi mục tiêu); thử: mỗi khung lệch tối đa 1 px, các nấc cách 5–47 khung
+  - [x] (14/11) Lơ lửng hết khựng: khi bay, nhân vật vẽ ở toạ độ lẻ (dưới 1 px) có nội suy (`imageSmoothingEnabled` chỉ cho nhân vật lúc bay) -> trôi liên tục thay vì nhảy nấc 1 px cách 16–47 khung; ảnh `docs/playtest/M8_bay_muot.png`
 - [ ] M8-03 Hệ thống tương tác công trình dùng chung (M, P0)
 - [ ] M8-04 Cổng Bí Cảnh (S, P0)
 - [ ] M8-05 Tụ Linh Pháp Đài (M, P0) → GATE M8-A

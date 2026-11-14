@@ -584,7 +584,7 @@ function drawPlayer(ctx, p, time, medFx, inForm, vis, float = false) {
   if (p.med) {
     // M8: thiền giữa tụ linh trận sảnh tông môn -> bay lơ lửng (nâng lên dần, rồi lên xuống nhẹ); bóng giữ ở đất
     // nâng lên theo đường cong êm (smoothstep ~1,2 s), rồi lơ lửng theo sóng sin chậm (chu kỳ ~3,4 s, biên 2 px) tính trực tiếp từ đồng hồ
-    // (không đuổi theo mục tiêu -> không giật; mỗi lần lệch đúng 1 px, cách đều)
+    // (không đuổi theo mục tiêu -> không giật); nhân vật vẽ ở toạ độ lẻ có nội suy nên trôi mượt, không khựng theo nấc 1 px
     const dtv = vis && vis.frameDt || 0.016;
     p.liftK = Math.max(0, Math.min(1, (p.liftK || 0) + (float ? dtv : -dtv * 1.5) / 1.2));
     const ease = p.liftK * p.liftK * (3 - 2 * p.liftK);
@@ -593,7 +593,9 @@ function drawPlayer(ctx, p, time, medFx, inForm, vis, float = false) {
     if (fl) { ctx.fillStyle = 'rgba(0,0,0,.18)'; ctx.fillRect(Math.round(p.x) - 6, sy0 - 2, 12, 3); }
     medFx.x = Math.round(p.x); medFx.y = fy2; medFx.lightGain = fl ? 0.12 : inForm ? 1 : 0.6; medFx.draw(ctx);   // bay giữa trận: hào quang dịu lại để thấy âm dương xoay
     const bob = Math.round(Math.sin(time * 2) * 1.5 + 1.5);
-    if (hero) heroFrame(ctx, hero, fl ? 'sit1' : Math.sin(time * 2) > 0 ? 'sit1' : 'sit0', p.x, fy2);   // thở: 2 khung; bay thì giữ 1 khung (chuyển động là bay)
+    if (hero && p.lift > 0.05) {   // đang bay: vẽ ở toạ độ lẻ (dưới 1 px) có nội suy -> lơ lửng trôi liên tục, không nhảy từng nấc 1 px
+      ctx.imageSmoothingEnabled = true; heroFrame(ctx, hero, 'sit1', p.x, fy - p.lift); ctx.imageSmoothingEnabled = false;
+    } else if (hero) heroFrame(ctx, hero, Math.sin(time * 2) > 0 ? 'sit1' : 'sit0', p.x, fy2);   // thở: 2 khung
     else ctx.drawImage(SPR.sit, x, fy2 - 14 - bob);
     return;
   }
