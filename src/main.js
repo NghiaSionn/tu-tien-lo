@@ -248,6 +248,7 @@ function toggleMed() {
   if (trib || view !== 'HUB') return;
   p.med = !p.med;
   if (!p.med) return;
+  if (SECT_MAP && inForm()) { p.x = CX; p.y = CY; }   // M8: thiền trong tụ linh trận sảnh -> vào giữa trận, bay lơ lửng (render)
   dryNotified = false;
   Audio.play('med');
   if (meta.lingQi <= 0) UI.log(inForm() ? 'Không còn linh khí — chỉ hấp thu được rất chậm. Vào bí cảnh (E) mang linh khí về, hoặc dùng Tụ Khí Đan.' : 'Không còn linh khí. Vào bí cảnh mang linh khí về; thiền trong tụ linh trận mới hấp thu được.', 'bad');

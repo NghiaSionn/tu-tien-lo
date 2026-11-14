@@ -428,6 +428,60 @@ function drawSectBuilding(ctx, b) {
   txt(ctx, b.name, Math.round(x + w / 2), roofTop - 3, '#ffd978');
 }
 
+// M8: âm dương giữa tụ linh trận sảnh tông môn — vẽ từng điểm ảnh (giữ chất pixel), elip theo góc nhìn 3/4 (khớp hình trận tm_tran:
+// tâm cách đỉnh hình trận cy px, bán trục rx×ry), quay theo chiều kim đồng hồ ~1 vòng/14 s; 72 khung xoay dựng sẵn khi cần
+const TAIJI = { rx: 25, ry: 14, cy: 55, period: 14, steps: 72 };
+const _taiji = new Map();
+function taijiFrame(time, lit) {
+  const k = Math.floor((time / TAIJI.period % 1) * TAIJI.steps), key = k + (lit ? 'L' : '');
+  let c = _taiji.get(key); if (c) return c;
+  const { rx, ry } = TAIJI, W = rx * 2 + 1, H = ry * 2 + 1;
+  c = document.createElement('canvas'); c.width = W; c.height = H; const g = c.getContext('2d'), id = g.createImageData(W, H), d = id.data;
+  const a = k / TAIJI.steps * Math.PI * 2, ca = Math.cos(a), sa = Math.sin(a);
+  const LIGHT = lit ? [196, 255, 244] : [158, 236, 220], DARK = lit ? [10, 72, 80] : [12, 74, 80], RIM = lit ? [120, 255, 230] : [60, 170, 160], BACK = [8, 48, 56];
+  for (let j = 0; j < H; j++) for (let i = 0; i < W; i++) {
+    const u0 = (i - rx) / rx, v0 = (j - ry) / ry, r2 = u0 * u0 + v0 * v0;
+    let col = null;
+    if (r2 <= 1.0) {
+      if (r2 > 0.8) col = RIM;
+      else {
+        const u = (u0 * ca + v0 * sa) / 0.89, v = (-u0 * sa + v0 * ca) / 0.89;   // quay ngược toạ độ = hình quay thuận chiều kim đồng hồ
+        const dUp = Math.hypot(u, v + 0.5), dDn = Math.hypot(u, v - 0.5);
+        let light = u > 0;
+        if (dUp < 0.5) light = true; if (dDn < 0.5) light = false;
+        if (dUp < 0.16) light = false; if (dDn < 0.16) light = true;
+        col = light ? LIGHT : DARK;
+      }
+    } else if (r2 <= 1.35) col = BACK;   // nền tối che âm dương vẽ sẵn trong hình trận
+    if (!col) continue;
+    const o = (j * W + i) * 4; d[o] = col[0]; d[o + 1] = col[1]; d[o + 2] = col[2]; d[o + 3] = 255;
+  }
+  g.putImageData(id, 0, 0); _taiji.set(key, c); return c;
+}
+// M8: linh khí bay lên quanh tụ linh trận khi tọa thiền trong trận (sảnh tông môn)
+function updateQiParts(vis, map, on, dt) {
+  const P = vis.qiParts || (vis.qiParts = []);
+  if (on) for (let n = dt * 46 + Math.random(); n >= 1; n--) {
+    const a = Math.random() * Math.PI * 2, r = 0.5 + Math.random() * 0.55;
+    P.push({ x: map.cx + Math.cos(a) * 92 * r, y: map.cy + Math.sin(a) * 50 * r, vy: -(18 + Math.random() * 26), sw: Math.random() * 6, life: 0, max: 1.4 + Math.random() * 1.4, big: Math.random() < 0.4 });
+  }
+  for (const q of P) { q.life += dt; q.y += q.vy * dt; q.x += Math.sin(q.life * 3 + q.sw) * 8 * dt; }
+  vis.qiParts = P.filter(q => q.life < q.max);
+}
+function drawQiParts(ctx, vis) {
+  // vẽ đè thường (không cộng sáng): trên nền đá sáng, cộng sáng gần như không thấy
+  if (!vis.qiParts || !vis.qiParts.length) return;
+  for (const q of vis.qiParts) {
+    const f = q.life / q.max, a = Math.min(1, f * 5) * (1 - f) ** 0.7, x = Math.round(q.x), y = Math.round(q.y);
+    if (q.big) {   // đốm linh khí: viền xanh đậm + lõi trắng ngọc + vệt đuôi
+      ctx.globalAlpha = a * 0.55; ctx.fillStyle = '#1aa898'; ctx.fillRect(x, y + 2, 1, 5); ctx.fillRect(x - 2, y - 1, 5, 3); ctx.fillRect(x - 1, y - 2, 3, 5);
+      ctx.globalAlpha = a; ctx.fillStyle = '#46f0d6'; ctx.fillRect(x - 1, y - 1, 3, 3);
+      ctx.fillStyle = '#f0fffb'; ctx.fillRect(x, y, 1, 1);
+    } else { ctx.globalAlpha = a; ctx.fillStyle = '#3ee6cc'; ctx.fillRect(x, y, 2, 2); ctx.fillStyle = '#dafff6'; ctx.fillRect(x, y, 1, 1); }
+  }
+  ctx.globalAlpha = 1;
+}
+
 // Linh Mạch (M3-04): cột linh quang; mờ + vòng đỏ khi bị phong ấn (boss sống); chữ "E" khi đứng gần
 function drawShrine(ctx, run, p, time, vis) {
   const s = run.shrine, sealed = run.scene.monsters.some(m => m.boss && !m.dead);
@@ -521,19 +575,24 @@ function heroFrame(ctx, hero, name, px, fy, flip = false, src = hero.img) {
   else ctx.drawImage(src, sx, sy, fw, fh, x - ax, y, fw, fh);
 }
 
-function drawPlayer(ctx, p, time, medFx, inForm, vis) {
+function drawPlayer(ctx, p, time, medFx, inForm, vis, float = false) {
   const hero = vis && vis.hero;
   if (hero && p.hurtT > 0) p.hurtT -= vis.frameDt || 0;   // chỉ dùng để vẽ
   if (p.inv > 0 && Math.floor(time * 20) % 2) return;
   const x = Math.round(p.x - 6), sy0 = Math.round(p.y), fy = Math.round(p.y) + Math.round(p.bob || 0);   // bob: nhún khi đi trên bậc (M8)
   ctx.fillStyle = 'rgba(0,0,0,.25)'; if (hero) ctx.fillRect(x - 3, sy0 - 2, 18, 3); else ctx.fillRect(x + 1, sy0 - 1, 10, 2);
   if (p.med) {
-    medFx.x = Math.round(p.x); medFx.y = fy; medFx.lightGain = inForm ? 1 : 0.6; medFx.draw(ctx);
+    // M8: thiền giữa tụ linh trận sảnh tông môn -> bay lơ lửng (nâng lên dần, rồi lên xuống nhẹ); bóng giữ ở đất
+    p.lift = (p.lift || 0) + ((float ? 9 + Math.sin(time * 1.6) * 2.5 : 0) - (p.lift || 0)) * Math.min(1, (vis && vis.frameDt || 0.016) * 4);
+    const fl = Math.round(p.lift), fy2 = fy - fl;
+    if (fl) { ctx.fillStyle = 'rgba(0,0,0,.18)'; ctx.fillRect(Math.round(p.x) - 6, sy0 - 2, 12, 3); }
+    medFx.x = Math.round(p.x); medFx.y = fy2; medFx.lightGain = fl ? 0.12 : inForm ? 1 : 0.6; medFx.draw(ctx);   // bay giữa trận: hào quang dịu lại để thấy âm dương xoay
     const bob = Math.round(Math.sin(time * 2) * 1.5 + 1.5);
-    if (hero) heroFrame(ctx, hero, Math.sin(time * 2) > 0 ? 'sit1' : 'sit0', p.x, fy);   // thở: 2 khung
-    else ctx.drawImage(SPR.sit, x, fy - 14 - bob);
+    if (hero) heroFrame(ctx, hero, fl ? 'sit1' : Math.sin(time * 2) > 0 ? 'sit1' : 'sit0', p.x, fy2);   // thở: 2 khung; bay thì giữ 1 khung (chuyển động là bay)
+    else ctx.drawImage(SPR.sit, x, fy2 - 14 - bob);
     return;
   }
+  p.lift = 0;
   if (hero) {
     const st = p.hurtT > 0 ? 'hurt' : p.cd > BASIC_ATTACK.CD - 0.12 ? 'atk' : 'walk' + (p.moving ? Math.floor(p.anim) % 4 : 0);
     const dir = p.face === 'side' ? (p.flip ? 'left' : 'right') : p.face;   // trái/phải là khung riêng, không lật
@@ -747,8 +806,11 @@ export function render(ctx, g) {
     const TR = g.sect && vis.tm && vis.tm.tran ? vis.tm : ct;   // M8: sảnh tông môn dùng tụ linh trận vẽ theo concept ảnh 1 (sprites/tm_tran)
     if (TR === vis.tm && TR.tran) {   // M8: trận đứng yên một chỗ; tọa thiền trong trận thì các đường khắc sáng lên (không nhấp nháy)
       const t = TR.tran, x = Math.round(map.cx - t.width / 2), y = Math.round(map.cy - t.height / 2);
+      const on = p.med && g.inForm;
       ctx.drawImage(t, x, y);
-      if (p.med && g.inForm && TR.tranGlow) { ctx.globalCompositeOperation = 'lighter'; ctx.drawImage(TR.tranGlow, x, y); ctx.globalCompositeOperation = 'source-over'; }
+      if (on && TR.tranGlow) { ctx.globalCompositeOperation = 'lighter'; ctx.drawImage(TR.tranGlow, x, y); ctx.globalCompositeOperation = 'source-over'; }
+      const tj = taijiFrame(time, on);   // âm dương giữa trận xoay chậm theo chiều kim đồng hồ, liên tục
+      ctx.drawImage(tj, Math.round(map.cx - tj.width / 2), y + TAIJI.cy - (tj.height >> 1));
     } else if (TR && TR.tran) {   // tụ linh trận (ChatGPT vẽ): thiền trong trận thì sáng rực, bình thường nhịp sáng nhẹ
       const t = TR.tran, s = TR.tran_sang, on = p.med && g.inForm;
       ctx.drawImage(t, Math.round(map.cx - t.width / 2), Math.round(map.cy - t.height / 2));
@@ -833,7 +895,7 @@ export function render(ctx, g) {
     }
     else if (o.bia) drawBia(ctx, g.bia, vis, time);
     else if (o.sectB) drawSectBuilding(ctx, o.sectB);
-    else drawPlayer(ctx, p, time, g.medFx, g.inForm, vis);
+    else drawPlayer(ctx, p, time, g.medFx, g.inForm, vis, !!(g.sect && p.med && g.inForm && vis.tm && vis.tm.tran));
   }
 
   mark('objects');
@@ -845,6 +907,7 @@ export function render(ctx, g) {
   if (scene.projectiles) drawProjectiles(ctx, scene, vis.FX, g.dtWorld || 0, vis.quality);
   mark('projectiles');
   for (const s of g.hubShots || []) { s.fx.x = Math.round(s.x); s.fx.y = Math.round(s.y); s.fx.draw(ctx); }
+  if (scene.kind === 'hub' && g.sect) { updateQiParts(vis, map, !!(p.med && g.inForm), g.dtWorld || 0); drawQiParts(ctx, vis); }
   for (const fx of vis.fxs) fx.draw(ctx);
   mark('fx');
 
