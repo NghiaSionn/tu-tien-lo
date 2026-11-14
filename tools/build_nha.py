@@ -25,6 +25,9 @@ NHA = {
     'dan_duoc': dict(src='docs/concept/nha_dan_duoc_lon_chatgpt.png', scale=4.4, seed=(130, 160), stair=(97, 168, 163, 229), interact=(130, 158),
                      block=[(50, 134, 106, 166), (154, 134, 210, 166)],   # cả bàn + đồ trên bàn là MỘT vật (chỉ chân đặc)
                      floor=[(90, 104), (172, 104), (215, 140), (218, 168), (165, 170), (97, 170), (42, 168), (45, 140)]),
+    'luyen_khi': dict(src='docs/concept/nha_luyen_khi_lon_chatgpt.png', scale=4.4, seed=(130, 162), stair=(97, 168, 163, 229), interact=(131, 160),
+                      block=[(104, 118, 158, 156), (46, 128, 102, 168), (176, 98, 224, 156)],   # đe, thùng than + hộp đồ, giá thương
+                      floor=[(90, 104), (172, 104), (215, 140), (218, 168), (165, 170), (97, 170), (42, 168), (45, 140)]),
 }
 LUM_MIN, OPEN_R, FOOT, GROW, PAD, C = 85, 2, 8, 4, 8, 4
 OBJ_FOOT = 12
@@ -39,7 +42,7 @@ def build(id_, cfg):
     H, W = a.shape[:2]; alpha = a[..., 3] > 0
     lum = 0.3 * a[..., 0] + 0.59 * a[..., 1] + 0.11 * a[..., 2]
     r_, g_, b_ = [a[..., i].astype(int) for i in range(3)]
-    tile = alpha & (lum > LUM_MIN) & (g_ > 0.68 * r_) & (b_ > 0.5 * r_)   # đá sàn (kể cả ám vàng đèn); gỗ nâu đỏ có g, b thấp so với r
+    tile = alpha & (lum > LUM_MIN) & (g_ > 0.68 * r_) & (b_ > 0.35 * r_)   # đá sàn (kể cả ám vàng đèn); gỗ nâu đỏ có g, b thấp so với r
     # sàn = đa giác khoanh tay (cfg floor) trừ đồ đạc: điểm không phải đá sàn, bỏ nét mảnh (mạch vữa) bằng phép mở -> còn bàn, đỉnh, kệ
     poly = mask(W, H, [cfg['floor']])
     objs = morph(morph(poly & ~tile, OPEN_R, 'erode'), OPEN_R + 1, 'dilate')

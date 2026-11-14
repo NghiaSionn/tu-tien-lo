@@ -1,6 +1,6 @@
 // Vẽ một khung: bản đồ, vật thể sắp theo y, yêu thú, người chơi, công pháp, hiệu ứng beanfx và hạt sáng.
 import { VIEW, TILE as T, HUB, FEATURES, ARCH, BOSS, TRIBULATION, SHRINE, BASIC_ATTACK } from '../core/config.js';
-import { GRASS, WATER, STONE, TREE, ROCK, BUILDING, FENCE, DIRT } from '../world/map.js';
+import { GRASS, WATER, STONE, TREE, ROCK, BUILDING, FENCE, DIRT, CLIFF, CLOUD } from '../world/map.js';
 import { SPR, TIERS, BOSS_WHITE, BOSS_SPR, grassTiles, waterTiles, waterBank, stoneTile, treeSprs, rockSpr, hash } from './sprites.js';
 import { createFx } from '../../lib/beanfx.js';
 import { skillKind, skillParams, spiritOrbPos, sealOrbPos } from '../systems/combat.js';
@@ -147,7 +147,25 @@ function fenceSpr() {
   g.fillStyle = '#b07a48'; g.fillRect(7, 3, 1, 15);
   return (_fence = c);
 }
+// M8 (15/11): vách núi rìa đảo + biển mây (tạm vẽ bằng code, sẽ thay art)
+const _edge = {};
+function edgeTile(kind, v) {
+  const key = kind + v; if (_edge[key] || typeof document === 'undefined') return _edge[key];
+  const c = document.createElement('canvas'); c.width = c.height = T; const g = c.getContext('2d');
+  if (kind === 'cliff') {
+    g.fillStyle = '#5d5e78'; g.fillRect(0, 0, T, T);
+    for (let i = 0; i < 7; i++) { const x = Math.floor(hash(i, v, 41) * 13), y = Math.floor(hash(i, v, 42) * 13), w = 3 + Math.floor(hash(i, v, 43) * 5);
+      g.fillStyle = '#73748f'; g.fillRect(x, y, w, 2); g.fillStyle = '#44455c'; g.fillRect(x, y + 2, w, 1); }
+    g.fillStyle = '#3c3d52'; g.fillRect(Math.floor(hash(v, 1, 44) * 15), 0, 1, T);
+  } else {
+    g.fillStyle = '#c9cbe6'; g.fillRect(0, 0, T, T);
+    for (let i = 0; i < 4; i++) { g.fillStyle = i & 1 ? '#e4e5f5' : '#b7b9d9'; g.fillRect(Math.floor(hash(i, v, 45) * 12), Math.floor(hash(i, v, 46) * 13), 5, 3); }
+  }
+  return (_edge[key] = c);
+}
 function groundTile(t, tx, ty, map) {
+  if (t === CLIFF) return edgeTile('cliff', Math.floor(hash(tx, ty, 47) * 4));
+  if (t === CLOUD) return edgeTile('cloud', Math.floor(hash(tx, ty, 48) * 4));
   if (t === STONE || t === BUILDING) return stoneTile;
   if (t === DIRT) return dirtTile();
   return grassTiles[Math.floor(hash(tx, ty, 5) * grassTiles.length)];

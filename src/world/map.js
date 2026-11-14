@@ -6,20 +6,20 @@ import { PLAZA } from '../data/sect_plaza.js';
 import { NHA } from '../data/sect_nha.js';
 
 export const GRASS = 0, WATER = 1, STONE = 2, TREE = 3, ROCK = 4;
-export const BUILDING = 5, FENCE = 6, DIRT = 7;   // M8-02: nền công trình (đặc), hàng rào (đặc), sân đất (đi được)
+export const BUILDING = 5, FENCE = 6, DIRT = 7, CLIFF = 8, CLOUD = 9;   // M8 (15/11): vách núi rìa đảo, mây ngoài đảo (đặc)   // M8-02: nền công trình (đặc), hàng rào (đặc), sân đất (đi được)
 
 function makeMap(w, h, seed, kind, gen) {
   const tiles = new Uint8Array(w * h);
   for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) tiles[y * w + x] = gen(x, y);
   const m = { w, h, seed, kind, tiles, pw: w * T, ph: h * T, cx: w / 2 * T, cy: h / 2 * T };
   m.tileAt = (tx, ty) => (tx < 0 || ty < 0 || tx >= w || ty >= h) ? TREE : tiles[ty * w + tx];
-  m.solidTile = (tx, ty) => { const t = m.tileAt(tx, ty); return t === WATER || t === TREE || t === ROCK || t === BUILDING || t === FENCE; };
+  m.solidTile = (tx, ty) => { const t = m.tileAt(tx, ty); return t === WATER || t === TREE || t === ROCK || t === BUILDING || t === FENCE || t === CLIFF || t === CLOUD; };
   m.solidPx = (px, py) => m.solidTile(Math.floor(px / T), Math.floor(py / T));
   // x, y là vị trí bàn chân; hộp va chạm nhỏ quanh chân
   m.canStand = (x, y) => Number.isFinite(x) && Number.isFinite(y) &&
     !m.solidPx(x - 4, y - 5) && !m.solidPx(x + 4, y - 5) && !m.solidPx(x - 4, y) && !m.solidPx(x + 4, y);
   // đạn và tầm nhìn bị chặn bởi cây và đá (nước không chặn)
-  m.blocksShot = (px, py) => { const t = m.tileAt(Math.floor(px / T), Math.floor(py / T)); return t === TREE || t === ROCK || t === BUILDING || t === FENCE; };
+  m.blocksShot = (px, py) => { const t = m.tileAt(Math.floor(px / T), Math.floor(py / T)); return t === TREE || t === ROCK || t === BUILDING || t === FENCE || t === CLIFF; };
   m.lineOfSight = (x0, y0, x1, y1) => {
     const d = Math.hypot(x1 - x0, y1 - y0), n = Math.ceil(d / 6);
     for (let i = 1; i < n; i++) { const k = i / n; if (m.blocksShot(x0 + (x1 - x0) * k, y0 + (y1 - y0) * k + 6)) return false; }
@@ -55,8 +55,14 @@ export function buildSectGrid(S = SECT) {
   const inb = (x, y) => x >= 0 && y >= 0 && x < S.W && y < S.H;
   const set = (x, y, t) => { if (inb(x, y)) g[y * S.W + x] = t; };
   const block = r => { for (let y = r.y0; y < r.y1; y++) for (let x = r.x0; x < r.x1; x++) if (inb(x, y)) solid[y * S.W + x] = 1; };
-  const cx = S.W / 2, cy = S.H / 2;
-  for (let y = S.STREAM.y; y < S.STREAM.y + S.STREAM.h; y++) for (let x = 0; x < S.W; x++) set(x, y, x >= S.STREAM.bridge[0] && x <= S.STREAM.bridge[1] ? STONE : WATER);
+  const cx = S.MW ? S.MW / 2 - S.PADL : S.W / 2, cy = S.MH ? S.MH / 2 - S.PADT : S.H / 2;   // tâm bệ trong khung
+  if (S.ROWS) {   // M8 (15/11): lưới bố cục theo concept
+    const MAPC = { '.': GRASS, '=': STONE, '~': WATER, 'd': DIRT, '^': CLIFF, 'T': TREE, 'B': GRASS, 'P': STONE, 'G': STONE, 'X': CLOUD, 'b': GRASS, 'W': WATER };
+    for (let y = 0; y < S.H; y++) for (let x = 0; x < S.W; x++) set(x, y, MAPC[S.ROWS[y][x]] ?? GRASS);
+    for (let x = 0; x < S.W; x++) for (const y of [0, S.H - 1]) if (g[y * S.W + x] === GRASS) set(x, y, TREE);   // mép khung kín
+    for (let y = 0; y < S.H; y++) for (const x of [0, S.W - 1]) if (g[y * S.W + x] === GRASS) set(x, y, TREE);
+  }
+  if (S.STREAM) for (let y = S.STREAM.y; y < S.STREAM.y + S.STREAM.h; y++) for (let x = 0; x < S.W; x++) set(x, y, x >= S.STREAM.bridge[0] && x <= S.STREAM.bridge[1] ? STONE : WATER);
   const P0 = S.POND; if (P0) for (let y = P0.y; y < P0.y + P0.h; y++) for (let x = P0.x; x < P0.x + P0.w; x++) set(x, y, WATER);
   const half = S.PATH_W / 2;
   for (const line of S.PATHS) for (let i = 1; i < line.length; i++) {
@@ -80,17 +86,20 @@ export function buildSectGrid(S = SECT) {
   }
   for (const b of S.BUILDINGS) { if (b.nha) continue; const r = solidRect(b.foot, b.base); for (let y = r.y0; y < r.y1; y++) for (let x = r.x0; x < r.x1; x++) set(x, y, BUILDING); }
   for (const [, x, y, sd] of S.PROPS) if (sd) block(solidRect([x, y], sd));
-  for (let x = 0; x < S.W; x++) { set(x, 0, TREE); set(x, S.H - 1, TREE); }
-  for (let y = 0; y < S.H; y++) { set(0, y, TREE); set(S.W - 1, y, TREE); }
+  if (!S.ROWS) {
+    for (let x = 0; x < S.W; x++) { set(x, 0, TREE); set(x, S.H - 1, TREE); }
+    for (let y = 0; y < S.H; y++) { set(0, y, TREE); set(S.W - 1, y, TREE); }
+  }
   return { tiles: g, solid };
 }
 
 export function makeSectMap(S = SECT) {
-  const { SEED } = HUB, PAD = S.PAD ?? 10, MW = S.W + 2 * PAD, MH = S.H + 2 * PAD;
-  const ox = PAD, oy = PAD, { tiles: grid, solid } = buildSectGrid(S);
+  const { SEED } = HUB, PAD = S.PAD ?? 10, MW = S.MW || S.W + 2 * PAD, MH = S.MH || S.H + 2 * PAD;
+  const ox = S.PADL ?? PAD, oy = S.PADT ?? PAD, { tiles: grid, solid } = buildSectGrid(S);
   const m = makeMap(MW, MH, SEED, 'hub', (x, y) => {
     const lx = x - ox, ly = y - oy;
     if (lx >= 0 && ly >= 0 && lx < S.W && ly < S.H) return grid[ly * S.W + lx];
+    if (S.ROWS) return CLOUD;   // ngoài khung: biển mây
     if (x === 0 || y === 0 || x === MW - 1 || y === MH - 1) return TREE;
     if (noise(x / 8, y / 8, 1, SEED) < 0.3) return WATER;
     return hash(x, y, 2, SEED) < 0.35 ? TREE : GRASS;   // rừng dày ngoài tông môn
@@ -98,7 +107,7 @@ export function makeSectMap(S = SECT) {
   const tileSolid = m.solidTile;
   const base = (tx, ty) => { const lx = tx - ox, ly = ty - oy; return tileSolid(tx, ty) || (lx >= 0 && ly >= 0 && lx < S.W && ly < S.H && solid[ly * S.W + lx] === 1); };
   // bệ pháp đài: lưới ô (thô, cho test/BFS) + lưới mịn PLAZA.cell px (di chuyển bám sát hình: lan can bắc chỉ chặn ở chân, vách nam chặn cả khối)
-  const ctx = ox + S.W / 2, cty = oy + S.H / 2, P0 = PLAZA, cell = P0.cell;
+  const ctx = MW / 2, cty = MH / 2, P0 = PLAZA, cell = P0.cell;
   const fx0 = Math.round(m.cx - P0.anchor[0]) - (P0.pad || 0), fy0 = Math.round(m.cy - P0.anchor[1]) - (P0.pad || 0), fW = P0.fine[0].length * cell, fH = P0.fine.length * cell;
   const plazaTile = (tx, ty) => { const r = P0.rows[ty - cty - P0.y0]; return r ? r[tx - ctx - P0.x0] : undefined; };
   m.solidTile = (tx, ty) => base(tx, ty) || plazaTile(tx, ty) === '#';

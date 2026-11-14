@@ -49,7 +49,7 @@ test('không có chỗ đứng được nào bị kẹt trong khung tông môn; 
   for (let ly = 0; ly < SECT.H; ly++) for (let lx = 0; lx < SECT.W; lx++) {
     const x = S.ox + lx, y = S.oy + ly, t = m.tileAt(x, y), c = { x: x * T + 8, y: y * T + 8 };
     if (m.canStand(c.x, c.y)) assert.ok(reachable(c), `ô (${lx},${ly}) đứng được nhưng không tới được`);
-    if (lx === 0 || ly === 0 || lx === SECT.W - 1 || ly === SECT.H - 1) assert.equal(t, TREE, `viền (${lx},${ly})`);
+    if (lx === 0 || ly === 0 || lx === SECT.W - 1 || ly === SECT.H - 1) assert.ok(m.solidTile(x, y), `viền (${lx},${ly}) phải đặc (mây/vách/cây)`);
   }
 });
 
@@ -66,8 +66,8 @@ test('mặt sàn bệ chứa trọn trận thiên kiếp (elip SECT_ARENA) và c
 test('rộng gấp 2: đi từ pháp đài tới mỗi khu mất 4–9 s (đường ngắn nhất, PLAYER.SPEED)', () => {
   const dist = bfs({ x: m.cx, y: m.cy });
   const sec = p => { let best = Infinity; for (let dy = -8; dy <= 8; dy += G) for (let dx = -8; dx <= 8; dx += G) { const d = dist[node({ x: p.x + dx, y: p.y + dy })]; if (d >= 0) best = Math.min(best, d); } return best * G / PLAYER.SPEED; };
-  for (const b of S.buildings) { const s = sec(b.doorPx); assert.ok(s >= 4 && s <= 9, `${b.id}: ${s.toFixed(1)} s`); }
-  assert.ok(sec(S.portal) >= 3.5, 'cổng ' + sec(S.portal));
+  for (const b of S.buildings) { const s = sec(b.doorPx); assert.ok(s >= 3 && s <= 12, `${b.id}: ${s.toFixed(1)} s`); }   // sảnh theo concept (15/11) rộng hơn
+  assert.ok(sec(S.portal) >= 2.5, 'cổng ' + sec(S.portal));   // concept: cổng sát bệ
 });
 
 test('bệ pháp đài (sprite): mặt sàn tới được, chỉ lên/xuống qua 4 lối (bắc, bậc nam, cánh đông/tây)', async () => {

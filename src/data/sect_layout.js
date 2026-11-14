@@ -11,70 +11,42 @@ export const THEM = {
   them_ngang: { w: 177, h: 89, foot: 56, inner: [62, 50, 112, 60], stair: [62, 54, 112, 89] },
   them_vuong: { w: 110, h: 98, foot: 62, inner: [33, 56, 79, 66], stair: [33, 60, 79, 98] },
 };
+// M8 (15/11): sảnh theo concept ảnh 1 — lưới ô sinh từ tools/sect_bo_cuc.py (data/sect_bocuc.js), khung 120×68 ô.
+// Bản đồ = khung + đệm mây; đệm chọn để TÂM BỆ PHÁP ĐÀI (ô 60.5, 33 trong khung) trùng tâm bản đồ (thiên kiếp, tụ linh trận dùng tâm bản đồ).
+// Công trình: tạm dùng sprite nhỏ cũ + thềm, đặt sao cho chân bậc thềm đúng điểm `foot` của bố cục (đầu đường); sẽ thay bằng nhà
+// tách đúng từ concept. PATHS/STREAM/POND không dùng nữa (đã nằm trong lưới).
+import { BOCUC } from './sect_bocuc.js';
+const BF = BOCUC.buildings, them = id => (id === 'truyen_thua' ? 'them_vuong' : 'them_ngang');
+const footOf = id => { const [x, y] = BF[id].foot, t = THEM[them(id)]; return [x, y - (t.h - t.foot) / 16]; };
 export const SECT = {
-  W: 88, H: 64, PAD: 10,
-  // Tụ Linh Pháp Đài: sprite bệ đá nâng cao ChatGPT vẽ (sprites/tm_be*.png), va chạm sinh sẵn ở data/sect_plaza.js
-  // (tools/build_be_phap_dai.py). Bệ chiếm ~x 27–61, y 18–45; 4 lối lên: bắc (chân y ~24), bậc nam (chân y ~45),
-  // cánh tây (chân x ~27, y 33–35), cánh đông (chân x ~61, y 33–35)
-  PATH_W: 3,                    // bề rộng đường lát đá (ô)
-  // 5 công trình có chức năng (cửa = điểm đứng tương tác, ngay dưới bậc thềm)
+  W: BOCUC.nx, H: BOCUC.ny, PADL: 10, PADT: 11, MW: BOCUC.nx + 20, MH: BOCUC.ny + 20,   // tâm bản đồ = ô (60, 33) của khung
+  ROWS: BOCUC.rows,
+  PATH_W: 4, PATHS: [],
   BUILDINGS: [
-    { id: 'truyen_thua', name: 'Truyền Thừa Các', foot: [20, 16], base: [4, 3], them: 'them_vuong' },
-    { id: 'tang_kinh', name: 'Tàng Kinh Các', foot: [13, 32], base: [6, 3], them: 'them_ngang' },
-    { id: 'cong_duc', name: 'Công Đức Đường', foot: [18, 48], base: [7, 3], them: 'them_ngang' },
-    { id: 'luyen_khi', name: 'Luyện Khí Phường', foot: [68, 16], base: [6, 3], them: 'them_ngang' },
-    { id: 'dan_duoc', name: 'Đan Dược Phòng', foot: [75, 32], base: [7, 3], nha: 'dan_duoc', at: [75, 35.5] },   // M8-15: nhà lớn đi vào được (sect_nha.js)
+    { id: 'truyen_thua', name: 'Truyền Thừa Các', foot: footOf('truyen_thua'), base: [4, 3], them: them('truyen_thua') },
+    { id: 'tang_kinh', name: 'Tàng Kinh Các', foot: footOf('tang_kinh'), base: [6, 3], them: them('tang_kinh') },
+    { id: 'cong_duc', name: 'Công Đức Đường', foot: footOf('cong_duc'), base: [7, 3], them: them('cong_duc') },
+    { id: 'luyen_khi', name: 'Luyện Khí Phường', foot: footOf('luyen_khi'), base: [6, 3], them: them('luyen_khi') },
+    { id: 'dan_duoc', name: 'Đan Dược Phòng', foot: footOf('dan_duoc'), base: [7, 3], them: them('dan_duoc') },
   ],
-  // Luyện Võ Trường: sân đất có rào (sói luyện đòn ở trong), cổng rào phía bắc; chòi luyện võ trong góc
-  PEN: { id: 'luyen_vo', name: 'Luyện Võ Trường', x: 64, y: 44, w: 22, h: 13, gate: [67, 69], door: [68.5, 43.2] },
-  PORTAL: [44, 10],             // chân cổng bí cảnh (bắc, cuối đường thẳng từ lối bắc của bệ)
-  BIA: [44, 55],                // Bia Truyền Thừa (bia động phủ hiện có) giữa vườn bia, dưới chân bậc nam
-  PATHS: [
-    [[44, 24], [44, 10]],                         // lối bắc của bệ → cổng bí cảnh
-    [[44, 15], [30, 15], [20, 17]],               // rẽ tây → Truyền Thừa Các
-    [[44, 15], [58, 15], [68, 17]],               // rẽ đông → Luyện Khí Phường
-    [[44, 45], [44, 55]],                         // chân bậc nam → vườn bia
-    [[44, 51], [30, 51], [18, 49]],               // chân bậc nam → tây → Công Đức Đường
-    [[27.5, 34], [13, 33]],                         // cánh tây → Tàng Kinh Các
-    [[60.5, 34], [66, 36.5], [75, 36.5]],                         // cánh đông → Đan Dược Phòng
-    [[44, 51], [58, 51], [62, 43], [68.5, 42.5]], // chân bậc nam → đông → cổng rào Luyện Võ Trường
-    [[18, 49], [22, 53], [27.5, 57], [27.5, 63]], // Công Đức Đường → cầu đá qua suối
-  ],
-  STREAM: { y: 60, h: 2, bridge: [26, 28] },      // suối ngang phía nam; cầu đá (cau_da) chỗ đường tây nam
-  POND: { x: 22, y: 20, w: 5, h: 3 },             // ao nhỏ dưới tháp (ảnh 1)
-  // đồ vật/cây: [sprite, x, y, solid?[w,h], flat?] — flat: vẽ sát đất (bậc thang) dưới nhân vật, không đặc
+  // Luyện Võ Trường: sân đất (elip trong lưới) + rào chữ nhật bên trong, cổng rào phía bắc lệch trái (đầu đường đông nam)
+  PEN: { id: 'luyen_vo', name: 'Luyện Võ Trường', x: 82, y: 44, w: 26, h: 13, gate: [83, 86], door: [84.5, 43.2] },
+  PORTAL: [60.5, 17.5],
+  BIA: [60.5, 50.5],
   PROPS: [
-    // bậc thềm trước mỗi công trình + trước cổng
-    ['bac_thang', 44, 12.4, 0, 1],
-    // cờ phướn hai bên cổng
-    ['co_phuon', 40.5, 9, [1, 1]], ['co_phuon', 47.5, 9, [1, 1]],
-    // đèn đá dọc đường
-    ['den_da', 41.5, 20, [1, 1]], ['den_da', 46.5, 20, [1, 1]], ['den_da', 32.5, 12, [1, 1]], ['den_da', 24.5, 12.5, [1, 1]], ['den_da', 24.5, 19.5, [1, 1]],
-    ['den_da', 55.5, 12, [1, 1]], ['den_da', 63.5, 12.5, [1, 1]], ['den_da', 20.5, 31, [1, 1]], ['den_da', 20.5, 38.5, [1, 1]],
-    ['den_da', 33.5, 54, [1, 1]], ['den_da', 67.5, 31, [1, 1]], ['den_da', 67.5, 38.5, [1, 1]], ['den_da', 24.5, 59.5, [1, 1]], ['den_da', 30.5, 59.5, [1, 1]],
-    ['den_da', 40.5, 57, [1, 1]], ['den_da', 47.5, 57, [1, 1]],
-    // vườn bia
-    ['bia_lon', 38.5, 56, [2, 1]], ['bia_nho', 50, 56, [2, 1]], ['bia_nho', 36, 54.5, [2, 1]],
-    // cầu đá + thác hai đầu suối + sen
-    ['cau_da', 27.5, 62.3], ['thac_nuoc', 3.5, 63], ['thac_nuoc', 84.5, 63],
-    ['sen', 12, 61.6], ['sen', 38, 61.4], ['sen', 58, 61.6], ['sen', 72, 61.4], ['sen', 24, 22.6],
-    // Luyện Võ Trường: chòi, mộc nhân, giá binh khí, cờ
-    ['luyen_vo', 80.5, 48, [4, 2]], ['moc_nhan', 69.5, 49, [1, 1]], ['moc_nhan', 73.5, 49, [1, 1]], ['moc_nhan', 71.5, 52, [1, 1]],
-    ['gia_binh_khi', 76, 47, [2, 1]], ['co_phuon', 65.5, 46, [1, 1]], ['co_phuon', 83.5, 55, [1, 1]],
-    // vách đá phía bắc (nền núi sau cổng)
-    ['vach_da', 8, 5, [4, 2]], ['vach_da', 26, 4, [4, 2]], ['vach_da', 62, 4, [4, 2]], ['vach_da', 80, 5, [4, 2]],
-    // cây (ảnh 1: anh đào hồng, tùng, tre, cây tròn) — gốc đặc
-    ['anh_dao_lon', 9, 14, [2, 1]], ['anh_dao_lon', 32, 9, [2, 1]], ['anh_dao_lon', 85, 19, [2, 1]], ['anh_dao_lon', 34, 57, [2, 1]],
-    ['anh_dao_lon', 54, 57, [2, 1]], ['anh_dao_lon', 6, 41, [2, 1]], ['anh_dao_lon', 86, 41, [2, 1]],
-    ['anh_dao_nho', 18, 40, [1, 1]], ['anh_dao_nho', 12, 55, [1, 1]], ['anh_dao_nho', 56, 11, [1, 1]], ['anh_dao_nho', 5, 29, [1, 1]],
-    ['tung_cao', 36, 6, [1, 1]], ['tung_cao', 52, 6, [1, 1]], ['tung_cao', 4, 22, [1, 1]], ['tung_cao', 84, 12, [1, 1]], ['tung_cao', 16, 7, [1, 1]],
-    ['tung_bonsai', 65, 25, [2, 1]], ['tung_bonsai', 10, 24, [2, 1]],
-    ['cay_tron', 4, 50, [2, 1]], ['cay_tron', 74, 8, [2, 1]], ['cay_tron', 53, 58, [2, 1]], ['cay_tron', 84, 30, [2, 1]],
-    ['tre', 3, 10, [2, 1]], ['tre', 85.5, 41, [2, 1]], ['tre', 26, 42, [2, 1]], ['tre', 66, 58, [2, 1]],
-    ['bui_cay', 21, 10, [2, 1]], ['bui_cay', 58, 12, [2, 1]], ['bui_cay', 30, 55, [2, 1]], ['bui_cay', 9, 47, [2, 1]],
-    ['da_lon', 36, 12, [2, 1]], ['da_lon', 77, 38, [2, 1]], ['da_lon', 16, 56, [2, 1]], ['da_nho', 28, 44, [2, 1]], ['da_nho', 70, 26, [2, 1]],
-    ['da_nho', 8, 34, [2, 1]], ['da_nho', 51, 12, [2, 1]],
-    ['khom_hoa', 40, 52], ['khom_hoa', 48, 53], ['khom_hoa', 15, 20], ['khom_hoa', 26, 23.5],
-    ['khom_hoa', 60, 21], ['khom_hoa', 10, 40], ['khom_hoa', 76, 40],
+    ['co_phuon', 55.5, 18, [1, 1]], ['co_phuon', 65.5, 18, [1, 1]],
+    ['den_da', 57.5, 22, [1, 1]], ['den_da', 63.5, 22, [1, 1]], ['den_da', 41.5, 30, [1, 1]], ['den_da', 37.5, 38.5, [1, 1]],
+    ['den_da', 46.5, 47, [1, 1]], ['den_da', 74.5, 44, [1, 1]], ['den_da', 79.5, 32, [1, 1]], ['den_da', 75.5, 24, [1, 1]],
+    ['den_da', 35.5, 52, [1, 1]], ['den_da', 44.5, 55, [1, 1]], ['den_da', 55.5, 47, [1, 1]], ['den_da', 66.5, 47, [1, 1]],
+    ['bia_nho', 54.5, 53.5, [2, 1]], ['bia_nho', 66, 54, [2, 1]],
+    ['cau_da', 35.5, 58.3],
+    ['luyen_vo', 103.5, 47, [4, 2]], ['moc_nhan', 90.5, 49, [1, 1]], ['moc_nhan', 94.5, 49, [1, 1]], ['moc_nhan', 92.5, 52, [1, 1]],
+    ['gia_binh_khi', 98, 46, [2, 1]], ['co_phuon', 84.5, 45, [1, 1]], ['co_phuon', 106.5, 55, [1, 1]],
+    ['anh_dao_lon', 46, 16, [2, 1]], ['anh_dao_lon', 14, 34, [2, 1]], ['anh_dao_lon', 12, 50, [2, 1]], ['anh_dao_lon', 106, 24, [2, 1]],
+    ['anh_dao_lon', 74, 51, [2, 1]], ['anh_dao_lon', 47, 54, [2, 1]], ['anh_dao_lon', 69, 56, [2, 1]], ['anh_dao_nho', 38, 46, [1, 1]],
+    ['tung_cao', 14, 16, [1, 1]], ['tung_cao', 108, 16, [1, 1]], ['tung_bonsai', 52, 16, [2, 1]], ['tung_bonsai', 70, 18, [2, 1]],
+    ['cay_tron', 100, 58, [2, 1]], ['cay_tron', 22, 56, [2, 1]], ['bui_cay', 44, 40, [2, 1]], ['bui_cay', 76, 40, [2, 1]],
+    ['da_lon', 50, 23, [2, 1]], ['da_nho', 70, 41, [2, 1]], ['khom_hoa', 58, 56], ['khom_hoa', 63, 57], ['khom_hoa', 52, 42], ['khom_hoa', 70, 30],
+    ['sen', 41, 22.5], ['sen', 55, 60.5],
   ],
 };
