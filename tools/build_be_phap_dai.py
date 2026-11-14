@@ -1,7 +1,6 @@
 """M8: bệ Tụ Linh Pháp Đài (ChatGPT vẽ: docs/concept/tong_mon_be_phap_dai_4loi_chatgpt.png
      -> tools/sprite_clean.py --scale 2.85 --colors 96 --tol 60 -> sprites/tm_be.png).
 Sinh từ sprite:
-  - (trước đó tools/fix_be_san.py tô lại mặt sàn cho liền)
   - xoá điểm ám magenta còn sót (viền + khe lan can) ngay trên sprites/tm_be.png
   - mặt sàn: LOANG từ tâm qua điểm ảnh sáng (dừng ở viền tối), cắt nhánh mảnh lan lên lan can/trụ bằng phép mở hình thái học
     + bậc nam, lối bắc, 2 cánh đông/tây khoanh tay (đo trên sprite 1.9, trong khe giữa má bậc/trụ)
