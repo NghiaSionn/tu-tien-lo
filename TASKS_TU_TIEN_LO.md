@@ -403,7 +403,7 @@ Thiết kế + backlog đầy đủ (ChatGPT, 13/11): **`docs/chatgpt_tong_mon_M
 - [-] GATE M8-A — BỎ theo người phát triển (14/11): hoàn thiện sảnh trước, test sau
 - [x] M8-06/09/13 (một phần, 14/11) Biển trạng thái dưới tên khu (`sectStatus`: vé Cơ Duyên, số đan + linh thạch, thành tựu x/y, luyện liệu; vàng = có việc nên làm); Đan Dược Phòng: bảng chọn ghi số đan và giá, báo thiếu linh thạch / hết đan; Luyện Võ Trường: E gọi đủ 4 sói vào sân
 - [ ] M8-15 Hoàn thiện hình ảnh sảnh (kế hoạch 14/11, mỗi mảng vẽ bằng ChatGPT như bệ pháp đài):
-  - [ ] a. Thềm đá + bậc cho 5 công trình (thay bậc sprite rời)
+  - [x] a. Thềm đá + bậc cho 5 công trình (14/11): ChatGPT vẽ 2 thềm (ngang, vuông) `docs/concept/tong_mon_them_chatgpt.png` -> `tools/build_them.py` -> `sprites/tm_them.*`; `THEM` trong sect_layout (chân, chiếu nghỉ, cột bậc); nhà đặt trên thềm, bỏ bậc rời; chỉ bậc + chiếu nghỉ đi được; cửa = giữa bậc; dời 4 đèn đá; ảnh `docs/playtest/M8_15a_them.png`
   - [ ] b. Đường lát đá: ô bo góc/chéo cho mượt (hết răng cưa)
   - [ ] c. Suối phía nam: bờ đá, cầu đá đúng chỗ, thác hai đầu
   - [ ] d. Vách núi + rừng bao quanh rìa tông môn (thay hàng cây ô vuông)

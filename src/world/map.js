@@ -1,7 +1,7 @@
 // Bản đồ: động phủ (giống hệt v0.1) và đấu trường bí cảnh. Thuần logic, không đụng DOM.
 import { TILE as T, HUB } from '../core/config.js';
 import { hash, noise } from '../core/rng.js';
-import { SECT } from '../data/sect_layout.js';
+import { SECT, THEM } from '../data/sect_layout.js';
 import { PLAZA } from '../data/sect_plaza.js';
 
 export const GRASS = 0, WATER = 1, STONE = 2, TREE = 3, ROCK = 4;
@@ -101,7 +101,12 @@ export function makeSectMap(S = SECT) {
   const fx0 = Math.round(m.cx - P0.anchor[0]) - (P0.pad || 0), fy0 = Math.round(m.cy - P0.anchor[1]) - (P0.pad || 0), fW = P0.fine[0].length * cell, fH = P0.fine.length * cell;
   const plazaTile = (tx, ty) => { const r = P0.rows[ty - cty - P0.y0]; return r ? r[tx - ctx - P0.x0] : undefined; };
   m.solidTile = (tx, ty) => base(tx, ty) || plazaTile(tx, ty) === '#';
+  // thềm công trình: trong khung thềm chỉ mặt thềm và cột bậc đi được, còn lại (vách, gờ, trụ góc) đặc
+  const inR = (x, y, r) => x >= r[0] && x <= r[2] && y >= r[1] && y <= r[3];
+  const themSolid = (x, y) => { for (const b of m.sect.buildings) { const t = b.them; if (!t) continue; const lx = x - t.x, ly = y - t.y;
+    if (lx >= 0 && ly >= 0 && lx < t.w && ly < t.h) return !(inR(lx, ly, t.inner) || inR(lx, ly, t.stair)); } return false; };
   m.solidPx = (x, y) => {
+    if (m.sect && themSolid(x, y)) return true;
     const tx = Math.floor(x / T), ty = Math.floor(y / T), fx = x - fx0, fy = y - fy0;
     if (fx >= 0 && fy >= 0 && fx < fW && fy < fH) return P0.fine[Math.floor(fy / cell)][Math.floor(fx / cell)] === '#' || base(tx, ty);
     return m.solidTile(tx, ty);
@@ -114,7 +119,11 @@ export function makeSectMap(S = SECT) {
     ox, oy,
     buildings: S.BUILDINGS.map(b => {
       const r = solidRect(b.foot, b.base);
-      return { ...b, px: (ox + r.x0) * T, py: (oy + r.y0) * T, pw: b.base[0] * T, ph: b.base[1] * T, footPx: px(b.foot), doorPx: px([b.foot[0], b.foot[1] + 0.7]) };
+      const fp = px(b.foot), th = b.them && THEM[b.them];
+      // có thềm: cửa = giữa bậc thềm (người chơi leo bậc tới công trình)
+      const door = th ? { x: fp.x, y: fp.y + Math.round((th.stair[1] + th.stair[3]) / 2) - th.foot } : px([b.foot[0], b.foot[1] + 0.7]);
+      const them = th ? { kind: b.them, x: Math.round(fp.x - th.w / 2), y: fp.y - th.foot, ...th } : null;
+      return { ...b, px: (ox + r.x0) * T, py: (oy + r.y0) * T, pw: b.base[0] * T, ph: b.base[1] * T, footPx: fp, doorPx: door, them };
     }),
     pen: { ...S.PEN, px: (ox + S.PEN.x) * T, py: (oy + S.PEN.y) * T, pw: S.PEN.w * T, ph: S.PEN.h * T, doorPx: px(S.PEN.door) },
     portal: px(S.PORTAL), bia: px(S.BIA),

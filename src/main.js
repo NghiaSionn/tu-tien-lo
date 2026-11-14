@@ -80,7 +80,7 @@ async function loadSheet(name) {
   return { img, meta, white: tint('#ffffff'), glow: tint('#c070ff'), wind: tint('#7ff0c8') };   // wind: tàn ảnh Phong Ảnh Bộ
 }
 for (const [key, name] of [['hero', 'nhan_vat'], ['mobs', 'quai'], ['bosses', 'boss'], ['rung', 'rung'], ['congTrinh', 'cong_trinh'], ['icons', 'bieu_tuong'], ['tienHoa', 'tien_hoa'], ['bia', 'bia'], ['phim', 'phim'],
-  ...(FEATURES.sectHub || /[?&]sect=1/.test(location.search) ? [['tmCt', 'tm_cong_trinh'], ['tmDv', 'tm_do_vat'], ['tmCd', 'tm_cay_da'], ['tmTran', 'tm_tran']] : [])]) {
+  ...(FEATURES.sectHub || /[?&]sect=1/.test(location.search) ? [['tmCt', 'tm_cong_trinh'], ['tmDv', 'tm_do_vat'], ['tmCd', 'tm_cay_da'], ['tmTran', 'tm_tran'], ['tmThem', 'tm_them']] : [])]) {
   try { vis[key] = await loadSheet(name); } catch (e) { console.warn('[sprite] dùng hình cũ:', name, e); }
 }
 // công trình động phủ (cổng, tụ linh trận, Linh Mạch) + VFX tiến hóa M7-12: cắt sát nội dung từng khung
@@ -99,7 +99,7 @@ if (vis.tienHoa) vis.thx = cropFrames(vis.tienHoa);   // han_an, khoi_bang, vong
 if (vis.congTrinh) vis.ct = cropFrames(vis.congTrinh);
 if (vis.bia) vis.ct = { ...(vis.ct || {}), ...cropFrames(vis.bia) };   // M7-14: bia, bia_sang
 // M8: công trình/đồ vật/cây tông môn (concept ảnh 1, tools/build_tong_mon.py)
-if (vis.tmCt || vis.tmDv || vis.tmCd) vis.tm = Object.assign({}, ...[vis.tmCt, vis.tmDv, vis.tmCd, vis.tmTran].filter(Boolean).map(cropFrames));
+if (vis.tmCt || vis.tmDv || vis.tmCd) vis.tm = Object.assign({}, ...[vis.tmCt, vis.tmDv, vis.tmCd, vis.tmTran, vis.tmThem].filter(Boolean).map(cropFrames));
 // tụ linh trận sáng: lấy từ CHÍNH hình trận nghỉ (chỉ các đường khắc xanh ngọc) -> sáng lên đúng chỗ, không lệch như ô "sáng" ChatGPT vẽ riêng
 if (vis.tm && vis.tm.tran) {
   const t = vis.tm.tran, tg = t.getContext('2d'), td = tg.getImageData(0, 0, t.width, t.height);

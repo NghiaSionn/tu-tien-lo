@@ -1,0 +1,23 @@
+{
+ "frameSize": [
+  177,
+  98
+ ],
+ "pivot": [
+  88,
+  97
+ ],
+ "image": "tm_them.png",
+ "source": "docs/concept/tong_mon_them_chatgpt.png",
+ "tool": "tools/build_them.py",
+ "frames": {
+  "them_ngang": [
+   0,
+   0
+  ],
+  "them_vuong": [
+   177,
+   0
+  ]
+ }
+}

@@ -826,6 +826,10 @@ export function render(ctx, g) {
 
   if (scene.kind === 'hub') {
     const ct = vis.ct;
+    if (g.sect && vis.tm) for (const b of g.sect.buildings) {   // M8-15a: thềm đá dưới công trình (sát đất, dưới mọi vật)
+      const t = b.them, img = t && vis.tm[t.kind];
+      if (img && t.x < camX + W && t.x + t.w > camX && t.y < camY + H && t.y + t.h > camY) ctx.drawImage(img, t.x, t.y);
+    }
     if (g.sect && vis.plaza) ctx.drawImage(vis.plaza.base, Math.round(map.cx - vis.plaza.ax), Math.round(map.cy - vis.plaza.ay));   // M8: bệ pháp đài
     const TR = g.sect && vis.tm && vis.tm.tran ? vis.tm : ct;   // M8: sảnh tông môn dùng tụ linh trận vẽ theo concept ảnh 1 (sprites/tm_tran)
     if (TR === vis.tm && TR.tran) {   // M8: trận đứng yên một chỗ; tọa thiền trong trận thì các đường khắc sáng lên (không nhấp nháy)

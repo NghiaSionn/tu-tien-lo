@@ -5,6 +5,12 @@
 //
 // foot: [x, y] = điểm giữa-đáy sprite (chân vật), toạ độ ô thực (x.5 = giữa ô). base/solid: [w, h] ô đặc ngay trên chân
 // (nền công trình / gốc cây), tính từ ô round(x - w/2), các hàng round(y) - h .. round(y) - 1. Sprite: sprites/tm_*.
+// M8-15a: thềm đá dưới công trình (sprites/tm_them, tools/build_them.py). Số đo px trên sprite: foot = hàng đặt chân công trình
+// (ngay sau mép trước mặt thềm), inner = chiếu nghỉ trước cửa đi được [x0,y0,x1,y1] (hai bên công trình trên thềm không ra được vì nền nhà chắn -> để đặc), stair = cột bậc thang đi được. Còn lại trong khung thềm là đặc.
+export const THEM = {
+  them_ngang: { w: 177, h: 89, foot: 56, inner: [62, 50, 112, 60], stair: [62, 54, 112, 89] },
+  them_vuong: { w: 110, h: 98, foot: 62, inner: [33, 56, 79, 66], stair: [33, 60, 79, 98] },
+};
 export const SECT = {
   W: 88, H: 64, PAD: 10,
   // Tụ Linh Pháp Đài: sprite bệ đá nâng cao ChatGPT vẽ (sprites/tm_be*.png), va chạm sinh sẵn ở data/sect_plaza.js
@@ -13,11 +19,11 @@ export const SECT = {
   PATH_W: 3,                    // bề rộng đường lát đá (ô)
   // 5 công trình có chức năng (cửa = điểm đứng tương tác, ngay dưới bậc thềm)
   BUILDINGS: [
-    { id: 'truyen_thua', name: 'Truyền Thừa Các', foot: [20, 16], base: [4, 3] },
-    { id: 'tang_kinh', name: 'Tàng Kinh Các', foot: [13, 32], base: [6, 3] },
-    { id: 'cong_duc', name: 'Công Đức Đường', foot: [18, 48], base: [7, 3] },
-    { id: 'luyen_khi', name: 'Luyện Khí Phường', foot: [68, 16], base: [6, 3] },
-    { id: 'dan_duoc', name: 'Đan Dược Phòng', foot: [75, 32], base: [7, 3] },
+    { id: 'truyen_thua', name: 'Truyền Thừa Các', foot: [20, 16], base: [4, 3], them: 'them_vuong' },
+    { id: 'tang_kinh', name: 'Tàng Kinh Các', foot: [13, 32], base: [6, 3], them: 'them_ngang' },
+    { id: 'cong_duc', name: 'Công Đức Đường', foot: [18, 48], base: [7, 3], them: 'them_ngang' },
+    { id: 'luyen_khi', name: 'Luyện Khí Phường', foot: [68, 16], base: [6, 3], them: 'them_ngang' },
+    { id: 'dan_duoc', name: 'Đan Dược Phòng', foot: [75, 32], base: [7, 3], them: 'them_ngang' },
   ],
   // Luyện Võ Trường: sân đất có rào (sói luyện đòn ở trong), cổng rào phía bắc; chòi luyện võ trong góc
   PEN: { id: 'luyen_vo', name: 'Luyện Võ Trường', x: 64, y: 44, w: 22, h: 13, gate: [67, 69], door: [68.5, 43.2] },
@@ -39,14 +45,13 @@ export const SECT = {
   // đồ vật/cây: [sprite, x, y, solid?[w,h], flat?] — flat: vẽ sát đất (bậc thang) dưới nhân vật, không đặc
   PROPS: [
     // bậc thềm trước mỗi công trình + trước cổng
-    ['bac_thang', 20, 17.6, 0, 1], ['bac_thang', 13, 33.6, 0, 1], ['bac_thang', 18, 49.6, 0, 1], ['bac_thang', 68, 17.6, 0, 1], ['bac_thang', 75, 33.6, 0, 1],
     ['bac_thang', 44, 12.4, 0, 1],
     // cờ phướn hai bên cổng
     ['co_phuon', 40.5, 9, [1, 1]], ['co_phuon', 47.5, 9, [1, 1]],
     // đèn đá dọc đường
     ['den_da', 41.5, 20, [1, 1]], ['den_da', 46.5, 20, [1, 1]], ['den_da', 32.5, 12, [1, 1]], ['den_da', 24.5, 12.5, [1, 1]], ['den_da', 24.5, 19.5, [1, 1]],
-    ['den_da', 55.5, 12, [1, 1]], ['den_da', 63.5, 12.5, [1, 1]], ['den_da', 17.5, 31, [1, 1]], ['den_da', 17.5, 38.5, [1, 1]],
-    ['den_da', 33.5, 54, [1, 1]], ['den_da', 70.5, 31, [1, 1]], ['den_da', 70.5, 38.5, [1, 1]], ['den_da', 24.5, 59.5, [1, 1]], ['den_da', 30.5, 59.5, [1, 1]],
+    ['den_da', 55.5, 12, [1, 1]], ['den_da', 63.5, 12.5, [1, 1]], ['den_da', 20.5, 31, [1, 1]], ['den_da', 20.5, 38.5, [1, 1]],
+    ['den_da', 33.5, 54, [1, 1]], ['den_da', 67.5, 31, [1, 1]], ['den_da', 67.5, 38.5, [1, 1]], ['den_da', 24.5, 59.5, [1, 1]], ['den_da', 30.5, 59.5, [1, 1]],
     ['den_da', 40.5, 57, [1, 1]], ['den_da', 47.5, 57, [1, 1]],
     // vườn bia
     ['bia_lon', 38.5, 56, [2, 1]], ['bia_nho', 50, 56, [2, 1]], ['bia_nho', 36, 54.5, [2, 1]],
