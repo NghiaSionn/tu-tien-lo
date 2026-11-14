@@ -78,7 +78,7 @@ async function loadSheet(name) {
   const tint = col => { const c = document.createElement('canvas'); c.width = img.width; c.height = img.height; const g = c.getContext('2d'); g.drawImage(img, 0, 0); g.globalCompositeOperation = 'source-in'; g.fillStyle = col; g.fillRect(0, 0, c.width, c.height); return c; };
   return { img, meta, white: tint('#ffffff'), glow: tint('#c070ff'), wind: tint('#7ff0c8') };   // wind: tàn ảnh Phong Ảnh Bộ
 }
-for (const [key, name] of [['hero', 'nhan_vat'], ['mobs', 'quai'], ['bosses', 'boss'], ['rung', 'rung'], ['congTrinh', 'cong_trinh'], ['icons', 'bieu_tuong'], ['tienHoa', 'tien_hoa'], ['bia', 'bia'],
+for (const [key, name] of [['hero', 'nhan_vat'], ['mobs', 'quai'], ['bosses', 'boss'], ['rung', 'rung'], ['congTrinh', 'cong_trinh'], ['icons', 'bieu_tuong'], ['tienHoa', 'tien_hoa'], ['bia', 'bia'], ['phim', 'phim'],
   ...(FEATURES.sectHub || /[?&]sect=1/.test(location.search) ? [['tmCt', 'tm_cong_trinh'], ['tmDv', 'tm_do_vat'], ['tmCd', 'tm_cay_da'], ['tmTran', 'tm_tran']] : [])]) {
   try { vis[key] = await loadSheet(name); } catch (e) { console.warn('[sprite] dùng hình cũ:', name, e); }
 }
@@ -141,6 +141,8 @@ if (vis.tm) try {
   }
   vis.plaza = { base: B, strips, ax: PLAZA.anchor[0] * k, ay: PLAZA.anchor[1] * k };
 } catch (e) { console.warn('[sprite] bệ pháp đài:', e); }
+// M8: phím pixel (ChatGPT vẽ, sprites/phim) cho khung nhắc E và bảng chọn — ảnh rời dạng dataURL dùng trong HTML
+if (vis.phim) { const f = cropFrames(vis.phim); UI.setKeycaps(Object.fromEntries(Object.entries(f).map(([k, c]) => [k, c.toDataURL()]))); }
 // biểu tượng công pháp cho UI (thay emoji); thiếu sheet thì UI giữ emoji
 if (vis.icons) UI.setIcons('sprites/' + vis.icons.meta.image, vis.icons.meta, vis.icons.img.width, vis.icons.img.height);
 // lần đầu mở trên web (GitHub Pages) mất vài giây tải ~130 file: chữ "Đang tải…" che màn đen tới đây
@@ -778,7 +780,7 @@ function updatePrompt() {
   if (k && vis.cam) { el.style.left = ((p.x - vis.cam.x) / W * 100).toFixed(2) + '%'; el.style.top = ((p.y + 12 - vis.cam.y) / H * 100).toFixed(2) + '%'; }   // ngay dưới chân nhân vật
   if (k === promptKey) return; promptKey = k;
   if (!k) { el.hidden = true; return; }
-  el.innerHTML = `<kbd>E</kbd><span>${acts[0].label}</span>`;   // chỉ việc chính; khu nhiều việc thì E mở bảng chọn
+  el.innerHTML = `${UI.keycap('e')}<span>${acts[0].label}</span>`;   // chỉ việc chính; khu nhiều việc thì E mở bảng chọn
   el.hidden = false;
 }
 

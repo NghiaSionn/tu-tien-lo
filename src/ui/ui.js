@@ -113,10 +113,15 @@ function open(html, keys) {
 }
 export function closeModal() { $('modal').hidden = true; $('modal').innerHTML = ''; modalKeys = null; }
 
+// M8: phím pixel cho nhắc phím; thiếu ảnh thì dùng <kbd> chữ
+let KEYCAPS = {};
+export function setKeycaps(m) { KEYCAPS = m || {}; }
+export function keycap(k) { return KEYCAPS[k] ? `<img class="keycap" src="${KEYCAPS[k]}" alt="${esc(k.toUpperCase())}">` : `<kbd>${esc(k.toUpperCase())}</kbd>`; }
+
 // M8-03: bảng chọn nhỏ khi một khu có nhiều việc (Đan Dược Phòng: dùng/mua đan; Pháp Đài: tọa thiền/đột phá). Phím 1..n, Esc/E đóng
 export function showChoice(title, actions) {
   open(`<h2>${esc(title)}</h2><div class="row" style="flex-direction:column;gap:.4em">${actions.map((a, i) =>
-    `<button data-i="${i}">${i + 1} · ${esc(a.label)}</button>`).join('')}<button class="ghost" data-x="1">Đóng (Esc)</button></div>`, code => {
+    `<button data-i="${i}" class="kc">${keycap(String(i + 1))}${esc(a.label)}</button>`).join('')}<button class="ghost kc" data-x="1">${keycap('esc')}Đóng</button></div>`, code => {
     const i = /^Digit(\d)$/.test(code) ? +code.slice(5) - 1 : -1;
     if (actions[i]) { closeModal(); actions[i].run(); return true; }
     if (code === 'Escape' || code === 'KeyE') { closeModal(); return true; }

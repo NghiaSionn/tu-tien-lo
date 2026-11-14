@@ -1,0 +1,49 @@
+{
+ "frameSize": [
+  34,
+  31
+ ],
+ "pivot": [
+  16,
+  30
+ ],
+ "image": "phim.png",
+ "frames": {
+  "e": [
+   0,
+   0
+  ],
+  "e_nhan": [
+   34,
+   0
+  ],
+  "1": [
+   68,
+   0
+  ],
+  "2": [
+   102,
+   0
+  ],
+  "t": [
+   136,
+   0
+  ],
+  "b": [
+   170,
+   0
+  ],
+  "esc": [
+   204,
+   0
+  ],
+  "g": [
+   238,
+   0
+  ]
+ },
+ "source": "docs/concept/phim_pixel_chatgpt.png",
+ "tool": "tools/sprite_clean.py",
+ "scale": 11.0,
+ "colors": 12
+}
