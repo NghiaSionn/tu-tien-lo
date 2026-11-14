@@ -7,17 +7,17 @@
 import { TRIBULATION as TB } from '../core/config.js';
 import { mulberry32 } from '../core/rng.js';
 
-export function createTrib(seed, cx, cy) {
-  return { rng: mulberry32(seed >>> 0), cx, cy, t: 0, phase: 0, phaseT: 0, spawnT: 0.6, hazards: [], hits: 0, strikes: 0, done: null };
+export function createTrib(seed, cx, cy, R = TB.ARENA_R) {
+  return { rng: mulberry32(seed >>> 0), cx, cy, R, t: 0, phase: 0, phaseT: 0, spawnT: 0.6, hazards: [], hits: 0, strikes: 0, done: null };
 }
 
 export const phaseDef = trib => TB.PHASES[trib.phase];
 export const totalDuration = () => TB.PHASES.reduce((a, p) => a + p.dur, 0);
 
-function inArena(trib, x, y, margin = 0) { return Math.hypot(x - trib.cx, y - trib.cy) <= TB.ARENA_R - margin; }
+function inArena(trib, x, y, margin = 0) { return Math.hypot(x - trib.cx, y - trib.cy) <= (trib.R || TB.ARENA_R) - margin; }
 function randomIn(trib, margin) {
   for (let i = 0; i < 20; i++) {
-    const a = trib.rng() * Math.PI * 2, r = Math.sqrt(trib.rng()) * (TB.ARENA_R - margin);
+    const a = trib.rng() * Math.PI * 2, r = Math.sqrt(trib.rng()) * ((trib.R || TB.ARENA_R) - margin);
     const x = trib.cx + Math.cos(a) * r, y = trib.cy + Math.sin(a) * r;
     if (inArena(trib, x, y, margin)) return [x, y];
   }
@@ -32,9 +32,9 @@ function spawn(trib, player) {
     for (let i = 1; i < P.n; i++) { const [x, y] = randomIn(trib, P.r); trib.hazards.push({ kind: 'circle', x, y, r: P.r, t: P.windup, max: P.windup, dmg: P.dmg }); }
   } else if (P.kind === 'lines') {
     for (let i = 0; i < P.lines; i++) {
-      const a = trib.rng() * Math.PI, off = i === 0 ? 0 : (trib.rng() - 0.5) * TB.ARENA_R;
+      const a = trib.rng() * Math.PI, off = i === 0 ? 0 : (trib.rng() - 0.5) * (trib.R || TB.ARENA_R);
       // dải đi qua (gần) người chơi, xuyên hết trận
-      const nx = -Math.sin(a), ny = Math.cos(a), px = player.x + nx * off, py = player.y + ny * off, L = TB.ARENA_R * 2.2;
+      const nx = -Math.sin(a), ny = Math.cos(a), px = player.x + nx * off, py = player.y + ny * off, L = (trib.R || TB.ARENA_R) * 2.2;
       trib.hazards.push({ kind: 'line', x0: px - Math.cos(a) * L / 2, y0: py - Math.sin(a) * L / 2, x1: px + Math.cos(a) * L / 2, y1: py + Math.sin(a) * L / 2, w: P.w, t: P.windup, max: P.windup, dmg: P.dmg });
     }
   } else if (P.kind === 'storm') {
@@ -46,7 +46,7 @@ function spawn(trib, player) {
       if (inArena(trib, x, y, P.safeR + 4)) safe.push([x, y]);
     }
     while (safe.length < P.gaps) safe.push(randomIn(trib, P.safeR + 6));
-    trib.hazards.push({ kind: 'storm', x: trib.cx, y: trib.cy, r: TB.ARENA_R, safe: safe.map(([x, y]) => ({ x, y, r: P.safeR })), t: P.windup, max: P.windup, dmg: P.dmg });
+    trib.hazards.push({ kind: 'storm', x: trib.cx, y: trib.cy, r: (trib.R || TB.ARENA_R), safe: safe.map(([x, y]) => ({ x, y, r: P.safeR })), t: P.windup, max: P.windup, dmg: P.dmg });
   }
 }
 
@@ -63,7 +63,7 @@ export function hazardHits(h, x, y) {
 
 // Giữ người chơi trong trận thử thách (gọi sau khi di chuyển)
 export function clampToArena(trib, p) {
-  const dx = p.x - trib.cx, dy = p.y - trib.cy, d = Math.hypot(dx, dy), R = TB.ARENA_R - 4;
+  const dx = p.x - trib.cx, dy = p.y - trib.cy, d = Math.hypot(dx, dy), R = (trib.R || TB.ARENA_R) - 4;
   if (d > R) { p.x = trib.cx + dx / d * R; p.y = trib.cy + dy / d * R; }
 }
 

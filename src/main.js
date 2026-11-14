@@ -305,7 +305,7 @@ function tryBreak() {
   if (isMajor(meta.realmLevel) && TRIBULATION.ENABLED) {
     // M3-03: thiên kiếp tương tác trong trận quanh tụ linh trận. Đánh dấu trước khi bắt đầu: tải lại giữa chừng = thất bại
     p.med = false; p.x = CX; p.y = CY + 12;
-    trib = createTrib((meta.realmLevel * 7919 + meta.stats.runs * 104729 + Math.floor(meta.cultivationXp)) >>> 0, CX, CY);
+    trib = createTrib((meta.realmLevel * 7919 + meta.stats.runs * 104729 + Math.floor(meta.cultivationXp)) >>> 0, CX, CY, SECT_MAP ? TRIBULATION.SECT_ARENA_R : TRIBULATION.ARENA_R);
     trib.interactive = true; trib.shownPhase = -1;
     meta.tribPending = true; save(); metaAct('trib_start');
     UI.log(`Thiên kiếp giáng xuống! Xung kích ${REALMS[realmOf(meta.realmLevel + 1)]} — né các vùng sét đã đánh dấu, đứng vào ô an toàn khi Thiên lôi phủ trận.`, 'bad');

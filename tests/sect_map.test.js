@@ -53,9 +53,9 @@ test('không có chỗ đứng được nào bị kẹt trong khung tông môn; 
   }
 });
 
-// thiên kiếp giữ người chơi trong vòng ARENA_R - 4 (systems/tribulation.js): cả vòng đó phải đứng được (bệ M8 không chặn né)
+// thiên kiếp ở sảnh giữ người chơi trong vòng SECT_ARENA_R - 4 (systems/tribulation.js): cả vòng đó phải đứng được (bệ M8 không chặn né)
 test('quảng trường trống cho thiên kiếp (mọi điểm trong vòng giữ người chơi đều đứng được) và công trình là ô đặc', () => {
-  for (let a = 0; a < 64; a++) for (const r of [0, 30, 60, TRIBULATION.ARENA_R - 8, TRIBULATION.ARENA_R - 4]) {
+  for (let a = 0; a < 64; a++) for (const r of [0, 30, TRIBULATION.SECT_ARENA_R - 8, TRIBULATION.SECT_ARENA_R - 4]) {
     const x = m.cx + Math.cos(a / 64 * 6.283) * r, y = m.cy + Math.sin(a / 64 * 6.283) * r;
     assert.ok(m.canStand(x, y), `thiên kiếp bị chặn tại (${Math.round(x - m.cx)},${Math.round(y - m.cy)})`);
   }
@@ -78,10 +78,10 @@ test('bệ pháp đài (sprite): mặt sàn tới được, chỉ lên/xuống q
     const c = { x: (cx + PLAZA.x0 + i) * T + 8, y: (cy + PLAZA.y0 + j) * T + 8 };
     if (m.canStand(c.x, c.y)) { walkN++; assert.ok(reachable(c), `mặt sàn (${i},${j}) phải tới được`); }
   }
-  assert.ok(walkN > 200, `sàn ${walkN}`);
+  assert.ok(walkN > 80, `sàn ${walkN}`);
   // bịt 4 lối (vùng bậc/cánh) thì từ tâm không ra được ngoài khung sprite -> mép bệ kín
   const W = PLAZA.fine[0].length * PLAZA.cell, H = PLAZA.fine.length * PLAZA.cell, x0 = Math.round(m.cx - PLAZA.anchor[0]) - PLAZA.pad, y0 = Math.round(m.cy - PLAZA.anchor[1]) - PLAZA.pad;
-  const exit = (x, y) => (Math.abs(x - m.cx) < 48 && (y < m.cy - 90 || y > m.cy + 92)) || Math.abs(x - m.cx) > 175;
+  const exit = (x, y) => (Math.abs(x - m.cx) < 34 && (y < m.cy - 72 || y > m.cy + 70)) || (Math.abs(x - m.cx) > 118 && Math.abs(y - m.cy - 20) < 30);   // 4 lối (bệ thu 2/3, 14/11)
   const d = bfs({ x: m.cx, y: m.cy }, exit);
   for (let k = 0; k < d.length; k++) if (d[k] >= 0) {
     const x = (k % GW) * G, y = ((k / GW) | 0) * G;

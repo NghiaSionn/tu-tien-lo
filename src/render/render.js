@@ -447,7 +447,7 @@ function drawShrine(ctx, run, p, time, vis) {
 
 // Thiên kiếp tương tác (M3-03): trận thử thách + cảnh báo đúng hình học vùng trúng; lấp dần = sắp đánh
 function drawTribulation(ctx, tr, time, top) {
-  if (!top) { ctx.globalAlpha = 0.7; pxRing(ctx, tr.cx, tr.cy, TRIBULATION.ARENA_R, 90, time * 0.3, '#9a7bff', 2, 1); }
+  if (!top) { ctx.globalAlpha = 0.7; pxRing(ctx, tr.cx, tr.cy, tr.R || TRIBULATION.ARENA_R, 90, time * 0.3, '#9a7bff', 2, 1); }
   for (const h of tr.hazards) {
     const prog = 1 - Math.max(0, h.t) / (h.max || 1);
     if (h.kind === 'circle') {
