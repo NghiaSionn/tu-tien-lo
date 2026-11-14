@@ -892,6 +892,15 @@ export function render(ctx, g) {
 
   if (scene.kind === 'hub') {
     const ct = vis.ct;
+    const bg = g.sect && g.sect.bg, nen = bg && vis.tm && vis.tm.nen;
+    if (nen) {   // M8 (16/11): ảnh nền sảnh — chỉ vẽ phần trong khung hình
+      const sx = Math.max(0, camX - bg.x), sy = Math.max(0, camY - bg.y), sw = Math.min(nen.width - sx, W + camX - bg.x - sx), sh = Math.min(nen.height - sy, H + camY - bg.y - sy);
+      if (sw > 0 && sh > 0) ctx.drawImage(nen, sx, sy, sw, sh, bg.x + sx, bg.y + sy, sw, sh);
+      // cột/hàng bản đồ ngoài ảnh (thêm để tâm bản đồ = tâm bệ): kéo dài mép ảnh
+      if (bg.x > 0) ctx.drawImage(nen, 0, 0, 1, nen.height, 0, bg.y, bg.x, nen.height);
+      const rx = bg.x + nen.width; if (rx < map.pw) ctx.drawImage(nen, nen.width - 1, 0, 1, nen.height, rx, bg.y, map.pw - rx, nen.height);
+      const by = bg.y + nen.height; if (by < map.ph) ctx.drawImage(nen, 0, nen.height - 1, nen.width, 1, bg.x, by, nen.width, map.ph - by);
+    }
     if (g.sect && vis.tm) for (const b of g.sect.buildings) {   // M8-15a: thềm đá dưới công trình (sát đất, dưới mọi vật)
       const t = b.them, img = t && vis.tm[t.kind];
       if (img && t.x < camX + W && t.x + t.w > camX && t.y < camY + H && t.y + t.h > camY) ctx.drawImage(img, t.x, t.y);
@@ -965,12 +974,20 @@ export function render(ctx, g) {
   mark('ground');
   for (const m of scene.monsters) objs.push({ y: m.y, m });
   objs.push({ y: p.y, player: true });
-  if (scene.kind === 'hub' && FEATURES.run && g.portal && vis.pfx) objs.push({ y: g.portal.y, portal: true });
-  if (scene.kind === 'hub' && g.bia && vis.ct && vis.ct.bia) objs.push({ y: g.bia.y, bia: true });
+  if (scene.kind === 'hub' && FEATURES.run && g.portal && vis.pfx && !(g.sect && g.sect.bg)) objs.push({ y: g.portal.y, portal: true });
+  if (scene.kind === 'hub' && g.bia && vis.ct && vis.ct.bia && !(g.sect && g.sect.bg)) objs.push({ y: g.bia.y, bia: true });
   if (scene.kind === 'hub' && g.sect) {   // M8: công trình + đồ vật + cây tông môn (sprite tm_*, xếp theo chân); thiếu sprite -> khối tạm
     const vis1 = (img, fx, fy) => fx - img.width / 2 < camX + W && fx + img.width / 2 > camX && fy - img.height < camY + H && fy > camY - 4;
     for (const b of g.sect.buildings) {
       if (b.nha) continue;   // nhà lớn vẽ riêng (nền + lớp che)
+      if (b.paint) {   // nhà vẽ trong ảnh nền: chỉ tên khu (+ trạng thái) khi đứng gần chỗ bấm E
+        if (Math.hypot(p.x - b.doorPx.x, p.y - b.doorPx.y) < 110) {
+          const act = g.interact && g.interact.id === b.id, st = g.sectStatus && g.sectStatus(b.id), ty = b.doorPx.y - 58;
+          txt(ctx, b.name, Math.round(b.doorPx.x), ty - (st ? 10 : 0), act ? '#fff6c8' : '#ffd978', act ? 11 : 10);
+          if (st) txt(ctx, st.s, Math.round(b.doorPx.x), ty, st.hot ? '#ffe9a0' : '#cfc6b0', 8);
+        }
+        continue;
+      }
       const img = vis.tm && vis.tm[b.id];
       if (!img) { objs.push({ y: b.py + b.ph, sectB: b }); continue; }
       const f = b.footPx;

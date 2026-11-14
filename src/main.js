@@ -115,6 +115,8 @@ if (vis.tm && vis.tm.tran) {
 // M8: bệ Tụ Linh Pháp Đài (sprite ×PLAZA.scale): ảnh nền vẽ dưới nhân vật + lớp "phía trước" (lan can, vách, cờ, đèn).
 // Lớp trước xếp theo CHÂN của từng dải đục liền theo cột (cờ = chân bệ cờ, lan can nam = chân vách) rồi gom theo nấc 8 px
 // -> nhân vật đứng sau cờ/lan can bị che đúng, đứng trước thì không (cắt dải ngang cũ sai với vật cao).
+// M8 (16/11): ảnh nền sảnh (concept vẽ sẵn, tools/sect_nen.py)
+if (vis.tm) try { const { SECT } = await import('./data/sect_layout.js'); if (SECT.BG) vis.tm.nen = await loadImg('sprites/' + SECT.BG.img); } catch (e) { console.warn('[nen]', e); }
 if (vis.tm) try {
   const { PLAZA } = await import('./data/sect_plaza.js');
   const ld = loadImg;
