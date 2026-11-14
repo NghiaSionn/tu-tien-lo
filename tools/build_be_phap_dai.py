@@ -21,7 +21,7 @@ from PIL import Image, ImageDraw, ImageFilter
 
 ROOT = Path(__file__).resolve().parent.parent
 LUM_MIN, OPEN_R = 80, 3         # loang: điểm sáng hơn LUM_MIN; mở hình thái bán kính OPEN_R
-CLEAN = 2.25                    # độ thu sprite_clean (14/11: cỡ vừa, giữa bản 2.85 quá nhỏ và 1.78 quá to)
+CLEAN = 2.1                     # độ thu sprite_clean (14/11: cỡ vừa, to hơn bản 2.25 một chút)
 K = 1.9 / CLEAN                 # số đo tay dưới đây làm trên bản 1.9; nhân K cho bản CLEAN
 k1 = lambda v: tuple(round(c * K, 1) for c in v)
 MIRROR = 609 * K                # trục đối xứng x' = MIRROR - x
@@ -133,6 +133,12 @@ def main():
         y1 = min(y + oy_, key[y, x] - 2)
         if y1 >= y: occ[PAD + y:PAD + y1 + 1, PAD + max(0, x - ox_):PAD + x + ox_ + 1] = True
     solidP |= occ & ~fl
+    # bỏ mẩu đặc lẻ nhỏ (< 60 px, vd chân má bậc cánh sau khi thu nhỏ) — chặn đường vô lý giữa lối đi
+    seen = np.zeros_like(solidP)
+    for y0, x0 in zip(*np.where(solidP)):
+        if seen[y0, x0]: continue
+        comp = flood(solidP & ~seen, (x0, y0)); seen |= comp
+        if comp.sum() < 60: solidP &= ~comp
     solid = solidP[PAD:PAD + H, PAD:PAD + W]
     # lưới mịn C px tính từ góc sprite lùi PAD + lưới ô 16 px quanh tâm (cho test)
     HP, WP = solidP.shape; fw, fh = (WP + C - 1) // C, (HP + C - 1) // C

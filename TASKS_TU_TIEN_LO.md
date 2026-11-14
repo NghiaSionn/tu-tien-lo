@@ -379,6 +379,7 @@ Thiết kế + backlog đầy đủ (ChatGPT, 13/11): **`docs/chatgpt_tong_mon_M
   - [x] M8-02j (14/11, xem thử) Bệ to ×1.6 so với bản 2.85 (`CLEAN = 1.78` trong `tools/build_be_phap_dai.py`, 650×505); mặt sàn lại chứa vòng thiên kiếp 96 px nên `SECT_ARENA_R` = 96 (như động phủ cũ); đường đi dời vào chân 4 lối; 204/204; ảnh `docs/playtest/M8_02j_be_x16.png`
   - [x] M8-02k (14/11) Bệ chốt cỡ ×1.55 so với bản 2.85 (`CLEAN = 1.84`, 628×488); mặt sàn chứa vòng ~85 px → `SECT_ARENA_R` = 88; 204/204; phím thật: tâm → Tàng Kinh / Đan Dược 6,3 s, bia 4,8 s, cổng 4,1 s; ảnh `docs/playtest/M8_02k_be_x155.png`
   - [x] M8-02l (14/11) Bệ cỡ vừa (`CLEAN = 2.25`, 514×399 — giữa bản 2.85 quá nhỏ và 1.78/1.84 quá to); `SECT_ARENA_R` = 80; test mép bệ tính vùng lối theo cỡ bệ; 204/204; phím thật: Tàng Kinh 6,2 s, Đan Dược 6,3 s, bia 4,3 s, cổng 4,1 s; ảnh `docs/playtest/M8_02l_be_vua.png`
+  - [x] M8-02m (14/11) Bệ to thêm chút (`CLEAN = 2.1`, 552×428); `SECT_ARENA_R` = 86; bỏ mẩu đặc lẻ < 60 px; nắn góc khi đi tới 10 px (mũi má bậc cánh đông); 204/204; phím thật: Tàng Kinh 6,2 s, Đan Dược 6,3 s, bia 4,3 s, cổng 4,1 s, đâm vách không trôi; ảnh `docs/playtest/M8_02m_be.png`
 - [ ] M8-03 Hệ thống tương tác công trình dùng chung (M, P0)
 - [ ] M8-04 Cổng Bí Cảnh (S, P0)
 - [ ] M8-05 Tụ Linh Pháp Đài (M, P0) → GATE M8-A
