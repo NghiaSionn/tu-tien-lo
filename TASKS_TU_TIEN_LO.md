@@ -393,6 +393,7 @@ Thiết kế + backlog đầy đủ (ChatGPT, 13/11): **`docs/chatgpt_tong_mon_M
   - [x] (14/11) Hết nhoè khi lơ lửng: bỏ nội suy; thêm lớp canvas `#hi` phủ khung game, độ phân giải = điểm ảnh màn hình (hiK 1–4, theo `fit()`), nhân vật lúc bay vẽ ở đó theo toạ độ lẻ -> sắc nét mà vẫn trôi theo bước 1/hiK điểm ảnh game; thử: hiK 2 -> đổi mỗi ~4 khung
 - [x] M8-03 Hệ thống tương tác công trình dùng chung (M, P0) — xong 14/11 (`docs/playtest/M8_03.md`): `src/systems/interact.js`, 8 khu E (5 công trình, cổng, bia, pháp đài), bảng chọn `UI.showChoice`, chữ nhắc E; 209/209; phím thật mở đúng mọi khu
   - [x] M8-03b (14/11) Góp ý giao diện: ẩn hàng nút + dòng phím ở sảnh (`body.sect`; cảm ứng vẫn giữ hàng nút); mọi chữ vẽ trên canvas game chuyển sang lớp nét cao `#hi` theo đúng độ phân giải màn hình (`setTextQueue`/`drawTextQueue`) -> hết mờ; tách nhắc tương tác: tên khu cố định ngay trên vật thể + khung `#prompt` cố định giữa đáy ("[E] Dùng Tụ Khí Đan · Mua Tụ Khí Đan"); 209/209
+  - [x] (14/11) Khung E: bỏ nền, chỉ hiện việc chính ("E Tọa thiền"; khu nhiều việc E vẫn mở bảng chọn), đặt ngay dưới chân nhân vật (bám theo vị trí trên màn)
 - [ ] M8-04 Cổng Bí Cảnh (S, P0)
 - [ ] M8-05 Tụ Linh Pháp Đài (M, P0) → GATE M8-A
 - [ ] M8-06..11 (M8-B, từng công trình), M8-12..16 (M8-C, HUD/dẫn đường/cảm ứng/art/save), M8-17..18 (M8-D, playtest): xem file thiết kế

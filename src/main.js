@@ -775,9 +775,10 @@ function updatePrompt() {
   const el = $('prompt'), pt = view === 'HUB' && !trib && !UI.modalOpen() ? INTERACT.cur : null;
   const acts = pt ? pt.actions.filter(a => !a.when || a.when()) : [];
   const k = pt && acts.length ? pt.id + acts.map(a => a.id).join() : '';
+  if (k && vis.cam) { el.style.left = ((p.x - vis.cam.x) / W * 100).toFixed(2) + '%'; el.style.top = ((p.y + 12 - vis.cam.y) / H * 100).toFixed(2) + '%'; }   // ngay dưới chân nhân vật
   if (k === promptKey) return; promptKey = k;
   if (!k) { el.hidden = true; return; }
-  el.innerHTML = `<kbd>E</kbd><span>${acts.length === 1 ? acts[0].label : acts.map(a => a.label).join(' · ')}</span>`;
+  el.innerHTML = `<kbd>E</kbd><span>${acts[0].label}</span>`;   // chỉ việc chính; khu nhiều việc thì E mở bảng chọn
   el.hidden = false;
 }
 
