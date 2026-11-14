@@ -1,6 +1,7 @@
 """M8: bệ Tụ Linh Pháp Đài (ChatGPT vẽ: docs/concept/tong_mon_be_phap_dai_4loi_chatgpt.png
      -> tools/sprite_clean.py --scale 2.85 --colors 96 --tol 60 -> sprites/tm_be.png).
 Sinh từ sprite:
+  - (trước đó tools/fix_be_san.py tô lại mặt sàn cho liền)
   - xoá điểm ám magenta còn sót (viền + khe lan can) ngay trên sprites/tm_be.png
   - mặt sàn: LOANG từ tâm qua điểm ảnh sáng (dừng ở viền tối), cắt nhánh mảnh lan lên lan can/trụ bằng phép mở hình thái học
     + bậc nam, lối bắc, 2 cánh đông/tây khoanh tay (đo trên sprite 1.9, trong khe giữa má bậc/trụ)
@@ -79,7 +80,9 @@ def main():
     lum = 0.3 * a[..., 0] + 0.59 * a[..., 1] + 0.11 * a[..., 2]
     seed = (W // 2, int(H * 0.53))
     raw = flood(alpha & (lum > LUM_MIN), seed)
-    floor = morph(flood(morph(raw, OPEN_R, 'erode'), seed), OPEN_R, 'dilate') & raw
+    er = morph(raw, OPEN_R, 'erode'); ey, ex = np.where(er)
+    k = np.argmin((ex - seed[0]) ** 2 + (ey - seed[1]) ** 2); seed = (int(ex[k]), int(ey[k]))   # hạt giống gần tâm còn sau phép co
+    floor = morph(flood(er, seed), OPEN_R, 'dilate') & raw
     walk = floor | mask(W, H, [WING_W, WING_E], RECTS)
     ys, xs = np.where(floor & ~mask(W, H, rects=RECTS))   # tâm mặt sàn (bỏ bậc dính vào vùng loang) = tâm tụ linh trận
     ax, ay = float(MIRROR + 1) / 2, (ys.min() + FLOOR_BOTTOM) / 2   # đáy sàn đo tay (vùng loang dính mặt má bậc nên không dùng max)
@@ -87,14 +90,15 @@ def main():
     # cờ phía nam: chỉ giữ ĐIỂM ẢNH CỜ (vải kem/vàng, cán vàng, hoa văn xanh, ngọc + viền tối sát chúng), không lấy cả khung
     # (khung chữ nhật cũ ôm cả sàn đá cánh -> sàn đè lên nhân vật như cùng lớp với cờ)
     r_, g_, b_ = [a[..., i].astype(int) for i in range(3)]
-    tint = alpha & ((r_ - b_ > 18) | ((b_ - r_ > 35) & (b_ > 110))) & mask(W, H, rects=KEEP)
-    # chỉ các mảng màu cờ LỚN (vải, cán, ngọc); vụn ấm lẻ trên sàn đá (rêu, vệt vàng) bỏ -> hết hạt lơ lửng quanh cờ
-    big = np.zeros_like(tint); seen = np.zeros_like(tint)
-    for y0, x0 in zip(*np.where(tint)):
+    inK = mask(W, H, rects=KEEP)
+    tint = alpha & ((r_ - b_ > 18) | ((b_ - r_ > 35) & (b_ > 110))) & inK
+    # cờ = màu cờ + viền tối sát màu cờ (nối núm tròn/ngọc vào thân cờ); giữ các mảng liền >= 30 px -> bỏ vụn rêu/vệt vàng trên sàn
+    cand = tint | (morph(tint, 2, 'dilate') & alpha & (lum < 90) & inK)
+    keep = np.zeros_like(cand); seen = np.zeros_like(cand)
+    for y0, x0 in zip(*np.where(cand)):
         if seen[y0, x0]: continue
-        comp = flood(tint & ~seen, (x0, y0)); seen |= comp
-        if comp.sum() >= 30: big |= comp
-    keep = big | (morph(big, 1, 'dilate') & alpha & (lum < 80))   # + viền tối sát cờ
+        comp = flood(cand & ~seen, (x0, y0)); seen |= comp
+        if comp.sum() >= 30: keep |= comp
     front = a.copy(); front[walk & ~keep] = 0
     Image.fromarray(front).save(ROOT / 'sprites/tm_be_front.png')
     # đặc từng điểm ảnh: phía nam đỉnh vùng đi được của cột -> đặc cả khối; phía bắc -> chỉ FOOT px cuối của dải đục
