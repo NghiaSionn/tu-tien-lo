@@ -7,6 +7,7 @@ import { drawCards, applyCard, rerollDraft } from './progression/draft.js';
 import * as C from './systems/cultivation.js';
 import { createTrib, updateTrib, clampToArena, phaseDef } from './systems/tribulation.js';
 import { nearestPoint, makeInteractor } from './systems/interact.js';
+import { ACHIEVEMENTS } from './data/achievements.js';
 import { TRIBULATION } from './core/config.js';
 import { createRun, updateRun, endRun, refreshMaxHp } from './systems/run.js';
 import { runStats } from './systems/combat.js';
@@ -357,13 +358,17 @@ function tryBreak() {
 function usePill() {
   if (view !== 'HUB') return;
   const v = C.usePill(meta);
-  if (!v) return;
+  if (!v) { if (SECT_MAP) UI.log(meta.pills <= 0 ? 'Hết Tụ Khí Đan — mua ở Đan Dược Phòng hoặc nhặt trong bí cảnh.' : 'Đã tới đỉnh phong, không cần dùng đan.', 'bad'); return; }
   metaAct('pill_use');
   UI.log(`Tụ Khí Đan hóa thành ${v} linh khí — tọa thiền (T) để chuyển hóa thành tu vi.`, 'good');
   floatText(vis, p.x, p.y - 20, '+' + v + ' ✨', '#7fe3ff');
   burst(vis, p.x, p.y - 8, 12, 50, '#7fe3ff');
 }
-function buyPill() { if (view === 'HUB' && C.buyPill(meta)) { UI.log('Mua 1 Tụ Khí Đan.'); metaAct('pill_buy'); } }
+function buyPill() {
+  if (view !== 'HUB') return;
+  if (C.buyPill(meta)) { UI.log(`Mua 1 Tụ Khí Đan (còn ${meta.pills} viên, ${meta.linhThach} linh thạch).`); metaAct('pill_buy'); }
+  else if (SECT_MAP) UI.log(`Không đủ linh thạch — cần ${ITEMS.PILL_COST}, đang có ${meta.linhThach}.`, 'bad');
+}
 function hubShoot() {
   p.cd = BASIC_ATTACK.CD; p.med = false;
   let dx = p.fx, dy = p.fy, best = BASIC_ATTACK.AIM_RANGE;
@@ -773,10 +778,33 @@ const SECT_ACTIONS = {
   tang_kinh: [{ id: 'codex', label: 'Đồ giám', run: () => openCodex() }],
   cong_duc: [{ id: 'ach', label: 'Thành tựu', run: () => UI.showAchievements(meta) }],
   luyen_khi: [{ id: 'forge', label: 'Luyện khí', run: () => openForge() }],
-  dan_duoc: [{ id: 'pill_use', label: 'Dùng Tụ Khí Đan', run: () => usePill() }, { id: 'pill_buy', label: 'Mua Tụ Khí Đan', run: () => buyPill() }],
+  dan_duoc: [{ id: 'pill_use', get label() { return `Dùng Tụ Khí Đan (còn ${meta.pills})`; }, run: () => usePill() },
+    { id: 'pill_buy', get label() { return `Mua Tụ Khí Đan · ${ITEMS.PILL_COST} linh thạch (có ${meta.linhThach})`; }, run: () => buyPill() }],
 };
+// M8-13: dòng trạng thái nhỏ dưới tên khu (biển hiệu) — vàng = có việc nên làm
+function sectStatus(id) {
+  switch (id) {
+    case 'truyen_thua': return { s: `Vé Cơ Duyên: ${meta.coDuyenTicket}`, hot: meta.coDuyenTicket > 0 };
+    case 'dan_duoc': return { s: `Tụ Khí Đan: ${meta.pills} · ${meta.linhThach} linh thạch`, hot: meta.pills > 0 || meta.linhThach >= ITEMS.PILL_COST };
+    case 'cong_duc': return { s: `Thành tựu ${meta.achievements.length}/${ACHIEVEMENTS.length}`, hot: false };
+    case 'luyen_khi': return { s: `Luyện liệu: ${meta.craftMats}`, hot: meta.craftMats > 0 };
+    case 'tang_kinh': return { s: 'Công pháp · tiến hóa', hot: false };
+    case 'luyen_vo': return { s: 'Sói luyện đòn', hot: false };
+    default: return null;
+  }
+}
+function pullPenWolves() {   // Luyện Võ Trường: gọi đủ sói vào sân để thử đòn
+  const P = SECT_MAP.pen, x0 = P.px + 24, y0 = P.py + 28, x1 = P.px + P.pw - 24, y1 = P.py + P.ph - 12;
+  let n = 0;
+  for (let k = 0; k < 40 && hub.monsters.filter(m => !m.dead).length < PEN_WOLVES; k++) {
+    const x = x0 + Math.random() * (x1 - x0), y = y0 + Math.random() * (y1 - y0);
+    if (hubMap.canStand(x, y)) { hub.monsters.push(makeMonster(x, y, 1, { ph: Math.random() * 6 })); n++; }
+  }
+  UI.log(n ? `Gọi ${n} sói vào Luyện Võ Trường — vào sân thử đòn (Space).` : 'Sân luyện võ đã đủ sói.');
+}
 const SECT_POINTS = !SECT_MAP ? [] : [
   ...SECT_MAP.buildings.filter(b => SECT_ACTIONS[b.id]).map(b => ({ id: b.id, name: b.name, x: b.doorPx.x, y: b.doorPx.y, r: 30, actions: SECT_ACTIONS[b.id] })),
+  { id: 'luyen_vo', name: 'Luyện Võ Trường', x: SECT_MAP.pen.doorPx.x, y: SECT_MAP.pen.doorPx.y, r: 30, actions: [{ id: 'wolves', label: 'Gọi sói luyện đòn', run: () => pullPenWolves() }] },
   { id: 'portal', name: 'Cổng Bí Cảnh', x: PORTAL.x, y: PORTAL.y, r: HUB.PORTAL.r, when: () => FEATURES.run, actions: [{ id: 'run', label: 'Vào bí cảnh', run: () => openPrepare() }] },
   { id: 'bia', name: 'Bia Truyền Thừa', x: BIA.x, y: BIA.y, r: HUB.BIA.r, when: () => FEATURES.lore, actions: [{ id: 'lore', label: 'Đọc bia', run: () => openLore() }] },
   { id: 'phap_dai', name: 'Tụ Linh Pháp Đài', x: CX, y: CY, r: HUB.SECT_FORM.rx, when: () => inForm(),
@@ -889,7 +917,7 @@ function frame(now) {
   if (vis.pfxSkills && view === 'RUN') vis.pfxSkills.tornado.update(worldDt);
   const scene = run && view !== 'HUB' ? run.scene : hub;
   vis.hiDraw = null; const textQ = []; setTextQueue(textQ);
-  render(ctx, { scene, player: p, time, vis, medFx, trib, inForm: p.inForm, portal: scene === hub ? PORTAL : null, bia: scene === hub && FEATURES.lore ? BIA : null, sect: scene === hub ? SECT_MAP : null, interact: scene === hub ? INTERACT.cur : null, run: scene === hub ? null : run, hubShots: scene === hub ? hubShots : null, dtWorld: worldDt });
+  render(ctx, { scene, player: p, time, vis, medFx, trib, inForm: p.inForm, portal: scene === hub ? PORTAL : null, bia: scene === hub && FEATURES.lore ? BIA : null, sect: scene === hub ? SECT_MAP : null, interact: scene === hub ? INTERACT.cur : null, sectStatus: SECT_MAP ? sectStatus : null, run: scene === hub ? null : run, hubShots: scene === hub ? hubShots : null, dtWorld: worldDt });
   // lớp nét cao: vẽ nhân vật lơ lửng ở toạ độ lẻ, mỗi điểm ảnh game = hiK điểm ảnh màn hình (nét, không nhoè)
   hiCtx.setTransform(1, 0, 0, 1, 0, 0); hiCtx.clearRect(0, 0, hiCv.width, hiCv.height);
   if (vis.hiDraw && vis.hero) {

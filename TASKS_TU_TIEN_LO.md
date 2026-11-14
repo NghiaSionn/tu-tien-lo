@@ -398,9 +398,18 @@ Thiết kế + backlog đầy đủ (ChatGPT, 13/11): **`docs/chatgpt_tong_mon_M
   - [x] (14/11) Pháp đài: E = tọa thiền ngay (bỏ bảng chọn); sảnh tông môn tự đột phá tầng nhỏ khi đủ tu vi (`autoBreak`); đủ tu vi đại cảnh giới -> trong trận (kể cả đang thiền) hiện "E Thiên kiếp", E bắt đầu thiên kiếp; đang thiền mà không có nhắc thì E = thôi thiền. Động phủ cũ giữ B. Thử: tầng 3 tự lên 8 rồi dừng ở thiên kiếp, E -> thiên kiếp bắt đầu
   - [x] (14/11) Thiên kiếp ở sảnh phủ cả mặt sàn bệ (người phát triển): trận elip `TRIBULATION.SECT_ARENA` rx 150 × ry 68 (elip lớn nhất đứng được trên sàn), `createTrib(..., R, {ry, extraMarks, extraLines})`; khó hơn: Lôi ấn 3→5 vòng/đợt, Lôi xà 2→3 dải/đợt, Thiên lôi 8 tia sét; viền trận và vùng Thiên lôi vẽ elip; test sect_map kiểm cả elip đứng được; ảnh `docs/playtest/M8_thien_kiep_be.png`
   - [x] (14/11) Gấp đôi đòn thiên kiếp ở sảnh: Lôi ấn 10 vòng/đợt, Lôi xà 6 dải/đợt (`SECT_ARENA.extraMarks 7, extraLines 4`). Sửa lỗi treo game ở nhịp Thiên lôi (do commit 2b287de: `Array.from` mapFn không có tham số mảng). Thử đủ 3 nhịp (giữ đầy máu): xong, cảnh giới 9→12; ảnh `docs/playtest/M8_thien_kiep_be.png`
-- [ ] M8-04 Cổng Bí Cảnh (S, P0)
-- [ ] M8-05 Tụ Linh Pháp Đài (M, P0) → GATE M8-A
-- [ ] M8-06..11 (M8-B, từng công trình), M8-12..16 (M8-C, HUD/dẫn đường/cảm ứng/art/save), M8-17..18 (M8-D, playtest): xem file thiết kế
+- [x] M8-04 Cổng Bí Cảnh — gộp vào M8-03 (E ở cổng mở màn chuẩn bị; về sảnh chỗ cũ)
+- [x] M8-05 Tụ Linh Pháp Đài — E tọa thiền, tự đột phá tầng nhỏ, "E Thiên kiếp", trận elip phủ sàn bệ (14/11)
+- [-] GATE M8-A — BỎ theo người phát triển (14/11): hoàn thiện sảnh trước, test sau
+- [x] M8-06/09/13 (một phần, 14/11) Biển trạng thái dưới tên khu (`sectStatus`: vé Cơ Duyên, số đan + linh thạch, thành tựu x/y, luyện liệu; vàng = có việc nên làm); Đan Dược Phòng: bảng chọn ghi số đan và giá, báo thiếu linh thạch / hết đan; Luyện Võ Trường: E gọi đủ 4 sói vào sân
+- [ ] M8-15 Hoàn thiện hình ảnh sảnh (kế hoạch 14/11, mỗi mảng vẽ bằng ChatGPT như bệ pháp đài):
+  - [ ] a. Thềm đá + bậc cho 5 công trình (thay bậc sprite rời)
+  - [ ] b. Đường lát đá: ô bo góc/chéo cho mượt (hết răng cưa)
+  - [ ] c. Suối phía nam: bờ đá, cầu đá đúng chỗ, thác hai đầu
+  - [ ] d. Vách núi + rừng bao quanh rìa tông môn (thay hàng cây ô vuông)
+  - [ ] e. Luyện Võ Trường: hàng rào/cổng rào liền, sân đất có viền
+  - [ ] f. Cổng bí cảnh: bậc + sân trước cổng như concept ảnh 1
+- [ ] M8-07..11 kiểm từng khu, M8-12 HUD, M8-14 cảm ứng, M8-16 save/regression, M8-17..18 playtest: sau khi xong M8-15
 
 ---
 

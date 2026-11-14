@@ -890,7 +890,7 @@ export function render(ctx, g) {
       const img = vis.tm && vis.tm[b.id];
       if (!img) { objs.push({ y: b.py + b.ph, sectB: b }); continue; }
       const f = b.footPx;
-      if (vis1(img, f.x, f.y)) objs.push({ y: f.y, img, x: Math.round(f.x - img.width / 2), dy: Math.round(f.y - img.height), label: b.name, door: b.doorPx });
+      if (vis1(img, f.x, f.y)) objs.push({ y: f.y, img, x: Math.round(f.x - img.width / 2), dy: Math.round(f.y - img.height), label: b.name, door: b.doorPx, id: b.id });
     }
     if (vis.plaza) {   // lớp trước của bệ: từng nhóm điểm ảnh xếp theo chân cột đục của nó (xem main.js)
       const x = Math.round(map.cx - vis.plaza.ax), y0 = Math.round(map.cy - vis.plaza.ay);
@@ -913,7 +913,9 @@ export function render(ctx, g) {
       ctx.globalAlpha = 1;
       if (o.label && Math.hypot(p.x - o.door.x, p.y - o.door.y) < 96) {   // M8-03: đứng ở cửa -> "E · tên khu"
         const act = g.interact && g.interact.name === o.label;   // tên khu cố định trên mái; đang đứng ở cửa thì sáng hơn
-        txt(ctx, o.label, Math.round(o.x + o.img.width / 2), o.dy - 3, act ? '#fff6c8' : '#ffd978', act ? 11 : 10);
+        const lx = Math.round(o.x + o.img.width / 2), st = g.sectStatus && g.sectStatus(o.id);
+        txt(ctx, o.label, lx, o.dy - (st ? 12 : 3), act ? '#fff6c8' : '#ffd978', act ? 11 : 10);
+        if (st) txt(ctx, st.s, lx, o.dy - 2, st.hot ? '#ffe9a0' : '#cfc6b0', 8);   // M8-13: trạng thái khu
       }
     }
     else if (o.m) drawMonster(ctx, o.m, time, vis);
@@ -939,6 +941,11 @@ export function render(ctx, g) {
   for (const s of g.hubShots || []) { s.fx.x = Math.round(s.x); s.fx.y = Math.round(s.y); s.fx.draw(ctx); }
   if (scene.kind === 'hub' && g.interact && (g.interact.id === 'phap_dai' || g.interact.id === 'portal'))   // tên cố định ngay trên vật thể
     txt(ctx, g.interact.name, Math.round(g.interact.x), Math.round(g.interact.id === 'portal' ? g.interact.y - 70 : map.cy - 74), '#fff6c8', 11);
+  if (scene.kind === 'hub' && g.sect && Math.hypot(p.x - g.sect.pen.doorPx.x, p.y - g.sect.pen.doorPx.y) < 96) {   // Luyện Võ Trường: tên trên cổng rào
+    const d = g.sect.pen.doorPx, st = g.sectStatus && g.sectStatus('luyen_vo'), act = g.interact && g.interact.id === 'luyen_vo';
+    txt(ctx, g.sect.pen.name, Math.round(d.x), Math.round(d.y - 50), act ? '#fff6c8' : '#ffd978', act ? 11 : 10);
+    if (st) txt(ctx, st.s, Math.round(d.x), Math.round(d.y - 40), '#cfc6b0', 8);
+  }
   if (scene.kind === 'hub' && g.sect) { updateQiParts(vis, map, !!(p.med && g.inForm), g.dtWorld || 0); drawQiParts(ctx, vis); }
   for (const fx of vis.fxs) fx.draw(ctx);
   mark('fx');
