@@ -383,6 +383,7 @@ Thiết kế + backlog đầy đủ (ChatGPT, 13/11): **`docs/chatgpt_tong_mon_M
   - [x] M8-02n (14/11) Mẹo "cầu thang 2D" (video UnitOfTime do người phát triển gửi): bậc nghiêng ở 2 cánh bệ — đi ngang thì cộng lệch dọc theo độ dốc + chậm 0.8, bậc bắc/nam chậm 0.8 (`PLAZA.stairs`, `map.stairAt`, `movePlayer`) → chỉ giữ A/D cũng xuống hết bậc cánh; bệ đặc cả khối (không đứng chồng lan can/trụ phía bắc, bậc bắc bị chặn 2 bên, đi xuống hết); cờ nam xếp theo chân bệ cờ bằng mặt nạ điểm ảnh cờ `tm_be_flag.png` (cả núm tròn); lan can phía sau sàn luôn vẽ dưới người (`tm_be_back.png`); 204/204; phím thật: chỉ giữ A/D → Tàng Kinh / Đan Dược 6,2 s; ảnh `docs/playtest/M8_02n_*.png`
   - [x] M8-02o (14/11) Cờ nam: mặt nạ = đa giác đúng hình cờ (ngọc, thanh ngang + 2 núm, vải, cán) đo tay, bỏ màu đá lọt giữa (`docs/playtest/M8_02o_mat_na_co.png`); bậc bắc/nam cũng có hiệu ứng cầu thang: lên chậm (×0.8), xuống nhanh (×1.2) + nhún 0–2 px theo từng bậc (`p.bob`, chỉ vẽ, bóng giữ dưới chân); 204/204; đã thử phím thật bằng `__game.step` (khung bị ẩn), ảnh `docs/playtest/M8_02o_thu_phim.png`
   - [x] M8-02p (14/11) Cầu thang mượt: nhún êm 0..-1,5 px + làm mượt, giảm tốc nhẹ (0.95; lên ×0.92, xuống ×1.06); 204/204
+  - [x] (14/11) Người phát triển duyệt: BẬT `FEATURES.sectHub` mặc định (web mở thẳng sảnh tông môn); `?sect=0` = động phủ cũ. Lưu ý: chưa có tương tác E ở công trình (M8-03) — các chức năng vẫn qua hàng nút
 - [ ] M8-03 Hệ thống tương tác công trình dùng chung (M, P0)
 - [ ] M8-04 Cổng Bí Cảnh (S, P0)
 - [ ] M8-05 Tụ Linh Pháp Đài (M, P0) → GATE M8-A

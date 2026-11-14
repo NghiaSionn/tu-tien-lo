@@ -154,7 +154,7 @@ if (FEATURES.pixelfxAssets) {
 if (FX.hoa_long_quyen_v2) vis.pfxSkills = { ...(vis.pfxSkills || {}), tornado: createFx(FX.hoa_long_quyen_v2) };
 
 // ---------- thế giới động phủ ----------
-// M8: ?sect=1 / ?sect=0 ghi đè FEATURES.sectHub cho lần mở này (thử sảnh tông môn khi cờ mặc định còn tắt)
+// M8: ?sect=1 / ?sect=0 ghi đè FEATURES.sectHub cho lần mở này (?sect=0: quay về động phủ cũ)
 { const q = new URLSearchParams(location.search).get('sect'); if (q === '1' || q === '0') FEATURES.sectHub = q === '1'; }
 const hubMap = FEATURES.sectHub ? makeSectMap() : makeHubMap();   // M8-02: sảnh tông môn (cờ) hoặc động phủ cũ
 const SECT_MAP = hubMap.sect || null;
