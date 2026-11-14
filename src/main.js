@@ -839,6 +839,7 @@ UI.hubHud(meta, p, trib, false);
 window.__game = {
   get meta() { return meta; }, get run() { return run; }, get view() { return view; }, get paused() { return paused; },
   p, hub, keys, KEYS, save, get trib() { return trib; }, PORTAL, vis,
+  step: (n = 1, ms = 1000 / 60) => { for (let i = 0; i < n; i++) frame(last + ms); },   // test: chạy n khung giả lập khi trang bị hãm (tab ẩn)
 };
 // Dev: ?loop=timer chạy vòng lặp bằng setInterval thay cho requestAnimationFrame (môi trường test hãm rAF còn 2–5 khung/giây).
 // Logic, dt (kẹp 0,05 s) và input giữ nguyên — chỉ đổi cái gọi frame(). Không dùng khi chơi bình thường.
