@@ -196,6 +196,8 @@
   </div>
 </div>
 <div id="rotate"><span class="ph">📱</span><b>Xoay ngang điện thoại để chơi</b><span>Tu Tiên Lộ thiết kế cho màn hình ngang 16:9.</span><button id="rotateOk" class="ghost">Vẫn chơi dọc</button></div>
+<script>/* bản web (GitHub Pages): service worker luôn kiểm tra file mới (sw.js); máy dev (127.0.0.1/localhost) không dùng */
+  if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(function () {});</script>
 <script type="module" src="src/main.js"></script>
 </body>
 </html>
