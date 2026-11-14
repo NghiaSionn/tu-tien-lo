@@ -65,9 +65,11 @@ const vis = makeVis(FX);
 const medFx = createFx(FX.toa_thien);
 // M5-02: sprite sheet ChatGPT vẽ, tools/sprite_clean.py làm sạch (docs/concept/). Lỗi nạp thì dùng sprite code cũ.
 // white/glow: bóng trắng (lóe trúng đòn) và bóng tím (viền tinh anh) dựng sẵn từ sheet
+// chờ ảnh bằng onload (img.decode() có lúc treo mãi khi trang chưa vẽ / tab nền -> kẹt "Đang tải…")
+const loadImg = src => new Promise((ok, bad) => { const i = new Image(); i.onload = () => ok(i); i.onerror = () => bad(new Error('ảnh lỗi: ' + src)); i.src = src; });
 async function loadSheet(name) {
   const meta = await (await fetch(`sprites/${name}.json`)).json();
-  const img = new Image(); img.src = 'sprites/' + meta.image; await img.decode();
+  const img = await loadImg('sprites/' + meta.image);
   const tint = col => { const c = document.createElement('canvas'); c.width = img.width; c.height = img.height; const g = c.getContext('2d'); g.drawImage(img, 0, 0); g.globalCompositeOperation = 'source-in'; g.fillStyle = col; g.fillRect(0, 0, c.width, c.height); return c; };
   return { img, meta, white: tint('#ffffff'), glow: tint('#c070ff'), wind: tint('#7ff0c8') };   // wind: tàn ảnh Phong Ảnh Bộ
 }
@@ -97,7 +99,7 @@ if (vis.tmCt || vis.tmDv || vis.tmCd) vis.tm = Object.assign({}, ...[vis.tmCt, v
 // -> nhân vật đứng sau cờ/lan can bị che đúng, đứng trước thì không (cắt dải ngang cũ sai với vật cao).
 if (vis.tm) try {
   const { PLAZA } = await import('./data/sect_plaza.js');
-  const ld = async src => { const i = new Image(); i.src = src; await i.decode(); return i; };
+  const ld = loadImg;
   const [base, front, flag, back] = await Promise.all([ld('sprites/tm_be.png'), ld('sprites/tm_be_front.png'), ld('sprites/tm_be_flag.png').catch(() => null), ld('sprites/tm_be_back.png').catch(() => null)]);
   const k = PLAZA.scale, up = img => { const c = document.createElement('canvas'); c.width = img.width * k; c.height = img.height * k; const g = c.getContext('2d'); g.imageSmoothingEnabled = false; g.drawImage(img, 0, 0, c.width, c.height); return c; };
   const B = up(base), F = up(front), fw = F.width, fh = F.height;
