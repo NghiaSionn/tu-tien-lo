@@ -894,7 +894,10 @@ export function render(ctx, g) {
       if (hide && !o.noFade) ctx.globalAlpha = 0.45;
       ctx.drawImage(o.img, o.x, o.dy);
       ctx.globalAlpha = 1;
-      if (o.label && Math.hypot(p.x - o.door.x, p.y - o.door.y) < 96) txt(ctx, o.label, Math.round(o.x + o.img.width / 2), o.dy - 3, '#ffd978');
+      if (o.label && Math.hypot(p.x - o.door.x, p.y - o.door.y) < 96) {   // M8-03: đứng ở cửa -> "E · tên khu"
+        const act = g.interact && g.interact.name === o.label;
+        txt(ctx, (act ? 'E · ' : '') + o.label, Math.round(o.x + o.img.width / 2), o.dy - 3, act ? '#fff2b0' : '#ffd978');
+      }
     }
     else if (o.m) drawMonster(ctx, o.m, time, vis);
     else if (o.portal) {
@@ -917,6 +920,8 @@ export function render(ctx, g) {
   if (scene.projectiles) drawProjectiles(ctx, scene, vis.FX, g.dtWorld || 0, vis.quality);
   mark('projectiles');
   for (const s of g.hubShots || []) { s.fx.x = Math.round(s.x); s.fx.y = Math.round(s.y); s.fx.draw(ctx); }
+  if (scene.kind === 'hub' && g.interact && (g.interact.id === 'phap_dai' || g.interact.id === 'portal'))   // M8-03: nhắc E ở pháp đài / cổng
+    txt(ctx, 'E · ' + g.interact.name, Math.round(g.interact.x), Math.round(g.interact.id === 'portal' ? g.interact.y - 70 : p.y - 34), '#fff2b0');
   if (scene.kind === 'hub' && g.sect) { updateQiParts(vis, map, !!(p.med && g.inForm), g.dtWorld || 0); drawQiParts(ctx, vis); }
   for (const fx of vis.fxs) fx.draw(ctx);
   mark('fx');

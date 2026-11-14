@@ -6,6 +6,7 @@ import { levelName, maxHp, atk, need, isMajor, realmOf, REALMS, MAX_L, grantUnlo
 import { drawCards, applyCard, rerollDraft } from './progression/draft.js';
 import * as C from './systems/cultivation.js';
 import { createTrib, updateTrib, clampToArena, phaseDef } from './systems/tribulation.js';
+import { nearestPoint, makeInteractor } from './systems/interact.js';
 import { TRIBULATION } from './core/config.js';
 import { createRun, updateRun, endRun, refreshMaxHp } from './systems/run.js';
 import { runStats } from './systems/combat.js';
@@ -480,6 +481,7 @@ function updateHub(dt) {
   PORTAL.near = FEATURES.run && Math.hypot(p.x - PORTAL.x, p.y - PORTAL.y) < HUB.PORTAL.r;
   BIA.near = FEATURES.lore && Math.hypot(p.x - BIA.x, p.y - BIA.y) < HUB.BIA.r;
   BIA.lit = !!(meta.lore && meta.lore.unlocked.some(id => !meta.lore.read.includes(id)));
+  if (SECT_MAP) INTERACT.cur = p.med ? null : nearestPoint(SECT_POINTS, p.x, p.y, INTERACT.cur);   // M8-03
   if ((saveT += dt) > 3) { saveT = 0; save(); }
 }
 function updateInteractiveTrib(dt) {
@@ -749,6 +751,23 @@ function openSettings() {
   });
 }
 
+// ---------- M8-03: các khu tương tác trong sảnh tông môn (đi tới + E) ----------
+const INTERACT = { cur: null, ix: makeInteractor() };
+const SECT_ACTIONS = {
+  truyen_thua: [{ id: 'gacha', label: 'Truyền Thừa', run: () => openGacha() }],
+  tang_kinh: [{ id: 'codex', label: 'Đồ giám', run: () => openCodex() }],
+  cong_duc: [{ id: 'ach', label: 'Thành tựu', run: () => UI.showAchievements(meta) }],
+  luyen_khi: [{ id: 'forge', label: 'Luyện khí', run: () => openForge() }],
+  dan_duoc: [{ id: 'pill_use', label: 'Dùng Tụ Khí Đan', run: () => usePill() }, { id: 'pill_buy', label: 'Mua Tụ Khí Đan', run: () => buyPill() }],
+};
+const SECT_POINTS = !SECT_MAP ? [] : [
+  ...SECT_MAP.buildings.filter(b => SECT_ACTIONS[b.id]).map(b => ({ id: b.id, name: b.name, x: b.doorPx.x, y: b.doorPx.y, r: 30, actions: SECT_ACTIONS[b.id] })),
+  { id: 'portal', name: 'Cổng Bí Cảnh', x: PORTAL.x, y: PORTAL.y, r: HUB.PORTAL.r, when: () => FEATURES.run, actions: [{ id: 'run', label: 'Vào bí cảnh', run: () => openPrepare() }] },
+  { id: 'bia', name: 'Bia Truyền Thừa', x: BIA.x, y: BIA.y, r: HUB.BIA.r, when: () => FEATURES.lore, actions: [{ id: 'lore', label: 'Đọc bia', run: () => openLore() }] },
+  { id: 'phap_dai', name: 'Tụ Linh Pháp Đài', x: CX, y: CY, r: HUB.SECT_FORM.rx, when: () => inForm(),
+    actions: [{ id: 'med', label: 'Tọa thiền', run: () => toggleMed() }, { id: 'break', label: 'Đột phá', run: () => tryBreak() }] },
+];
+
 // ---------- điều khiển ----------
 function onAction(code) {
   if (code === 'KeyM') { meta.settings.mute = !meta.settings.mute; applySettings(); save(); UI.log(meta.settings.mute ? 'Đã tắt tiếng (M).' : 'Đã bật tiếng (M).'); return true; }
@@ -764,7 +783,10 @@ function onAction(code) {
   else if (code === 'KeyB') tryBreak();
   else if (code === 'Digit1') usePill();
   else if (code === 'Digit2') buyPill();
-  else if (code === 'KeyE') { if (BIA.near) openLore(); else openPrepare(); }   // M7-14: đứng cạnh bia thì E = đọc bia
+  else if (code === 'KeyE') {
+    if (SECT_MAP) { if (!trib) INTERACT.ix.press(INTERACT.cur, (pt, acts) => UI.showChoice(pt.name, acts)); }   // M8-03: tương tác theo khu
+    else if (BIA.near) openLore(); else openPrepare();   // M7-14: đứng cạnh bia thì E = đọc bia
+  }
   else if (code === 'KeyG') openForge();
   else if (code === 'KeyH') openGacha();
   else if (code === 'KeyJ') UI.showAchievements(meta);
@@ -838,7 +860,7 @@ function frame(now) {
   if (vis.pfxSkills && view === 'RUN') vis.pfxSkills.tornado.update(worldDt);
   const scene = run && view !== 'HUB' ? run.scene : hub;
   vis.hiDraw = null;
-  render(ctx, { scene, player: p, time, vis, medFx, trib, inForm: p.inForm, portal: scene === hub ? PORTAL : null, bia: scene === hub && FEATURES.lore ? BIA : null, sect: scene === hub ? SECT_MAP : null, run: scene === hub ? null : run, hubShots: scene === hub ? hubShots : null, dtWorld: worldDt });
+  render(ctx, { scene, player: p, time, vis, medFx, trib, inForm: p.inForm, portal: scene === hub ? PORTAL : null, bia: scene === hub && FEATURES.lore ? BIA : null, sect: scene === hub ? SECT_MAP : null, interact: scene === hub ? INTERACT.cur : null, run: scene === hub ? null : run, hubShots: scene === hub ? hubShots : null, dtWorld: worldDt });
   // lớp nét cao: vẽ nhân vật lơ lửng ở toạ độ lẻ, mỗi điểm ảnh game = hiK điểm ảnh màn hình (nét, không nhoè)
   hiCtx.setTransform(1, 0, 0, 1, 0, 0); hiCtx.clearRect(0, 0, hiCv.width, hiCv.height);
   if (vis.hiDraw && vis.hero) {

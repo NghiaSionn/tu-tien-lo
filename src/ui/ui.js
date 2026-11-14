@@ -113,6 +113,19 @@ function open(html, keys) {
 }
 export function closeModal() { $('modal').hidden = true; $('modal').innerHTML = ''; modalKeys = null; }
 
+// M8-03: bảng chọn nhỏ khi một khu có nhiều việc (Đan Dược Phòng: dùng/mua đan; Pháp Đài: tọa thiền/đột phá). Phím 1..n, Esc/E đóng
+export function showChoice(title, actions) {
+  open(`<h2>${esc(title)}</h2><div class="row" style="flex-direction:column;gap:.4em">${actions.map((a, i) =>
+    `<button data-i="${i}">${i + 1} · ${esc(a.label)}</button>`).join('')}<button class="ghost" data-x="1">Đóng (Esc)</button></div>`, code => {
+    const i = /^Digit(\d)$/.test(code) ? +code.slice(5) - 1 : -1;
+    if (actions[i]) { closeModal(); actions[i].run(); return true; }
+    if (code === 'Escape' || code === 'KeyE') { closeModal(); return true; }
+    return false;
+  });
+  $('modal').querySelectorAll('button[data-i]').forEach(b => b.onclick = () => { closeModal(); actions[+b.dataset.i].run(); });
+  $('modal').querySelector('button[data-x]').onclick = closeModal;
+}
+
 // M3-02: công pháp khởi đầu = mặc định + đã mở khóa theo đại cảnh giới; độ khó tới mức đã mở (phím D đổi)
 export const startSkillIds = meta => [...RUN.START_SKILLS, ...meta.unlocks.skills.filter(id => SKILLS[id] && SKILLS[id].implemented && !RUN.START_SKILLS.includes(id))].slice(0, 6);
 // variant (M7-10): { id, name, rules } — biến thể đã bốc cho lượt này, chỉ để báo trước
