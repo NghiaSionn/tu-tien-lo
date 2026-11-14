@@ -516,7 +516,8 @@ function updateInteractiveTrib(dt) {
   }
   if (!trib.done && trib.phase !== trib.shownPhase) {
     trib.shownPhase = trib.phase;
-    ev.push({ type: 'announce', x: p.x, y: p.y, text: `Thiên kiếp · ${phaseDef(trib).name} (${trib.phase + 1}/${TRIBULATION.PHASES.length})`, color: '#d9c8ff' });
+    // nhịp mới: thanh tiến độ thiên kiếp đầu màn đã ghi tên nhịp -> không hiện thêm băng chữ trùng chỗ (chỉ ghi vào nhật ký)
+    UI.log(`Thiên kiếp · ${phaseDef(trib).name} (${trib.phase + 1}/${TRIBULATION.PHASES.length})`, 'bad');
   }
   if (!trib.done) return;
   const won = trib.done === 'WIN';
