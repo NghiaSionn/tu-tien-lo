@@ -60,7 +60,7 @@ test('mặt sàn bệ chứa trọn trận thiên kiếp (elip SECT_ARENA) và c
     const x = m.cx + Math.cos(a / 96 * 6.283) * (rx - 4) * f, y = m.cy + Math.sin(a / 96 * 6.283) * (ry - 4) * f;
     assert.ok(m.canStand(x, y), `thiên kiếp bị chặn tại (${Math.round(x - m.cx)},${Math.round(y - m.cy)})`);
   }
-  for (const b of S.buildings) assert.ok(!m.canStand(b.px + b.pw / 2, b.py + b.ph / 2), b.id + ' không đi xuyên');
+  for (const b of S.buildings) if (!b.nha) assert.ok(!m.canStand(b.px + b.pw / 2, b.py + b.ph / 2), b.id + ' không đi xuyên');   // nhà lớn (nha) đi vào được
 });
 
 test('rộng gấp 2: đi từ pháp đài tới mỗi khu mất 4–9 s (đường ngắn nhất, PLAYER.SPEED)', () => {

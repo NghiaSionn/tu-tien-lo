@@ -7,6 +7,7 @@ import { drawCards, applyCard, rerollDraft } from './progression/draft.js';
 import * as C from './systems/cultivation.js';
 import { createTrib, updateTrib, clampToArena, phaseDef } from './systems/tribulation.js';
 import { nearestPoint, makeInteractor } from './systems/interact.js';
+import { NHA } from './data/sect_nha.js';
 import { ACHIEVEMENTS } from './data/achievements.js';
 import { TRIBULATION } from './core/config.js';
 import { createRun, updateRun, endRun, refreshMaxHp } from './systems/run.js';
@@ -120,8 +121,7 @@ if (vis.tm) try {
   const [base, front, flag, back] = await Promise.all([ld('sprites/tm_be.png'), ld('sprites/tm_be_front.png'), ld('sprites/tm_be_flag.png').catch(() => null), ld('sprites/tm_be_back.png').catch(() => null)]);
   const k = PLAZA.scale, up = img => { const c = document.createElement('canvas'); c.width = img.width * k; c.height = img.height * k; const g = c.getContext('2d'); g.imageSmoothingEnabled = false; g.drawImage(img, 0, 0, c.width, c.height); return c; };
   const B = up(base), F = up(front), fw = F.width, fh = F.height;
-  const src = F.getContext('2d').getImageData(0, 0, fw, fh), d = src.data, key = new Int32Array(fw * fh).fill(-1);
-  for (let x = 0; x < fw; x++) { let bot = -1; for (let y = fh - 1; y >= 0; y--) { const o = y * fw + x; if (d[o * 4 + 3]) { if (bot < 0) bot = y; key[o] = bot; } else bot = -1; } }
+  const src = F.getContext('2d').getImageData(0, 0, fw, fh), d = src.data, key = columnKeys(d, fw, fh);
   if (back) { const bc = up(back).getContext('2d').getImageData(0, 0, fw, fh).data; for (let o = 0; o < key.length; o++) if (bc[o * 4 + 3] && key[o] >= 0) key[o] = 0; }   // lan can phía sau sàn: luôn dưới người
   for (const [x0, y0, x1, y1, foot] of PLAZA.banners || []) for (let y = Math.floor(y0 * k); y <= Math.min(fh - 1, y1 * k); y++) for (let x = Math.floor(x0 * k); x <= Math.min(fw - 1, x1 * k); x++) if (key[y * fw + x] >= 0) key[y * fw + x] = Math.round(foot * k);   // cờ: theo chân bệ cờ
   if (flag) {   // điểm ảnh cờ nam (cả núm tròn chìa ra ngoài khung cờ): xếp theo chân bệ cờ gần nhất theo x
@@ -131,6 +131,15 @@ if (vis.tm) try {
       key[o] = Math.round(best[4] * k);
     }
   }
+  vis.plaza = { base: B, strips: makeStrips(key, d, fw, fh), ax: PLAZA.anchor[0] * k, ay: PLAZA.anchor[1] * k };
+} catch (e) { console.warn('[sprite] bệ pháp đài:', e); }
+// lớp che: gom điểm ảnh theo chân cột (key) thành dải, mỗi dải xếp theo chân của nó (bệ pháp đài + nhà lớn)
+function columnKeys(d, fw, fh) {
+  const key = new Int32Array(fw * fh).fill(-1);
+  for (let x = 0; x < fw; x++) { let bot = -1; for (let y = fh - 1; y >= 0; y--) { const o = y * fw + x; if (d[o * 4 + 3]) { if (bot < 0) bot = y; key[o] = bot; } else bot = -1; } }
+  return key;
+}
+function makeStrips(key, d, fw, fh) {
   const bins = new Map();
   for (let o = 0; o < key.length; o++) if (key[o] >= 0) { const b = key[o] >> 3; let r = bins.get(b); if (!r) bins.set(b, r = { x0: fw, y0: fh, x1: 0, y1: 0, px: [] }); const x = o % fw, y = (o / fw) | 0; r.px.push(o); if (x < r.x0) r.x0 = x; if (x > r.x1) r.x1 = x; if (y < r.y0) r.y0 = y; if (y > r.y1) r.y1 = y; }
   const strips = [];
@@ -140,8 +149,16 @@ if (vis.tm) try {
     for (const o of r.px) { const x = o % fw - r.x0, y = ((o / fw) | 0) - r.y0, t = (y * w + x) * 4; for (let q = 0; q < 4; q++) id.data[t + q] = d[o * 4 + q]; }
     g.putImageData(id, 0, 0); strips.push({ img: c, x: r.x0, y: r.y0, foot: b * 8 + 7 });
   }
-  vis.plaza = { base: B, strips, ax: PLAZA.anchor[0] * k, ay: PLAZA.anchor[1] * k };
-} catch (e) { console.warn('[sprite] bệ pháp đài:', e); }
+  return strips;
+}
+// M8-15: nhà lớn đi vào được (tools/build_nha.py): nền + lớp che theo chân cột
+vis.nha = {};
+if (vis.tm) for (const b of Object.keys(NHA)) try {
+  const [base, front] = await Promise.all([loadImg(`sprites/nha_${b}.png`), loadImg(`sprites/nha_${b}_front.png`)]);
+  const c = document.createElement('canvas'); c.width = front.width; c.height = front.height; const g = c.getContext('2d'); g.drawImage(front, 0, 0);
+  const d = g.getImageData(0, 0, c.width, c.height).data;
+  vis.nha[b] = { base, strips: makeStrips(columnKeys(d, c.width, c.height), d, c.width, c.height) };
+} catch (e) { console.warn('[sprite] nhà', b, e); }
 // M8: phím pixel (ChatGPT vẽ, sprites/phim) cho khung nhắc E và bảng chọn — ảnh rời dạng dataURL dùng trong HTML
 if (vis.phim) { const f = cropFrames(vis.phim); UI.setKeycaps(Object.fromEntries(Object.entries(f).map(([k, c]) => [k, c.toDataURL()]))); }
 // biểu tượng công pháp cho UI (thay emoji); thiếu sheet thì UI giữ emoji

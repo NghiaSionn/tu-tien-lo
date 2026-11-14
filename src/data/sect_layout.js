@@ -23,7 +23,7 @@ export const SECT = {
     { id: 'tang_kinh', name: 'Tàng Kinh Các', foot: [13, 32], base: [6, 3], them: 'them_ngang' },
     { id: 'cong_duc', name: 'Công Đức Đường', foot: [18, 48], base: [7, 3], them: 'them_ngang' },
     { id: 'luyen_khi', name: 'Luyện Khí Phường', foot: [68, 16], base: [6, 3], them: 'them_ngang' },
-    { id: 'dan_duoc', name: 'Đan Dược Phòng', foot: [75, 32], base: [7, 3], them: 'them_ngang' },
+    { id: 'dan_duoc', name: 'Đan Dược Phòng', foot: [75, 32], base: [7, 3], nha: 'dan_duoc', at: [75, 35.5] },   // M8-15: nhà lớn đi vào được (sect_nha.js)
   ],
   // Luyện Võ Trường: sân đất có rào (sói luyện đòn ở trong), cổng rào phía bắc; chòi luyện võ trong góc
   PEN: { id: 'luyen_vo', name: 'Luyện Võ Trường', x: 64, y: 44, w: 22, h: 13, gate: [67, 69], door: [68.5, 43.2] },
@@ -36,7 +36,7 @@ export const SECT = {
     [[44, 45], [44, 55]],                         // chân bậc nam → vườn bia
     [[44, 51], [30, 51], [18, 49]],               // chân bậc nam → tây → Công Đức Đường
     [[27.5, 34], [13, 33]],                         // cánh tây → Tàng Kinh Các
-    [[60.5, 34], [75, 33]],                         // cánh đông → Đan Dược Phòng
+    [[60.5, 34], [66, 36.5], [75, 36.5]],                         // cánh đông → Đan Dược Phòng
     [[44, 51], [58, 51], [62, 43], [68.5, 42.5]], // chân bậc nam → đông → cổng rào Luyện Võ Trường
     [[18, 49], [22, 53], [27.5, 57], [27.5, 63]], // Công Đức Đường → cầu đá qua suối
   ],
@@ -64,9 +64,9 @@ export const SECT = {
     // vách đá phía bắc (nền núi sau cổng)
     ['vach_da', 8, 5, [4, 2]], ['vach_da', 26, 4, [4, 2]], ['vach_da', 62, 4, [4, 2]], ['vach_da', 80, 5, [4, 2]],
     // cây (ảnh 1: anh đào hồng, tùng, tre, cây tròn) — gốc đặc
-    ['anh_dao_lon', 9, 14, [2, 1]], ['anh_dao_lon', 32, 9, [2, 1]], ['anh_dao_lon', 81, 22, [2, 1]], ['anh_dao_lon', 34, 57, [2, 1]],
-    ['anh_dao_lon', 54, 57, [2, 1]], ['anh_dao_lon', 6, 41, [2, 1]], ['anh_dao_lon', 82, 37, [2, 1]],
-    ['anh_dao_nho', 18, 40, [1, 1]], ['anh_dao_nho', 69, 27, [1, 1]], ['anh_dao_nho', 12, 55, [1, 1]], ['anh_dao_nho', 56, 11, [1, 1]], ['anh_dao_nho', 5, 29, [1, 1]],
+    ['anh_dao_lon', 9, 14, [2, 1]], ['anh_dao_lon', 32, 9, [2, 1]], ['anh_dao_lon', 85, 19, [2, 1]], ['anh_dao_lon', 34, 57, [2, 1]],
+    ['anh_dao_lon', 54, 57, [2, 1]], ['anh_dao_lon', 6, 41, [2, 1]], ['anh_dao_lon', 86, 41, [2, 1]],
+    ['anh_dao_nho', 18, 40, [1, 1]], ['anh_dao_nho', 12, 55, [1, 1]], ['anh_dao_nho', 56, 11, [1, 1]], ['anh_dao_nho', 5, 29, [1, 1]],
     ['tung_cao', 36, 6, [1, 1]], ['tung_cao', 52, 6, [1, 1]], ['tung_cao', 4, 22, [1, 1]], ['tung_cao', 84, 12, [1, 1]], ['tung_cao', 16, 7, [1, 1]],
     ['tung_bonsai', 65, 25, [2, 1]], ['tung_bonsai', 10, 24, [2, 1]],
     ['cay_tron', 4, 50, [2, 1]], ['cay_tron', 74, 8, [2, 1]], ['cay_tron', 53, 58, [2, 1]], ['cay_tron', 84, 30, [2, 1]],
@@ -74,7 +74,7 @@ export const SECT = {
     ['bui_cay', 21, 10, [2, 1]], ['bui_cay', 58, 12, [2, 1]], ['bui_cay', 30, 55, [2, 1]], ['bui_cay', 9, 47, [2, 1]],
     ['da_lon', 36, 12, [2, 1]], ['da_lon', 77, 38, [2, 1]], ['da_lon', 16, 56, [2, 1]], ['da_nho', 28, 44, [2, 1]], ['da_nho', 70, 26, [2, 1]],
     ['da_nho', 8, 34, [2, 1]], ['da_nho', 51, 12, [2, 1]],
-    ['khom_hoa', 40, 52], ['khom_hoa', 48, 53], ['khom_hoa', 15, 20], ['khom_hoa', 70, 21], ['khom_hoa', 78, 27], ['khom_hoa', 26, 23.5],
+    ['khom_hoa', 40, 52], ['khom_hoa', 48, 53], ['khom_hoa', 15, 20], ['khom_hoa', 26, 23.5],
     ['khom_hoa', 60, 21], ['khom_hoa', 10, 40], ['khom_hoa', 76, 40],
   ],
 };

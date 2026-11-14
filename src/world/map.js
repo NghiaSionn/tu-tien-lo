@@ -3,6 +3,7 @@ import { TILE as T, HUB } from '../core/config.js';
 import { hash, noise } from '../core/rng.js';
 import { SECT, THEM } from '../data/sect_layout.js';
 import { PLAZA } from '../data/sect_plaza.js';
+import { NHA } from '../data/sect_nha.js';
 
 export const GRASS = 0, WATER = 1, STONE = 2, TREE = 3, ROCK = 4;
 export const BUILDING = 5, FENCE = 6, DIRT = 7;   // M8-02: nền công trình (đặc), hàng rào (đặc), sân đất (đi được)
@@ -77,7 +78,7 @@ export function buildSectGrid(S = SECT) {
     const gate = y === P.y && x >= P.gate[0] && x <= P.gate[1];
     set(x, y, edge && !gate ? FENCE : DIRT);
   }
-  for (const b of S.BUILDINGS) { const r = solidRect(b.foot, b.base); for (let y = r.y0; y < r.y1; y++) for (let x = r.x0; x < r.x1; x++) set(x, y, BUILDING); }
+  for (const b of S.BUILDINGS) { if (b.nha) continue; const r = solidRect(b.foot, b.base); for (let y = r.y0; y < r.y1; y++) for (let x = r.x0; x < r.x1; x++) set(x, y, BUILDING); }
   for (const [, x, y, sd] of S.PROPS) if (sd) block(solidRect([x, y], sd));
   for (let x = 0; x < S.W; x++) { set(x, 0, TREE); set(x, S.H - 1, TREE); }
   for (let y = 0; y < S.H; y++) { set(0, y, TREE); set(S.W - 1, y, TREE); }
@@ -105,8 +106,10 @@ export function makeSectMap(S = SECT) {
   const inR = (x, y, r) => x >= r[0] && x <= r[2] && y >= r[1] && y <= r[3];
   const themSolid = (x, y) => { for (const b of m.sect.buildings) { const t = b.them; if (!t) continue; const lx = x - t.x, ly = y - t.y;
     if (lx >= 0 && ly >= 0 && lx < t.w && ly < t.h) return !(inR(lx, ly, t.inner) || inR(lx, ly, t.stair)); } return false; };
+  const nhaSolid = (x, y) => { for (const b of m.sect.buildings) { const n = b.nha; if (!n) continue; const fx = x - n.x + n.pad, fy = y - n.y + n.pad;
+    if (fx >= 0 && fy >= 0 && fy < n.fine.length * n.cell && fx < n.fine[0].length * n.cell) return n.fine[Math.floor(fy / n.cell)][Math.floor(fx / n.cell)] === '#'; } return false; };
   m.solidPx = (x, y) => {
-    if (m.sect && themSolid(x, y)) return true;
+    if (m.sect && (themSolid(x, y) || nhaSolid(x, y))) return true;
     const tx = Math.floor(x / T), ty = Math.floor(y / T), fx = x - fx0, fy = y - fy0;
     if (fx >= 0 && fy >= 0 && fx < fW && fy < fH) return P0.fine[Math.floor(fy / cell)][Math.floor(fx / cell)] === '#' || base(tx, ty);
     return m.solidTile(tx, ty);
@@ -119,6 +122,11 @@ export function makeSectMap(S = SECT) {
     ox, oy,
     buildings: S.BUILDINGS.map(b => {
       const r = solidRect(b.foot, b.base);
+      if (b.nha && NHA[b.nha]) {   // nhà lớn đi vào được: đặt theo giữa đáy bậc; E ở đồ vật chính bên trong
+        const N = NHA[b.nha], at = px(b.at), x = Math.round(at.x - N.foot[0]), y = Math.round(at.y - N.foot[1]);
+        const nha = { id: b.nha, x, y, ...N };
+        return { ...b, px: x, py: y, pw: N.w, ph: N.h, footPx: at, doorPx: { x: x + N.interact[0], y: y + N.interact[1] }, them: null, nha };
+      }
       const fp = px(b.foot), th = b.them && THEM[b.them];
       // có thềm: cửa = giữa bậc thềm (người chơi leo bậc tới công trình)
       const door = th ? { x: fp.x, y: fp.y + Math.round((th.stair[1] + th.stair[3]) / 2) - th.foot } : px([b.foot[0], b.foot[1] + 0.7]);
