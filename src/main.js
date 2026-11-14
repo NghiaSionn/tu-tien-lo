@@ -194,6 +194,11 @@ const storage = {
 };
 const loaded = loadSave(storage, saveCtx);
 let meta = loaded.meta;
+// Thử thiên kiếp bằng tay: ?tuvi=full -> đổ đầy tu vi, tự lên các tầng nhỏ tới mốc đại cảnh giới gần nhất (dừng trước thiên kiếp, không qua thiên kiếp)
+if (new URLSearchParams(location.search).get('tuvi') === 'full' && meta.realmLevel < MAX_L) {
+  for (let i = 0; i < 30 && !isMajor(meta.realmLevel) && meta.realmLevel < MAX_L; i++) { meta.cultivationXp = need(meta.realmLevel); C.levelUp(meta); }
+  meta.cultivationXp = need(meta.realmLevel);
+}
 const startNotes = [];
 if (loaded.warnings.length) console.warn('[save]', loaded.source, loaded.warnings);
 if (loaded.source === 'v1') {
