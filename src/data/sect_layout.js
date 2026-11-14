@@ -27,7 +27,7 @@ export const SECT = {
     [[44, 22], [44, 10]],                         // lối bắc của bệ → cổng bí cảnh
     [[44, 15], [30, 15], [20, 17]],               // rẽ tây → Truyền Thừa Các
     [[44, 15], [58, 15], [68, 17]],               // rẽ đông → Luyện Khí Phường
-    [[44, 47.5], [44, 55]],                         // chân bậc nam → vườn bia
+    [[44, 47], [44, 55]],                         // chân bậc nam → vườn bia
     [[44, 51], [30, 51], [18, 49]],               // chân bậc nam → tây → Công Đức Đường
     [[25, 35], [13, 33]],                         // cánh tây → Tàng Kinh Các
     [[63, 35], [75, 33]],                         // cánh đông → Đan Dược Phòng
