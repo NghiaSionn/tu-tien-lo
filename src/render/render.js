@@ -515,7 +515,10 @@ function drawShrine(ctx, run, p, time, vis) {
 
 // Thiên kiếp tương tác (M3-03): trận thử thách + cảnh báo đúng hình học vùng trúng; lấp dần = sắp đánh
 function drawTribulation(ctx, tr, time, top) {
-  if (!top) { ctx.globalAlpha = 0.7; pxRing(ctx, tr.cx, tr.cy, tr.R || TRIBULATION.ARENA_R, 90, time * 0.3, '#9a7bff', 2, 1); }
+  if (!top) {   // viền trận (tròn hoặc elip ở sảnh tông môn)
+    const rx = tr.R || TRIBULATION.ARENA_R, ry = tr.RY || rx; ctx.globalAlpha = 0.7; ctx.fillStyle = '#9a7bff';
+    for (let i = 0; i < 120; i++) { const a = i / 120 * 6.283 + time * 0.3; if (i % 3 !== 2) ctx.fillRect(Math.round(tr.cx + Math.cos(a) * rx) - 1, Math.round(tr.cy + Math.sin(a) * ry) - 1, 2, 2); }
+  }
   for (const h of tr.hazards) {
     const prog = 1 - Math.max(0, h.t) / (h.max || 1);
     if (h.kind === 'circle') {
@@ -530,7 +533,7 @@ function drawTribulation(ctx, tr, time, top) {
       ctx.globalAlpha = top ? 0.45 : 0.9;
       pxLine(ctx, h.x0 + nx, h.y0 + ny, h.x1 + nx, h.y1 + ny, '#ff4a3a', 1); pxLine(ctx, h.x0 - nx, h.y0 - ny, h.x1 - nx, h.y1 - ny, '#ff4a3a', 1);
     } else if (h.kind === 'storm') {
-      if (!top) { ctx.globalAlpha = 0.1 + 0.2 * prog; ctx.fillStyle = '#c070ff'; ctx.beginPath(); ctx.arc(h.x, h.y, h.r, 0, 6.283); ctx.fill(); }
+      if (!top) { ctx.globalAlpha = 0.1 + 0.2 * prog; ctx.fillStyle = '#c070ff'; ctx.beginPath(); ctx.ellipse(h.x, h.y, h.r, h.ry || h.r, 0, 0, 6.283); ctx.fill(); }
       for (const s of h.safe) {   // ô an toàn: vòng xanh sáng, đứng vào đây
         if (!top) { ctx.globalAlpha = 0.35; ctx.fillStyle = '#9cf2a0'; ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, 6.283); ctx.fill(); }
         ctx.globalAlpha = top ? 0.6 : 1; pxRing(ctx, s.x, s.y, s.r, 36, -time * 2, '#e6ffe8', 2, 1);

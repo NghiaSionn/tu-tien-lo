@@ -339,7 +339,7 @@ function tryBreak() {
   if (isMajor(meta.realmLevel) && TRIBULATION.ENABLED) {
     // M3-03: thiên kiếp tương tác trong trận quanh tụ linh trận. Đánh dấu trước khi bắt đầu: tải lại giữa chừng = thất bại
     p.med = false; p.x = CX; p.y = CY + 12;
-    trib = createTrib((meta.realmLevel * 7919 + meta.stats.runs * 104729 + Math.floor(meta.cultivationXp)) >>> 0, CX, CY, SECT_MAP ? TRIBULATION.SECT_ARENA_R : TRIBULATION.ARENA_R);
+    trib = createTrib((meta.realmLevel * 7919 + meta.stats.runs * 104729 + Math.floor(meta.cultivationXp)) >>> 0, CX, CY, SECT_MAP ? TRIBULATION.SECT_ARENA.rx : TRIBULATION.ARENA_R, SECT_MAP ? { ry: TRIBULATION.SECT_ARENA.ry, extraMarks: TRIBULATION.SECT_ARENA.extraMarks, extraLines: TRIBULATION.SECT_ARENA.extraLines } : {});
     trib.interactive = true; trib.shownPhase = -1;
     meta.tribPending = true; save(); metaAct('trib_start');
     UI.log(`Thiên kiếp giáng xuống! Xung kích ${REALMS[realmOf(meta.realmLevel + 1)]} — né các vùng sét đã đánh dấu, đứng vào ô an toàn khi Thiên lôi phủ trận.`, 'bad');
@@ -504,7 +504,7 @@ function updateInteractiveTrib(dt) {
   });
   for (const { h } of strikes) {
     const pts = h.kind === 'circle' ? [[h.x, h.y]] : h.kind === 'line' ? [[h.x0 * 0.7 + h.x1 * 0.3, h.y0 * 0.7 + h.y1 * 0.3], [(h.x0 + h.x1) / 2, (h.y0 + h.y1) / 2], [h.x0 * 0.3 + h.x1 * 0.7, h.y0 * 0.3 + h.y1 * 0.7]]
-      : [0, 1, 2, 3, 4].map(i => [CX + Math.cos(i * 1.257) * 55, CY + Math.sin(i * 1.257) * 40]);
+      : Array.from({ length: trib.RY && trib.RY !== trib.R ? 8 : 5 }, (_, i, A) => [CX + Math.cos(i / A.length * 6.283) * trib.R * 0.6, CY + Math.sin(i / A.length * 6.283) * (trib.RY || trib.R) * 0.6]);
     for (const [x, y] of pts) spawnFx(vis, 'loi_kiep', x, y, { flip: Math.random() < 0.5 });
     Audio.play('strike');
     addFlash(vis, h.kind === 'storm' ? 0.2 : 0.08);

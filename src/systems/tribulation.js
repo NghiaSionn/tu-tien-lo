@@ -7,18 +7,21 @@
 import { TRIBULATION as TB } from '../core/config.js';
 import { mulberry32 } from '../core/rng.js';
 
-export function createTrib(seed, cx, cy, R = TB.ARENA_R) {
-  return { rng: mulberry32(seed >>> 0), cx, cy, R, t: 0, phase: 0, phaseT: 0, spawnT: 0.6, hazards: [], hits: 0, strikes: 0, done: null };
+// opts (M8 sảnh tông môn): { ry, extraMarks, extraLines } — trận elip bán trục R×ry (mặc định tròn) và thêm đòn
+export function createTrib(seed, cx, cy, R = TB.ARENA_R, opts = {}) {
+  return { rng: mulberry32(seed >>> 0), cx, cy, R, RY: opts.ry || R, extraMarks: opts.extraMarks || 0, extraLines: opts.extraLines || 0,
+    t: 0, phase: 0, phaseT: 0, spawnT: 0.6, hazards: [], hits: 0, strikes: 0, done: null };
 }
+const RX = trib => trib.R || TB.ARENA_R, RY = trib => trib.RY || RX(trib);
 
 export const phaseDef = trib => TB.PHASES[trib.phase];
 export const totalDuration = () => TB.PHASES.reduce((a, p) => a + p.dur, 0);
 
-function inArena(trib, x, y, margin = 0) { return Math.hypot(x - trib.cx, y - trib.cy) <= (trib.R || TB.ARENA_R) - margin; }
+function inArena(trib, x, y, margin = 0) { return Math.hypot((x - trib.cx) / (RX(trib) - margin), (y - trib.cy) / (RY(trib) - margin)) <= 1; }
 function randomIn(trib, margin) {
   for (let i = 0; i < 20; i++) {
-    const a = trib.rng() * Math.PI * 2, r = Math.sqrt(trib.rng()) * ((trib.R || TB.ARENA_R) - margin);
-    const x = trib.cx + Math.cos(a) * r, y = trib.cy + Math.sin(a) * r;
+    const a = trib.rng() * Math.PI * 2, r = Math.sqrt(trib.rng());
+    const x = trib.cx + Math.cos(a) * r * (RX(trib) - margin), y = trib.cy + Math.sin(a) * r * (RY(trib) - margin);
     if (inArena(trib, x, y, margin)) return [x, y];
   }
   return [trib.cx, trib.cy];
@@ -29,12 +32,12 @@ function spawn(trib, player) {
   if (P.kind === 'marks') {
     // một vòng ngay chỗ đứng + vài vòng ngẫu nhiên
     trib.hazards.push({ kind: 'circle', x: player.x, y: player.y, r: P.r, t: P.windup, max: P.windup, dmg: P.dmg });
-    for (let i = 1; i < P.n; i++) { const [x, y] = randomIn(trib, P.r); trib.hazards.push({ kind: 'circle', x, y, r: P.r, t: P.windup, max: P.windup, dmg: P.dmg }); }
+    for (let i = 1; i < P.n + trib.extraMarks; i++) { const [x, y] = randomIn(trib, P.r); trib.hazards.push({ kind: 'circle', x, y, r: P.r, t: P.windup, max: P.windup, dmg: P.dmg }); }
   } else if (P.kind === 'lines') {
-    for (let i = 0; i < P.lines; i++) {
-      const a = trib.rng() * Math.PI, off = i === 0 ? 0 : (trib.rng() - 0.5) * (trib.R || TB.ARENA_R);
+    for (let i = 0; i < P.lines + trib.extraLines; i++) {
+      const a = trib.rng() * Math.PI, off = i === 0 ? 0 : (trib.rng() - 0.5) * RX(trib);
       // dải đi qua (gần) người chơi, xuyên hết trận
-      const nx = -Math.sin(a), ny = Math.cos(a), px = player.x + nx * off, py = player.y + ny * off, L = (trib.R || TB.ARENA_R) * 2.2;
+      const nx = -Math.sin(a), ny = Math.cos(a), px = player.x + nx * off, py = player.y + ny * off, L = RX(trib) * 2.2;
       trib.hazards.push({ kind: 'line', x0: px - Math.cos(a) * L / 2, y0: py - Math.sin(a) * L / 2, x1: px + Math.cos(a) * L / 2, y1: py + Math.sin(a) * L / 2, w: P.w, t: P.windup, max: P.windup, dmg: P.dmg });
     }
   } else if (P.kind === 'storm') {
@@ -46,7 +49,7 @@ function spawn(trib, player) {
       if (inArena(trib, x, y, P.safeR + 4)) safe.push([x, y]);
     }
     while (safe.length < P.gaps) safe.push(randomIn(trib, P.safeR + 6));
-    trib.hazards.push({ kind: 'storm', x: trib.cx, y: trib.cy, r: (trib.R || TB.ARENA_R), safe: safe.map(([x, y]) => ({ x, y, r: P.safeR })), t: P.windup, max: P.windup, dmg: P.dmg });
+    trib.hazards.push({ kind: 'storm', x: trib.cx, y: trib.cy, r: RX(trib), ry: RY(trib), safe: safe.map(([x, y]) => ({ x, y, r: P.safeR })), t: P.windup, max: P.windup, dmg: P.dmg });
   }
 }
 
@@ -63,8 +66,8 @@ export function hazardHits(h, x, y) {
 
 // Giữ người chơi trong trận thử thách (gọi sau khi di chuyển)
 export function clampToArena(trib, p) {
-  const dx = p.x - trib.cx, dy = p.y - trib.cy, d = Math.hypot(dx, dy), R = (trib.R || TB.ARENA_R) - 4;
-  if (d > R) { p.x = trib.cx + dx / d * R; p.y = trib.cy + dy / d * R; }
+  const dx = p.x - trib.cx, dy = p.y - trib.cy, rx = RX(trib) - 4, ry = RY(trib) - 4, n = Math.hypot(dx / rx, dy / ry);
+  if (n > 1) { p.x = trib.cx + dx / n; p.y = trib.cy + dy / n; }
 }
 
 // Một bước. onHit(fraction) trừ khí huyết (tỉ lệ max); trả về các đòn vừa đánh để vẽ hiệu ứng.

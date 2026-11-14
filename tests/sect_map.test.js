@@ -53,10 +53,11 @@ test('không có chỗ đứng được nào bị kẹt trong khung tông môn; 
   }
 });
 
-// thiên kiếp ở sảnh giữ người chơi trong vòng SECT_ARENA_R - 4 (systems/tribulation.js): cả vòng đó phải đứng được (bệ M8 không chặn né)
-test('quảng trường trống cho thiên kiếp (mọi điểm trong vòng giữ người chơi đều đứng được) và công trình là ô đặc', () => {
-  for (let a = 0; a < 64; a++) for (const r of [0, 30, TRIBULATION.SECT_ARENA_R - 8, TRIBULATION.SECT_ARENA_R - 4]) {
-    const x = m.cx + Math.cos(a / 64 * 6.283) * r, y = m.cy + Math.sin(a / 64 * 6.283) * r;
+// thiên kiếp ở sảnh: trận elip SECT_ARENA phủ mặt sàn bệ, người chơi bị giữ trong elip lùi 4 px -> cả vùng đó phải đứng được
+test('mặt sàn bệ chứa trọn trận thiên kiếp (elip SECT_ARENA) và công trình là ô đặc', () => {
+  const { rx, ry } = TRIBULATION.SECT_ARENA;
+  for (let a = 0; a < 96; a++) for (const f of [0, 0.3, 0.6, 0.85, 1]) {
+    const x = m.cx + Math.cos(a / 96 * 6.283) * (rx - 4) * f, y = m.cy + Math.sin(a / 96 * 6.283) * (ry - 4) * f;
     assert.ok(m.canStand(x, y), `thiên kiếp bị chặn tại (${Math.round(x - m.cx)},${Math.round(y - m.cy)})`);
   }
   for (const b of S.buildings) assert.ok(!m.canStand(b.px + b.pw / 2, b.py + b.ph / 2), b.id + ' không đi xuyên');
