@@ -23,7 +23,8 @@ export const TILE = 16;
 export const HUB = {
   MW: 80, MH: 60, SEED: 20261110,
   SAFE_TILES: 7,            // bán kính vùng an toàn (ô)
-  FORM_R: 34,               // bán kính tụ linh trận (px)
+  FORM_R: 34,               // bán kính tụ linh trận (px) — động phủ cũ
+  SECT_FORM: { rx: 92, ry: 50 },   // M8: sảnh tông môn — vùng ngồi thiền = elip mặt trận (sprites/tm_tran, 203×120 px)
   RESPAWN: { dx: 0, dy: 26 },
   PORTAL: { dx: 0, dy: -88, r: 22 },   // cổng bí cảnh, tính từ tâm trận
   BIA: { dx: -64, dy: -62, r: 24 },    // M7-14: Bia Truyền Thừa (vùng cỏ trống quanh trận), đứng trong r rồi E để đọc

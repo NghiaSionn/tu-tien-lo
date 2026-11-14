@@ -94,6 +94,13 @@ if (vis.congTrinh) vis.ct = cropFrames(vis.congTrinh);
 if (vis.bia) vis.ct = { ...(vis.ct || {}), ...cropFrames(vis.bia) };   // M7-14: bia, bia_sang
 // M8: công trình/đồ vật/cây tông môn (concept ảnh 1, tools/build_tong_mon.py)
 if (vis.tmCt || vis.tmDv || vis.tmCd) vis.tm = Object.assign({}, ...[vis.tmCt, vis.tmDv, vis.tmCd, vis.tmTran].filter(Boolean).map(cropFrames));
+// tụ linh trận sáng: lấy từ CHÍNH hình trận nghỉ (chỉ các đường khắc xanh ngọc) -> sáng lên đúng chỗ, không lệch như ô "sáng" ChatGPT vẽ riêng
+if (vis.tm && vis.tm.tran) {
+  const t = vis.tm.tran, c = document.createElement('canvas'); c.width = t.width; c.height = t.height; const g = c.getContext('2d'); g.drawImage(t, 0, 0);
+  const id = g.getImageData(0, 0, c.width, c.height), d = id.data;
+  for (let i = 0; i < d.length; i += 4) { const cyan = d[i + 1] > 140 && d[i + 2] > 120 && d[i] < d[i + 1] - 20; d[i + 3] = cyan ? 200 : 0; }
+  g.putImageData(id, 0, 0); vis.tm.tranGlow = c;
+}
 // M8: bệ Tụ Linh Pháp Đài (sprite ×PLAZA.scale): ảnh nền vẽ dưới nhân vật + lớp "phía trước" (lan can, vách, cờ, đèn).
 // Lớp trước xếp theo CHÂN của từng dải đục liền theo cột (cờ = chân bệ cờ, lan can nam = chân vách) rồi gom theo nấc 8 px
 // -> nhân vật đứng sau cờ/lan can bị che đúng, đứng trước thì không (cắt dải ngang cũ sai với vật cao).
@@ -222,7 +229,7 @@ const hubShots = [], ev = [];
 const applySettings = () => { vis.reduce = meta.settings.reduceEffects; vis.noShake = !meta.settings.screenShake; vis.quality = meta.settings.quality; Audio.applyAudioSettings(meta.settings); };
 applySettings();
 
-const inForm = () => Math.hypot(p.x - CX, p.y - CY) < HUB.FORM_R;
+const inForm = () => SECT_MAP ? ((p.x - CX) / HUB.SECT_FORM.rx) ** 2 + ((p.y - CY) / HUB.SECT_FORM.ry) ** 2 < 1 : Math.hypot(p.x - CX, p.y - CY) < HUB.FORM_R;
 const inSafe = () => Math.hypot(p.x - SAFE.x, p.y - SAFE.y) < SAFE.r;
 
 // ---------- động phủ: hành động (giữ nguyên hành vi v0.1) ----------
