@@ -40,7 +40,13 @@ PILLARS += [(MIRROR - r[2], r[1], MIRROR - r[0], r[3]) for r in PILLARS]
 OCC = (3, 14)                   # thân nhân vật quanh chân: ±5 px ngang, 22 px lên — chỗ ngoài mặt sàn mà lớp che đè lên thân thì cấm đứng
 GROW = 6                        # nới vùng đặc ra ngoài (không lấn mặt sàn): nhân vật không áp sát trụ/đèn/vách -> bớt bị lớp che đè
 PAD = 8                         # lưới mịn rộng hơn sprite PAD px mỗi phía để phần nới ở mép ảnh không bị cụt
-FOOT = 10                       # px chân đặc của vật phía bắc
+FOOT = 10                       # (không dùng nữa: 14/11 mọi phần bệ ngoài sàn/bậc đều đặc cả khối)
+# vùng bậc (px sprite) cho mẹo "cầu thang 2D" (video UnitOfTime): đi ngang trên bậc nghiêng thì cộng lệch dọc kx·dx (xuống bậc = xuống màn
+# hình) và chậm lại; bậc thẳng bắc/nam chỉ chậm lại. kx tây: đi trái (dx<0) -> dy>0
+STAIR_W = k1((4, 214, 62, 302))
+STAIR_ZONES = [dict(r=STAIR_W, kx=-0.88), dict(r=(MIRROR - STAIR_W[2], STAIR_W[1], MIRROR - STAIR_W[0], STAIR_W[3]), kx=0.88),
+               dict(r=RECTS[0], kx=0), dict(r=RECTS[1], kx=0)]
+STAIR_SLOW = 0.8
 T, C = 16, 4                    # ô bản đồ, ô mịn
 
 
@@ -101,6 +107,14 @@ def main():
         if comp.sum() >= 30: keep |= comp
     front = a.copy(); front[walk & ~keep] = 0
     Image.fromarray(front).save(ROOT / 'sprites/tm_be_front.png')
+    fm = np.zeros((H, W, 4), np.uint8); fm[keep] = 255
+    Image.fromarray(fm).save(ROOT / 'sprites/tm_be_flag.png')   # điểm ảnh cờ nam: game xếp theo chân bệ cờ (cả núm tròn)
+    # phần lớp che nằm PHÍA BẮC mép trên vùng đi được của cột (lan can bắc/chéo, lan can sau của cánh): luôn vẽ DƯỚI nhân vật.
+    # Bệ đặc cả khối nên người chỉ chồng lên chúng khi đứng phía trước (trên sàn); xếp theo chân cột thì lan can chéo đè sai lên người
+    wt = np.where(walk.any(0), walk.argmax(0), H)
+    back = (front[..., 3] > 0) & (np.arange(H)[:, None] < wt[None, :]) & ~keep
+    bm = np.zeros((H, W, 4), np.uint8); bm[back] = 255
+    Image.fromarray(bm).save(ROOT / 'sprites/tm_be_back.png')
     # đặc từng điểm ảnh: phía nam đỉnh vùng đi được của cột -> đặc cả khối; phía bắc -> chỉ FOOT px cuối của dải đục
     solid = np.zeros((H, W), bool); south = np.zeros((H, W), bool); body = alpha & ~walk & ~air
     for x in range(W):
@@ -110,7 +124,7 @@ def main():
             if not body[y, x]: run_end = -1; continue
             if run_end < 0: run_end = y
             south[y, x] = y > top
-            solid[y, x] = y > top or y > run_end - FOOT
+            solid[y, x] = True   # cả khối (người phát triển: không được đứng chồng lên lan can/trụ/bệ cờ phía bắc)
     # nới vùng đặc GROW px ra ngoài (trên khung đệm PAD), không phủ mặt sàn loang (giữ chỗ né thiên kiếp)
     # chỉ nới quanh khối PHÍA NAM (vách, đèn, má bậc, trụ dưới cánh, bệ cờ nam); chân lan can bắc giữ nguyên (đứng sau thì bị che là đúng)
     sp = np.zeros((H + 2 * PAD, W + 2 * PAD), bool); sp[PAD:PAD + H, PAD:PAD + W] = solid
@@ -156,7 +170,8 @@ def main():
             sf = solid[ys_, xs_].mean() if solid[ys_, xs_].size else 0
             r += '.' if walk[cy, cx] and sf < 0.5 else ('#' if sf >= 0.25 else ' ')
         rows.append(r)
-    data = {'scale': 1, 'anchor': [ax, ay], 'banners': BANNERS, 'x0': gx0, 'y0': gy0, 'rows': rows, 'cell': C, 'pad': PAD, 'fine': fine}
+    data = {'scale': 1, 'anchor': [ax, ay], 'banners': BANNERS, 'x0': gx0, 'y0': gy0, 'rows': rows, 'cell': C, 'pad': PAD, 'fine': fine,
+            'stairs': [dict(z, r=[round(v, 1) for v in z['r']]) for z in STAIR_ZONES], 'stairSlow': STAIR_SLOW}
     js = ('// SINH TỰ ĐỘNG bởi tools/build_be_phap_dai.py — đừng sửa tay. Bệ Tụ Linh Pháp Đài (sprites/tm_be*.png).\n'
           '// anchor: tâm mặt sàn trong sprite (= tâm bản đồ). rows: lưới ô 16 px quanh tâm, ô (x0 + i, y0 + j); "#" đặc, "." sàn/bậc, " " ngoài.\n'
           '// fine: lưới mịn `cell` px tính từ góc trên-trái sprite lùi `pad` px (sprite đặt tại tâm bản đồ - anchor, làm tròn) — "#" đặc; dùng cho di chuyển.\n'

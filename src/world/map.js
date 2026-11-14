@@ -106,6 +106,9 @@ export function makeSectMap(S = SECT) {
     if (fx >= 0 && fy >= 0 && fx < fW && fy < fH) return P0.fine[Math.floor(fy / cell)][Math.floor(fx / cell)] === '#' || base(tx, ty);
     return m.solidTile(tx, ty);
   };
+  // vùng bậc thang của bệ (mẹo cầu thang 2D): trả {kx, slow} nếu (x, y) nằm trên bậc
+  const sx0 = fx0 + (P0.pad || 0), sy0 = fy0 + (P0.pad || 0);
+  m.stairAt = (x, y) => { for (const z of P0.stairs || []) { const [a, b, c, d] = z.r; if (x >= sx0 + a && x <= sx0 + c && y >= sy0 + b && y <= sy0 + d) return { kx: z.kx, slow: P0.stairSlow || 1 }; } return null; };
   const px = ([x, y]) => ({ x: (ox + x) * T, y: (oy + y) * T });
   m.sect = {
     ox, oy,

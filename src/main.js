@@ -98,12 +98,20 @@ if (vis.tmCt || vis.tmDv || vis.tmCd) vis.tm = Object.assign({}, ...[vis.tmCt, v
 if (vis.tm) try {
   const { PLAZA } = await import('./data/sect_plaza.js');
   const ld = async src => { const i = new Image(); i.src = src; await i.decode(); return i; };
-  const [base, front] = await Promise.all([ld('sprites/tm_be.png'), ld('sprites/tm_be_front.png')]);
+  const [base, front, flag, back] = await Promise.all([ld('sprites/tm_be.png'), ld('sprites/tm_be_front.png'), ld('sprites/tm_be_flag.png').catch(() => null), ld('sprites/tm_be_back.png').catch(() => null)]);
   const k = PLAZA.scale, up = img => { const c = document.createElement('canvas'); c.width = img.width * k; c.height = img.height * k; const g = c.getContext('2d'); g.imageSmoothingEnabled = false; g.drawImage(img, 0, 0, c.width, c.height); return c; };
   const B = up(base), F = up(front), fw = F.width, fh = F.height;
   const src = F.getContext('2d').getImageData(0, 0, fw, fh), d = src.data, key = new Int32Array(fw * fh).fill(-1);
   for (let x = 0; x < fw; x++) { let bot = -1; for (let y = fh - 1; y >= 0; y--) { const o = y * fw + x; if (d[o * 4 + 3]) { if (bot < 0) bot = y; key[o] = bot; } else bot = -1; } }
+  if (back) { const bc = up(back).getContext('2d').getImageData(0, 0, fw, fh).data; for (let o = 0; o < key.length; o++) if (bc[o * 4 + 3] && key[o] >= 0) key[o] = 0; }   // lan can phía sau sàn: luôn dưới người
   for (const [x0, y0, x1, y1, foot] of PLAZA.banners || []) for (let y = Math.floor(y0 * k); y <= Math.min(fh - 1, y1 * k); y++) for (let x = Math.floor(x0 * k); x <= Math.min(fw - 1, x1 * k); x++) if (key[y * fw + x] >= 0) key[y * fw + x] = Math.round(foot * k);   // cờ: theo chân bệ cờ
+  if (flag) {   // điểm ảnh cờ nam (cả núm tròn chìa ra ngoài khung cờ): xếp theo chân bệ cờ gần nhất theo x
+    const fc = up(flag).getContext('2d').getImageData(0, 0, fw, fh).data, south = (PLAZA.banners || []).filter(b => b[4] > fh / k / 2);
+    for (let o = 0; o < key.length; o++) if (fc[o * 4 + 3] && key[o] >= 0 && south.length) {
+      const x = (o % fw) / k; let best = south[0]; for (const b of south) if (Math.abs((b[0] + b[2]) / 2 - x) < Math.abs((best[0] + best[2]) / 2 - x)) best = b;
+      key[o] = Math.round(best[4] * k);
+    }
+  }
   const bins = new Map();
   for (let o = 0; o < key.length; o++) if (key[o] >= 0) { const b = key[o] >> 3; let r = bins.get(b); if (!r) bins.set(b, r = { x0: fw, y0: fh, x1: 0, y1: 0, px: [] }); const x = o % fw, y = (o / fw) | 0; r.px.push(o); if (x < r.x0) r.x0 = x; if (x > r.x1) r.x1 = x; if (y < r.y0) r.y0 = y; if (y > r.y1) r.y1 = y; }
   const strips = [];
@@ -372,7 +380,12 @@ function movePlayer(map, dt, speedMult) {
   const l = Math.hypot(dx, dy); dx /= l; dy /= l;
   p.fx = dx; p.fy = dy;
   if (Math.abs(dx) > Math.abs(dy)) { p.face = 'side'; p.flip = dx < 0; } else p.face = dy < 0 ? 'up' : 'down';
-  const sx = dx * PLAYER.SPEED * speedMult * dt, sy = dy * PLAYER.SPEED * speedMult * dt, x0 = p.x, y0 = p.y;
+  // M8: mẹo cầu thang 2D (video "How stairs work in top down 2D game worlds"): trên bậc nghiêng ở cánh bệ, đi ngang thì cộng lệch dọc
+  // theo độ dốc bậc (xuống bậc = xuống màn hình) và chậm lại -> trông như leo lên/xuống thật dù cả map là một mặt phẳng
+  const st = map.stairAt && map.stairAt(p.x, p.y), sm = st ? st.slow : 1;
+  let sx = dx * PLAYER.SPEED * speedMult * sm * dt, sy = dy * PLAYER.SPEED * speedMult * sm * dt;
+  if (st && st.kx && sx && !sy) sy = sx * st.kx;
+  const x0 = p.x, y0 = p.y;
   moveEntity(map, p, sx, sy, null);
   // M8: sảnh tông môn — nắn góc: giữ một hướng mà bị chặn, nếu lệch ngang ≤ 10 px là đi tiếp được (mép bậc dốc ở cánh bệ,
   // góc trụ) thì trượt về phía đó; đâm thẳng vào tường phẳng thì đứng yên (không trôi dọc tường)
