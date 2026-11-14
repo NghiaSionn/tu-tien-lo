@@ -1,5 +1,5 @@
 """M8: bệ Tụ Linh Pháp Đài (ChatGPT vẽ: docs/concept/tong_mon_be_phap_dai_4loi_chatgpt.png
-     -> tools/sprite_clean.py --scale 2.85 --colors 96 --tol 60 -> sprites/tm_be.png).
+     -> tools/sprite_clean.py --scale CLEAN --colors 96 --tol 60 -> sprites/tm_be.png).
 Sinh từ sprite:
   - xoá điểm ám magenta còn sót (viền + khe lan can) ngay trên sprites/tm_be.png
   - mặt sàn: LOANG từ tâm qua điểm ảnh sáng (dừng ở viền tối), cắt nhánh mảnh lan lên lan can/trụ bằng phép mở hình thái học
@@ -21,14 +21,15 @@ from PIL import Image, ImageDraw, ImageFilter
 
 ROOT = Path(__file__).resolve().parent.parent
 LUM_MIN, OPEN_R = 80, 3         # loang: điểm sáng hơn LUM_MIN; mở hình thái bán kính OPEN_R
-K = 1.9 / 2.85                  # số đo tay dưới đây làm trên bản 1.9; nhân K cho bản 2.85
+CLEAN = 1.78                    # độ thu sprite_clean (14/11: thử bệ to ×1.6 so với bản 2.85)
+K = 1.9 / CLEAN                 # số đo tay dưới đây làm trên bản 1.9; nhân K cho bản CLEAN
 k1 = lambda v: tuple(round(c * K, 1) for c in v)
 MIRROR = 609 * K                # trục đối xứng x' = MIRROR - x
 # vùng đi được khoanh tay: bậc nam, lối bắc, cánh tây (chiếu nghỉ + dải bậc xuống, chừa trụ khắc chữ)
 RECTS = [k1(r) for r in [(260, 335, 350, 473), (270, 96, 336, 150)]]
 WING_W = [k1(p) for p in [(165, 216), (58, 216), (6, 262), (6, 300), (42, 300), (42, 262), (72, 262), (72, 281), (165, 281)]]   # nối vào sàn dưới vải cờ nam
 WING_E = [(MIRROR - x, y) for x, y in WING_W]
-F = 1.6 / 2.85                  # các khung dưới đo trên bản 1.6
+F = 1.6 / CLEAN                  # các khung dưới đo trên bản 1.6
 sc = lambda v: tuple(round(c * F, 1) for c in v)
 AIR = [sc(r) for r in [(128, 0, 215, 150), (518, 0, 593, 150)]]            # vải cờ phía bắc: trên không, không chặn
 KEEP = [sc(r) for r in [(112, 268, 198, 410), (540, 268, 626, 410)]]       # cờ phía nam treo trên cánh: giữ ở lớp che

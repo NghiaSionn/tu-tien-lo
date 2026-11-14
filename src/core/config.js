@@ -196,7 +196,7 @@ export const REWARD = {
 export const TRIBULATION = {
   ENABLED: true,             // false = quay về lôi kiếp xổ số cũ (REALM.MAJOR_CHANCE) — đường rollback
   ARENA_R: 96,               // trận thử thách quanh tụ linh trận; người chơi bị giữ trong vòng
-  SECT_ARENA_R: 62,          // M8: sảnh tông môn — vòng vừa mặt sàn bệ pháp đài (bệ thu nhỏ 14/11, người phát triển chọn thu vòng theo)
+  SECT_ARENA_R: 96,          // M8: sảnh tông môn — vòng vừa mặt sàn bệ pháp đài (bệ thu nhỏ 14/11, người phát triển chọn thu vòng theo)
   PHASES: [
     { name: 'Lôi ấn',   kind: 'marks', dur: 8, every: 1.1, n: 3, r: 22, windup: 1.2, dmg: 0.16 },
     { name: 'Lôi xà',   kind: 'lines', dur: 8, every: 1.5, lines: 2, w: 16, windup: 1.2, dmg: 0.18 },

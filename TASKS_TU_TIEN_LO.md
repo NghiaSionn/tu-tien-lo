@@ -376,6 +376,7 @@ Thiết kế + backlog đầy đủ (ChatGPT, 13/11): **`docs/chatgpt_tong_mon_M
   - [x] M8-02g (14/11) Góp ý: nới vùng chặn 6 px quanh khối phía nam (vách, đèn, má bậc, trụ dưới cánh, bệ cờ nam; không lấn mặt sàn) để nhân vật không áp sát rồi bị lớp che đè; cờ phía nam ở lớp che chỉ giữ điểm ảnh cờ (lọc màu) thay vì cả khung — hết mảng sàn đè lên nhân vật; 204/204; phím thật `docs/playtest/M8_02g_mep_be.png`
   - [x] M8-02h (14/11) Bệ thu còn 2/3 (`--scale 2.85`, 408×315); vòng thiên kiếp ở sảnh thu theo (`TRIBULATION.SECT_ARENA_R` 62, `createTrib(..., R)`, động phủ cũ giữ 96) — người phát triển chọn; lớp che cờ nam chỉ giữ mảng màu cờ ≥ 30 px (hết hạt lơ lửng); cấm đứng ở chỗ trụ khắc chữ đầu cánh đè lên thân; không nới vùng chặn vào sàn/bậc/cánh; 204/204; phím thật `docs/playtest/M8_02h_mep_be.png`
   - [x] M8-02i (14/11) (Tô lại mặt sàn bằng `tools/fix_be_san.py` đã thử rồi BỎ theo người phát triển: "sàn xấu, trả lại sàn cũ" — giữ sàn gốc ChatGPT); lớp che cờ nam = màu cờ + viền tối sát màu cờ, mảng liền ≥ 30 px → giữ cả 2 núm tròn, không vụn; 204/204; ảnh `docs/playtest/M8_02i_co.png`, `M8_02i_san.png`
+  - [x] M8-02j (14/11, xem thử) Bệ to ×1.6 so với bản 2.85 (`CLEAN = 1.78` trong `tools/build_be_phap_dai.py`, 650×505); mặt sàn lại chứa vòng thiên kiếp 96 px nên `SECT_ARENA_R` = 96 (như động phủ cũ); đường đi dời vào chân 4 lối; 204/204; ảnh `docs/playtest/M8_02j_be_x16.png`
 - [ ] M8-03 Hệ thống tương tác công trình dùng chung (M, P0)
 - [ ] M8-04 Cổng Bí Cảnh (S, P0)
 - [ ] M8-05 Tụ Linh Pháp Đài (M, P0) → GATE M8-A
