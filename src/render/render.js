@@ -1,6 +1,6 @@
 // Vẽ một khung: bản đồ, vật thể sắp theo y, yêu thú, người chơi, công pháp, hiệu ứng beanfx và hạt sáng.
 import { VIEW, TILE as T, HUB, FEATURES, ARCH, BOSS, TRIBULATION, SHRINE, BASIC_ATTACK } from '../core/config.js';
-import { GRASS, WATER, STONE, TREE, ROCK, BUILDING, FENCE, DIRT, CLIFF, CLOUD } from '../world/map.js';
+import { GRASS, WATER, STONE, TREE, ROCK, BUILDING, FENCE, DIRT, CLIFF, CLOUD, FALL } from '../world/map.js';
 import { SPR, TIERS, BOSS_WHITE, BOSS_SPR, grassTiles, waterTiles, waterBank, stoneTile, treeSprs, rockSpr, hash } from './sprites.js';
 import { createFx } from '../../lib/beanfx.js';
 import { skillKind, skillParams, spiritOrbPos, sealOrbPos } from '../systems/combat.js';
@@ -182,6 +182,50 @@ function tileObj(map, tx, ty, props) {
   if (t === ROCK) return { y: y + T - 2, img: rockSpr, x: x + 1, dy: y + 5 };
   return null;
 }
+// ---------- M8 (15/11): địa hình sảnh tông môn vẽ bằng code (đường đá viền bo góc, vách núi, mây, thác) ----------
+const isWalkT = t => t === GRASS || t === STONE || t === DIRT || t === BUILDING || t === FENCE || t === TREE || t === ROCK;
+const PATHC = { base: '#bdb6ae', hi: '#d6d0c8', lo: '#9a948e', joint: '#837d78', curb: '#6d6863' };
+function paintPath(g, map, tx, ty, x, y) {   // đá cuội: từng viên không đều + mép giáp cỏ có bờ đá và bo góc
+  g.fillStyle = PATHC.joint; g.fillRect(x, y, T, T);
+  for (let r = 0; r < 4; r++) for (let c = 0; c < 3; c++) {
+    const h = hash(tx * 7 + c, ty * 5 + r, 51), w = 4 + Math.floor(h * 3), sx = x + c * 5 + ((r & 1) ? 2 : 0) + Math.floor(h * 2) - 1, sy = y + r * 4;
+    g.fillStyle = h < 0.3 ? PATHC.lo : PATHC.base; g.fillRect(sx, sy, w, 3);
+    g.fillStyle = PATHC.hi; g.fillRect(sx, sy, w - 1, 1);
+  }
+  const gr = (dx, dy) => { const t = map.tileAt(tx + dx, ty + dy); return t === GRASS || t === TREE || t === ROCK; };
+  const n = gr(0, -1), s = gr(0, 1), w = gr(-1, 0), e = gr(1, 0);
+  g.fillStyle = PATHC.curb;
+  if (n) g.fillRect(x, y, T, 2); if (s) g.fillRect(x, y + T - 2, T, 2); if (w) g.fillRect(x, y, 2, T); if (e) g.fillRect(x + T - 2, y, 2, T);
+  const gt = grassTiles[0];   // bo góc: hai cạnh kề là cỏ -> phủ tam giác cỏ ở góc
+  const corner = (cx0, cy0, sx, sy) => { for (let i = 0; i < 6; i++) g.drawImage(gt, cx0 + (sx > 0 ? 0 : 0), 0, 6 - i, 1, x + (sx > 0 ? T - (6 - i) : 0), y + (sy > 0 ? T - 1 - i : i), 6 - i, 1); };
+  if (n && w) corner(0, 0, -1, -1); if (n && e) corner(0, 0, 1, -1); if (s && w) corner(0, 0, -1, 1); if (s && e) corner(0, 0, 1, 1);
+}
+function paintCliff(g, map, tx, ty, x, y) {   // mặt vách dọc: nhìn 3/4 thấy mặt đá dưới mép đảo; càng xuống càng tối
+  let depth = 0; while (depth < 6 && map.tileAt(tx, ty - depth - 1) === CLIFF) depth++;
+  const top = isWalkT(map.tileAt(tx, ty - 1)) || map.tileAt(tx, ty - 1) === WATER;
+  const shade = [['#7d7e9a', '#6a6b86', '#565771'], ['#717290', '#5e5f7a', '#4c4d66'], ['#666784', '#54556f', '#43445b']][Math.min(2, depth >> 1)];
+  g.fillStyle = shade[1]; g.fillRect(x, y, T, T);
+  for (let i = 0; i < 3; i++) { const cx0 = x + Math.floor(hash(tx, ty, 52 + i) * 14); g.fillStyle = shade[2]; g.fillRect(cx0, y, 1, T); g.fillStyle = shade[0]; g.fillRect(cx0 + 1, y, 1, T); }
+  if (hash(tx, ty, 55) < 0.5) { const ly = y + 4 + Math.floor(hash(tx, ty, 56) * 8); g.fillStyle = shade[0]; g.fillRect(x, ly, T, 1); g.fillStyle = shade[2]; g.fillRect(x, ly + 1, T, 1); }
+  if (top) {   // mép đảo: viền cỏ rủ xuống + bóng
+    g.fillStyle = '#3f7a35'; g.fillRect(x, y, T, 3);
+    for (let i = 0; i < 4; i++) g.fillRect(x + Math.floor(hash(tx, ty, 57 + i) * 15), y + 3, 1, 1 + Math.floor(hash(tx, ty, 61 + i) * 3));
+    g.fillStyle = 'rgba(20,20,40,.35)'; g.fillRect(x, y + 3, T, 2);
+  }
+  const side = (dx) => isWalkT(map.tileAt(tx + dx, ty));
+  if (side(-1)) { g.fillStyle = '#3c3d52'; g.fillRect(x, y, 1, T); } if (side(1)) { g.fillStyle = '#3c3d52'; g.fillRect(x + T - 1, y, 1, T); }
+}
+function paintCloud(g, tx, ty, x, y) { g.fillStyle = '#c3c6e4'; g.fillRect(x, y, T, T); }
+function cloudPuffs(g, map, tx0, ty0) {   // dải mây: cụm nhiều bông dẹt chồng nhau, bóng tím nhạt dưới (vẽ cả lề để không đứt mép khối)
+  for (let ty = ty0 - 4; ty < ty0 + CH + 4; ty++) for (let tx = tx0 - 5; tx < tx0 + CH + 5; tx++) {
+    if (map.tileAt(tx, ty) !== CLOUD || hash(tx, ty, 63) > 0.035) continue;
+    const n = 3 + Math.floor(hash(tx, ty, 64) * 3), bx = tx * T + 8, by = ty * T + 8, sc = 0.8 + hash(tx, ty, 65) * 0.8;
+    const blobs = Array.from({ length: n }, (_, i) => ({ x: bx + (i - n / 2) * 14 * sc + hash(tx, ty, 70 + i) * 8, y: by + hash(tx, ty, 80 + i) * 6, r: (9 + hash(tx, ty, 90 + i) * 9) * sc }));
+    g.fillStyle = 'rgba(150,150,196,.6)'; for (const b of blobs) { g.beginPath(); g.ellipse(b.x + 2, b.y + 4, b.r * 1.3, b.r * 0.75, 0, 0, 6.283); g.fill(); }
+    g.fillStyle = '#eceefa'; for (const b of blobs) { g.beginPath(); g.ellipse(b.x, b.y, b.r * 1.3, b.r * 0.75, 0, 0, 6.283); g.fill(); }
+    g.fillStyle = '#ffffff'; for (const b of blobs) { g.beginPath(); g.ellipse(b.x - b.r * 0.3, b.y - b.r * 0.25, b.r * 0.7, b.r * 0.35, 0, 0, 6.283); g.fill(); }
+  }
+}
 function buildChunk(map, cx, cy, phase, props) {
   const c = document.createElement('canvas'); c.width = c.height = CPX;
   const g = c.getContext('2d'); g.imageSmoothingEnabled = false; g.translate(-cx * CPX, -cy * CPX);
@@ -189,8 +233,12 @@ function buildChunk(map, cx, cy, phase, props) {
   for (let ty = ty0; ty < ty0 + CH; ty++) for (let tx = tx0; tx < tx0 + CH; tx++) {
     const t = map.tileAt(tx, ty), x = tx * T, y = ty * T;
     if (t === WATER) { g.drawImage(waterTiles[(phase + tx + ty) & 1], x, y); if (map.tileAt(tx, ty - 1) !== WATER) g.drawImage(waterBank, x, y); }
+    else if (map.sect && t === STONE) paintPath(g, map, tx, ty, x, y);
+    else if (map.sect && (t === CLIFF || t === FALL)) paintCliff(g, map, tx, ty, x, y);
+    else if (map.sect && t === CLOUD) paintCloud(g, tx, ty, x, y);
     else g.drawImage(groundTile(t, tx, ty, map), x, y);
   }
+  if (map.sect) cloudPuffs(g, map, tx0, ty0);
   // trang trí: cả các ô ngay dưới/bên khối (hình cao ~36 px, rộng ~42 px lấn vào khối này)
   if (props) for (let ty = ty0; ty < ty0 + CH + 3; ty++) for (let tx = tx0 - 3; tx < tx0 + CH + 3; tx++) {
     const t = map.tileAt(tx, ty), d = hash(tx, ty, 8), x = tx * T, y = ty * T;
@@ -847,6 +895,18 @@ export function render(ctx, g) {
     if (g.sect && vis.tm) for (const b of g.sect.buildings) {   // M8-15a: thềm đá dưới công trình (sát đất, dưới mọi vật)
       const t = b.them, img = t && vis.tm[t.kind];
       if (img && t.x < camX + W && t.x + t.w > camX && t.y < camY + H && t.y + t.h > camY) ctx.drawImage(img, t.x, t.y);
+    }
+    if (g.sect) {   // thác nước chảy (ô FALL): dải nước dọc chạy xuống + bọt ở chân thác
+      const tx0 = Math.floor(camX / T), ty0 = Math.floor(camY / T);
+      for (let ty = ty0; ty <= ty0 + Math.ceil(H / T); ty++) for (let tx = tx0; tx <= tx0 + Math.ceil(W / T); tx++) {
+        if (map.tileAt(tx, ty) !== FALL) continue;
+        const x = tx * T, y = ty * T, off = Math.floor(time * 40) % 8;
+        ctx.fillStyle = '#5fb4e6'; ctx.fillRect(x, y, T, T);
+        for (let i = 0; i < 4; i++) { const sx = x + i * 4 + Math.floor(hash(tx, i, 66) * 2); ctx.fillStyle = (i & 1) ? '#9bd8f5' : '#cdeffc';
+          for (let k = -1; k < 3; k++) ctx.fillRect(sx, y + ((off + k * 8 + i * 3) & 15) - 2, 2, 5); }
+        if (map.tileAt(tx, ty - 1) !== FALL) { ctx.fillStyle = '#e8f8ff'; ctx.fillRect(x, y, T, 2); }
+        if (map.tileAt(tx, ty + 1) !== FALL) { ctx.fillStyle = 'rgba(255,255,255,.85)'; for (let i = 0; i < 4; i++) ctx.fillRect(x - 2 + Math.floor(hash(tx, Math.floor(time * 6) + i, 67) * 18), y + T - 4 + (i & 1) * 2, 4, 2); }
+      }
     }
     if (g.sect && vis.nha) for (const b of g.sect.buildings) { const n = b.nha, v = n && vis.nha[n.id]; if (v) ctx.drawImage(v.base, n.x, n.y); }   // M8-15: nền nhà lớn
     if (g.sect && vis.plaza) ctx.drawImage(vis.plaza.base, Math.round(map.cx - vis.plaza.ax), Math.round(map.cy - vis.plaza.ay));   // M8: bệ pháp đài

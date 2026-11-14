@@ -6,14 +6,14 @@ import { PLAZA } from '../data/sect_plaza.js';
 import { NHA } from '../data/sect_nha.js';
 
 export const GRASS = 0, WATER = 1, STONE = 2, TREE = 3, ROCK = 4;
-export const BUILDING = 5, FENCE = 6, DIRT = 7, CLIFF = 8, CLOUD = 9;   // M8 (15/11): vách núi rìa đảo, mây ngoài đảo (đặc)   // M8-02: nền công trình (đặc), hàng rào (đặc), sân đất (đi được)
+export const BUILDING = 5, FENCE = 6, DIRT = 7, CLIFF = 8, CLOUD = 9, FALL = 10;   // M8 (15/11): vách núi rìa đảo, mây ngoài đảo (đặc)   // M8-02: nền công trình (đặc), hàng rào (đặc), sân đất (đi được)
 
 function makeMap(w, h, seed, kind, gen) {
   const tiles = new Uint8Array(w * h);
   for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) tiles[y * w + x] = gen(x, y);
   const m = { w, h, seed, kind, tiles, pw: w * T, ph: h * T, cx: w / 2 * T, cy: h / 2 * T };
   m.tileAt = (tx, ty) => (tx < 0 || ty < 0 || tx >= w || ty >= h) ? TREE : tiles[ty * w + tx];
-  m.solidTile = (tx, ty) => { const t = m.tileAt(tx, ty); return t === WATER || t === TREE || t === ROCK || t === BUILDING || t === FENCE || t === CLIFF || t === CLOUD; };
+  m.solidTile = (tx, ty) => { const t = m.tileAt(tx, ty); return t === WATER || t === TREE || t === ROCK || t === BUILDING || t === FENCE || t === CLIFF || t === CLOUD || t === FALL; };
   m.solidPx = (px, py) => m.solidTile(Math.floor(px / T), Math.floor(py / T));
   // x, y là vị trí bàn chân; hộp va chạm nhỏ quanh chân
   m.canStand = (x, y) => Number.isFinite(x) && Number.isFinite(y) &&
@@ -57,7 +57,7 @@ export function buildSectGrid(S = SECT) {
   const block = r => { for (let y = r.y0; y < r.y1; y++) for (let x = r.x0; x < r.x1; x++) if (inb(x, y)) solid[y * S.W + x] = 1; };
   const cx = S.MW ? S.MW / 2 - S.PADL : S.W / 2, cy = S.MH ? S.MH / 2 - S.PADT : S.H / 2;   // tâm bệ trong khung
   if (S.ROWS) {   // M8 (15/11): lưới bố cục theo concept
-    const MAPC = { '.': GRASS, '=': STONE, '~': WATER, 'd': DIRT, '^': CLIFF, 'T': TREE, 'B': GRASS, 'P': STONE, 'G': STONE, 'X': CLOUD, 'b': GRASS, 'W': WATER };
+    const MAPC = { '.': GRASS, '=': STONE, '~': WATER, 'd': DIRT, '^': CLIFF, 'T': TREE, 'B': GRASS, 'P': STONE, 'G': STONE, 'X': CLOUD, 'b': GRASS, 'W': FALL };
     for (let y = 0; y < S.H; y++) for (let x = 0; x < S.W; x++) set(x, y, MAPC[S.ROWS[y][x]] ?? GRASS);
     for (let x = 0; x < S.W; x++) for (const y of [0, S.H - 1]) if (g[y * S.W + x] === GRASS) set(x, y, TREE);   // mép khung kín
     for (let y = 0; y < S.H; y++) for (const x of [0, S.W - 1]) if (g[y * S.W + x] === GRASS) set(x, y, TREE);

@@ -406,9 +406,9 @@ Thiết kế + backlog đầy đủ (ChatGPT, 13/11): **`docs/chatgpt_tong_mon_M
   - [x] a. Thềm đá + bậc cho 5 công trình (14/11): ChatGPT vẽ 2 thềm (ngang, vuông) `docs/concept/tong_mon_them_chatgpt.png` -> `tools/build_them.py` -> `sprites/tm_them.*`; `THEM` trong sect_layout (chân, chiếu nghỉ, cột bậc); nhà đặt trên thềm, bỏ bậc rời; chỉ bậc + chiếu nghỉ đi được; cửa = giữa bậc; dời 4 đèn đá; ảnh `docs/playtest/M8_15a_them.png`
   - [~] g. (14/11, người phát triển) Công trình LỚN đi vào được, bám concept: ChatGPT vẽ nhà mở mặt trước -> `tools/build_nha.py` (sàn = đa giác trừ đồ đạc, đồ đạc chỉ chặn ở chân, loang theo hộp chân nhân vật) -> `sprites/nha_<id>*.png` + `src/data/sect_nha.js`; game: nền + lớp che theo chân cột, va chạm lưới 4 px, E ở đồ vật chính. Xong thử: Đan Dược Phòng (262×230, E ở đỉnh đan; ảnh `docs/playtest/M8_nha_dan_duoc_thu.png`). Còn: 4 nhà kia + mở sảnh ~130×90 ô
   - [x] h. (15/11) Bố cục sảnh theo concept ảnh 1 (người phát triển duyệt): `tools/sect_bo_cuc.py` (đa giác/đường/nước/vách đọc trên lưới 120×68 phủ concept) -> `src/data/sect_bocuc.js`; `SECT.ROWS` + ô mới CLIFF/CLOUD; bản đồ 140×88, tâm bệ = tâm bản đồ; công trình tạm (sprite nhỏ + thềm) đặt ở chân bậc theo concept; đất rời không nối bệ -> vách. Ảnh `docs/playtest/M8_bo_cuc_so_sanh.png`, `M8_sanh_moi_toan_canh.png`. Còn: nhà tách đúng concept, hình vách/thác/suối/đường đẹp
-  - [ ] b. Đường lát đá: ô bo góc/chéo cho mượt (hết răng cưa)
-  - [ ] c. Suối phía nam: bờ đá, cầu đá đúng chỗ, thác hai đầu
-  - [ ] d. Vách núi + rừng bao quanh rìa tông môn (thay hàng cây ô vuông)
+  - [x] b. (15/11) Đường lát đá vẽ bằng code (`paintPath` trong render.js): đá cuội, viền bó vỉa giáp cỏ, bo góc
+  - [x] c. (15/11) Suối phía nam: đường dừng ở bờ, cầu đá đặt trên mặt nước; ô FALL + lớp thác động ở 3 thác (trái, 2 thác nam)
+  - [x] d. (15/11) Vách núi (`paintCliff`, mép cỏ trên, mặt vách nam kéo dài 6 ô) + mây phẳng ngoài đảo (`paintCloud`, `cloudPuffs`). Ảnh xem trong game, test 209/209
   - [ ] e. Luyện Võ Trường: hàng rào/cổng rào liền, sân đất có viền
   - [ ] f. Cổng bí cảnh: bậc + sân trước cổng như concept ảnh 1
 - [ ] M8-07..11 kiểm từng khu, M8-12 HUD, M8-14 cảm ứng, M8-16 save/regression, M8-17..18 playtest: sau khi xong M8-15

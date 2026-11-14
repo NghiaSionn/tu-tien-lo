@@ -45,7 +45,7 @@ BUILDINGS = {
     'luyen_vo_choi': dict(box=(98, 39, 108, 46), foot=(98, 46), name='chòi Luyện Võ'),
 }
 BIA = dict(box=(50, 43, 66, 56))
-BRIDGE = dict(box=(29, 54, 42, 59))
+BRIDGE = dict(box=(33, 54, 38, 60))   # chỉ để ghi nhãn: đường dừng ở bờ suối, cầu đá là vật trang trí đặt trên nước
 FALLS = [(5, 4, 9, 26), (31, 59, 37, 68), (80, 58, 86, 68)]                   # thác nước (vẽ trang trí, đặc)
 COLORS = {'.': (78, 150, 70), '=': (190, 182, 170), '~': (70, 150, 210), 'd': (196, 160, 105), '^': (95, 95, 120), 'T': (60, 50, 100),
           'B': (170, 70, 70), 'P': (220, 220, 235), 'G': (150, 90, 200), 'X': (225, 230, 245), 'b': (130, 130, 130), 'W': (150, 210, 250)}
@@ -65,7 +65,6 @@ def build():
     d.rectangle([GATE['x'][0], GATE['y'][0], GATE['x'][1], GATE['y'][1]], fill=ord('G'))
     for b in BUILDINGS.values(): d.rectangle(b['box'], fill=ord('B'))
     d.rectangle(BIA['box'], fill=ord('b'))
-    d.rectangle(BRIDGE['box'], fill=ord('='))
     for f in FALLS: d.rectangle(f, fill=ord('W'))
     g = np.array(L)
     # vách núi: ô ngoài đảo kề ô đảo (viền dày 2) -> đặc, vẽ đá
@@ -74,6 +73,12 @@ def build():
     for dy in range(-2, 3):
         for dx in range(-2, 3): near |= np.roll(np.roll(inside, dy, 0), dx, 1)
     g[(~inside) & near] = ord('^')
+    # mặt vách phía nam (nhìn 3/4 thấy vách dưới mép đảo): mỗi cột kéo vách xuống thêm 5 ô dưới ô đảo thấp nhất
+    for x in range(NX):
+        ys = np.where(inside[:, x])[0]
+        if ys.size:
+            for y in range(ys.max() + 1, min(NY, ys.max() + 7)):
+                if g[y, x] == ord('X'): g[y, x] = ord('^')
     # mảnh đất đi được không nối với bệ (dải cỏ sau suối...) -> vách núi (concept: mép vách ngay dưới suối)
     walk = np.isin(g, [ord(c) for c in '.=dPbBG'])
     seen = np.zeros_like(walk); st = [(int(PLAZA['c'][0]), int(PLAZA['c'][1]))]
