@@ -504,7 +504,7 @@ function updateInteractiveTrib(dt) {
   });
   for (const { h } of strikes) {
     const pts = h.kind === 'circle' ? [[h.x, h.y]] : h.kind === 'line' ? [[h.x0 * 0.7 + h.x1 * 0.3, h.y0 * 0.7 + h.y1 * 0.3], [(h.x0 + h.x1) / 2, (h.y0 + h.y1) / 2], [h.x0 * 0.3 + h.x1 * 0.7, h.y0 * 0.3 + h.y1 * 0.7]]
-      : Array.from({ length: trib.RY && trib.RY !== trib.R ? 8 : 5 }, (_, i, A) => [CX + Math.cos(i / A.length * 6.283) * trib.R * 0.6, CY + Math.sin(i / A.length * 6.283) * (trib.RY || trib.R) * 0.6]);
+      : (n => Array.from({ length: n }, (_, i) => [CX + Math.cos(i / n * 6.283) * trib.R * 0.6, CY + Math.sin(i / n * 6.283) * (trib.RY || trib.R) * 0.6]))(trib.RY && trib.RY !== trib.R ? 8 : 5);
     for (const [x, y] of pts) spawnFx(vis, 'loi_kiep', x, y, { flip: Math.random() < 0.5 });
     Audio.play('strike');
     addFlash(vis, h.kind === 'storm' ? 0.2 : 0.08);

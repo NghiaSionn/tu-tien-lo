@@ -200,7 +200,7 @@ export const TRIBULATION = {
   SECT_ARENA_R: 86,          // (cũ) vòng tròn ở sảnh — thay bằng SECT_ARENA (elip phủ cả mặt sàn bệ)
   // M8 (14/11, người phát triển): ở sảnh tông môn thiên kiếp phủ cả mặt sàn bệ pháp đài — trận hình elip rx×ry (lớn nhất còn đứng được),
   // diện tích ~1,4× vòng cũ -> thêm đòn cho khó né hơn: Lôi ấn +extraMarks vòng/đợt, Lôi xà +extraLines dải/đợt, Thiên lôi giữ số ô an toàn
-  SECT_ARENA: { rx: 150, ry: 68, extraMarks: 2, extraLines: 1 },
+  SECT_ARENA: { rx: 150, ry: 68, extraMarks: 7, extraLines: 4 },   // 14/11 gấp đôi đòn: Lôi ấn 10 vòng, Lôi xà 6 dải mỗi đợt
   PHASES: [
     { name: 'Lôi ấn',   kind: 'marks', dur: 8, every: 1.1, n: 3, r: 22, windup: 1.2, dmg: 0.16 },
     { name: 'Lôi xà',   kind: 'lines', dur: 8, every: 1.5, lines: 2, w: 16, windup: 1.2, dmg: 0.18 },
