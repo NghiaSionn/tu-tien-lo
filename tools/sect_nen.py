@@ -22,45 +22,16 @@ WALK = [
      (28, 61), (28, 57), (16, 57), (13, 52), (8, 50)],
     [(29, 19), (35, 19), (35, 24), (29, 24)],                                  # bậc tháp Truyền Thừa
 ]
-# Va chạm: nhà đặc trọn khối; cây, bia, đèn, đồ đạc chỉ đặc ở CHÂN (đi ra sau được, lớp che CHE vẽ đè lên người)
 SOLID = [
-    (9, 24, 36, 33), (15, 33, 27, 36), (12, 37, 29, 39), (33, 36, 37, 38),      # Tàng Kinh Các + sách + lan can trước
+    (9, 24, 36, 33), (15, 33, 27, 36), (12, 36, 27, 38), (33, 36, 37, 38),      # Tàng Kinh Các + sách + lan can trước
     (14, 40, 40, 50), (16, 51, 26, 53), (33, 51, 40, 53),                      # Công Đức Đường + lan can hai bên bậc
     (8, 24, 13, 52),                                                           # cây + vách rìa tây
-    (90, 17, 95, 19), (85, 19, 89, 21), (98, 17, 103, 19), (83, 20, 100, 22), (70, 19, 77, 22), (75, 10, 83, 17),   # Luyện Khí: đe, thùng quặng, giá, tường sân, chái
-    (85, 21, 113, 30), (98, 32, 103, 34), (89, 32, 95, 35), (106, 32, 111, 34), (93, 35, 98, 37), (103, 35, 108, 37), (96, 36, 113, 38),   # Đan Dược
-    (98, 46, 108, 48), (92, 45, 98, 47), (86, 50, 88, 51), (89, 48, 91, 50), (91, 50, 93, 52), (82, 47, 84, 48), (106, 50, 108, 51),   # Luyện Võ
-    (45, 57, 47, 59), (55, 50, 57, 52), (69, 53, 72, 55), (76, 46, 79, 48), (40, 46, 43, 48), (40, 17, 43, 19), (107, 21, 109, 23),   # gốc cây
-    (50, 53, 55, 55), (57, 51, 64, 54), (66, 54, 70, 56), (42, 43, 44, 45),    # chân bia, tảng đá
-    (50, 44, 52, 45), (40, 51, 42, 52), (38, 56, 40, 57), (36, 36, 38, 37), (38, 25, 40, 26), (53, 19, 55, 20), (65, 19, 67, 20),
-    (82, 25, 84, 27), (68, 43, 70, 44), (81, 56, 84, 57), (85, 38, 87, 39), (23, 56, 25, 57),   # chân đèn đá
+    (88, 15, 93, 19), (85, 18, 88, 20), (98, 14, 104, 19), (83, 20, 100, 22), (70, 19, 77, 22), (75, 10, 83, 17),   # + chái nhỏ trái   # Luyện Khí: đe, thùng quặng, giá binh khí, tường sân
+    (85, 21, 113, 30), (98, 30, 103, 34), (88, 29, 96, 32), (104, 29, 111, 32), (89, 32, 94, 35), (105, 32, 110, 35), (96, 36, 113, 38),   # Đan Dược
+    (97, 40, 106, 47), (91, 41, 97, 45),                                       # chòi + giá binh khí Luyện Võ
+    (104, 15, 112, 23), (74, 42, 80, 47), (66, 46, 73, 53), (45, 50, 50, 55),  # cây hoa đào
+    (57, 44, 64, 53), (65, 49, 70, 56), (49, 47, 55, 55),                      # bia đá
     (41, 20, 50, 25),                                                          # ao cạnh tháp
-]
-
-
-def rect(x0, y0, x1, y1): return [(x0, y0), (x1, y0), (x1, y1), (x0, y1)]
-def octo(x0, y0, x1, y1, c=None):
-    c = c if c is not None else min(x1 - x0, y1 - y0) * 0.28
-    return [(x0 + c, y0), (x1 - c, y0), (x1, y0 + c), (x1, y1 - c), (x1 - c, y1), (x0 + c, y1), (x0, y1 - c), (x0, y0 + c)]
-
-
-# Lớp che cắt từ chính ảnh nền (đa giác ô). Game cắt mỗi vật thành dải dọc 8 px, CHÂN mỗi dải = đáy đa giác trong dải đó
-# (rào xiên, cây lệch đều đúng); người đứng trên chân (y nhỏ hơn) thì dải vẽ đè lên người (mờ đi nếu che người)
-CHE = [
-    octo(41.7, 50.9, 50.7, 58.8), octo(54.3, 47.1, 58, 51.6), octo(64.5, 45.5, 75, 55.2), octo(72.8, 40.8, 82, 48.2),   # cây hoa đào
-    octo(38.4, 38.7, 44.6, 47.8), octo(36, 11.5, 49, 18.8), octo(103.5, 14, 114, 23.2),
-    rect(50.25, 47.9, 54.6, 55.3), rect(57.1, 43.5, 64.1, 53.9), rect(66.1, 50.7, 69.8, 56.1), rect(42, 42.4, 44, 44.7),   # bia, đá
-    *[rect(*r) for r in [(49.5, 41, 51.8, 44.9), (39.8, 47.75, 41.8, 52.1), (38.2, 53, 40.1, 56.9), (35.6, 33, 38, 37.3), (37.3, 21.7, 39.8, 26),
-                         (53.2, 16.4, 55.3, 20.2), (65.2, 16.7, 67.3, 19.9), (81.6, 21.9, 84, 26.7), (67.8, 39.75, 70.3, 44.1),
-                         (81.1, 52.6, 83.6, 57), (84.3, 35, 86.6, 39.1), (23, 52.75, 25.3, 57.4)]],                       # đèn đá
-    rect(84.1, 17.5, 88.3, 21), rect(90, 15.9, 94.7, 19.1), rect(97.8, 13.5, 103, 18.8),                                  # Luyện Khí: quặng, đe, giá
-    rect(97.75, 27.5, 103.4, 33.9), rect(89.5, 29.1, 94.8, 35), rect(106, 29.75, 110.3, 33.9),                             # Đan Dược: vạc, kệ
-    rect(93.5, 33, 97.9, 36.7), rect(103.4, 33, 107.6, 36.7),                                                              # bàn
-    rect(98, 37.9, 107.75, 48.1), rect(92, 41.6, 97.3, 46.6), rect(85.6, 46.9, 87.4, 50.8), rect(88.4, 45.4, 90.7, 49.5),  # chòi, giá, mộc nhân
-    rect(91.2, 47.6, 93.4, 51.7), rect(81.25, 39.3, 85, 47.8), rect(105.6, 43.8, 109.6, 50.8),                             # mộc nhân, cờ
-    [(79, 41.6), (99, 41), (99, 44.8), (83.5, 47.8), (79, 47.8)], rect(79.3, 52.3, 83.6, 57.3),                            # rào bắc + tây (chừa cổng)
-    [(84, 50.5), (95, 53), (103, 51), (110, 48.3), (110.5, 53), (103, 55.6), (95, 57.6), (84, 55.8)],                      # rào nam
-    rect(14.5, 35.2, 29.5, 39.6), rect(14.9, 50.2, 25, 53.4), rect(33, 49.5, 38, 53.2),                                    # lan can trước nhà
 ]
 # Luyện Võ Trường: rào vẽ trong ảnh ~ chữ nhật x 81..108, y 41..57, cổng ở cạnh tây (x 80..82, y 47..52)
 PEN = dict(x=82, y=42, w=26, h=15, gate=[0, -1], door=[79.5, 49.5], west_gate=[47, 52])
@@ -68,7 +39,7 @@ BUILDINGS = {   # door: chỗ đứng bấm E (trước đồ vật chính / c�
     'truyen_thua': dict(door=[32, 21.5], body=(16, 0, 35, 18), name='Truyền Thừa Các'),
     'tang_kinh': dict(door=[29, 35.5], body=(9, 24, 36, 33), name='Tàng Kinh Các'),
     'cong_duc': dict(door=[29.5, 52.5], body=(14, 40, 40, 50), name='Công Đức Đường'),
-    'luyen_khi': dict(door=[92.5, 19.7], body=(76, 4, 106, 13), name='Luyện Khí Phường'),
+    'luyen_khi': dict(door=[90.5, 19.7], body=(76, 4, 106, 13), name='Luyện Khí Phường'),
     'dan_duoc': dict(door=[100.5, 35.5], body=(85, 21, 113, 30), name='Đan Dược Phòng'),
 }
 PORTAL, BIA = [60.5, 17.5], [60.5, 54.5]
@@ -117,7 +88,7 @@ def main():
     Image.fromarray(a).convert('RGB').save(ROOT / 'sprites/tm_nen.webp', quality=92, method=6)   # ~1 MB (PNG 4 MB); ảnh vẽ tay nên nén mất ít không thấy
     rows = [''.join(chr(v) for v in r) for r in g]
     data = {'nx': NX, 'ny': NY, 'rows': rows, 'plaza': {'c': C}, 'buildings': BUILDINGS, 'pen': PEN, 'portal': PORTAL, 'bia': BIA,
-            'che': [[[round(x, 2), round(y, 2)] for x, y in poly] for poly in CHE], 'bg': {'img': 'tm_nen.webp', 'w': NX * T, 'h': NY * T, 'src': SRC}}
+            'bg': {'img': 'tm_nen.webp', 'w': NX * T, 'h': NY * T, 'src': SRC}}
     (ROOT / 'src/data/sect_bocuc.js').write_text('// SINH TỰ ĐỘNG bởi tools/sect_nen.py — sảnh nền ảnh concept, lưới va chạm 120×68 ô. Đừng sửa tay.\n'
         '// . đi được, ^ đặc (vật vẽ trong ảnh / vách / mây)\nexport const BOCUC = ' + json.dumps(data, ensure_ascii=False) + ';\n', encoding='utf-8')
     # ảnh duyệt: đặc tô đỏ mờ, cửa (E) chấm vàng, lưới 5 ô
@@ -130,7 +101,6 @@ def main():
     f = ImageFont.truetype('C:/Windows/Fonts/segoeuib.ttf', 11)
     for i in range(0, NX, 5):
         for j in range(0, NY, 5): d.text((i * T + 2, j * T + 1), f'{i},{j}', fill='white', font=f, stroke_width=2, stroke_fill='black')
-    for poly in CHE: d.polygon([(x * T, y * T) for x, y in poly], outline=(0, 255, 255, 255))
     for b in BUILDINGS.values():
         x, y = b['door']; d.ellipse((x * T - 6, y * T - 6, x * T + 6, y * T + 6), fill=(255, 230, 0, 255))
     for x, y in (PORTAL, BIA, PEN['door']): d.ellipse((x * T - 6, y * T - 6, x * T + 6, y * T + 6), fill=(0, 255, 255, 255))

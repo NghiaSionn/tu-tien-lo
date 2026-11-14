@@ -22,7 +22,6 @@ export const SECT = {
   PADL: Math.max(BOCUC.nx, 2 * CX0) / 2 - CX0, PADT: Math.max(BOCUC.ny, 2 * CY0) / 2 - CY0,   // tâm bản đồ = tâm bệ
   ROWS: BOCUC.rows,
   BG: BOCUC.bg,
-  CHE: BOCUC.che || [],   // lớp che cắt từ ảnh nền: đa giác (ô), vẽ đè người đứng sau vật
   PATH_W: 4, PATHS: [],
   BUILDINGS: Object.entries(BOCUC.buildings).map(([id, b]) => ({ id, name: b.name, paint: true, door: b.door, body: b.body })),
   PEN: { id: 'luyen_vo', name: 'Luyện Võ Trường', ...BOCUC.pen },

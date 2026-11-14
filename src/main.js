@@ -116,32 +116,7 @@ if (vis.tm && vis.tm.tran) {
 // Lớp trước xếp theo CHÂN của từng dải đục liền theo cột (cờ = chân bệ cờ, lan can nam = chân vách) rồi gom theo nấc 8 px
 // -> nhân vật đứng sau cờ/lan can bị che đúng, đứng trước thì không (cắt dải ngang cũ sai với vật cao).
 // M8 (16/11): ảnh nền sảnh (concept vẽ sẵn, tools/sect_nen.py)
-if (vis.tm) try {
-  const { SECT } = await import('./data/sect_layout.js');
-  if (SECT.BG) { vis.tm.nen = await loadImg('sprites/' + SECT.BG.img); vis.nenChe = cheStrips(vis.tm.nen, SECT.CHE); }
-} catch (e) { console.warn('[nen]', e); }
-// lớp che từ ảnh nền: mỗi đa giác (ô 16 px) cắt khỏi ảnh, chia dải dọc 8 px; chân dải = điểm thấp nhất của đa giác trong dải
-function cheStrips(img, polys) {
-  const out = [];
-  for (const poly of polys) {
-    const P = poly.map(([x, y]) => [x * 16, y * 16]), xs = P.map(p => p[0]), ys = P.map(p => p[1]);
-    const x0 = Math.floor(Math.min(...xs)), y0 = Math.floor(Math.min(...ys)), w = Math.ceil(Math.max(...xs)) - x0, h = Math.ceil(Math.max(...ys)) - y0;
-    if (w <= 0 || h <= 0) continue;
-    const c = document.createElement('canvas'); c.width = w; c.height = h; const g = c.getContext('2d');
-    g.beginPath(); P.forEach(([x, y], i) => (i ? g.lineTo(x - x0, y - y0) : g.moveTo(x - x0, y - y0))); g.closePath(); g.clip();
-    g.drawImage(img, -x0, -y0);
-    const a = g.getImageData(0, 0, w, h).data;
-    for (let sx = 0; sx < w; sx += 8) {
-      const sw = Math.min(8, w - sx); let top = h, bot = -1;
-      for (let y = 0; y < h; y++) for (let x = sx; x < sx + sw; x++) if (a[(y * w + x) * 4 + 3] > 0) { if (y < top) top = y; if (y > bot) bot = y; }
-      if (bot < 0) continue;
-      const s = document.createElement('canvas'); s.width = sw; s.height = bot - top + 1;
-      s.getContext('2d').drawImage(c, sx, top, sw, s.height, 0, 0, sw, s.height);
-      out.push({ img: s, x: x0 + sx, y: y0 + top, foot: y0 + bot });
-    }
-  }
-  return out;
-}
+if (vis.tm) try { const { SECT } = await import('./data/sect_layout.js'); if (SECT.BG) vis.tm.nen = await loadImg('sprites/' + SECT.BG.img); } catch (e) { console.warn('[nen]', e); }
 if (vis.tm) try {
   const { PLAZA } = await import('./data/sect_plaza.js');
   const ld = loadImg;
