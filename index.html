@@ -64,6 +64,15 @@
   body[data-mode=run] #runHud { display: block; }
   body[data-mode=run] #panel, body[data-mode=run] #actions, body[data-mode=run] #btnSettings { display: none; }
   body[data-mode=run] #help::after { content: ' · Esc: tạm dừng'; }
+  /* M8: sảnh tông môn — bỏ hàng nút & dòng phím (đi tới khu + E); thiết bị cảm ứng vẫn giữ hàng nút */
+  body.sect #help, body.sect:not(.touch) #actions { display: none; }
+  /* M8: khung nhắc tương tác cố định giữa đáy màn hình */
+  #prompt { position: absolute; left: 50%; bottom: 1.6em; transform: translateX(-50%); padding: .5em 1em; font-size: 1.2em;
+            display: flex; align-items: center; gap: .55em; white-space: nowrap; }
+  #prompt[hidden] { display: none; }
+  #prompt kbd { font: bold .95em "Segoe UI", system-ui, sans-serif; color: #1a1208; background: #ffd978; border-radius: .25em;
+                padding: .05em .45em; box-shadow: 0 .12em 0 #8a6a2a; }
+  body[data-mode=run] #prompt { display: none; }
 
   /* bảng */
   #modal { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
@@ -193,6 +202,7 @@
       <button id="btnLore">Bia (L)</button>
     </div>
     <div id="help">WASD / mũi tên: di chuyển · Space: phóng kiếm khí · T: tọa thiền · B: đột phá · 1: dùng đan · 2: mua đan · E: bí cảnh · G: luyện khí · H: Truyền Thừa Các · J: thành tựu · K: đồ giám · L: bia truyền thừa</div>
+    <div id="prompt" class="box" hidden></div>
     <div id="modal" hidden></div>
   </div>
 </div>

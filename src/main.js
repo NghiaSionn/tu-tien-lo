@@ -14,7 +14,7 @@ import { spawnHubMonster, updateMonsters, reapMonsters, damageMonster, moveEntit
 import { loadSave, writeSave, commitMigration, exportSave, importSave, defaultMeta, KEYS } from './persistence/save.js';
 import { loadFx, createFx } from '../lib/beanfx.js';
 import { loadPixelfx } from './render/pixelfx.js';
-import { makeVis, consumeEvents, updateVis, clearVis, render, spawnFx, burst, floatText, addShake, addFlash, part, PART_CAP } from './render/render.js';
+import { makeVis, consumeEvents, updateVis, clearVis, render, setTextQueue, drawTextQueue, spawnFx, burst, floatText, addShake, addFlash, part, PART_CAP } from './render/render.js';
 import * as UI from './ui/ui.js';
 import { EVOLUTIONS } from './data/skills.js';
 import { computeRunReward, stageReward, claimReward, rewardText } from './progression/rewards.js';
@@ -47,8 +47,8 @@ function fit() {
   if (s >= 1) s = Math.floor(s * 2) / 2;
   cv.style.width = W * s + 'px'; cv.style.height = H * s + 'px';
   // M8: lớp nét cao (#hi) phủ đúng khung game, độ phân giải = điểm ảnh màn hình -> vật chuyển động dưới 1 px (nhân vật lơ lửng) vẫn sắc nét
-  hiK = Math.max(1, Math.min(4, Math.round(s * (devicePixelRatio || 1))));
-  hiCv.width = W * hiK; hiCv.height = H * hiK; hiCv.style.width = cv.style.width; hiCv.style.height = cv.style.height;
+  const px = Math.min(4, s * (devicePixelRatio || 1));   // đúng số điểm ảnh màn hình -> chữ không bị co giãn lại lần nữa
+  hiCv.width = Math.round(W * px); hiCv.height = Math.round(H * px); hiK = hiCv.width / W; hiCv.style.width = cv.style.width; hiCv.style.height = cv.style.height;
   $('wrap').style.fontSize = Math.max(9, 6.2 * s) + 'px';
 }
 addEventListener('resize', fit); fit();
@@ -176,11 +176,12 @@ if (FX.hoa_long_quyen_v2) vis.pfxSkills = { ...(vis.pfxSkills || {}), tornado: c
 { const q = new URLSearchParams(location.search).get('sect'); if (q === '1' || q === '0') FEATURES.sectHub = q === '1'; }
 const hubMap = FEATURES.sectHub ? makeSectMap() : makeHubMap();   // M8-02: sảnh tông môn (cờ) hoặc động phủ cũ
 const SECT_MAP = hubMap.sect || null;
+if (SECT_MAP) document.body.classList.add('sect');
 const hub = { kind: 'hub', map: hubMap, monsters: [], projectiles: null };
 const CX = hubMap.cx, CY = hubMap.cy;
 const HUB_SPAWN = { x: CX + HUB.RESPAWN.dx, y: CY + HUB.RESPAWN.dy };
 const PORTAL = SECT_MAP ? { ...SECT_MAP.portal, near: false } : { x: CX + HUB.PORTAL.dx, y: CY + HUB.PORTAL.dy, near: false };
-const BIA = SECT_MAP ? { ...SECT_MAP.bia, near: false, lit: false } : { x: CX + HUB.BIA.dx, y: CY + HUB.BIA.dy, near: false, lit: false };   // M7-14 (M8: vườn bia phía nam)
+const BIA = SECT_MAP ? { ...SECT_MAP.bia, near: false, lit: false, label: 'Bia Truyền Thừa' } : { x: CX + HUB.BIA.dx, y: CY + HUB.BIA.dy, near: false, lit: false };   // M7-14 (M8: vườn bia phía nam)
 const SAFE = { x: CX, y: CY, r: HUB.SAFE_TILES * 16 };
 const saveCtx = { canStand: hubMap.canStand, hubSpawn: HUB_SPAWN };
 
@@ -768,6 +769,18 @@ const SECT_POINTS = !SECT_MAP ? [] : [
     actions: [{ id: 'med', label: 'Tọa thiền', run: () => toggleMed() }, { id: 'break', label: 'Đột phá', run: () => tryBreak() }] },
 ];
 
+// M8-03b: khung nhắc cố định giữa đáy màn hình (tên khu hiện riêng ngay trên vật thể, vẽ ở render)
+let promptKey = '';
+function updatePrompt() {
+  const el = $('prompt'), pt = view === 'HUB' && !trib && !UI.modalOpen() ? INTERACT.cur : null;
+  const acts = pt ? pt.actions.filter(a => !a.when || a.when()) : [];
+  const k = pt && acts.length ? pt.id + acts.map(a => a.id).join() : '';
+  if (k === promptKey) return; promptKey = k;
+  if (!k) { el.hidden = true; return; }
+  el.innerHTML = `<kbd>E</kbd><span>${acts.length === 1 ? acts[0].label : acts.map(a => a.label).join(' · ')}</span>`;
+  el.hidden = false;
+}
+
 // ---------- điều khiển ----------
 function onAction(code) {
   if (code === 'KeyM') { meta.settings.mute = !meta.settings.mute; applySettings(); save(); UI.log(meta.settings.mute ? 'Đã tắt tiếng (M).' : 'Đã bật tiếng (M).'); return true; }
@@ -859,7 +872,7 @@ function frame(now) {
   if (vis.pfx && view === 'HUB') vis.pfx.portal.update(dt);
   if (vis.pfxSkills && view === 'RUN') vis.pfxSkills.tornado.update(worldDt);
   const scene = run && view !== 'HUB' ? run.scene : hub;
-  vis.hiDraw = null;
+  vis.hiDraw = null; const textQ = []; setTextQueue(textQ);
   render(ctx, { scene, player: p, time, vis, medFx, trib, inForm: p.inForm, portal: scene === hub ? PORTAL : null, bia: scene === hub && FEATURES.lore ? BIA : null, sect: scene === hub ? SECT_MAP : null, interact: scene === hub ? INTERACT.cur : null, run: scene === hub ? null : run, hubShots: scene === hub ? hubShots : null, dtWorld: worldDt });
   // lớp nét cao: vẽ nhân vật lơ lửng ở toạ độ lẻ, mỗi điểm ảnh game = hiK điểm ảnh màn hình (nét, không nhoè)
   hiCtx.setTransform(1, 0, 0, 1, 0, 0); hiCtx.clearRect(0, 0, hiCv.width, hiCv.height);
@@ -868,6 +881,8 @@ function frame(now) {
     hiCtx.imageSmoothingEnabled = false;
     hiCtx.drawImage(h.img, sx, sy, fw, fh, Math.round((Math.round(vis.hiDraw.x) - ax - c.x) * hiK), Math.round((vis.hiDraw.y - 1 - ay - c.y) * hiK), fw * hiK, fh * hiK);
   }
+  setTextQueue(null); drawTextQueue(hiCtx, textQ, hiK);   // chữ trên khung game: nét theo độ phân giải màn hình
+  updatePrompt();
   if ((hudT += dt) > 0.1) { hudT = 0; if (view === 'HUB' || !run) UI.hubHud(meta, p, trib, PORTAL.near); else UI.runHud(run); }
   input.endFrame();
   const t1 = performance.now();

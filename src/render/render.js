@@ -8,7 +8,21 @@ import { skillKind, skillParams, spiritOrbPos, sealOrbPos } from '../systems/com
 const { W, H } = VIEW;
 // Chữ trên canvas (12/11, khung 640×360 làm chữ 8px quá nhỏ): đậm, viền tối 2 px để đọc rõ trên mọi nền
 const FONT = '"Segoe UI", system-ui, sans-serif';
+// M8: chữ trên canvas game (640×360) bị phóng to nên mờ -> nếu có hàng đợi (main.js), gom lại để vẽ ở lớp nét cao #hi
+// theo độ phân giải màn hình (giữ toạ độ thế giới qua transform + độ mờ lúc gọi)
+let TEXT_Q = null;
+export function setTextQueue(q) { TEXT_Q = q; }
+export function drawTextQueue(hc, q, k) {
+  hc.textAlign = 'center'; hc.lineJoin = 'round';
+  for (const t of q) {
+    const m = t.m; hc.setTransform(m.a * k, m.b * k, m.c * k, m.d * k, m.e * k, m.f * k); hc.globalAlpha = t.al;
+    hc.font = `bold ${t.size}px ${FONT}`; hc.lineWidth = 3; hc.strokeStyle = 'rgba(8,4,16,.9)'; hc.strokeText(t.s, t.x, t.y);
+    hc.fillStyle = t.color; hc.fillText(t.s, t.x, t.y);
+  }
+  hc.globalAlpha = 1; hc.setTransform(1, 0, 0, 1, 0, 0);
+}
 function txt(ctx, s, x, y, color, size = 10) {
+  if (TEXT_Q && ctx.canvas && ctx.canvas.id === 'game') { TEXT_Q.push({ s, x, y, color, size, m: ctx.getTransform(), al: ctx.globalAlpha }); return; }
   ctx.font = `bold ${size}px ${FONT}`; ctx.textAlign = 'center'; ctx.lineJoin = 'round';
   ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(8,4,16,.9)'; ctx.strokeText(s, x, y);
   ctx.fillStyle = color; ctx.fillText(s, x, y);
@@ -411,7 +425,7 @@ function drawBia(ctx, b, vis, time) {
   ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.fillRect(x - 15, y - 2, 30, 4);
   ctx.drawImage(spr, x - (spr.width >> 1), y + 2 - spr.height);
   if (b.lit && Math.floor(time * 2) % 2 === 0) { ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 0.25; ctx.drawImage(spr, x - (spr.width >> 1), y + 2 - spr.height); ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over'; }
-  if (b.near) txt(ctx, 'E · đọc bia', x, y - spr.height - 4, '#ffd978');
+  if (b.near) txt(ctx, b.label || 'E · đọc bia', x, y - spr.height - 4, b.label ? '#fff6c8' : '#ffd978', b.label ? 11 : 10);
 }
 
 // M8-02: công trình tông môn — PLACEHOLDER (khối tường + mái + cửa + tên) tới khi có art vẽ theo concept ảnh 2.
@@ -895,8 +909,8 @@ export function render(ctx, g) {
       ctx.drawImage(o.img, o.x, o.dy);
       ctx.globalAlpha = 1;
       if (o.label && Math.hypot(p.x - o.door.x, p.y - o.door.y) < 96) {   // M8-03: đứng ở cửa -> "E · tên khu"
-        const act = g.interact && g.interact.name === o.label;
-        txt(ctx, (act ? 'E · ' : '') + o.label, Math.round(o.x + o.img.width / 2), o.dy - 3, act ? '#fff2b0' : '#ffd978');
+        const act = g.interact && g.interact.name === o.label;   // tên khu cố định trên mái; đang đứng ở cửa thì sáng hơn
+        txt(ctx, o.label, Math.round(o.x + o.img.width / 2), o.dy - 3, act ? '#fff6c8' : '#ffd978', act ? 11 : 10);
       }
     }
     else if (o.m) drawMonster(ctx, o.m, time, vis);
@@ -920,8 +934,8 @@ export function render(ctx, g) {
   if (scene.projectiles) drawProjectiles(ctx, scene, vis.FX, g.dtWorld || 0, vis.quality);
   mark('projectiles');
   for (const s of g.hubShots || []) { s.fx.x = Math.round(s.x); s.fx.y = Math.round(s.y); s.fx.draw(ctx); }
-  if (scene.kind === 'hub' && g.interact && (g.interact.id === 'phap_dai' || g.interact.id === 'portal'))   // M8-03: nhắc E ở pháp đài / cổng
-    txt(ctx, 'E · ' + g.interact.name, Math.round(g.interact.x), Math.round(g.interact.id === 'portal' ? g.interact.y - 70 : p.y - 34), '#fff2b0');
+  if (scene.kind === 'hub' && g.interact && (g.interact.id === 'phap_dai' || g.interact.id === 'portal'))   // tên cố định ngay trên vật thể
+    txt(ctx, g.interact.name, Math.round(g.interact.x), Math.round(g.interact.id === 'portal' ? g.interact.y - 70 : map.cy - 74), '#fff6c8', 11);
   if (scene.kind === 'hub' && g.sect) { updateQiParts(vis, map, !!(p.med && g.inForm), g.dtWorld || 0); drawQiParts(ctx, vis); }
   for (const fx of vis.fxs) fx.draw(ctx);
   mark('fx');
