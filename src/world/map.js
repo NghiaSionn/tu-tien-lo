@@ -130,7 +130,7 @@ export function makeSectMap(S = SECT) {
   m.sect = {
     ox, oy,
     buildings: S.BUILDINGS.map(b => {
-      const r = solidRect(b.foot, b.base);
+      const r = b.nha ? null : solidRect(b.foot, b.base);
       if (b.nha && NHA[b.nha]) {   // nhà lớn đi vào được: đặt theo giữa đáy bậc; E ở đồ vật chính bên trong
         const N = NHA[b.nha], at = px(b.at), x = Math.round(at.x - N.foot[0]), y = Math.round(at.y - N.foot[1]);
         const nha = { id: b.nha, x, y, ...N };

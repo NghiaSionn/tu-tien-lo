@@ -33,7 +33,7 @@ export const SECT = {
     { id: 'tang_kinh', name: 'Tàng Kinh Các', foot: footOf('tang_kinh'), base: [6, 3], them: them('tang_kinh') },
     { id: 'cong_duc', name: 'Công Đức Đường', foot: footOf('cong_duc'), base: [7, 3], them: them('cong_duc') },
     { id: 'luyen_khi', name: 'Luyện Khí Phường', foot: footOf('luyen_khi'), base: [6, 3], them: them('luyen_khi') },
-    { id: 'dan_duoc', name: 'Đan Dược Phòng', foot: footOf('dan_duoc'), base: [7, 3], them: them('dan_duoc') },
+    { id: 'dan_duoc', name: 'Đan Dược Phòng', nha: 'dan_duoc', at: [93.2, 38] },   // (16/11) nhà lớn tách từ concept, đi vào được; at = chân bậc (ô)
   ],
   // Luyện Võ Trường: sân đất (elip trong lưới) + rào chữ nhật bên trong, cổng rào phía bắc lệch trái (đầu đường đông nam)
   PEN: { id: 'luyen_vo', name: 'Luyện Võ Trường', ...BOCUC.pen },

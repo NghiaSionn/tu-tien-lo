@@ -22,9 +22,10 @@ from build_be_phap_dai import drop_magenta, mask, flood, morph  # noqa: E402
 ROOT = Path(__file__).resolve().parent.parent
 # số đo px trên sprite đã làm sạch: seed = điểm trên sàn; stair = cột bậc [x0,y0,x1,y1]; interact = chỗ đứng bấm E (trước đồ vật chính)
 NHA = {
-    'dan_duoc': dict(src='docs/concept/nha_dan_duoc_lon_chatgpt.png', scale=4.4, seed=(130, 160), stair=(97, 168, 163, 229), interact=(130, 158),
-                     block=[(50, 134, 106, 166), (154, 134, 210, 166)],   # cả bàn + đồ trên bàn là MỘT vật (chỉ chân đặc)
-                     floor=[(90, 104), (172, 104), (215, 140), (218, 168), (165, 170), (97, 170), (42, 168), (45, 140)]),
+    # (16/11) tách đúng từ concept ảnh 1 (ChatGPT, người phát triển chỉnh: lò luyện đan + nguyên liệu, bậc bên trái)
+    'dan_duoc': dict(src='docs/concept/nha_dan_duoc_concept_chatgpt.png', scale=3.0, seed=(250, 198), stair=(92, 226, 158, 306), interact=(250, 198),
+                     block=[(92, 112, 166, 200), (322, 130, 402, 196), (212, 112, 288, 182), (146, 192, 214, 224), (270, 190, 350, 224)],   # kệ trái/phải, lò đan, 2 bàn
+                     floor=[(92, 196), (98, 150), (165, 142), (330, 142), (402, 150), (408, 200), (400, 228), (170, 234), (96, 232)]),
     'luyen_khi': dict(src='docs/concept/nha_luyen_khi_lon_chatgpt.png', scale=4.4, seed=(130, 162), stair=(97, 168, 163, 229), interact=(131, 160),
                       block=[(104, 118, 158, 156), (46, 128, 102, 168), (176, 98, 224, 156)],   # đe, thùng than + hộp đồ, giá thương
                       floor=[(90, 104), (172, 104), (215, 140), (218, 168), (165, 170), (97, 170), (42, 168), (45, 140)]),
