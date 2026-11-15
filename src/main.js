@@ -948,6 +948,10 @@ function frame(now) {
   render(ctx, { scene, player: p, time, vis, medFx, trib, inForm: p.inForm, portal: scene === hub ? PORTAL : null, bia: scene === hub && FEATURES.lore ? BIA : null, sect: scene === hub ? SECT_MAP : null, interact: scene === hub ? INTERACT.cur : null, sectStatus: SECT_MAP ? sectStatus : null, run: scene === hub ? null : run, hubShots: scene === hub ? hubShots : null, dtWorld: worldDt });
   // lớp nét cao: vẽ nhân vật lơ lửng ở toạ độ lẻ, mỗi điểm ảnh game = hiK điểm ảnh màn hình (nét, không nhoè)
   hiCtx.setTransform(1, 0, 0, 1, 0, 0); hiCtx.clearRect(0, 0, hiCv.width, hiCv.height);
+  if (vis.hiSprites && vis.hiSprites.length) {   // (17/11) vật trôi mượt ở toạ độ lẻ (lá sen)
+    const c = vis.cam; hiCtx.imageSmoothingEnabled = false;
+    for (const o of vis.hiSprites) hiCtx.drawImage(o.img, Math.round((o.x - c.x) * hiK), Math.round((o.y - c.y) * hiK), o.img.width * hiK, o.img.height * hiK);
+  }
   if (vis.hiDraw && vis.hero) {
     const h = vis.hero, m = h.meta, [sx, sy] = m.frames[vis.hiDraw.name], [fw, fh] = m.frameSize, [ax, ay] = m.pivot, c = vis.cam;
     hiCtx.imageSmoothingEnabled = false;

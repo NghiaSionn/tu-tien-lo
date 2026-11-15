@@ -1020,6 +1020,7 @@ export function render(ctx, g) {
       const t = b.them, img = t && vis.tm[t.kind];
       if (img && t.x < camX + W && t.x + t.w > camX && t.y < camY + H && t.y + t.h > camY) ctx.drawImage(img, t.x, t.y);
     }
+    vis.hiSprites = [];
     if (g.sect && VN) {   // (16/11) gợn nước chạy mượt: mỗi ô 2 vệt sáng trôi ngang theo thời gian, sáng tắt dần
       const tx0 = Math.floor(camX / T), ty0 = Math.floor(camY / T);
       for (let ty = ty0; ty <= ty0 + Math.ceil(H / T); ty++) for (let tx = tx0; tx <= tx0 + Math.ceil(W / T); tx++) {
@@ -1043,9 +1044,10 @@ export function render(ctx, g) {
         ctx.globalAlpha = 0.75 * (1 - t); ctx.strokeStyle = '#f2fdff'; ctx.lineWidth = 1; ctx.beginPath(); ctx.ellipse(Math.round(cx) + 0.5, Math.round(cy) + 0.5, rx + t * 9, ry + t * 4, 0, 0, 6.283); ctx.stroke(); } ctx.globalAlpha = 1; };
       for (let ty = ty0; ty <= ty0 + Math.ceil(H / T) + 1; ty++) for (let tx = tx0 - 1; tx <= tx0 + Math.ceil(W / T) + 1; tx++) {
         if (map.tileAt(tx, ty) !== WATER || hash(tx, ty, 8) >= 0.05 || map.tileAt(tx, ty - 1) !== WATER || !vis.props || !vis.props.sen) continue;
-        const img = vis.props.sen, x = tx * T, y = ty * T, bob = Math.round(Math.sin(time * 1.3 + tx) * 0.6);
+        const img = vis.props.sen, x = tx * T, y = ty * T, ph = time * 0.9 + hash(tx, ty, 141) * 6.28;
         ring(x + 8, y + T - 3, 11, 4, hash(tx, ty, 140));
-        ctx.drawImage(img, x + 8 - img.ax, y + T - 1 - img.ay + bob);
+        // lá sen trôi êm: lên xuống 1 px + lắc ngang 0,6 px ở toạ độ lẻ -> vẽ ở lớp nét cao (#hi), không nhảy nấc điểm ảnh
+        (vis.hiSprites || (vis.hiSprites = [])).push({ img, x: x + 8 - img.ax + Math.sin(ph * 0.7) * 0.6, y: y + T - 1 - img.ay + Math.sin(ph) * 1.0 });
       }
       for (const o of g.sect.props) if (o.s === 'cau_da' && vis.tm && vis.tm.cau_da) {
         const img = vis.tm.cau_da; if (o.x < camX - 40 || o.x > camX + W + 40 || o.y < camY - 20 || o.y > camY + H + 40) continue;
