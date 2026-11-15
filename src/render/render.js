@@ -199,7 +199,7 @@ let _fogPuff = null;
 function fogPuff() {
   if (_fogPuff || typeof document === 'undefined') return _fogPuff;
   const c = document.createElement('canvas'); c.width = 96; c.height = 48; const g = c.getContext('2d');
-  const gr = g.createRadialGradient(48, 24, 2, 48, 24, 46); gr.addColorStop(0, 'rgba(240,242,255,.9)'); gr.addColorStop(0.55, 'rgba(225,228,248,.45)'); gr.addColorStop(1, 'rgba(225,228,248,0)');
+  const gr = g.createRadialGradient(48, 24, 2, 48, 24, 46); gr.addColorStop(0, 'rgba(250,251,255,1)'); gr.addColorStop(0.5, 'rgba(232,234,250,.7)'); gr.addColorStop(1, 'rgba(225,228,248,0)');
   g.setTransform(1, 0, 0, 0.5, 0, 12); g.fillStyle = gr; g.fillRect(0, 0, 96, 96); return (_fogPuff = c);
 }
 function drawFogFx(ctx, map, camX, camY, time) {
@@ -209,9 +209,32 @@ function drawFogFx(ctx, map, camX, camY, time) {
     const gy = Math.floor(camY / 28) + j, gi = i + Math.floor(camX / 64), h = hash(gi, gy, 160), sp = 6 + h * 8;
     let x = gi * 64 + ((time * sp + h * 64) % 64) - 32, y = gy * 28 + hash(gi, gy, 161) * 14;
     const t = map.tileAt(Math.floor((x + 48) / T), Math.floor((y + 24) / T)); if (t !== CLOUD) continue;
-    ctx.globalAlpha = 0.35 + 0.25 * Math.sin(time * 0.5 + h * 6); ctx.drawImage(img, Math.round(x), Math.round(y));
+    ctx.globalAlpha = 0.18 + 0.12 * Math.sin(time * 0.5 + h * 6); ctx.drawImage(img, Math.round(x), Math.round(y));
+  }
+  // (17/11) mây cuộn ngay chân vách: cụm mây bông (nhiều khối tròn, đỉnh sáng, đáy tím) phồng/xẹp, trôi nhẹ, che chân vách
+  const tx0 = Math.floor(camX / T) - 3, ty0 = Math.floor(camY / T) - 3;
+  for (let ty = ty0; ty <= ty0 + Math.ceil(H / T) + 6; ty++) for (let tx = tx0; tx <= tx0 + Math.ceil(W / T) + 6; tx++) {
+    if (map.tileAt(tx, ty) !== CLOUD) continue;
+    const up = map.tileAt(tx, ty - 1), below = up === CLIFF || up === FALL;
+    const sd = map.tileAt(tx - 1, ty) === CLIFF ? -1 : map.tileAt(tx + 1, ty) === CLIFF ? 1 : 0;
+    if (!below && !sd) continue;
+    if ((tx + ty) % 2) continue;   // cụm cách ô -> không thành dải đều
+    const h = hash(tx, ty, 170), ph = time * (0.35 + h * 0.3) + h * 6.28, b = billow(Math.floor(h * 4));
+    const sc = 0.8 + h * 0.5 + 0.06 * Math.sin(ph * 1.4), w = b.width * sc, hh = b.height * sc;
+    const cx = tx * T + 8 + Math.sin(ph) * 3 - sd * 6, cy = ty * T + (below ? 4 : 8) + Math.sin(ph * 0.8) * 1.5;
+    ctx.globalAlpha = 0.9; ctx.drawImage(b, Math.round(cx - w / 2), Math.round(cy - hh / 2), Math.round(w), Math.round(hh));
   }
   ctx.globalAlpha = 1;
+}
+const _billow = [];
+function billow(v) {   // cụm mây bông kiểu concept: 5–7 khối tròn chồng, bóng tím dưới, thân trắng tím nhạt, đỉnh trắng
+  if (_billow[v]) return _billow[v];
+  const c = document.createElement('canvas'); c.width = 56; c.height = 30; const g = c.getContext('2d');
+  const blobs = Array.from({ length: 6 }, (_, i) => ({ x: 8 + i * 8 + hash(v, i, 180) * 4, y: 17 - Math.sin(i / 5 * Math.PI) * 6 + hash(v, i, 181) * 3, r: 6 + Math.sin(i / 5 * Math.PI) * 4 + hash(v, i, 182) * 2 }));
+  g.fillStyle = 'rgba(160,160,205,.85)'; for (const o of blobs) { g.beginPath(); g.arc(o.x + 1, o.y + 2.5, o.r, 0, 6.283); g.fill(); }
+  g.fillStyle = '#e4e6f7'; for (const o of blobs) { g.beginPath(); g.arc(o.x, o.y, o.r, 0, 6.283); g.fill(); }
+  g.fillStyle = '#ffffff'; for (const o of blobs) { g.beginPath(); g.arc(o.x - o.r * 0.25, o.y - o.r * 0.35, o.r * 0.55, 0, 6.283); g.fill(); }
+  return (_billow[v] = c);
 }
 function fenceSpr() {
   if (_fence || typeof document === 'undefined') return _fence;
