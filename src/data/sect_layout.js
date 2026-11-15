@@ -36,7 +36,9 @@ export const SECT = {
     { id: 'dan_duoc', name: 'Đan Dược Phòng', nha: 'dan_duoc', at: [93.2, 38] },   // (16/11) nhà lớn tách từ concept, đi vào được; at = chân bậc (ô)
   ],
   // Luyện Võ Trường: sân đất (elip trong lưới) + rào chữ nhật bên trong, cổng rào phía bắc lệch trái (đầu đường đông nam)
-  PEN: { id: 'luyen_vo', name: 'Chuồng Linh Thú', ...BOCUC.pen, art: { seg: 79 }, path: [[84.8, 41.5], [85, 45.6], [86.4, 49], [89.6, 51.2], [94, 52.3], [99, 52.4]] },   // lối đá từ cổng tới cửa chuồng (ô)   // (16/11) sân luyện võ đổi thành chuồng linh thú (id giữ luyen_vo cho save/test)
+  // (16/11) Chuồng Linh Thú bo tròn như concept: elip tâm c, bán trục rx/ry (ô); cổng ở góc trên trái; trụ cờ ở các góc (rad)
+  PEN: { id: 'luyen_vo', name: 'Chuồng Linh Thú', ...BOCUC.pen, door: [85, 40.3], ring: { c: [95.5, 49.8], rx: 16.5, ry: 9.6, gate: [86, 42], flags: [0.55, 2.6, 1.57, 5.6] },
+    path: [[85.6, 41.6], [85.4, 44.5], [85.8, 48], [87.6, 50.4], [91, 51.8], [95, 52.4], [97.8, 52.4]] },
   GATE: { nha: 'cong_bi_canh', at: [60.5, 21] },   // (16/11) cổng bí cảnh tách từ concept: chân bậc (ô); PORTAL = chỗ đứng bấm E trên bệ
   PORTAL: null,
   BIA: tf([60.5, 53.4]),   // bia lớn giữa vườn bia (concept: chân bia ~ (60.6, 53.9))
@@ -59,11 +61,9 @@ export const SECT = {
     // (16/11) Chuồng Linh Thú (thay Luyện Võ Trường): chuồng mái ngói, máng ăn, máng nước, ụ rơm, ổ rơm, cột đèn (sprites/tm_chuong)
     // xếp theo mẫu bố cục ChatGPT (docs/concept/chuong_linh_thu_bo_cuc_chatgpt.png): chuồng giữa sau, ụ rơm trái chuồng, giếng nước phải,
     // ổ rơm phải trước, máng ăn trái trước, cột đèn giữa trước, cây hoa đào góc trái, cờ trên rào, khóm hoa rải
-    ['chuong_thu', 97.8, 51.6, [11, 2]],   // chuồng là điểm nhấn (≈14×11 ô), mái nằm trong rào
-    ['u_rom', 89.8, 47.4, [3, 1]], ['mang_nuoc', 104.8, 47.6, [3, 1]], ['cay_tung', 105.6, 44.4, [2, 1]],   // tùng sau giếng (góc phải sau)
-    ['cay_dao', 85.4, 51.2, [2, 1]], ['mang_an', 88.6, 55.4, [3, 1]], ['cot_den', 95.4, 55.5, [1, 1]], ['o_rom', 104.4, 55.5, [3, 1]],
-    // linh thú trang trí (đứng yên, không chặn đường; tính năng nuôi thú làm sau)
-    ['thu_cao', 91.2, 54], ['thu_chim', 93.6, 51.8], ['thu_huou', 100.4, 54.6],
-    ['khom_hoa', 86.5, 47], ['khom_hoa', 92.5, 46.5], ['khom_hoa', 101.5, 46], ['khom_hoa', 106, 51.5], ['khom_hoa', 97.5, 55.2], ['khom_hoa', 84.2, 55.2],
+    ['chuong_thu', 97.6, 51.2, [11, 2]],   // chuồng giữa sau (điểm nhấn)
+    ['u_rom', 89, 47.4, [3, 1]], ['cay_tung', 104.6, 45.4, [2, 1]], ['mang_nuoc', 106.6, 49.2, [3, 1]],
+    ['cay_dao', 83.4, 54.8, [2, 1]], ['mang_an', 89.8, 56.4, [3, 1]], ['cot_den', 96, 56.9, [1, 1]], ['o_rom', 103.4, 56.2, [3, 1]],
+    ['khom_hoa', 92.8, 54.6], ['khom_hoa', 100, 54.8], ['khom_hoa', 108.4, 53.4], ['khom_hoa', 81.4, 49.4], ['khom_hoa', 92.4, 44.6], ['khom_hoa', 101.6, 57.6]
   ].map(([n, x, y, ...r]) => [n, ...tf([x, y + (PEN_PROPS.has(n) || (n === 'co_phuon' && x > 80) ? PEN_DY : 0)]), ...r]),
 };

@@ -147,6 +147,22 @@ function railSpr() {
   for (const x0 of [4, 10]) { g.fillStyle = '#5a2e12'; g.fillRect(x0, 0, 3, T + 6); g.fillStyle = '#c2782c'; g.fillRect(x0, 0, 2, T + 6); g.fillStyle = '#e8a64a'; g.fillRect(x0, 0, 1, T + 6); }
   return (_rail = c);
 }
+function penRailSegs(posts, post) {
+  const out = [], n = posts.length, ph = post.height, pw = post.width;
+  for (let i = 0; i < n; i++) {
+    const a = posts[i], b = posts[(i + 1) % n];
+    if (a.gate) continue;
+    const x0 = Math.floor(Math.min(a.x, b.x) - pw), y0 = Math.floor(Math.min(a.y, b.y) - ph), x1 = Math.ceil(Math.max(a.x, b.x) + pw), y1 = Math.ceil(Math.max(a.y, b.y) + 1);
+    const c = document.createElement('canvas'); c.width = x1 - x0; c.height = y1 - y0; const g = c.getContext('2d');
+    if (!b.gate) for (const [off, col] of [[ph - 18, '#5a2e12'], [ph - 17, '#c2782c'], [ph - 10, '#5a2e12'], [ph - 9, '#c2782c'], [ph - 16, '#e8a64a'], [ph - 8, '#e8a64a']]) {
+      const len = Math.max(Math.abs(b.x - a.x), Math.abs(b.y - a.y)), steps = Math.ceil(len); g.fillStyle = col;
+      for (let k = 0; k <= steps; k++) { const t = k / steps; g.fillRect(Math.round(a.x + (b.x - a.x) * t - x0), Math.round(a.y + (b.y - a.y) * t - ph + off - y0), 1, off % 2 ? 1 : 2); }
+    }
+    g.drawImage(post, Math.round(a.x - pw / 2 - x0), Math.round(a.y - ph - y0));
+    out.push({ img: c, x: x0, dy: y0, y: Math.max(a.y, b.gate ? a.y : b.y) });
+  }
+  return out;
+}
 function fenceSpr() {
   if (_fence || typeof document === 'undefined') return _fence;
   const c = document.createElement('canvas'); c.width = T; c.height = 20; const g = c.getContext('2d');
@@ -181,7 +197,7 @@ function groundTile(t, tx, ty, map) {
 function tileObj(map, tx, ty, props) {
   const t = map.tileAt(tx, ty), x = tx * T, y = ty * T;
   if (t === FENCE) {   // M8: mép bắc/nam rào là sprite hang_rao (map.sect.props); chỉ vẽ cọc rào cho mép đông/tây
-    if (map.sect && (map.tileAt(tx - 1, ty) === FENCE || map.tileAt(tx + 1, ty) === FENCE)) return null;
+    if (map.sect && (map.sect.pen?.ring || map.tileAt(tx - 1, ty) === FENCE || map.tileAt(tx + 1, ty) === FENCE)) return null;   // rào bo tròn vẽ riêng
     const f = map.sect && map.sect.pen && map.sect.pen.art ? railSpr() : fenceSpr(); return f ? { y: y + T, img: f, x, dy: y + T - f.height } : null;
   }
   if (props && t === TREE) { const img = props[pick(TREE_KINDS, hash(tx, ty, 6))]; return { y: y + T, img, x: x + 8 - img.ax, dy: y + T - 1 - img.ay }; }
@@ -1055,6 +1071,11 @@ export function render(ctx, g) {
     if (vis.plaza) {   // lớp trước của bệ: từng nhóm điểm ảnh xếp theo chân cột đục của nó (xem main.js)
       const x = Math.round(map.cx - vis.plaza.ax), y0 = Math.round(map.cy - vis.plaza.ay);
       for (const s of vis.plaza.strips) { const dy = y0 + s.y; if (dy < camY + H && dy + s.img.height > camY) objs.push({ y: y0 + s.foot, img: s.img, x: x + s.x, dy, noFade: true }); }
+    }
+    const ring = g.sect.pen && g.sect.pen.ring;
+    if (ring && vis.tm && vis.tm.tru_rao) {   // (16/11) rào bo tròn chuồng linh thú: mỗi đoạn = trụ gỗ đầu vàng + 2 thanh gỗ nối sang trụ kế, xếp theo chân thấp hơn
+      if (!vis.penRail) vis.penRail = penRailSegs(ring.posts, vis.tm.tru_rao);
+      for (const s of vis.penRail) if (s.x < camX + W && s.x + s.img.width > camX && s.dy < camY + H && s.y > camY) objs.push(s);
     }
     if (vis.tm) for (const o of g.sect.props) {
       const img = !o.flat && vis.tm[o.s];

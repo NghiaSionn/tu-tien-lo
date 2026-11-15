@@ -79,7 +79,14 @@ export function buildSectGrid(S = SECT) {
   for (let j = 0; j < PLAZA.rows.length; j++) for (let i = 0; i < PLAZA.rows[j].length; i++)
     if (PLAZA.rows[j][i] === '.') set(cx + PLAZA.x0 + i, cy + PLAZA.y0 + j, STONE);
   const P = S.PEN;
-  for (let y = P.y; y < P.y + P.h; y++) for (let x = P.x; x < P.x + P.w; x++) {
+  if (P.ring) {   // (16/11) Chuồng Linh Thú bo tròn: rào theo elip (ô có đường elip đi qua = rào), trong = cỏ, chừa cổng
+    const { c: [ecx, ecy], rx, ry, gate: [gx, gy] } = P.ring, dd = (x, y) => Math.hypot((x - ecx) / rx, (y - ecy) / ry);
+    for (let y = Math.floor(ecy - ry) - 1; y <= ecy + ry + 1; y++) for (let x = Math.floor(ecx - rx) - 1; x <= ecx + rx + 1; x++) {
+      const ds = [dd(x, y), dd(x + 1, y), dd(x, y + 1), dd(x + 1, y + 1)], lo = Math.min(...ds), hi = Math.max(...ds);
+      if (hi < 1) set(x, y, GRASS);
+      else if (lo < 1) set(x, y, Math.hypot(x + 0.5 - gx, y + 0.5 - gy) < 1.9 ? GRASS : FENCE);
+    }
+  } else for (let y = P.y; y < P.y + P.h; y++) for (let x = P.x; x < P.x + P.w; x++) {
     const edge = x === P.x || y === P.y || x === P.x + P.w - 1 || y === P.y + P.h - 1;
     const gate = y === P.y && x >= P.gate[0] && x <= P.gate[1];
     set(x, y, edge && !gate ? FENCE : GRASS);   // (16/11) chuồng linh thú: nền cỏ trong rào
@@ -87,7 +94,7 @@ export function buildSectGrid(S = SECT) {
   if (P.path) for (let i = 1; i < P.path.length; i++) {   // (16/11) lối đá trong chuồng linh thú, rộng 2 ô
     const [x0, y0] = P.path[i - 1], [x1, y1] = P.path[i], n = Math.ceil(Math.hypot(x1 - x0, y1 - y0) * 4);
     for (let k = 0; k <= n; k++) { const px = x0 + (x1 - x0) * k / n, py = y0 + (y1 - y0) * k / n;
-      for (let yy = Math.floor(py - 1); yy < py + 1; yy++) for (let xx = Math.floor(px - 1); xx < px + 1; xx++) if (g[yy * S.W + xx] !== FENCE || (yy === P.y && xx >= P.gate[0] && xx <= P.gate[1])) set(xx, yy, STONE); }
+      for (let yy = Math.floor(py - 1); yy < py + 1; yy++) for (let xx = Math.floor(px - 1); xx < px + 1; xx++) if (g[yy * S.W + xx] !== FENCE) set(xx, yy, STONE); }
   }
   for (const b of S.BUILDINGS) { if (b.nha) continue; const r = solidRect(b.foot, b.base); for (let y = r.y0; y < r.y1; y++) for (let x = r.x0; x < r.x1; x++) set(x, y, BUILDING); }
   for (const [, x, y, sd] of S.PROPS) if (sd) block(solidRect([x, y], sd));
@@ -161,6 +168,16 @@ export function makeSectMap(S = SECT) {
   m.sect.nhaAll = m.sect.gate ? [...m.sect.buildings, m.sect.gate] : m.sect.buildings;
   // hàng rào Luyện Võ Trường: sprite hang_rao dọc mép bắc/nam (bỏ chỗ cổng) + cổng rào; mép đông/tây vẽ cọc rào theo ô
   const P = S.PEN;
+  if (P.ring) {   // rào bo tròn: trụ rào cách đều trên elip (px), render nối thanh gỗ giữa các trụ; cổng mái ngói + trụ cờ
+    const { c: [ecx, ecy], rx, ry, gate: [gx, gy] } = P.ring, posts = [];
+    const N = Math.round(2 * Math.PI * Math.sqrt((rx * rx + ry * ry) / 2) * T / 22);
+    for (let i = 0; i < N; i++) { const a = i / N * 2 * Math.PI, x = ecx + rx * Math.cos(a), y = ecy + ry * Math.sin(a);
+      posts.push({ x: (ox + x) * T, y: (oy + y) * T, gate: Math.hypot(x - gx, y - gy) < 2.1 }); }
+    m.sect.pen.ring = { ...P.ring, posts };
+    for (const a of P.ring.flags) m.sect.props.push({ s: 'tru_co', ...px([ecx + rx * Math.cos(a), ecy + ry * Math.sin(a) + 0.4]), flat: false });
+    m.sect.props.push({ s: 'cong_chuong', ...px([gx, gy + 0.6]), flat: false });
+    return m;
+  }
   if (P.art) {   // (16/11) Chuồng Linh Thú: rào/cổng/trụ cờ ChatGPT vẽ (sprites/tm_chuong) — đoạn rào ngang nối tiếp theo px, trụ dọc mỗi 2 ô
     const seg = P.art.seg, X0 = P.x * T, X1 = (P.x + P.w) * T, gx0 = P.gate[0] * T, gx1 = (P.gate[1] + 1) * T;
     const run = (a, b, fy) => { for (let x = a; x < b - 4; x += seg) m.sect.props.push({ s: 'rao_ngang', x: Math.min(x + seg / 2, b - seg / 2), y: fy, flat: false }); };
