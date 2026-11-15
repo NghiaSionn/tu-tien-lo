@@ -30,6 +30,11 @@ NHA = {
     'luyen_khi': dict(src='docs/concept/nha_luyen_khi_concept_chatgpt.png', scale=3.0, seed=(262, 238), stair=(50, 228, 104, 316), interact=(262, 238),
                       block=[(140, 155, 180, 182), (130, 198, 196, 248), (176, 218, 216, 252), (220, 178, 306, 226), (334, 155, 432, 226), (298, 110, 402, 182)],   # hộp sắt, thùng quặng, thùng gỗ, đe, giá thương, lò rèn
                       floor=[(68, 206), (140, 178), (150, 166), (282, 166), (300, 176), (340, 196), (422, 214), (412, 242), (150, 250), (62, 242)]),
+    # (16/11) tách đúng từ concept ảnh 1: thư viện, kệ sách, sách mở trên bục, chồng sách, bậc phải
+    'tang_kinh': dict(src='docs/concept/nha_tang_kinh_concept_chatgpt.png', scale=3.0, behind=[(0, 0, 230, 236)],   # bên phải để trống: đường xuống từ tháp Truyền Thừa đi qua
+                      seed=(290, 228), stair=(322, 236, 394, 325), interact=(290, 228),
+                      block=[(106, 185, 150, 234), (175, 195, 266, 236), (268, 185, 296, 212), (310, 140, 382, 226)],   # chồng sách, bục sách, hộp, kệ phải
+                      floor=[(80, 200), (150, 195), (290, 195), (345, 205), (385, 225), (396, 242), (300, 242), (290, 236), (80, 236)]),
 }
 LUM_MIN, OPEN_R, FOOT, GROW, PAD, C = 85, 2, 8, 4, 8, 4
 OBJ_FOOT = 12
@@ -82,6 +87,10 @@ def build(id_, cfg):
     Image.fromarray(front).save(ROOT / f'sprites/nha_{id_}_front.png')
     # nhà lớn: chỉ sàn (loang từ hạt giống, nên góc kín tự thành đặc) + bậc đi được; mọi điểm ảnh khác của nhà đều đặc
     solid = alpha & ~walk   # walk đã gồm phần trên đồ đạc (chỉ chân đặc) và bỏ ngóc ngách kín
+    # (16/11) chỗ trong suốt phía SAU nhà (trên đỉnh bậc) cũng đặc: không lọt vào khe kín giữa mái, vách núi và nhà bên cạnh
+    behind = np.zeros_like(solid)
+    for bx0, by0, bx1, by1 in cfg.get('behind', [(0, 0, W, cfg['stair'][1])]): behind[by0:by1, bx0:bx1] = True   # mặc định: cả phần trên đỉnh bậc
+    solid |= behind & ~walk
     sp = np.zeros((H + 2 * PAD, W + 2 * PAD), bool); sp[PAD:PAD + H, PAD:PAD + W] = solid
     HP, WP = sp.shape
     fine = [''.join('#' if sp[j * C:(j + 1) * C, i * C:(i + 1) * C].mean() >= 0.3 else '.' for i in range((WP + C - 1) // C)) for j in range((HP + C - 1) // C)]
