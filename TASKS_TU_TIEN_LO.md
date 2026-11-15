@@ -418,7 +418,15 @@ Thiết kế + backlog đầy đủ (ChatGPT, 13/11): **`docs/chatgpt_tong_mon_M
   - [x] q. (16/11) Sửa 5 công trình (người phát triển: to bất thường + mờ): thu theo khối 4,5 px ảnh gốc thay vì 3 px -> sắc, nhỏ còn 2/3 (19–21 × 13 ô, tháp 13,5 × 18). Đo lại sàn/đồ đạc trên bản mới. Lỗi tìm thấy khi thử phím thật và đã sửa: (1) Đan Dược: bậc không nối sàn (chân kệ trái + bàn chặn kín lối) -> mở lối; (2) Tàng Kinh: nửa trái sàn không tới được (hộp nhỏ cạnh bục chặn) -> bỏ chặn; (3) Luyện Khí: thùng quặng + thùng gỗ chắn đầu bậc, phải vòng sau đe -> lối thẳng; (4) tháp Truyền Thừa: nhân vật bị lớp che phủ kín ở sảnh (cột hiên liền từ mái xuống bậc) -> cắt lớp che ngang sàn (`cut`), dời E vào giữa; (5) cây tròn mọc đè lan can Công Đức -> dời. Thử thật cả 5: leo bậc, tới đồ vật chính, E hiện đúng (Luyện khí / Đồ giám / Thành tựu / Dùng Tụ Khí Đan / Truyền Thừa). Test 209/209
   - [x] e. (16/11) Luyện Võ Trường: sân đất chỉ trong rào (bỏ elip tràn ra ngoài), viền đất sẫm + vệt cỏ lấn ở mép (`paintDirtYard`), chòi + giá binh khí dời vào trong sân (trước đè rào bắc), cây tròn dời khỏi rào nam
   - [x] f. (16/11) Cổng bí cảnh tách từ concept (ChatGPT, lòng cổng trống): cổng trăng đầu rồng + bệ đá + 2 trụ đèn + bậc giữa, là "nhà lớn" riêng (`S.GATE`, build_nha `cong_bi_canh`, cỡ 12×10 ô); xoáy pixelfx vẽ trong lòng cổng (`ring`); chỗ bấm E trên bệ trước cổng. Thử thật: W leo bậc, hiện E "Vào bí cảnh", E mở bảng chuẩn bị. Test 209/209. Ảnh `docs/playtest/M8_cong_bi_canh_concept.jpg`
-- [ ] M8-07..11 kiểm từng khu, M8-12 HUD, M8-14 cảm ứng, M8-16 save/regression, M8-17..18 playtest: sau khi xong M8-15
+- [x] M8-06..11 + cổng/Luyện Võ: kiểm từng khu bằng input thật trong trình duyệt (16/11), sau khi đổi nhà lớn tách từ concept:
+  - Đan Dược: E mở bảng 2 lựa chọn; bấm đúp "Dùng" chỉ trừ 1 viên (3->2, +182 linh khí); bấm đúp "Mua" chỉ mua 1 (-25); thiếu linh thạch báo "Không đủ linh thạch — cần 25, đang có 10" và không trừ.
+  - Luyện Khí: bảng mở đúng dữ liệu; luyện, mặc, tháo đúng; thiếu luyện liệu nút mờ + báo cần bao nhiêu; reload giữ trang bị và vật phẩm. LỖI ĐÃ SỬA: bấm đúp "Luyện" -> lần bấm thứ 2 rơi vào nút "Nâng cấp" vừa hiện cùng chỗ (luyện + nâng cấp ngoài ý muốn) -> khóa 350 ms giữa hai thao tác (main.js openForge).
+  - Truyền Thừa: hiện vé, tỉ lệ, bảo hiểm; bấm đúp quay chỉ trừ 1 vé; hết vé nút mờ và Space không quay; reload giữ bảo hiểm. Trùng -> mảnh và bảo hiểm 30 lượt: test m4 (qua).
+  - Công Đức: 4/9 thành tựu khớp save sau reload; mở bảng không cộng thưởng lại (vé giữ 9).
+  - Tàng Kinh: Đồ Giám 9/12, công pháp khóa hiện "???" kèm điều kiện mở; đóng/mở nhiều lần, phím vẫn tới game.
+  - Bia: 5/7 đoạn hiện, 2 đoạn chưa đủ điều kiện để "— chưa khắc —"; đã đọc lưu trong save.
+  - Luyện Võ: E "Gọi sói luyện đòn", đủ sói thì báo; cả 4 sói ở trong rào. Cổng bí cảnh: E mở bảng chuẩn bị.
+- [ ] M8-12 HUD, M8-14 cảm ứng, M8-16 save/regression, M8-17..18 playtest
 
 ---
 

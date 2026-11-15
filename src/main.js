@@ -322,9 +322,13 @@ function transact(fn) {
   meta = draft;
   return out;
 }
+let lastForgeAt = 0;
 function openForge(note = '') {
   if (view !== 'HUB' || trib) return;
   UI.showForge(meta, (a, id) => {
+    const now = performance.now();
+    if (now - lastForgeAt < 350) return;   // M8-07: bấm đúp không rơi sang nút mới hiện ở cùng chỗ (luyện xong -> nâng cấp)
+    lastForgeAt = now;
     const fn = { craft: m => craftItem(m, id), upgrade: m => upgradeItem(m, id), equip: m => equip(m, id), unequip: m => unequip(m, id) }[a];
     const r = transact(fn);
     metaAct(a, !(r && r.ok === false));
