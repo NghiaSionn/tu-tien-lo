@@ -292,12 +292,19 @@ function paintCliffVN(g, map, tx, ty, x, y) {
   else if (map.tileAt(tx + 1, ty) === CLOUD) id = 23;                            // cạnh phải
   else id = h < 0.12 ? 21 + (v & 1) : v;                                         // mặt vách
   vnTile(g, id, x, y);
+  // (16/11) mép vách giáp mây: phủ mây theo đường gợn sóng liên tục qua các ô (không lộ cạnh ô vuông)
+  const cl = (dx, dy) => map.tileAt(tx + dx, ty + dy) === CLOUD;
+  for (const [side, dx] of [[-1, -1], [1, 1]]) if (cl(dx, 0)) for (let r = 0; r < T; r++) {
+    const gy = ty * T + r, w = Math.max(1, Math.round(3.5 + 2.5 * Math.sin(gy / 7 + tx * 1.3) + 1.5 * Math.sin(gy / 3.1 + tx)));
+    g.fillStyle = '#c3c6e4'; g.fillRect(side < 0 ? x : x + T - w, y + r, w, 1);
+    g.fillStyle = 'rgba(150,150,196,.7)'; g.fillRect(side < 0 ? x + w : x + T - w - 1, y + r, 1, 1);
+  }
 }
 function paintWaterVN(g, map, tx, ty, x, y, phase) {
   const land = (dx, dy) => isWalkT(map.tileAt(tx + dx, ty + dy)), v = Math.floor(hash(tx, ty, 83) * 2);
   let id;
   if (land(0, -1)) id = 32 + v; else if (land(0, 1)) id = 34 + v; else if (land(-1, 0)) id = 36; else if (land(1, 0)) id = 37;
-  else id = hash(tx, ty, 84) < 0.05 ? 38 + v : 24 + ((Math.floor(hash(tx, ty, 85) * 8) + phase) & 7);
+  else id = hash(tx, ty, 84) < 0.05 ? 38 + v : 24 + Math.floor(hash(tx, ty, 85) * 8);   // (16/11) tĩnh; gợn sóng chạy mượt vẽ mỗi khung (drawWaterFx)
   vnTile(g, id, x, y);
 }
 function paintCliff(g, map, tx, ty, x, y) {   // mặt vách dọc: nhìn 3/4 thấy mặt đá dưới mép đảo; càng xuống càng tối
@@ -1000,13 +1007,29 @@ export function render(ctx, g) {
       const t = b.them, img = t && vis.tm[t.kind];
       if (img && t.x < camX + W && t.x + t.w > camX && t.y < camY + H && t.y + t.h > camY) ctx.drawImage(img, t.x, t.y);
     }
+    if (g.sect && VN) {   // (16/11) gợn nước chạy mượt: mỗi ô 2 vệt sáng trôi ngang theo thời gian, sáng tắt dần
+      const tx0 = Math.floor(camX / T), ty0 = Math.floor(camY / T);
+      for (let ty = ty0; ty <= ty0 + Math.ceil(H / T); ty++) for (let tx = tx0; tx <= tx0 + Math.ceil(W / T); tx++) {
+        if (map.tileAt(tx, ty) !== WATER) continue;
+        for (let i = 0; i < 2; i++) {
+          const h1 = hash(tx, ty, 120 + i), h2 = hash(tx, ty, 130 + i), a = 0.5 + 0.5 * Math.sin(time * 1.6 + h1 * 6.28);
+          const px = tx * T + ((h1 * 16 + time * 5) % 18) - 1, py = ty * T + 3 + Math.floor(h2 * 10), len = 3 + Math.floor(h2 * 3);
+          ctx.globalAlpha = 0.25 + 0.45 * a; ctx.fillStyle = '#dff8ff'; ctx.fillRect(Math.round(px), py, len, 1);
+          if (a > 0.7) { ctx.fillStyle = '#ffffff'; ctx.fillRect(Math.round(px) + 1, py, 1, 1); }
+        }
+      }
+      ctx.globalAlpha = 1;
+    }
     if (g.sect) {   // thác nước chảy (ô FALL): dải nước dọc chạy xuống + bọt ở chân thác
       const tx0 = Math.floor(camX / T), ty0 = Math.floor(camY / T);
       for (let ty = ty0; ty <= ty0 + Math.ceil(H / T); ty++) for (let tx = tx0; tx <= tx0 + Math.ceil(W / T); tx++) {
         if (map.tileAt(tx, ty) !== FALL) continue;
         const x = tx * T, y = ty * T, off = Math.floor(time * 40) % 8;
         if (VN) { const top = map.tileAt(tx, ty - 1) !== FALL, bot = map.tileAt(tx, ty + 1) !== FALL;   // thác bằng tileset: đỉnh / thân 4 khung / chân bọt
-          vnTile(ctx, top ? 40 : bot ? 45 + (Math.floor(time * 6) & 1) : 41 + ((Math.floor(time * 10) + ty) & 3), x, y); continue; }
+          if (top || bot) { vnTile(ctx, top ? 40 : 45 + (Math.floor(time * 4 + tx) & 1), x, y); continue; }
+          const id = 41 + (tx & 3), sx = (id & 7) * T, sy = (id >> 3) * T, o = Math.floor((time * 30 + hash(tx, 0, 77) * 16) % T);   // thân thác cuộn xuống liên tục 30 px/s (ô đã liền trên-dưới)
+          if (o > 0) ctx.drawImage(VN, sx, sy + T - o, T, o, x, y, T, o);
+          ctx.drawImage(VN, sx, sy, T, T - o, x, y + o, T, T - o); continue; }
         ctx.fillStyle = '#5fb4e6'; ctx.fillRect(x, y, T, T);
         for (let i = 0; i < 4; i++) { const sx = x + i * 4 + Math.floor(hash(tx, i, 66) * 2); ctx.fillStyle = (i & 1) ? '#9bd8f5' : '#cdeffc';
           for (let k = -1; k < 3; k++) ctx.fillRect(sx, y + ((off + k * 8 + i * 3) & 15) - 2, 2, 5); }
