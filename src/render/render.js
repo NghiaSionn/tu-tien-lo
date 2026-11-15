@@ -176,8 +176,8 @@ function baseShadow(img, stair) {
   g.globalCompositeOperation = 'destination-out';
   if (stair) {   // né cầu thang: xoá bằng khối làm mềm (mép chuyển dần, không cắt vuông)
     const m = document.createElement('canvas'); m.width = c.width; m.height = c.height; const mg = m.getContext('2d');
-    mg.fillStyle = '#000'; mg.fillRect(pad + stair[0] + 2, pad + stair[1] - 2, stair[2] - stair[0] - 4, c.height);
-    g.filter = 'blur(5px)'; g.drawImage(m, 0, 0); g.drawImage(m, 0, 0); g.filter = 'none';
+    mg.fillStyle = '#000'; mg.fillRect(pad + stair[0] - 14, pad + stair[1] - 4, stair[2] - stair[0] + 28, c.height);   // gồm cả lan can hai bên bậc (bóng lan can tạo vệt dọc)
+    g.filter = 'blur(6px)'; g.drawImage(m, 0, 0); g.drawImage(m, 0, 0); g.drawImage(m, 0, 0); g.filter = 'none';
   }
   _baseShadow.set(img, c); return c;
 }
