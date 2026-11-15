@@ -88,7 +88,10 @@ def build():
     poly(d, ISLAND, ord('.'))
     poly(d, FOREST, ord('T'))
     for (cx, cy), rx, ry in DIRT: d.ellipse([cx - rx, cy - ry, cx + rx, cy + ry], fill=ord('d'))
+    g0 = np.array(L); land = g0 != ord('X')
     for b in BUILDINGS.values(): d.rectangle(b['box'], fill=ord('B'))   # chỗ chừa nhà (cỏ) — đường vẽ đè lên để tới chân bậc
+    g0 = np.array(L); g0[(g0 == ord('B')) & ~land] = ord('X'); L = Image.fromarray(g0); d = ImageDraw.Draw(L)   # chỉ trong đảo (không lấn ra mây)
+    d.rectangle((8, 12, 19, 17), fill=ord('T'))   # (16/11) khe kín giữa tháp, Tàng Kinh và vách tây -> rừng (concept: cây sau tháp)
     for w in WATER: poly(d, w, ord('~'))
     isl = Image.new('L', (NX, NY), 0); poly(ImageDraw.Draw(isl), ISLAND, 255)
     g0 = np.array(L); g0[trace_paths(np.array(isl) > 0) & (g0 != ord('~'))] = ord('='); L = Image.fromarray(g0); d = ImageDraw.Draw(L)

@@ -39,6 +39,10 @@ NHA = {
     'cong_duc': dict(src='docs/concept/nha_cong_duc_concept_chatgpt.png', scale=3.0, behind=[(0, 40, 512, 232)], seed=(270, 216), stair=(236, 232, 318, 301), interact=(270, 216),
                      block=[(168, 175, 233, 206), (240, 172, 300, 204), (304, 172, 369, 202)],   # ghế trái, bục sách, ghế phải
                      floor=[(95, 212), (140, 198), (395, 198), (435, 212), (410, 228), (330, 228), (318, 236), (236, 236), (225, 228), (120, 228)]),
+    # (16/11) tách đúng từ concept ảnh 1: tháp 4 tầng, tầng trệt mở có bàn thờ truyền thừa phát sáng, bậc dài bên phải
+    'truyen_thua': dict(src='docs/concept/nha_truyen_thua_concept_chatgpt.png', scale=3.0, floor_all=True, seed=(222, 312), stair=(212, 316, 282, 431), interact=(222, 312),
+                        block=[(174, 262, 256, 300)],   # bàn thờ
+                        floor=[(172, 300), (258, 294), (268, 312), (256, 324), (180, 324)]),
 }
 LUM_MIN, OPEN_R, FOOT, GROW, PAD, C = 85, 2, 8, 4, 8, 4
 OBJ_FOOT = 12
@@ -54,6 +58,7 @@ def build(id_, cfg):
     lum = 0.3 * a[..., 0] + 0.59 * a[..., 1] + 0.11 * a[..., 2]
     r_, g_, b_ = [a[..., i].astype(int) for i in range(3)]
     tile = alpha & (lum > LUM_MIN) & (g_ > 0.68 * r_) & (b_ > 0.35 * r_)   # đá sàn (kể cả ám vàng đèn); gỗ nâu đỏ có g, b thấp so với r
+    if cfg.get('floor_all'): tile = alpha.copy()   # sàn ám vàng rực (tầng tháp): cả đa giác là sàn, đồ đạc chỉ theo block
     # sàn = đa giác khoanh tay (cfg floor) trừ đồ đạc: điểm không phải đá sàn, bỏ nét mảnh (mạch vữa) bằng phép mở -> còn bàn, đỉnh, kệ
     poly = mask(W, H, [cfg['floor']])
     objs = morph(morph(poly & ~tile, OPEN_R, 'erode'), OPEN_R + 1, 'dilate')

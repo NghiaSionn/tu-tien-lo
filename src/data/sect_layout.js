@@ -29,7 +29,7 @@ export const SECT = {
   ROWS: BOCUC.rows,
   PATH_W: 4, PATHS: [],
   BUILDINGS: [
-    { id: 'truyen_thua', name: 'Truyền Thừa Các', foot: footOf('truyen_thua'), base: [4, 3], them: them('truyen_thua') },
+    { id: 'truyen_thua', name: 'Truyền Thừa Các', nha: 'truyen_thua', at: [35, 24.5] },   // (16/11) tháp tách từ concept
     { id: 'tang_kinh', name: 'Tàng Kinh Các', nha: 'tang_kinh', at: [30.8, 38] },   // (16/11) nhà lớn tách từ concept
     { id: 'cong_duc', name: 'Công Đức Đường', nha: 'cong_duc', at: [28, 55.5] },   // (16/11) nhà lớn tách từ concept
     { id: 'luyen_khi', name: 'Luyện Khí Phường', nha: 'luyen_khi', at: [84, 22] },   // (16/11) nhà lớn tách từ concept
