@@ -38,21 +38,26 @@ export const SECT = {
   // Luyện Võ Trường: sân đất (elip trong lưới) + rào chữ nhật bên trong, cổng rào phía bắc lệch trái (đầu đường đông nam)
   PEN: { id: 'luyen_vo', name: 'Luyện Võ Trường', ...BOCUC.pen },
   PORTAL: tf([60.5, 17.5]),
-  BIA: tf([60.5, 52.5]),
+  BIA: tf([60.5, 53.4]),   // bia lớn giữa vườn bia (concept: chân bia ~ (60.6, 53.9))
+  // (16/11) cây, đèn, bia đặt theo ĐÚNG vị trí đo trên ảnh concept (chân vật = đáy hình trong ảnh, đơn vị ô concept)
   PROPS: [
-    ['co_phuon', 55.5, 18, [1, 1]], ['co_phuon', 65.5, 18, [1, 1]],
-    ['den_da', 57.5, 22, [1, 1]], ['den_da', 63.5, 22, [1, 1]], ['den_da', 41.5, 30, [1, 1]], ['den_da', 37.5, 38.5, [1, 1]],
-    ['den_da', 46.5, 47, [1, 1]], ['den_da', 74.5, 44, [1, 1]], ['den_da', 79.5, 32, [1, 1]], ['den_da', 75.5, 24, [1, 1]],
-    ['den_da', 35.5, 52, [1, 1]], ['den_da', 44.5, 55, [1, 1]], ['den_da', 55.5, 47, [1, 1]], ['den_da', 66.5, 47, [1, 1]],
-    ['bia_nho', 54.5, 53.5, [2, 1]], ['bia_nho', 66, 54, [2, 1]],
+    // đèn đá
+    ['den_da', 50.6, 44.9, [1, 1]], ['den_da', 40.8, 52.1, [1, 1]], ['den_da', 39.1, 56.9, [1, 1]], ['den_da', 36.8, 37.3, [1, 1]],
+    ['den_da', 38.5, 26, [1, 1]], ['den_da', 54.2, 20.2, [1, 1]], ['den_da', 66.2, 19.9, [1, 1]], ['den_da', 82.8, 26.7, [1, 1]],
+    ['den_da', 69, 44.1, [1, 1]], ['den_da', 82.3, 57, [1, 1]], ['den_da', 85.4, 39.1, [1, 1]], ['den_da', 24.1, 57.4, [1, 1]],
+    ['den_da', 48.5, 60.3, [1, 1]],
+    // bia nhỏ hai bên bia lớn, tảng đá
+    ['bia_nho', 52.4, 55.3, [2, 1]], ['bia_nho', 68, 56.1, [2, 1]], ['da_lon', 43, 44.7, [2, 1]],
     ['cau_da', 34.5, 60.4],
-    ['luyen_vo', 103.5, 47, [4, 2]], ['moc_nhan', 90.5, 49, [1, 1]], ['moc_nhan', 94.5, 49, [1, 1]], ['moc_nhan', 92.5, 52, [1, 1]],
-    ['gia_binh_khi', 98, 46, [2, 1]], ['co_phuon', 84.5, 45, [1, 1]], ['co_phuon', 106.5, 55, [1, 1]],
-    ['anh_dao_lon', 46, 16, [2, 1]], ['anh_dao_lon', 14, 34, [2, 1]], ['anh_dao_lon', 12, 50, [2, 1]], ['anh_dao_lon', 106, 24, [2, 1]],
-    ['anh_dao_lon', 74, 51, [2, 1]], ['anh_dao_lon', 47, 54, [2, 1]], ['anh_dao_lon', 69, 56, [2, 1]], ['anh_dao_nho', 38, 46, [1, 1]],
-    ['tung_cao', 14, 16, [1, 1]], ['tung_cao', 108, 16, [1, 1]], ['tung_bonsai', 52, 16, [2, 1]], ['tung_bonsai', 70, 18, [2, 1]],
-    ['cay_tron', 100, 58, [2, 1]], ['cay_tron', 22, 56, [2, 1]], ['bui_cay', 44, 40, [2, 1]], ['bui_cay', 76, 40, [2, 1]],
-    ['da_lon', 50, 23, [2, 1]], ['da_nho', 70, 41, [2, 1]], ['khom_hoa', 58, 56], ['khom_hoa', 63, 57], ['khom_hoa', 52, 42], ['khom_hoa', 70, 30],
-    ['sen', 41, 22.5], ['sen', 55, 60.5],
+    // cây: hoa đào, tùng, cây tròn
+    ['anh_dao_lon', 46, 58.8, [2, 1]], ['anh_dao_nho', 56.2, 51.6, [1, 1]], ['anh_dao_lon', 70.5, 55.2, [2, 1]], ['anh_dao_lon', 77.6, 48.2, [2, 1]],
+    ['anh_dao_lon', 41.5, 18.8, [2, 1]], ['anh_dao_lon', 108, 23.2, [2, 1]], ['anh_dao_lon', 11.5, 38, [2, 1]], ['anh_dao_lon', 11.5, 51.5, [2, 1]],
+    ['cay_tron', 41.2, 47.8, [2, 1]], ['tung_cao', 11, 21, [1, 1]], ['tung_cao', 108, 12, [1, 1]], ['tung_bonsai', 50.5, 18.5, [2, 1]],
+    ['tung_bonsai', 72, 17.5, [2, 1]], ['cay_tron', 100, 58, [2, 1]], ['cay_tron', 22, 56, [2, 1]], ['bui_cay', 76, 39, [2, 1]],
+    ['khom_hoa', 58, 56.5], ['khom_hoa', 63, 57], ['khom_hoa', 52, 42], ['khom_hoa', 70, 30],
+    // Luyện Võ Trường: chòi, giá binh khí, mộc nhân, cờ (theo concept)
+    ['luyen_vo', 103, 48, [4, 2]], ['gia_binh_khi', 94.6, 46.6, [2, 1]],
+    ['moc_nhan', 86.5, 50.8, [1, 1]], ['moc_nhan', 89.5, 49.5, [1, 1]], ['moc_nhan', 92.3, 51.7, [1, 1]],
+    ['co_phuon', 83.1, 47.8, [1, 1]], ['co_phuon', 106.5, 50.8, [1, 1]],
   ].map(([n, x, y, ...r]) => [n, ...tf([x, y + (PEN_PROPS.has(n) || (n === 'co_phuon' && x > 80) ? PEN_DY : 0)]), ...r]),
 };
