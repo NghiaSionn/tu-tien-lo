@@ -174,7 +174,11 @@ function baseShadow(img, stair) {
   g.filter = 'blur(3px)'; for (const [dx, dy] of [[0, 0], [-2, 0], [2, 0], [0, 2]]) g.drawImage(img, 0, y0, w, h - y0, pad + dx, pad + y0 + dy, w, h - y0); g.filter = 'none';   // nới ra 2 px rồi làm mềm
   g.globalCompositeOperation = 'source-in'; g.fillStyle = '#14182c'; g.fillRect(0, 0, c.width, c.height);
   g.globalCompositeOperation = 'destination-out';
-  if (stair) g.fillRect(pad + stair[0] - 2, pad + stair[1] - 6, stair[2] - stair[0] + 4, c.height);   // né cầu thang
+  if (stair) {   // né cầu thang: xoá bằng khối làm mềm (mép chuyển dần, không cắt vuông)
+    const m = document.createElement('canvas'); m.width = c.width; m.height = c.height; const mg = m.getContext('2d');
+    mg.fillStyle = '#000'; mg.fillRect(pad + stair[0] + 2, pad + stair[1] - 2, stair[2] - stair[0] - 4, c.height);
+    g.filter = 'blur(5px)'; g.drawImage(m, 0, 0); g.drawImage(m, 0, 0); g.filter = 'none';
+  }
   _baseShadow.set(img, c); return c;
 }
 function castShadow(img) {
