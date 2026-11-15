@@ -58,6 +58,12 @@ export const SECT = {
     ['cay_tron', 41.2, 47.8, [2, 1]], ['tung_cao', 13.5, 20.5, [1, 1]], ['tung_cao', 106, 12, [1, 1]], ['tung_bonsai', 50.5, 18.5, [2, 1]],
     ['tung_bonsai', 72, 17.5, [2, 1]], ['bui_cay', 76, 39, [2, 1]],
     ['khom_hoa', 58, 56.5], ['khom_hoa', 63, 57], ['khom_hoa', 52, 42], ['khom_hoa', 70, 30],
+    // (17/11) trang trí thêm bãi cỏ trống (soi ảnh toàn cảnh): tre cạnh rừng/vách, bụi cây, khóm hoa, đá nhỏ — cách vách >= 3 ô, không lấn đường/nhà
+    ['bui_cay', 12, 40, [2, 1]], ['tre', 12.5, 37.2, [1, 1]], ['anh_dao_nho', 12.5, 43, [1, 1]], ['da_nho', 26.5, 39.2],
+    ['tung_cao', 110, 27, [1, 1]], ['bui_cay', 110.5, 31.5, [2, 1]], ['khom_hoa', 109, 34.5], ['anh_dao_nho', 110.5, 41, [1, 1]], ['khom_hoa', 104, 40],
+    ['cay_tron', 104.5, 18.5, [2, 1]], ['bui_cay', 103.5, 22.5, [2, 1]],
+    ['tre', 45.5, 14.8, [1, 1]], ['bui_cay', 54.5, 13.5, [2, 1]], ['khom_hoa', 46, 17.5], ['tre', 76.5, 14.5, [1, 1]], ['khom_hoa', 66.5, 14.5],
+    ['bui_cay', 74.5, 57.3, [2, 1]], ['da_nho', 64, 57.6], ['da_nho', 100, 57],
     // (16/11) Chuồng Linh Thú (thay Luyện Võ Trường): chuồng mái ngói, máng ăn, máng nước, ụ rơm, ổ rơm, cột đèn (sprites/tm_chuong)
     // xếp theo mẫu bố cục ChatGPT (docs/concept/chuong_linh_thu_bo_cuc_chatgpt.png): chuồng giữa sau, ụ rơm trái chuồng, giếng nước phải,
     // ổ rơm phải trước, máng ăn trái trước, cột đèn giữa trước, cây hoa đào góc trái, cờ trên rào, khóm hoa rải

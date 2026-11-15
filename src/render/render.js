@@ -216,6 +216,29 @@ function behindNha(p, n, v) {
   for (const s of v.strips) { if (n.y + s.foot <= p.y) continue; if (alphaAt(s.img, p.x - n.x - s.x, p.y - 10 - n.y - s.y) > 100 && alphaAt(s.img, p.x - n.x - s.x, p.y - 20 - n.y - s.y) > 100) return true; }   // dò ngực, đầu (lan can thấp không tính)
   return false;
 }
+// (17/11) cánh hoa đào rơi lả tả quanh tán cây hoa đào: mỗi cây vài cánh, vòng đời lặp theo thời gian (không cấp phát, không trạng thái)
+const PETAL_C = ['#ffd3e6', '#ffb3d1', '#f58fbc', '#fff0f6'];
+function drawPetals(ctx, props, tm, camX, camY, time) {
+  for (const o of props) {
+    if (o.s !== 'anh_dao_lon' && o.s !== 'anh_dao_nho') continue;
+    const img = tm[o.s]; if (!img) continue;
+    const w = img.width, top = o.y - img.height;
+    if (o.x + w < camX - 20 || o.x - w > camX + W + 20 || top > camY + H || o.y + 40 < camY) continue;
+    const n = o.s === 'anh_dao_lon' ? 11 : 6;
+    for (let i = 0; i < n; i++) {
+      const h = hash(Math.round(o.x), Math.round(o.y), 300 + i), h2 = hash(Math.round(o.x), i, 310), life = 4 + h2 * 3;
+      const t = ((time / life) + h) % 1;   // 0..1 trong vòng đời
+      const x = o.x - w * 0.45 + h2 * w * 0.9 + t * 44 + Math.sin(time * 1.6 + h * 9) * 5;
+      const y = top + img.height * (0.2 + 0.3 * h) + t * (img.height * 0.6 + 26);
+      ctx.globalAlpha = Math.min(1, t * 6, (1 - t) * 3) * 0.95;
+      const flip = Math.sin(time * 4 + h * 20) > 0, px = Math.round(x), py = Math.round(y);   // cánh 3×2 / 2×2 lật theo gió, viền sẫm 1 px dưới để nổi trên nền hồng
+      ctx.fillStyle = '#b4527e'; ctx.fillRect(px, py + (flip ? 2 : 2), flip ? 3 : 2, 1);
+      ctx.fillStyle = PETAL_C[i & 3]; ctx.fillRect(px, py, flip ? 3 : 2, 2);
+      ctx.fillStyle = '#ffffff'; ctx.fillRect(px, py, 1, 1);
+    }
+  }
+  ctx.globalAlpha = 1;
+}
 function castShadow(img) {
   let c = _shadow.get(img); if (c) return c;
   const w = img.width, h = img.height, f = 0.26, pad = 4;   // bóng nằm ngay dưới vật: hình bóng ép dẹt, mép làm mềm
@@ -1338,6 +1361,7 @@ export function render(ctx, g) {
     else drawPlayer(ctx, p, time, g.medFx, g.inForm, vis, !!(g.sect && p.med && g.inForm && vis.tm && vis.tm.tran));
   }
 
+  if (scene.kind === 'hub' && g.sect && vis.tm && vis.quality !== 'low') drawPetals(ctx, g.sect.props, vis.tm, camX, camY, time);   // (17/11) cánh hoa đào rơi
   mark('objects');
   if (g.run) drawSkillsOver(ctx, g.run, p, time, vis);
   if (scene.kind !== 'hub') drawTelegraphsTop(ctx, scene);
