@@ -195,37 +195,47 @@ function castShadow(img) {
   _shadow.set(img, c); return c;
 }
 // (17/11) sương mù/mây trôi động trên biển mây: dải sương mềm lớn trôi ngang chậm, dày dần ra xa mép đảo; vài làn mỏng trôi qua mép vách
-let _fogPuff = null;
-function fogPuff() {   // làn sương: elip dẹt, mép tan rất mềm (không lõi đặc)
-  if (_fogPuff || typeof document === 'undefined') return _fogPuff;
+let _fogPuff = null, _fogDeep = null, _fogC = null, _fogM = null;
+function puffSpr(core, mid, edge) {   // làn sương: elip dẹt, mép tan rất mềm (không lõi đặc)
   const c = document.createElement('canvas'); c.width = 128; c.height = 48; const g = c.getContext('2d');
   const gr = g.createRadialGradient(64, 64, 0, 64, 64, 62);
-  gr.addColorStop(0, 'rgba(244,246,255,.75)'); gr.addColorStop(0.35, 'rgba(236,238,252,.5)'); gr.addColorStop(0.7, 'rgba(228,231,250,.18)'); gr.addColorStop(1, 'rgba(228,231,250,0)');
-  g.setTransform(1, 0, 0, 0.375, 0, 0); g.fillStyle = gr; g.fillRect(0, 0, 128, 128); return (_fogPuff = c);
+  gr.addColorStop(0, core); gr.addColorStop(0.35, mid); gr.addColorStop(0.7, edge); gr.addColorStop(1, edge.replace(/[\d.]+\)$/, '0)'));
+  g.setTransform(1, 0, 0, 0.375, 0, 0); g.fillStyle = gr; g.fillRect(0, 0, 128, 128); return c;
 }
-// (17/11) sương mù biển mây: 2 lớp trôi (xa chậm, gần nhanh), toạ độ lẻ + làm mịn -> trôi đều không giật;
-// cắt theo ô mây (clip) thay vì bỏ cả làn khi tâm chạm đảo -> làn sương không bật/tắt đột ngột
+function fogPuff() {
+  if (_fogPuff || typeof document === 'undefined') return _fogPuff;
+  _fogDeep = puffSpr('rgba(150,152,205,.7)', 'rgba(160,162,212,.45)', 'rgba(170,172,218,.15)');   // bóng lõm giữa các đụn mây (tạo khối)
+  return (_fogPuff = puffSpr('rgba(250,251,255,.85)', 'rgba(240,242,253,.55)', 'rgba(230,233,250,.2)'));
+}
 // ô mây ngay trên mép đảo không có vách (rừng phía bắc): tán cây vẽ lấn lên đó -> không phủ sương
 const fogOk = d => d === CLOUD || d === CLIFF || d === FALL;
+// (17/11) sương mù biển mây: lớp bóng xám tím (khối) + 2 lớp trắng trôi (xa chậm, gần nhanh), toạ độ lẻ + làm mịn.
+// Vẽ vào canvas riêng rồi nhân với mặt nạ ô mây phóng mịn (1 px/ô -> nội suy) => mép sương tan mềm qua chân vách, không thành đường thẳng.
 function drawFogFx(ctx, map, camX, camY, time) {
   const img = fogPuff(); if (!img) return;
-  const tx0 = Math.floor(camX / T), ty0 = Math.floor(camY / T), tw = Math.ceil(W / T) + 1, th = Math.ceil(H / T) + 1;
-  ctx.save(); ctx.beginPath(); let any = false;
-  for (let ty = ty0; ty <= ty0 + th; ty++) for (let tx = tx0; tx <= tx0 + tw; tx++) if (map.tileAt(tx, ty) === CLOUD && fogOk(map.tileAt(tx, ty + 1))) { ctx.rect(tx * T, ty * T, T, T); any = true; }
-  if (!any) { ctx.restore(); return; }
-  ctx.clip(); ctx.imageSmoothingEnabled = true;
-  for (const [cw, ch, sp0, a0, sc0, seed] of [[96, 26, 3, 0.34, 1.5, 160], [72, 20, 7, 0.4, 1.0, 180]]) {
+  if (!_fogC) { _fogC = document.createElement('canvas'); _fogC.width = W; _fogC.height = H; _fogM = document.createElement('canvas'); }
+  const tx0 = Math.floor(camX / T) - 1, ty0 = Math.floor(camY / T) - 1, tw = Math.ceil(W / T) + 3, th = Math.ceil(H / T) + 3;
+  if (_fogM.width !== tw || _fogM.height !== th) { _fogM.width = tw; _fogM.height = th; }
+  const mg = _fogM.getContext('2d'), md = mg.createImageData(tw, th); let any = false;
+  for (let y = 0; y < th; y++) for (let x = 0; x < tw; x++) if (map.tileAt(tx0 + x, ty0 + y) === CLOUD && fogOk(map.tileAt(tx0 + x, ty0 + y + 1))) { md.data[(y * tw + x) * 4 + 3] = 255; any = true; }
+  if (!any) return;
+  mg.putImageData(md, 0, 0);
+  const g = _fogC.getContext('2d'); g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'source-over'; g.clearRect(0, 0, W, H); g.imageSmoothingEnabled = true;
+  for (const [cw, ch, sp0, a0, sc0, seed, spr] of [[120, 34, 2, 0.32, 1.9, 140, _fogDeep], [96, 26, 3, 0.34, 1.5, 160, img], [72, 20, 7, 0.4, 1.0, 180, img]]) {
     const cols = Math.ceil(W / cw) + 3, rows = Math.ceil(H / ch) + 3;
     for (let j = -2; j < rows; j++) for (let i = -2; i < cols; i++) {
       const gy = Math.floor(camY / ch) + j, gi = Math.floor(camX / cw) + i, h = hash(gi, gy, seed), sc = sc0 * (0.8 + hash(gi, gy, seed + 2) * 0.5);
       const w = 128 * sc, hh = 48 * sc;
-      const x = gi * cw + ((time * sp0 * (0.7 + h * 0.6) + h * cw) % cw) + (gy & 1) * cw / 2 - w / 2;
-      const y = gy * ch + hash(gi, gy, seed + 1) * ch * 0.8 + Math.sin(time * 0.3 + h * 6.28) * 2.5 - hh / 2;
-      if (x > camX + W || x + w < camX || y > camY + H || y + hh < camY) continue;
-      ctx.globalAlpha = a0 * (0.75 + 0.25 * Math.sin(time * 0.25 + h * 6.28)); ctx.drawImage(img, x, y, w, hh);
+      const x = gi * cw + ((time * sp0 * (0.7 + h * 0.6) + h * cw) % cw) + (gy & 1) * cw / 2 - w / 2 - camX;
+      const y = gy * ch + hash(gi, gy, seed + 1) * ch * 0.8 + Math.sin(time * 0.3 + h * 6.28) * 2.5 - hh / 2 - camY;
+      if (x > W || x + w < 0 || y > H || y + hh < 0) continue;
+      g.globalAlpha = a0 * (0.75 + 0.25 * Math.sin(time * 0.25 + h * 6.28)); g.drawImage(spr, x, y, w, hh);
     }
   }
-  ctx.restore();
+  g.globalAlpha = 1; g.globalCompositeOperation = 'destination-in';
+  g.drawImage(_fogM, tx0 * T - camX, ty0 * T - camY, tw * T, th * T);   // nội suy song tuyến: mép mờ dần ~1 ô
+  g.globalCompositeOperation = 'source-over';
+  ctx.drawImage(_fogC, camX, camY);
 }
 function fenceSpr() {
   if (_fence || typeof document === 'undefined') return _fence;
