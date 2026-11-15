@@ -426,6 +426,7 @@ Thiết kế + backlog đầy đủ (ChatGPT, 13/11): **`docs/chatgpt_tong_mon_M
   - Tàng Kinh: Đồ Giám 9/12, công pháp khóa hiện "???" kèm điều kiện mở; đóng/mở nhiều lần, phím vẫn tới game.
   - Bia: 5/7 đoạn hiện, 2 đoạn chưa đủ điều kiện để "— chưa khắc —"; đã đọc lưu trong save.
   - Luyện Võ: E "Gọi sói luyện đòn", đủ sói thì báo; cả 4 sói ở trong rào. Cổng bí cảnh: E mở bảng chuẩn bị.
+- [x] (16/11) Luyện Võ Trường đổi thành CHUỒNG LINH THÚ (người phát triển yêu cầu; chỉ hình ảnh, tính năng nuôi thú để sau): đồ chuồng ChatGPT vẽ (`sprites/tm_chuong`: chuồng mái ngói, máng ăn, máng nước, ụ rơm, ổ rơm, cột đèn), nền cỏ trong rào, bỏ sói và "gọi sói luyện đòn" khỏi sảnh, E "Xem chuồng" báo sắp mở. Id khu giữ `luyen_vo`. Ảnh `docs/playtest/M8_chuong_linh_thu.jpg`
 - [ ] M8-12 HUD, M8-14 cảm ứng, M8-16 save/regression, M8-17..18 playtest
 
 ---

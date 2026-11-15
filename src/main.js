@@ -81,7 +81,7 @@ async function loadSheet(name) {
   return { img, meta, white: tint('#ffffff'), glow: tint('#c070ff'), wind: tint('#7ff0c8') };   // wind: tàn ảnh Phong Ảnh Bộ
 }
 for (const [key, name] of [['hero', 'nhan_vat'], ['mobs', 'quai'], ['bosses', 'boss'], ['rung', 'rung'], ['congTrinh', 'cong_trinh'], ['icons', 'bieu_tuong'], ['tienHoa', 'tien_hoa'], ['bia', 'bia'], ['phim', 'phim'],
-  ...(FEATURES.sectHub || /[?&]sect=1/.test(location.search) ? [['tmCt', 'tm_cong_trinh'], ['tmDv', 'tm_do_vat'], ['tmCd', 'tm_cay_da'], ['tmTran', 'tm_tran'], ['tmThem', 'tm_them']] : [])]) {
+  ...(FEATURES.sectHub || /[?&]sect=1/.test(location.search) ? [['tmCt', 'tm_cong_trinh'], ['tmDv', 'tm_do_vat'], ['tmCd', 'tm_cay_da'], ['tmTran', 'tm_tran'], ['tmThem', 'tm_them'], ['tmCh', 'tm_chuong']] : [])]) {
   try { vis[key] = await loadSheet(name); } catch (e) { console.warn('[sprite] dùng hình cũ:', name, e); }
 }
 // công trình động phủ (cổng, tụ linh trận, Linh Mạch) + VFX tiến hóa M7-12: cắt sát nội dung từng khung
@@ -100,7 +100,7 @@ if (vis.tienHoa) vis.thx = cropFrames(vis.tienHoa);   // han_an, khoi_bang, vong
 if (vis.congTrinh) vis.ct = cropFrames(vis.congTrinh);
 if (vis.bia) vis.ct = { ...(vis.ct || {}), ...cropFrames(vis.bia) };   // M7-14: bia, bia_sang
 // M8: công trình/đồ vật/cây tông môn (concept ảnh 1, tools/build_tong_mon.py)
-if (vis.tmCt || vis.tmDv || vis.tmCd) vis.tm = Object.assign({}, ...[vis.tmCt, vis.tmDv, vis.tmCd, vis.tmTran, vis.tmThem].filter(Boolean).map(cropFrames));
+if (vis.tmCt || vis.tmDv || vis.tmCd) vis.tm = Object.assign({}, ...[vis.tmCt, vis.tmDv, vis.tmCd, vis.tmTran, vis.tmThem, vis.tmCh].filter(Boolean).map(cropFrames));
 // tụ linh trận sáng: lấy từ CHÍNH hình trận nghỉ (chỉ các đường khắc xanh ngọc) -> sáng lên đúng chỗ, không lệch như ô "sáng" ChatGPT vẽ riêng
 if (vis.tm && vis.tm.tran) {
   const t = vis.tm.tran, tg = t.getContext('2d'), td = tg.getImageData(0, 0, t.width, t.height);
@@ -498,7 +498,7 @@ function updateHub(dt) {
     medFx.update(dt);
   } else meta.hp = Math.min(mh, meta.hp + mh * MEDITATION.IDLE_HEAL * dt);
 
-  if (SECT_MAP) penMonsters();   // M8-02: sói chỉ ở trong rào Luyện Võ Trường
+  if (SECT_MAP) { /* (16/11) sân luyện võ thành Chuồng Linh Thú: sảnh tông môn không còn sói */ }
   else if (hub.monsters.length < HUB.MAX_MONSTERS) spawnHubMonster(hub, p, Math.random);
   updateMonsters(hub, p, dt, ev, { safe: SAFE, onAttack: m => hurtHubPlayer(m.dmg) });
 
@@ -812,7 +812,7 @@ function sectStatus(id) {
     case 'cong_duc': return { s: `Thành tựu ${meta.achievements.length}/${ACHIEVEMENTS.length}`, hot: false };
     case 'luyen_khi': return { s: `Luyện liệu: ${meta.craftMats}`, hot: meta.craftMats > 0 };
     case 'tang_kinh': return { s: 'Công pháp · tiến hóa', hot: false };
-    case 'luyen_vo': return { s: 'Sói luyện đòn', hot: false };
+    case 'luyen_vo': return { s: 'Sắp mở — nuôi linh thú đồng hành', hot: false };
     default: return null;
   }
 }
@@ -827,7 +827,7 @@ function pullPenWolves() {   // Luyện Võ Trường: gọi đủ sói vào sâ
 }
 const SECT_POINTS = !SECT_MAP ? [] : [
   ...SECT_MAP.buildings.filter(b => SECT_ACTIONS[b.id]).map(b => ({ id: b.id, name: b.name, x: b.doorPx.x, y: b.doorPx.y, r: 30, actions: SECT_ACTIONS[b.id] })),
-  { id: 'luyen_vo', name: 'Luyện Võ Trường', x: SECT_MAP.pen.doorPx.x, y: SECT_MAP.pen.doorPx.y, r: 30, actions: [{ id: 'wolves', label: 'Gọi sói luyện đòn', run: () => pullPenWolves() }] },
+  { id: 'luyen_vo', name: 'Chuồng Linh Thú', x: SECT_MAP.pen.doorPx.x, y: SECT_MAP.pen.doorPx.y, r: 30, actions: [{ id: 'pets', label: 'Xem chuồng', run: () => UI.log('Chuồng Linh Thú chưa có linh thú. Tính năng nuôi linh thú đồng hành sẽ mở sau.') }] },   // (16/11) thay Luyện Võ Trường
   { id: 'portal', name: 'Cổng Bí Cảnh', x: PORTAL.x, y: PORTAL.y, r: HUB.PORTAL.r, when: () => FEATURES.run, actions: [{ id: 'run', label: 'Vào bí cảnh', run: () => openPrepare() }] },
   { id: 'bia', name: 'Bia Truyền Thừa', x: BIA.x, y: BIA.y, r: HUB.BIA.r, when: () => FEATURES.lore, actions: [{ id: 'lore', label: 'Đọc bia', run: () => openLore() }] },
   { id: 'phap_dai', name: 'Tụ Linh Pháp Đài', x: CX, y: CY, r: HUB.SECT_FORM.rx, when: () => inForm(),

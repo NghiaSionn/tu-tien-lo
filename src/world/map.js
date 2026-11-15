@@ -82,7 +82,7 @@ export function buildSectGrid(S = SECT) {
   for (let y = P.y; y < P.y + P.h; y++) for (let x = P.x; x < P.x + P.w; x++) {
     const edge = x === P.x || y === P.y || x === P.x + P.w - 1 || y === P.y + P.h - 1;
     const gate = y === P.y && x >= P.gate[0] && x <= P.gate[1];
-    set(x, y, edge && !gate ? FENCE : DIRT);
+    set(x, y, edge && !gate ? FENCE : GRASS);   // (16/11) chuồng linh thú: nền cỏ trong rào
   }
   for (const b of S.BUILDINGS) { if (b.nha) continue; const r = solidRect(b.foot, b.base); for (let y = r.y0; y < r.y1; y++) for (let x = r.x0; x < r.x1; x++) set(x, y, BUILDING); }
   for (const [, x, y, sd] of S.PROPS) if (sd) block(solidRect([x, y], sd));

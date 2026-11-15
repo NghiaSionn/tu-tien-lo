@@ -36,7 +36,7 @@ export const SECT = {
     { id: 'dan_duoc', name: 'Đan Dược Phòng', nha: 'dan_duoc', at: [93.2, 38] },   // (16/11) nhà lớn tách từ concept, đi vào được; at = chân bậc (ô)
   ],
   // Luyện Võ Trường: sân đất (elip trong lưới) + rào chữ nhật bên trong, cổng rào phía bắc lệch trái (đầu đường đông nam)
-  PEN: { id: 'luyen_vo', name: 'Luyện Võ Trường', ...BOCUC.pen },
+  PEN: { id: 'luyen_vo', name: 'Chuồng Linh Thú', ...BOCUC.pen },   // (16/11) sân luyện võ đổi thành chuồng linh thú (id giữ luyen_vo cho save/test)
   GATE: { nha: 'cong_bi_canh', at: [60.5, 21] },   // (16/11) cổng bí cảnh tách từ concept: chân bậc (ô); PORTAL = chỗ đứng bấm E trên bệ
   PORTAL: null,
   BIA: tf([60.5, 53.4]),   // bia lớn giữa vườn bia (concept: chân bia ~ (60.6, 53.9))
@@ -56,9 +56,8 @@ export const SECT = {
     ['cay_tron', 41.2, 47.8, [2, 1]], ['tung_cao', 11, 21, [1, 1]], ['tung_cao', 108, 12, [1, 1]], ['tung_bonsai', 50.5, 18.5, [2, 1]],
     ['tung_bonsai', 72, 17.5, [2, 1]], ['cay_tron', 111, 56, [2, 1]], ['cay_tron', 13.5, 53, [2, 1]], ['bui_cay', 76, 39, [2, 1]],
     ['khom_hoa', 58, 56.5], ['khom_hoa', 63, 57], ['khom_hoa', 52, 42], ['khom_hoa', 70, 30],
-    // Luyện Võ Trường: chòi, giá binh khí, mộc nhân, cờ (theo concept)
-    ['luyen_vo', 103, 50.5, [4, 2]], ['gia_binh_khi', 94.6, 47.6, [2, 1]],   // chòi + giá trong sân (không đè rào bắc)
-    ['moc_nhan', 86.5, 50.8, [1, 1]], ['moc_nhan', 89.5, 49.5, [1, 1]], ['moc_nhan', 92.3, 51.7, [1, 1]],
-    ['co_phuon', 83.1, 47.8, [1, 1]], ['co_phuon', 106.5, 50.8, [1, 1]],
+    // (16/11) Chuồng Linh Thú (thay Luyện Võ Trường): chuồng mái ngói, máng ăn, máng nước, ụ rơm, ổ rơm, cột đèn (sprites/tm_chuong)
+    ['chuong_thu', 101.5, 52, [5, 2]], ['mang_an', 89, 50.5, [3, 1]], ['mang_nuoc', 93.5, 54.5, [3, 1]],
+    ['u_rom', 85.5, 55.5, [2, 1]], ['o_rom', 95.5, 49.5], ['cot_den', 84.5, 47.5, [1, 1]], ['cot_den', 106.5, 55.5, [1, 1]],
   ].map(([n, x, y, ...r]) => [n, ...tf([x, y + (PEN_PROPS.has(n) || (n === 'co_phuon' && x > 80) ? PEN_DY : 0)]), ...r]),
 };

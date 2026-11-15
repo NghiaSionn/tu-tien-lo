@@ -1,0 +1,41 @@
+{
+ "frameSize": [
+  116,
+  90
+ ],
+ "pivot": [
+  54,
+  89
+ ],
+ "image": "tm_chuong.png",
+ "frames": {
+  "chuong_thu": [
+   0,
+   0
+  ],
+  "mang_an": [
+   116,
+   0
+  ],
+  "mang_nuoc": [
+   232,
+   0
+  ],
+  "u_rom": [
+   348,
+   0
+  ],
+  "cot_den": [
+   464,
+   0
+  ],
+  "o_rom": [
+   580,
+   0
+  ]
+ },
+ "source": "docs/concept/chuong_linh_thu_chatgpt.png",
+ "tool": "tools/sprite_clean.py",
+ "scale": 5.5,
+ "colors": 64
+}
