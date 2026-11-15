@@ -368,7 +368,7 @@ function buildChunk(map, cx, cy, phase, props) {
     const t = map.tileAt(tx, ty), d = hash(tx, ty, 8), x = tx * T, y = ty * T;
     let img = null;
     if (t === GRASS && d < 0.05) img = props[pick(DECOR_KINDS, d / 0.05)];
-    else if (t === WATER && d < 0.05 && map.tileAt(tx, ty - 1) === WATER) img = props.sen;
+    else if (t === WATER && d < 0.05 && map.tileAt(tx, ty - 1) === WATER && !(map.sect && VN)) img = props.sen;   // sảnh: sen vẽ trên gợn nước (drawWaterFx)
     if (img) g.drawImage(img, x + 8 - img.ax, y + T - 1 - img.ay);
   }
   return c;
@@ -1026,19 +1026,31 @@ export function render(ctx, g) {
         if (map.tileAt(tx, ty) !== WATER) continue;
         const L = (dx, dy) => { const t = map.tileAt(tx + dx, ty + dy); return t !== WATER && t !== FALL; }, M = 7;
         const x0 = L(-1, 0) ? M : 0, x1 = L(1, 0) ? T - M : T, y0 = L(0, -1) ? M : 0, y1 = L(0, 1) ? T - M : T;
-        for (let i = 0; i < 3; i++) {
+        for (let i = 0; i < 2; i++) {
           const h1 = hash(tx, ty, 120 + i), h2 = hash(tx, ty, 130 + i), a = 0.5 + 0.5 * Math.sin(time * 1.6 + h1 * 6.28), len = 4 + Math.floor(h2 * 3);
           const py = y0 + 2 + Math.floor(h2 * Math.max(1, y1 - y0 - 4)), span = Math.max(1, x1 - x0 - len);
           let px = x0 + ((h1 * span + time * 5) % span);
           const cx = (dx, dy) => L(dx, dy) && (dx < 0 ? px < M : px + len > T - M) && (dy < 0 ? py < M : py > T - M);   // chừa góc chéo có đất
           if (cx(-1, -1) || cx(1, -1) || cx(-1, 1) || cx(1, 1)) continue;
           px = tx * T + Math.round(px);
-          ctx.globalAlpha = 0.45 + 0.5 * a; ctx.fillStyle = '#e9fbff'; ctx.fillRect(px, ty * T + py, len, 1);
-          ctx.fillStyle = 'rgba(40,110,160,.5)'; ctx.fillRect(px + 1, ty * T + py + 1, len - 1, 1);
-          if (a > 0.65) { ctx.fillStyle = '#ffffff'; ctx.fillRect(px + 1, ty * T + py, 2, 1); }
+          ctx.globalAlpha = 0.18 + 0.3 * a; ctx.fillStyle = '#e9fbff'; ctx.fillRect(px, ty * T + py, len, 1);
+          ctx.fillStyle = 'rgba(40,110,160,.3)'; ctx.fillRect(px + 1, ty * T + py + 1, len - 1, 1);
         }
       }
       ctx.globalAlpha = 1;
+      // vật nổi trên mặt nước (sen, chân cầu): vòng gợn lan ra quanh vật rồi vẽ vật đè lên trên
+      const ring = (cx, cy, rx, ry, seed) => { for (let k = 0; k < 2; k++) { const t = ((time * 0.45 + seed + k * 0.5) % 1);
+        ctx.globalAlpha = 0.75 * (1 - t); ctx.strokeStyle = '#f2fdff'; ctx.lineWidth = 1; ctx.beginPath(); ctx.ellipse(Math.round(cx) + 0.5, Math.round(cy) + 0.5, rx + t * 9, ry + t * 4, 0, 0, 6.283); ctx.stroke(); } ctx.globalAlpha = 1; };
+      for (let ty = ty0; ty <= ty0 + Math.ceil(H / T) + 1; ty++) for (let tx = tx0 - 1; tx <= tx0 + Math.ceil(W / T) + 1; tx++) {
+        if (map.tileAt(tx, ty) !== WATER || hash(tx, ty, 8) >= 0.05 || map.tileAt(tx, ty - 1) !== WATER || !vis.props || !vis.props.sen) continue;
+        const img = vis.props.sen, x = tx * T, y = ty * T, bob = Math.round(Math.sin(time * 1.3 + tx) * 0.6);
+        ring(x + 8, y + T - 3, 11, 4, hash(tx, ty, 140));
+        ctx.drawImage(img, x + 8 - img.ax, y + T - 1 - img.ay + bob);
+      }
+      for (const o of g.sect.props) if (o.s === 'cau_da' && vis.tm && vis.tm.cau_da) {
+        const img = vis.tm.cau_da; if (o.x < camX - 40 || o.x > camX + W + 40 || o.y < camY - 20 || o.y > camY + H + 40) continue;
+        ring(o.x - img.width * 0.3, o.y - 3, 5, 2, 0.2); ring(o.x + img.width * 0.3, o.y - 3, 5, 2, 0.7);
+      }
     }
     if (g.sect) {   // thác nước chảy (ô FALL): dải nước dọc chạy xuống + bọt ở chân thác
       const tx0 = Math.floor(camX / T), ty0 = Math.floor(camY / T);
