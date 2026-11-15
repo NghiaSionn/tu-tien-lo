@@ -34,7 +34,7 @@ WATER = [   # khoanh theo ảnh concept (16/11)
      (60, 63.5), (50, 63), (42, 62), (30, 61)],                               # suối nam: dưới cầu đá -> men mép nam -> thác phải
 ]
 # Luyện Võ Trường: rào chữ nhật, cổng rào cạnh bắc lệch trái (đầu đường đông nam) + sân đất elip
-PEN = dict(x=82, y=44, w=26, h=13, gate=[83, 86], door=[84.5, 43.2])
+PEN = dict(x=82, y=41, w=26, h=16, gate=[83, 86], door=[84.5, 40.2])   # (16/11) Chuồng Linh Thú: nới lên 3 ô để chuồng nằm trọn trong rào
 DIRT = []   # (16/11) sân đất chỉ trong rào Luyện Võ (map.js lát DIRT trong PEN) — bỏ elip tràn ra ngoài rào
 PLAZA = dict(c=C, rx=14, ry=9)
 GATE = dict(x=(57, 64), y=(11, 19))
@@ -44,7 +44,6 @@ BUILDINGS = {
     'cong_duc': dict(box=(14, 40, 40, 52), foot=(32, 53), name='Công Đức Đường'),
     'luyen_khi': dict(box=(78, 4, 110, 21), foot=(80, 22), name='Luyện Khí Phường'),
     'dan_duoc': dict(box=(86, 21, 114, 37), foot=(88, 38), name='Đan Dược Phòng'),
-    'luyen_vo_choi': dict(box=(98, 39, 108, 46), foot=(98, 46), name='chòi Luyện Võ'),
 }
 BIA = dict(box=(52, 46, 66, 55))
 BRIDGE = dict(box=(33, 54, 38, 60))

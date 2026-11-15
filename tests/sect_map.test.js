@@ -42,7 +42,7 @@ test('hồi sinh đứng được; tới được cửa mọi công trình, cổ
   for (const b of S.buildings) { assert.ok(reachable(b.doorPx), b.id); assert.ok(m.canStand(b.doorPx.x, b.doorPx.y), b.id + ' đứng được ở cửa'); }
   for (const [name, p] of [['cổng rào', S.pen.doorPx], ['cổng bí cảnh', S.portal], ['bia', S.bia]]) { assert.ok(reachable(p), name); assert.ok(m.canStand(p.x, p.y), name); }
   // vào được trong Chuồng Linh Thú qua cổng rào (giữa sân giờ là chuồng -> kiểm điểm cuối lối đá trước cửa chuồng và góc trái dưới)
-  for (const [tx, ty] of [[97.5, 52.6], [84.5, 55.5]]) assert.ok(reachable({ x: (S.ox + tx) * 16, y: (S.oy + ty) * 16 }), `trong chuồng (${tx},${ty})`);
+  for (const [tx, ty] of [[99, 54], [84.5, 55.5]]) assert.ok(reachable({ x: (S.ox + tx) * 16, y: (S.oy + ty) * 16 }), `trong chuồng (${tx},${ty})`);
 });
 
 test('không có chỗ đứng được nào bị kẹt trong khung tông môn; viền khung kín', () => {

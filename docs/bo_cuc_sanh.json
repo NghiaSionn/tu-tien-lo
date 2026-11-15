@@ -41,14 +41,14 @@
   "XXXXXX^^..BBBBBB============BB====B....====....PPPPPPPPPPPPPPPPPPPPPPPPPPP......====..BBB=====BBB=========BB===BBB^^XXXX",
   "XXXXXX^^^.BBBBBB===BB=============B..=====.....PPPPPPPPPPPPPPPPPPPPPPPPPPP....=====...BBBB=======BB==========BBBBB^^XXXX",
   "XXXXXX^^^....................===========.==.....PPPPPPPPPPPPPPPPPPPPPPPPP...======.......======.......=..........^^^XXXX",
-  "XXXXXXX^^.....................========.....==....PPPPPPPPPPPPPPPPPPPPPPP.=.=====.........======...BBBBBBBBBBB....^^^XXXX",
-  "XXXXXXX^^.....BBBBBBBBBBBBBBBBBBBB==BBBBB...===....PPPPPPPPPPPPPPPPPPP...======........======.....BBBBBBBBBBB....^^^XXXX",
-  "XXXXXXX^^.....BBBBBBBBBBBBBBBBBBBBBBBBBBB...====.....PPPPPPPPPPPPPPP....======.......=======......BBBBBBBBBBB....^^^XXXX",
-  "XXXXXXX^^.....BBBBBBBBBBBBBBBBBBBBBBBBBBB....====.......PPPPPPPPP.......====.===....==.==.........BBBBBBBBBBB.....^^^XXX",
-  "XXXXXXX^^^....BBBBBBBBBBBBBBBBBBBBBBBBBBB.....====.....==========....=.===.==.....................BBBBBBBBBBB.....^^^XXX",
-  "XXXXXXX^^^....BBBBBBBBBBBBBBBBBBBBBBBBBBB.....===.==.====================.........................BBBBBBBBBBB......^^XXX",
-  "XXXXXXXX^^....BBBBBBBBBBBBBBBBBBBBBBBBBBB.....============================........................BBBBBBBBBBB......^^^XX",
-  "XXXXXXXX^^....BBBBBBBBBBBBBBBBBBBBBBBBBBB....=======bbbbbbbbbbbbbbb======.........................BBBBBBBBBBB......^^^XX",
+  "XXXXXXX^^.....................========.....==....PPPPPPPPPPPPPPPPPPPPPPP.=.=====.........======..................^^^XXXX",
+  "XXXXXXX^^.....BBBBBBBBBBBBBBBBBBBB==BBBBB...===....PPPPPPPPPPPPPPPPPPP...======........======....................^^^XXXX",
+  "XXXXXXX^^.....BBBBBBBBBBBBBBBBBBBBBBBBBBB...====.....PPPPPPPPPPPPPPP....======.......=======.....................^^^XXXX",
+  "XXXXXXX^^.....BBBBBBBBBBBBBBBBBBBBBBBBBBB....====.......PPPPPPPPP.......====.===....==.==.........................^^^XXX",
+  "XXXXXXX^^^....BBBBBBBBBBBBBBBBBBBBBBBBBBB.....====.....==========....=.===.==.....................................^^^XXX",
+  "XXXXXXX^^^....BBBBBBBBBBBBBBBBBBBBBBBBBBB.....===.==.====================..........................................^^XXX",
+  "XXXXXXXX^^....BBBBBBBBBBBBBBBBBBBBBBBBBBB.....============================.........................................^^^XX",
+  "XXXXXXXX^^....BBBBBBBBBBBBBBBBBBBBBBBBBBB....=======bbbbbbbbbbbbbbb======..........................................^^^XX",
   "XXXXXXXX^^^...BBBBBBBBBBBBBBBBBBBBBBBBBBB....=======bbbbbbbbbbbbbbb..=====..........................................^^^X",
   "XXXXXXXX^^^...BBBBBBBBBBBBBBBBBBBBBBBBBBB....====...bbbbbbbbbbbbbbb....====.........................................^^^X",
   "XXXXXXXXX^^^..BBBBBBBBBBBBBBBBBBB===BB=BB...=====..=bbbbbbbbbbbbbbb.......=..........................................^^X",
@@ -136,19 +136,6 @@
     38
    ],
    "name": "Đan Dược Phòng"
-  },
-  "luyen_vo_choi": {
-   "box": [
-    98,
-    39,
-    108,
-    46
-   ],
-   "foot": [
-    98,
-    46
-   ],
-   "name": "chòi Luyện Võ"
   }
  },
  "plaza": {
