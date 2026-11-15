@@ -111,10 +111,10 @@ def build(id_, cfg):
     Image.fromarray(front).save(ROOT / f'sprites/nha_{id_}_front.png')
     # nhà lớn: chỉ sàn (loang từ hạt giống, nên góc kín tự thành đặc) + bậc đi được; mọi điểm ảnh khác của nhà đều đặc
     solid = alpha & ~walk   # walk đã gồm phần trên đồ đạc (chỉ chân đặc) và bỏ ngóc ngách kín
-    # (16/11) chỗ trong suốt phía SAU nhà (trên đỉnh bậc) cũng đặc: không lọt vào khe kín giữa mái, vách núi và nhà bên cạnh
-    behind = np.zeros_like(solid)
-    for bx0, by0, bx1, by1 in cfg.get('behind', [(0, 0, W, cfg['stair'][1])]): behind[by0:by1, bx0:bx1] = True   # mặc định: cả phần trên đỉnh bậc
-    solid |= behind & ~walk
+    # (17/11) phía SAU nhà đi xuyên được: chỉ phần chân (từ vách sau sàn trở xuống) là đặc; mái/vách trên phía sau không chặn,
+    # người đi ra sau nhà bị lớp che (front) đè lên. Vách sau dày BACK px ngay trên mép sàn để từ trong nhà không lọt ra sau
+    fy = np.where(walk.any(1))[0]; back = int(fy.min()) - 6 if fy.size else 0
+    solid[:max(0, back), :] = False
     sp = np.zeros((H + 2 * PAD, W + 2 * PAD), bool); sp[PAD:PAD + H, PAD:PAD + W] = solid
     HP, WP = sp.shape
     fine = [''.join('#' if sp[j * C:(j + 1) * C, i * C:(i + 1) * C].mean() >= 0.3 else '.' for i in range((WP + C - 1) // C)) for j in range((HP + C - 1) // C)]

@@ -167,13 +167,18 @@ function penRailSegs(posts, post) {
 const _shadow = new WeakMap();
 // (16/11) bóng nhà: chỉ phần chân (từ đỉnh cầu thang xuống) của hình nhà, làm mềm, xóa cột cầu thang -> viền tối quanh bệ đá
 const _baseShadow = new WeakMap();
-function baseShadow(img, stair) {
+function baseShadow(img, stair, stairs = null) {
   let c = _baseShadow.get(img); if (c) return c;
-  const pad = 6, w = img.width, h = img.height, y0 = stair ? Math.max(0, stair[1] - 12) : Math.round(h * 0.6);
+  const pad = 6, w = img.width, h = img.height, y0 = stair ? Math.max(0, stair[1] - 12) : stairs ? Math.round(h * 0.45) : Math.round(h * 0.6);
   c = document.createElement('canvas'); c.width = w + pad * 2; c.height = h + pad * 2; const g = c.getContext('2d');
   g.filter = 'blur(3px)'; for (const [dx, dy] of [[0, 0], [-2, 0], [2, 0], [0, 2]]) g.drawImage(img, 0, y0, w, h - y0, pad + dx, pad + y0 + dy, w, h - y0); g.filter = 'none';   // nới ra 2 px rồi làm mềm
   g.globalCompositeOperation = 'source-in'; g.fillStyle = '#14182c'; g.fillRect(0, 0, c.width, c.height);
   g.globalCompositeOperation = 'destination-out';
+  if (stairs) {   // nhiều lối bậc (bệ pháp đài): xoá mềm từng vùng
+    const m = document.createElement('canvas'); m.width = c.width; m.height = c.height; const mg = m.getContext('2d'); mg.fillStyle = '#000';
+    for (const [a1, b1, c1, d1] of stairs) mg.fillRect(pad + a1 - 8, pad + b1 - 4, c1 - a1 + 16, d1 - b1 + 16);
+    g.filter = 'blur(6px)'; g.drawImage(m, 0, 0); g.drawImage(m, 0, 0); g.filter = 'none';
+  }
   if (stair) {   // né cầu thang: xoá bằng khối làm mềm (mép chuyển dần, không cắt vuông)
     const m = document.createElement('canvas'); m.width = c.width; m.height = c.height; const mg = m.getContext('2d');
     mg.fillStyle = '#000'; mg.fillRect(pad + stair[0] - 14, pad + stair[1] - 4, stair[2] - stair[0] + 28, c.height);   // gồm cả lan can hai bên bậc (bóng lan can tạo vệt dọc)
@@ -188,6 +193,25 @@ function castShadow(img) {
   g.filter = 'blur(2px)'; g.drawImage(img, pad, pad, w, Math.max(2, Math.ceil(h * f))); g.filter = 'none';
   g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'source-in'; g.fillStyle = '#14182c'; g.fillRect(0, 0, c.width, c.height);
   _shadow.set(img, c); return c;
+}
+// (17/11) sương mù/mây trôi động trên biển mây: dải sương mềm lớn trôi ngang chậm, dày dần ra xa mép đảo; vài làn mỏng trôi qua mép vách
+let _fogPuff = null;
+function fogPuff() {
+  if (_fogPuff || typeof document === 'undefined') return _fogPuff;
+  const c = document.createElement('canvas'); c.width = 96; c.height = 48; const g = c.getContext('2d');
+  const gr = g.createRadialGradient(48, 24, 2, 48, 24, 46); gr.addColorStop(0, 'rgba(240,242,255,.9)'); gr.addColorStop(0.55, 'rgba(225,228,248,.45)'); gr.addColorStop(1, 'rgba(225,228,248,0)');
+  g.setTransform(1, 0, 0, 0.5, 0, 12); g.fillStyle = gr; g.fillRect(0, 0, 96, 96); return (_fogPuff = c);
+}
+function drawFogFx(ctx, map, camX, camY, time) {
+  const img = fogPuff(); if (!img) return;
+  const cols = Math.ceil(W / 64) + 3, rows = Math.ceil(H / 28) + 3;
+  for (let j = -1; j < rows; j++) for (let i = -1; i < cols; i++) {
+    const gy = Math.floor(camY / 28) + j, gi = i + Math.floor(camX / 64), h = hash(gi, gy, 160), sp = 6 + h * 8;
+    let x = gi * 64 + ((time * sp + h * 64) % 64) - 32, y = gy * 28 + hash(gi, gy, 161) * 14;
+    const t = map.tileAt(Math.floor((x + 48) / T), Math.floor((y + 24) / T)); if (t !== CLOUD) continue;
+    ctx.globalAlpha = 0.35 + 0.25 * Math.sin(time * 0.5 + h * 6); ctx.drawImage(img, Math.round(x), Math.round(y));
+  }
+  ctx.globalAlpha = 1;
 }
 function fenceSpr() {
   if (_fence || typeof document === 'undefined') return _fence;
@@ -356,13 +380,13 @@ function buildChunk(map, cx, cy, phase, props) {
     else if (map.sect && t === DIRT) paintDirtYard(g, map, tx, ty, x, y);
     else if (map.sect && VN && t === WATER) paintWaterVN(g, map, tx, ty, x, y);
     else if (map.sect && VN && (t === CLIFF || t === FALL)) paintCliffVN(g, map, tx, ty, x, y);
-    else if (map.sect && CODA && (t === STONE || t === GRASS || t === BUILDING)) paintCoDa(g, map, tx, ty, x, y);
+    else if (map.sect && CODA && (t === STONE || t === GRASS || t === BUILDING || t === FENCE || t === DIRT)) paintCoDa(g, map, tx, ty, x, y);
     else if (map.sect && t === STONE) paintPath(g, map, tx, ty, x, y);
     else if (map.sect && (t === CLIFF || t === FALL)) paintCliff(g, map, tx, ty, x, y);
     else if (map.sect && t === CLOUD) paintCloud(g, tx, ty, x, y);
     else g.drawImage(groundTile(t, tx, ty, map), x, y);
   }
-  if (map.sect) cloudPuffs(g, map, tx0, ty0);
+  // (17/11) bỏ bông mây vẽ sẵn: sương mù/mây trôi vẽ động mỗi khung (drawFogFx)
   // trang trí: cả các ô ngay dưới/bên khối (hình cao ~36 px, rộng ~42 px lấn vào khối này)
   if (props) for (let ty = ty0; ty < ty0 + CH + 3; ty++) for (let tx = tx0 - 3; tx < tx0 + CH + 3; tx++) {
     const t = map.tileAt(tx, ty), d = hash(tx, ty, 8), x = tx * T, y = ty * T;
@@ -1078,6 +1102,18 @@ export function render(ctx, g) {
         if (map.tileAt(tx, ty + 1) !== FALL) { ctx.fillStyle = 'rgba(255,255,255,.85)'; for (let i = 0; i < 4; i++) ctx.fillRect(x - 2 + Math.floor(hash(tx, Math.floor(time * 6) + i, 67) * 18), y + T - 4 + (i & 1) * 2, 4, 2); }
       }
     }
+    if (g.sect && vis.tm) {   // (17/11) đổ bóng VẼ TRƯỚC nền nhà/bệ (bóng nằm dưới, không phủ lên sàn): bóng hắt (bóng hình vật xô nghiêng lên phải, mờ) dưới công trình, cây, đồ vật
+      ctx.globalAlpha = 0.45;
+      const cast = (img, x, footY) => { const sh = castShadow(img); const top = footY - sh.height + 7; if (x - 4 < camX + W && x + sh.width > camX && top < camY + H && top + sh.height > camY) ctx.drawImage(sh, x - 4, top); };   // đáy bóng lấn 3 px dưới chân
+      for (const o of g.sect.props) { const img = !o.flat && vis.tm[o.s]; if (img && img.width > 20) cast(img, Math.round(o.x - img.width / 2), Math.round(o.y)); }
+      if (vis.plaza) {   // (17/11) bóng quanh bệ pháp đài, né 4 lối bậc
+        const P0 = vis.plaza; if (!P0.shadow) P0.shadow = baseShadow(P0.base, null, (P0.stairs || []).map(z => z.r));
+        const bx = Math.round(map.cx - P0.ax), by = Math.round(map.cy - P0.ay); ctx.globalAlpha = 0.6; ctx.drawImage(P0.shadow, bx - 6 + 3, by - 6 + 6); ctx.globalAlpha = 0.45;
+      }
+      if (vis.nha) for (const b of g.sect.nhaAll || []) { const n = b.nha, v = n && vis.nha[n.id]; if (!v) continue; const sh = baseShadow(v.base, n.stair);   // nhà: bóng quanh bệ đá, né cầu thang
+        if (n.x - 6 < camX + W && n.x + sh.width > camX && n.y < camY + H && n.y + sh.height > camY) { ctx.globalAlpha = 0.6; ctx.drawImage(sh, n.x - 6 + 3, n.y - 6 + 6); ctx.globalAlpha = 0.45; } }
+      ctx.globalAlpha = 1;
+    }
     if (g.sect && vis.nha) for (const b of g.sect.nhaAll) { const n = b.nha, v = n && vis.nha[n.id]; if (v) ctx.drawImage(v.base, n.x, n.y); }   // M8-15: nền nhà lớn
     if (g.sect && g.sect.gate && FEATURES.run && g.portal && vis.pfx) {   // xoáy bí cảnh trong lòng cổng (cổng là nhà lớn: nền đã vẽ, vòng cổng ở lớp che)
       const f = vis.pfx.portal, rg = g.sect.gate.ring; f.x = Math.round(rg.x); f.y = Math.round(rg.y + 30); f.scale = 0.95; f.draw(ctx); f.scale = 1;
@@ -1111,14 +1147,7 @@ export function render(ctx, g) {
       const x = Math.round(o.x - img.width / 2), y = Math.round(o.y - img.height);
       if (x < camX + W && x + img.width > camX && y < camY + H && o.y > camY) ctx.drawImage(img, x, y);
     }
-    if (g.sect && vis.tm) {   // (16/11) đổ bóng: bóng hắt (bóng hình vật xô nghiêng lên phải, mờ) dưới công trình, cây, đồ vật
-      ctx.globalAlpha = 0.45;
-      const cast = (img, x, footY) => { const sh = castShadow(img); const top = footY - sh.height + 7; if (x - 4 < camX + W && x + sh.width > camX && top < camY + H && top + sh.height > camY) ctx.drawImage(sh, x - 4, top); };   // đáy bóng lấn 3 px dưới chân
-      for (const o of g.sect.props) { const img = !o.flat && vis.tm[o.s]; if (img && img.width > 20) cast(img, Math.round(o.x - img.width / 2), Math.round(o.y)); }
-      if (vis.nha) for (const b of g.sect.nhaAll || []) { const n = b.nha, v = n && vis.nha[n.id]; if (!v) continue; const sh = baseShadow(v.base, n.stair);   // nhà: bóng quanh bệ đá, né cầu thang
-        if (n.x - 6 < camX + W && n.x + sh.width > camX && n.y < camY + H && n.y + sh.height > camY) { ctx.globalAlpha = 0.6; ctx.drawImage(sh, n.x - 6 + 3, n.y - 6 + 6); ctx.globalAlpha = 0.45; } }
-      ctx.globalAlpha = 1;
-    }
+    if (g.sect) drawFogFx(ctx, map, camX, camY, time);   // (17/11) sương mù trôi quanh đảo (biết đang ở trên cao)
     if (FEATURES.run && g.portal && !vis.pfx) drawPortal(ctx, g.portal.x, g.portal.y, time, g.portal.near);
     if (g.trib && g.trib.interactive) drawTribulation(ctx, g.trib, time, false);
   } else {

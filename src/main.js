@@ -138,7 +138,7 @@ if (vis.tm) try {
       key[o] = Math.round(best[4] * k);
     }
   }
-  vis.plaza = { base: B, strips: makeStrips(key, d, fw, fh), ax: PLAZA.anchor[0] * k, ay: PLAZA.anchor[1] * k };
+  vis.plaza = { base: B, strips: makeStrips(key, d, fw, fh), ax: PLAZA.anchor[0] * k, ay: PLAZA.anchor[1] * k, stairs: (PLAZA.stairs || []).map(z => ({ r: z.r.map(v => v * k) })) };
 } catch (e) { console.warn('[sprite] bệ pháp đài:', e); }
 // lớp che: gom điểm ảnh theo chân cột (key) thành dải, mỗi dải xếp theo chân của nó (bệ pháp đài + nhà lớn)
 function columnKeys(d, fw, fh) {

@@ -65,10 +65,8 @@ export const SECT = {
     ['u_rom', 90.6, 46.6, [3, 1]], ['anh_dao_nho', 104.4, 45.2, [1, 1]], ['mang_nuoc', 106.6, 49.2, [3, 1]],
     ['anh_dao_lon', 83.4, 55, [2, 1]], ['mang_an', 89.8, 56.4, [3, 1]], ['cot_den', 96, 56.9, [1, 1]], ['o_rom', 103.4, 56.2, [3, 1]],
     ['khom_hoa', 92.8, 54.6], ['khom_hoa', 100, 54.8], ['khom_hoa', 108.4, 53.4], ['khom_hoa', 81.4, 49.4], ['khom_hoa', 92.4, 44.6], ['khom_hoa', 101.6, 57.6],
-    // (16/11) phong cảnh núi quanh đảo (sprites/tm_nui, ChatGPT vẽ): đặt trong biển mây, vẽ dưới mọi vật (flat), không chặn đường
-    ['nui_xa', -1, -2, null, true], ['nui_xa', 92, -5, null, true], ['may_cuon', 30, -3, null, true], ['nui_cot', 120, 4, null, true],
-    ['nui_cot', -4, 21, null, true], ['dao_dinh', -2, 44, null, true], ['nui_cum', -2, 66, null, true], ['may_cuon', 4, 74, null, true],
-    ['dao_thac', 124, 28, null, true], ['nui_cum', 126, 50, null, true], ['may_cuon', 122, 63, null, true], ['nui_xa', 120, 76, null, true],
-    ['nui_cot', 22, 80, null, true], ['dao_thac', 56, 77, null, true], ['nui_xa', 82, 79, null, true], ['may_cuon', 104, 79, null, true],
+    // (17/11) ngọn núi đá vươn từ dưới lên quanh đảo (không đảo lơ lửng, không mây vẽ sẵn — sương mù là VFX động)
+    ['nui_cot', -3, 22, null, true], ['nui_cum', -1, 66, null, true], ['nui_cot', 121, 6, null, true], ['nui_cum', 125, 50, null, true],
+    ['nui_cot', 22, 82, null, true], ['nui_cum', 70, 84, null, true], ['nui_cot', 108, 82, null, true], ['nui_xa', 0, -2, null, true], ['nui_xa', 94, -4, null, true],
   ].map(([n, x, y, ...r]) => [n, ...tf([x, y + (PEN_PROPS.has(n) || (n === 'co_phuon' && x > 80) ? PEN_DY : 0)]), ...r]),
 };
