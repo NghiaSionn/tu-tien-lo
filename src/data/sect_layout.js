@@ -57,7 +57,8 @@ export const SECT = {
     ['tung_bonsai', 72, 17.5, [2, 1]], ['cay_tron', 111, 56, [2, 1]], ['cay_tron', 13.5, 53, [2, 1]], ['bui_cay', 76, 39, [2, 1]],
     ['khom_hoa', 58, 56.5], ['khom_hoa', 63, 57], ['khom_hoa', 52, 42], ['khom_hoa', 70, 30],
     // (16/11) Chuồng Linh Thú (thay Luyện Võ Trường): chuồng mái ngói, máng ăn, máng nước, ụ rơm, ổ rơm, cột đèn (sprites/tm_chuong)
-    ['chuong_thu', 101.5, 52, [5, 2]], ['mang_an', 89, 50.5, [3, 1]], ['mang_nuoc', 93.5, 54.5, [3, 1]],
-    ['u_rom', 85.5, 55.5, [2, 1]], ['o_rom', 95.5, 49.5], ['cot_den', 84.5, 47.5, [1, 1]], ['cot_den', 106.5, 55.5, [1, 1]],
+    ['chuong_thu', 100, 53.5, [12, 3]],   // chuồng to cỡ các nhà (15×12 ô)
+    ['mang_an', 88, 50, [5, 1]], ['mang_nuoc', 88, 54.6, [5, 1]],
+    ['o_rom', 95.5, 56.6, [4, 1]], ['u_rom', 103.8, 56.6, [4, 1]], ['cot_den', 83.5, 56.6, [1, 1]], ['cot_den', 92.5, 46.5, [1, 1]],
   ].map(([n, x, y, ...r]) => [n, ...tf([x, y + (PEN_PROPS.has(n) || (n === 'co_phuon' && x > 80) ? PEN_DY : 0)]), ...r]),
 };

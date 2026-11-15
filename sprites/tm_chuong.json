@@ -1,41 +1,39 @@
 {
  "frameSize": [
-  116,
-  90
+  237,
+  186
  ],
  "pivot": [
-  54,
-  89
+  118,
+  185
  ],
  "image": "tm_chuong.png",
+ "source": "docs/concept/chuong_linh_thu_chatgpt.png",
+ "tool": "sprite_clean, cỡ riêng từng vật",
  "frames": {
   "chuong_thu": [
    0,
    0
   ],
   "mang_an": [
-   116,
+   237,
    0
   ],
   "mang_nuoc": [
-   232,
+   474,
    0
   ],
   "u_rom": [
-   348,
+   711,
    0
   ],
   "cot_den": [
-   464,
+   948,
    0
   ],
   "o_rom": [
-   580,
+   1185,
    0
   ]
- },
- "source": "docs/concept/chuong_linh_thu_chatgpt.png",
- "tool": "tools/sprite_clean.py",
- "scale": 5.5,
- "colors": 64
+ }
 }
