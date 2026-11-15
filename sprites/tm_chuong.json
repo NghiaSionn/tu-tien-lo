@@ -1,11 +1,11 @@
 {
  "frameSize": [
-  237,
-  186
+  198,
+  157
  ],
  "pivot": [
-  118,
-  185
+  99,
+  156
  ],
  "image": "tm_chuong.png",
  "source": "docs/concept/chuong_linh_thu_chatgpt.png",
@@ -16,23 +16,23 @@
    0
   ],
   "mang_an": [
-   237,
+   198,
    0
   ],
   "mang_nuoc": [
-   474,
+   396,
    0
   ],
   "u_rom": [
-   711,
+   594,
    0
   ],
   "cot_den": [
-   948,
+   792,
    0
   ],
   "o_rom": [
-   1185,
+   990,
    0
   ]
  }

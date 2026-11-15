@@ -36,7 +36,7 @@ export const SECT = {
     { id: 'dan_duoc', name: 'Đan Dược Phòng', nha: 'dan_duoc', at: [93.2, 38] },   // (16/11) nhà lớn tách từ concept, đi vào được; at = chân bậc (ô)
   ],
   // Luyện Võ Trường: sân đất (elip trong lưới) + rào chữ nhật bên trong, cổng rào phía bắc lệch trái (đầu đường đông nam)
-  PEN: { id: 'luyen_vo', name: 'Chuồng Linh Thú', ...BOCUC.pen },   // (16/11) sân luyện võ đổi thành chuồng linh thú (id giữ luyen_vo cho save/test)
+  PEN: { id: 'luyen_vo', name: 'Chuồng Linh Thú', ...BOCUC.pen, path: [[84.8, 44.5], [85, 47.6], [88, 48.4], [94, 51.6], [97.5, 52.2]] },   // lối đá từ cổng tới cửa chuồng (ô)   // (16/11) sân luyện võ đổi thành chuồng linh thú (id giữ luyen_vo cho save/test)
   GATE: { nha: 'cong_bi_canh', at: [60.5, 21] },   // (16/11) cổng bí cảnh tách từ concept: chân bậc (ô); PORTAL = chỗ đứng bấm E trên bệ
   PORTAL: null,
   BIA: tf([60.5, 53.4]),   // bia lớn giữa vườn bia (concept: chân bia ~ (60.6, 53.9))
@@ -57,8 +57,11 @@ export const SECT = {
     ['tung_bonsai', 72, 17.5, [2, 1]], ['cay_tron', 111, 56, [2, 1]], ['cay_tron', 13.5, 53, [2, 1]], ['bui_cay', 76, 39, [2, 1]],
     ['khom_hoa', 58, 56.5], ['khom_hoa', 63, 57], ['khom_hoa', 52, 42], ['khom_hoa', 70, 30],
     // (16/11) Chuồng Linh Thú (thay Luyện Võ Trường): chuồng mái ngói, máng ăn, máng nước, ụ rơm, ổ rơm, cột đèn (sprites/tm_chuong)
-    ['chuong_thu', 100, 53.5, [12, 3]],   // chuồng to cỡ các nhà (15×12 ô)
-    ['mang_an', 88, 50, [5, 1]], ['mang_nuoc', 88, 54.6, [5, 1]],
-    ['o_rom', 95.5, 56.6, [4, 1]], ['u_rom', 103.8, 56.6, [4, 1]], ['cot_den', 83.5, 56.6, [1, 1]], ['cot_den', 92.5, 46.5, [1, 1]],
+    // xếp theo mẫu bố cục ChatGPT (docs/concept/chuong_linh_thu_bo_cuc_chatgpt.png): chuồng giữa sau, ụ rơm trái chuồng, giếng nước phải,
+    // ổ rơm phải trước, máng ăn trái trước, cột đèn giữa trước, cây hoa đào góc trái, cờ trên rào, khóm hoa rải
+    ['chuong_thu', 97.5, 51, [9, 2]], ['u_rom', 88.8, 50.2, [3, 1]], ['mang_nuoc', 104.2, 50, [3, 1]],
+    ['o_rom', 103.8, 55.2, [3, 1]], ['mang_an', 89.5, 55, [4, 1]], ['cot_den', 96.5, 55.3, [1, 1]],
+    ['anh_dao_nho', 85.2, 53.5, [1, 1]], ['co_phuon', 83.4, 50.5, [1, 1]], ['co_phuon', 106.8, 47.5, [1, 1]],
+    ['khom_hoa', 92.5, 53], ['khom_hoa', 100.5, 53.8], ['khom_hoa', 106, 52.5],
   ].map(([n, x, y, ...r]) => [n, ...tf([x, y + (PEN_PROPS.has(n) || (n === 'co_phuon' && x > 80) ? PEN_DY : 0)]), ...r]),
 };
