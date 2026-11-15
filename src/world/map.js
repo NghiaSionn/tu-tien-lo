@@ -116,6 +116,7 @@ export function makeSectMap(S = SECT) {
     if (noise(x / 8, y / 8, 1, SEED) < 0.3) return WATER;
     return hash(x, y, 2, SEED) < 0.35 ? TREE : GRASS;   // rừng dày ngoài tông môn
   });
+  if (S.ROWS) { const inner = m.tileAt; m.tileAt = (tx, ty) => (tx < 0 || ty < 0 || tx >= MW || ty >= MH) ? CLOUD : inner(tx, ty); }   // (16/11) ngoài mép bản đồ là mây (không vẽ cây rừng tràn vào mép dưới)
   const tileSolid = m.solidTile;
   const base = (tx, ty) => { const lx = tx - ox, ly = ty - oy; return tileSolid(tx, ty) || (lx >= 0 && ly >= 0 && lx < S.W && ly < S.H && solid[ly * S.W + lx] === 1); };
   // bệ pháp đài: lưới ô (thô, cho test/BFS) + lưới mịn PLAZA.cell px (di chuyển bám sát hình: lan can bắc chỉ chặn ở chân, vách nam chặn cả khối)

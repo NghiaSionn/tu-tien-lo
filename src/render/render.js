@@ -163,6 +163,16 @@ function penRailSegs(posts, post) {
   }
   return out;
 }
+// (16/11) bóng hắt: hình bóng của sprite (điểm ảnh đục) lật xuống mặt đất, ép dẹt 0,32, nghiêng sang phải theo độ cao
+const _shadow = new WeakMap();
+function castShadow(img) {
+  let c = _shadow.get(img); if (c) return c;
+  const w = img.width, h = img.height, k = 0.55, f = 0.32;   // nắng chiếu từ trên-trái -> bóng đổ xuống dưới-phải (thấy được, không bị tán che)
+  c = document.createElement('canvas'); c.width = Math.ceil(w + h * k); c.height = Math.max(1, Math.ceil(h * f)); const g = c.getContext('2d');
+  g.imageSmoothingEnabled = false; g.setTransform(1, 0, -k, -f, h * k, h * f); g.drawImage(img, 0, 0);
+  g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'source-in'; g.fillStyle = '#14182c'; g.fillRect(0, 0, c.width, c.height);
+  _shadow.set(img, c); return c;
+}
 function fenceSpr() {
   if (_fence || typeof document === 'undefined') return _fence;
   const c = document.createElement('canvas'); c.width = T; c.height = 20; const g = c.getContext('2d');
@@ -741,7 +751,7 @@ function drawPlayer(ctx, p, time, medFx, inForm, vis, float = false) {
   if (hero && p.hurtT > 0) p.hurtT -= vis.frameDt || 0;   // chỉ dùng để vẽ
   if (p.inv > 0 && Math.floor(time * 20) % 2) return;
   const x = Math.round(p.x - 6), sy0 = Math.round(p.y), fy = Math.round(p.y) + Math.round(p.bob || 0);   // bob: nhún khi đi trên bậc (M8)
-  ctx.fillStyle = 'rgba(0,0,0,.25)'; if (hero) ctx.fillRect(x - 3, sy0 - 2, 18, 3); else ctx.fillRect(x + 1, sy0 - 1, 10, 2);
+  ctx.fillStyle = 'rgba(10,14,30,.28)'; if (hero) { ctx.beginPath(); ctx.ellipse(x + 6, sy0, 8, 3, 0, 0, 6.283); ctx.fill(); } else ctx.fillRect(x + 1, sy0 - 1, 10, 2);   // (16/11) bóng tròn dưới chân
   if (p.med) {
     // M8: thiền giữa tụ linh trận sảnh tông môn -> bay lơ lửng (nâng lên dần, rồi lên xuống nhẹ); bóng giữ ở đất
     // nâng lên theo đường cong êm (smoothstep ~1,2 s), rồi lơ lửng theo sóng sin chậm (chu kỳ ~3,4 s, biên 2 px) tính trực tiếp từ đồng hồ
@@ -1020,6 +1030,13 @@ export function render(ctx, g) {
       const img = o.flat && vis.tm[o.s]; if (!img) continue;
       const x = Math.round(o.x - img.width / 2), y = Math.round(o.y - img.height);
       if (x < camX + W && x + img.width > camX && y < camY + H && o.y > camY) ctx.drawImage(img, x, y);
+    }
+    if (g.sect && vis.tm) {   // (16/11) đổ bóng: bóng hắt (bóng hình vật xô nghiêng lên phải, mờ) dưới công trình, cây, đồ vật
+      ctx.globalAlpha = 0.4;
+      const cast = (img, x, footY) => { const sh = castShadow(img); if (x < camX + W && x + sh.width > camX && footY - 3 < camY + H && footY + sh.height > camY) ctx.drawImage(sh, x, footY - 3); };
+      for (const o of g.sect.props) { const img = !o.flat && vis.tm[o.s]; if (img && img.width > 20) cast(img, Math.round(o.x - img.width / 2), Math.round(o.y)); }
+      if (vis.nha) for (const b of g.sect.nhaAll || []) { const n = b.nha, v = n && vis.nha[n.id]; if (v) cast(v.base, n.x, n.y + n.h); }
+      ctx.globalAlpha = 1;
     }
     if (FEATURES.run && g.portal && !vis.pfx) drawPortal(ctx, g.portal.x, g.portal.y, time, g.portal.near);
     if (g.trib && g.trib.interactive) drawTribulation(ctx, g.trib, time, false);

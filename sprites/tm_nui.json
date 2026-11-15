@@ -1,0 +1,39 @@
+{
+ "frameSize": [
+  218,
+  233
+ ],
+ "pivot": [
+  109,
+  232
+ ],
+ "image": "tm_nui.png",
+ "source": "docs/concept/nui_quanh_dao_chatgpt.png",
+ "tool": "sprite_clean x2.4",
+ "frames": {
+  "nui_cot": [
+   0,
+   0
+  ],
+  "nui_cum": [
+   218,
+   0
+  ],
+  "dao_thac": [
+   436,
+   0
+  ],
+  "nui_xa": [
+   654,
+   0
+  ],
+  "dao_dinh": [
+   872,
+   0
+  ],
+  "may_cuon": [
+   1090,
+   0
+  ]
+ }
+}
