@@ -47,16 +47,16 @@ export const SECT = {
     // đèn đá
     ['den_da', 50.6, 44.9, [1, 1]], ['den_da', 40.8, 52.1, [1, 1]], ['den_da', 39.1, 56.9, [1, 1]], ['den_da', 36.8, 37.3, [1, 1]],
     ['den_da', 38.5, 26, [1, 1]], ['den_da', 54.2, 20.2, [1, 1]], ['den_da', 66.2, 19.9, [1, 1]], ['den_da', 82.8, 26.7, [1, 1]],
-    ['den_da', 69, 44.1, [1, 1]], ['den_da', 82.3, 57, [1, 1]], ['den_da', 85.4, 39.1, [1, 1]], ['den_da', 24.1, 57.4, [1, 1]],
-    ['den_da', 48.5, 60.3, [1, 1]],
+    ['den_da', 69, 44.1, [1, 1]], ['den_da', 82.3, 57, [1, 1]], ['den_da', 85.4, 39.1, [1, 1]], ['den_da', 25, 56.2, [1, 1]],
+    ['den_da', 49, 58.5, [1, 1]],
     // bia nhỏ hai bên bia lớn, tảng đá
     ['bia_nho', 52.4, 55.3, [2, 1]], ['bia_nho', 68, 56.1, [2, 1]], ['da_lon', 43, 44.7, [2, 1]],
     ['cau_da', 34.5, 60.4],
-    // cây: hoa đào, tùng, cây tròn
-    ['anh_dao_lon', 46, 58.8, [2, 1]], ['anh_dao_nho', 56.2, 51.6, [1, 1]], ['anh_dao_lon', 70.5, 55.2, [2, 1]], ['anh_dao_lon', 77.6, 48.2, [2, 1]],
-    ['anh_dao_lon', 41.5, 18.8, [2, 1]], ['anh_dao_lon', 108, 23.2, [2, 1]], ['anh_dao_lon', 11.5, 38, [2, 1]], ['anh_dao_lon', 11.5, 51.5, [2, 1]],
-    ['cay_tron', 41.2, 47.8, [2, 1]], ['tung_cao', 11, 21, [1, 1]], ['tung_cao', 108, 12, [1, 1]], ['tung_bonsai', 50.5, 18.5, [2, 1]],
-    ['tung_bonsai', 72, 17.5, [2, 1]], ['cay_tron', 111, 56, [2, 1]], ['cay_tron', 13.5, 53, [2, 1]], ['bui_cay', 76, 39, [2, 1]],
+    // cây: hoa đào, tùng, cây tròn — (17/11) lùi khỏi mép vách >= 3 ô (tán không chìa ra vực)
+    ['anh_dao_lon', 45, 57.3, [2, 1]], ['anh_dao_nho', 56.2, 51.6, [1, 1]], ['anh_dao_lon', 70.5, 55.2, [2, 1]], ['anh_dao_lon', 77.6, 48.2, [2, 1]],
+    ['anh_dao_lon', 41.5, 18.8, [2, 1]], ['anh_dao_lon', 108, 23.2, [2, 1]], ['anh_dao_lon', 13.5, 38, [2, 1]],
+    ['cay_tron', 41.2, 47.8, [2, 1]], ['tung_cao', 13.5, 20.5, [1, 1]], ['tung_cao', 106, 12, [1, 1]], ['tung_bonsai', 50.5, 18.5, [2, 1]],
+    ['tung_bonsai', 72, 17.5, [2, 1]], ['bui_cay', 76, 39, [2, 1]],
     ['khom_hoa', 58, 56.5], ['khom_hoa', 63, 57], ['khom_hoa', 52, 42], ['khom_hoa', 70, 30],
     // (16/11) Chuồng Linh Thú (thay Luyện Võ Trường): chuồng mái ngói, máng ăn, máng nước, ụ rơm, ổ rơm, cột đèn (sprites/tm_chuong)
     // xếp theo mẫu bố cục ChatGPT (docs/concept/chuong_linh_thu_bo_cuc_chatgpt.png): chuồng giữa sau, ụ rơm trái chuồng, giếng nước phải,

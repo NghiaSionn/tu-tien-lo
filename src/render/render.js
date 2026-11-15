@@ -186,6 +186,36 @@ function baseShadow(img, stair, stairs = null) {
   }
   _baseShadow.set(img, c); return c;
 }
+const _alphaMap = new WeakMap();
+function alphaAt(img, x, y) {   // (17/11) độ đục 1 điểm ảnh của sprite (đã cache) — dò nhân vật có bị nhà che không
+  let a = _alphaMap.get(img);
+  if (!a) { const c = document.createElement('canvas'); c.width = img.width; c.height = img.height; const g = c.getContext('2d'); g.drawImage(img, 0, 0);
+    const d = g.getImageData(0, 0, c.width, c.height).data; a = new Uint8Array(c.width * c.height); for (let i = 0; i < a.length; i++) a[i] = d[i * 4 + 3]; _alphaMap.set(img, a); }
+  x = Math.floor(x); y = Math.floor(y); return x < 0 || y < 0 || x >= img.width || y >= img.height ? 0 : a[y * img.width + x];
+}
+// (17/11) cỏ/hoa trang trí ngay trước chân nhà/bệ: vẽ ở lớp vật thể (xếp theo chân) để đè lên nền nhà thay vì bị nền che
+function nhaRects(map, vis) {
+  const r = [];
+  if (vis.nha) for (const b of map.sect.nhaAll || []) { const n = b.nha, v = n && vis.nha[n.id]; if (v) r.push({ x: n.x, y: n.y, img: v.base }); }
+  if (vis.plaza) r.push({ x: Math.round(map.cx - vis.plaza.ax), y: Math.round(map.cy - vis.plaza.ay), img: vis.plaza.base });
+  return r;
+}
+function decorOverNha(map, props, tx, ty, img, rects) {   // 0: không chạm nhà; 1: chân trên nền nhà (bỏ); 2: chân trên đất, hình lấn lên nhà (vẽ ở lớp vật thể)
+  const x0 = tx * T + 8 - img.ax, y0 = ty * T + T - 1 - img.ay, fx = tx * T + 8, fy = ty * T + T - 1;
+  let hit = 0;
+  for (const r of rects) {
+    if (x0 >= r.x + r.img.width || x0 + img.width <= r.x || y0 >= r.y + r.img.height || y0 + img.height <= r.y) continue;
+    if (alphaAt(r.img, fx - r.x, fy - r.y) > 40) return 1;
+    hit = 2;
+  }
+  return hit;
+}
+// (17/11) người chơi đứng sau nhà: thân bị lớp che (strip có chân thấp hơn người) phủ -> cả nhà vẽ mờ như tán cây
+function behindNha(p, n, v) {
+  if (!(p.x > n.x && p.x < n.x + v.base.width && p.y > n.y && p.y < n.y + v.base.height)) return false;
+  for (const s of v.strips) { if (n.y + s.foot <= p.y) continue; if (alphaAt(s.img, p.x - n.x - s.x, p.y - 10 - n.y - s.y) > 100 && alphaAt(s.img, p.x - n.x - s.x, p.y - 20 - n.y - s.y) > 100) return true; }   // dò ngực, đầu (lan can thấp không tính)
+  return false;
+}
 function castShadow(img) {
   let c = _shadow.get(img); if (c) return c;
   const w = img.width, h = img.height, f = 0.26, pad = 4;   // bóng nằm ngay dưới vật: hình bóng ép dẹt, mép làm mềm
@@ -317,7 +347,15 @@ function paintCoDa(g, map, tx, ty, x, y) {
 // (cỏ rủ), 2 chân vách tan vào mây (0-3) / cạnh trái (4) / cạnh phải (7), 3 nước, 4 bờ suối (trên 0-1, dưới 2-3, trái 4, phải 5, sen 6-7),
 // 5 thác (đỉnh 0, thân 4 khung 1-4, chân bọt 5-6)
 let VN = null;
-export function setVachNuoc(img) { VN = img; }
+export function setVachNuoc(img) {   // (17/11) thân thác (ô 40–47) kéo màu về gần màu suối: thác là nước suối đổ xuống, không xanh nhạt lạc tông
+  VN = img;
+  if (typeof document === 'undefined' || !img || !img.width) return;
+  const c = document.createElement('canvas'); c.width = img.width; c.height = img.height; const g = c.getContext('2d'); g.drawImage(img, 0, 0);
+  const d = g.getImageData(0, 5 * T, 8 * T, T), a = d.data;
+  for (let i = 0; i < a.length; i += 4) { const l = (a[i] + a[i + 1] + a[i + 2]) / 765, k = 0.75 * (1 - Math.max(0, l - 0.72) / 0.28);   // giữ vệt sáng trắng
+    a[i] += (-48) * k; a[i + 1] += (-30) * k; a[i + 2] += (-28) * k; }
+  g.putImageData(d, 0, 5 * T); VN = c;
+}
 const vnTile = (g, id, x, y) => g.drawImage(VN, (id & 7) * T, (id >> 3) * T, T, T, x, y, T, T);
 // M8 (16/11): sân đất Luyện Võ — nền đất + viền: mép giáp rào/cỏ có dải đất sẫm và vệt cỏ lấn vào, góc bo tròn
 function paintDirtYard(g, map, tx, ty, x, y) {
@@ -330,6 +368,20 @@ function paintDirtYard(g, map, tx, ty, x, y) {
   for (let i = 0; i < 3; i++) { const h = hash(tx, ty, 91 + i), k = Math.floor(h * 14);
     if (n) g.fillRect(x + k, y, 2, 1 + (i & 1)); if (s) g.fillRect(x + k, y + T - 1 - (i & 1), 2, 1 + (i & 1));
     if (w) g.fillRect(x, y + k, 1 + (i & 1), 2); if (e) g.fillRect(x + T - 1 - (i & 1), y + k, 1 + (i & 1), 2); }
+}
+// (17/11) mép vách bậc thang: góc lồi của đất (dưới + bên là vách) cắt cong -> mặt đá lộ theo cung; góc lõm (vách có đất trên + bên) phủ cỏ theo cung
+const CR = 7;   // bán kính bo (px)
+function roundLandCorner(g, map, tx, ty, x, y) {
+  const cf = (dx, dy) => { const t = map.tileAt(tx + dx, ty + dy); return t === CLIFF; };
+  if (!cf(0, 1)) return;
+  for (const dx of [-1, 1]) {
+    if (!cf(dx, 0) || !cf(dx, 1)) continue;
+    const cx = dx < 0 ? x + CR : x + T - CR, cy = y + T - CR;
+    g.save(); g.beginPath(); g.rect(dx < 0 ? x : x + T - CR, y + T - CR, CR, CR); g.arc(cx, cy, CR, 0, 6.283, true); g.clip('evenodd');
+    vnTile(g, 8 + Math.floor(hash(tx, ty + 1, 82) * 8), x, y + T - 4); g.restore();   // lấp góc bằng phần mép trên của ô vách
+    g.fillStyle = '#3f7a35';
+    for (let i = 0; i <= 8; i++) { const a = (dx < 0 ? Math.PI / 2 : 0) + i / 8 * Math.PI / 2; const px = Math.round(cx + Math.cos(a) * (CR - 0.5)), py = Math.round(cy + Math.sin(a) * (CR - 0.5)); g.fillRect(px - (dx < 0 ? 0 : 1), py - 1, 2, 2); }
+  }
 }
 function paintCliffVN(g, map, tx, ty, x, y) {   // (17/11) chỉ dùng ô mặt vách (0-7, mép chung) + ô mép trên (8-15); mép giáp mây/cỏ/đáy vẽ phủ theo đường cong
   const up = map.tileAt(tx, ty - 1), v = Math.floor(hash(tx, ty, 82) * 8);
@@ -350,6 +402,11 @@ function paintCliffVN(g, map, tx, ty, x, y) {   // (17/11) chỉ dùng ô mặt 
   for (const dx of [-1, 1]) if (wk(dx, 0)) {
     for (let r = 0; r < T; r++) { const w = 2 + ((hash(tx, ty * T + r, 93) * 2) | 0); const gx = dx < 0 ? x : x + T - w;
       g.fillStyle = '#4f8a3c'; g.fillRect(gx, y + r, w, 1); g.fillStyle = 'rgba(30,25,50,.45)'; g.fillRect(dx < 0 ? x + w : x + T - w - 1, y + r, 1, 1); }
+    if (wk(0, -1)) {   // góc lõm: đất ở trên và bên -> cỏ phủ thành cung tròn nối mép trên với mép bên
+      const cx = dx < 0 ? x : x + T, R = CR + 2;
+      g.fillStyle = '#4f8a3c'; g.beginPath(); g.moveTo(cx, y); g.arc(cx, y, R, dx < 0 ? 0 : Math.PI / 2, dx < 0 ? Math.PI / 2 : Math.PI); g.closePath(); g.fill();
+      g.fillStyle = 'rgba(30,25,50,.4)'; for (let i = 0; i <= 8; i++) { const a = (dx < 0 ? 0 : Math.PI / 2) + i / 8 * Math.PI / 2; g.fillRect(Math.round(cx + Math.cos(a) * R) - (dx < 0 ? 0 : 1), Math.round(y + Math.sin(a) * R), 1, 1); }
+    }
   }
 }
 // (17/11) bờ nước: ô bờ cũ của tileset (trên/dưới/trái/phải); ô góc (nếu có trong tileset: hàng 6–7) cho góc ngoài/trong
@@ -404,7 +461,7 @@ function buildChunk(map, cx, cy, phase, props) {
     else if (map.sect && t === DIRT) paintDirtYard(g, map, tx, ty, x, y);
     else if (map.sect && VN && t === WATER) paintWaterVN(g, map, tx, ty, x, y);
     else if (map.sect && VN && (t === CLIFF || t === FALL)) paintCliffVN(g, map, tx, ty, x, y);
-    else if (map.sect && CODA && (t === STONE || t === GRASS || t === BUILDING || t === FENCE || t === DIRT)) paintCoDa(g, map, tx, ty, x, y);
+    else if (map.sect && CODA && (t === STONE || t === GRASS || t === BUILDING || t === FENCE || t === DIRT)) { paintCoDa(g, map, tx, ty, x, y); if (VN) roundLandCorner(g, map, tx, ty, x, y); }
     else if (map.sect && t === STONE) paintPath(g, map, tx, ty, x, y);
     else if (map.sect && (t === CLIFF || t === FALL)) paintCliff(g, map, tx, ty, x, y);
     else if (map.sect && t === CLOUD) paintCloud(g, tx, ty, x, y);
@@ -417,12 +474,14 @@ function buildChunk(map, cx, cy, phase, props) {
     let img = null;
     if (t === GRASS && d < 0.05) img = props[pick(DECOR_KINDS, d / 0.05)];
     else if (t === WATER && d < 0.05 && map.tileAt(tx, ty - 1) === WATER && !(map.sect && VN)) img = props.sen;   // sảnh: sen vẽ trên gợn nước (drawWaterFx)
+    if (img && map.sect && map._nhaRects && t === GRASS && decorOverNha(map, props, tx, ty, img, map._nhaRects)) continue;
     if (img) g.drawImage(img, x + 8 - img.ax, y + T - 1 - img.ay);
   }
   return c;
 }
 function drawMapCached(ctx, map, camX, camY, time, objs, vis) {
   const props = vis.props;
+  if (map.sect && !map._nhaRects && (vis.nha || vis.plaza)) { map._nhaRects = nhaRects(map, vis); vis.mapCache = null; }   // (17/11) cỏ chạm nhà vẽ ở lớp vật thể
   if (!vis.mapCache || vis.mapCache.map !== map || vis.mapCache.props !== props) vis.mapCache = { map, props, img: new Map(), objs: new Map() };
   const mc = vis.mapCache, phase = Math.floor(time * 1.5) & 1;
   const ncx = Math.ceil(map.pw / CPX), ncy = Math.ceil(map.ph / CPX);
@@ -1129,7 +1188,11 @@ export function render(ctx, g) {
     if (g.sect && vis.tm) {   // (17/11) đổ bóng VẼ TRƯỚC nền nhà/bệ (bóng nằm dưới, không phủ lên sàn): bóng hắt (bóng hình vật xô nghiêng lên phải, mờ) dưới công trình, cây, đồ vật
       ctx.globalAlpha = 0.45;
       const cast = (img, x, footY) => { const sh = castShadow(img); const top = footY - sh.height + 7; if (x - 4 < camX + W && x + sh.width > camX && top < camY + H && top + sh.height > camY) ctx.drawImage(sh, x - 4, top); };   // đáy bóng lấn 3 px dưới chân
-      for (const o of g.sect.props) { const img = !o.flat && vis.tm[o.s]; if (img && img.width > 20) cast(img, Math.round(o.x - img.width / 2), Math.round(o.y)); }
+      for (const o of g.sect.props) { const img = !o.flat && vis.tm[o.s]; if (img && img.width > 6) cast(img, Math.round(o.x - img.width / 2), Math.round(o.y)); }
+      ctx.fillStyle = '#141626';   // (17/11) vật nhỏ (đèn đá, bia nhỏ, khóm hoa): thêm bóng tiếp đất elip mềm dưới chân — bóng hắt quá mỏng để thấy
+      for (const o of g.sect.props) { const img = !o.flat && vis.tm[o.s]; if (!img || img.width > 48 || o.x < camX - 40 || o.x > camX + W + 40 || o.y < camY - 10 || o.y > camY + H + 20) continue;
+        const rx = Math.max(5, img.width * 0.42); for (const [k, a] of [[1.3, 0.16], [1, 0.22], [0.65, 0.28]]) { ctx.globalAlpha = a; ctx.beginPath(); ctx.ellipse(o.x + 2, o.y - 1, rx * k, 2.6 * k, 0, 0, 6.283); ctx.fill(); } }
+      ctx.globalAlpha = 0.45;
       if (vis.plaza) {   // (17/11) bóng quanh bệ pháp đài, né 4 lối bậc
         const P0 = vis.plaza; if (!P0.shadow) P0.shadow = baseShadow(P0.base, null, (P0.stairs || []).map(z => z.r));
         const bx = Math.round(map.cx - P0.ax), by = Math.round(map.cy - P0.ay); ctx.globalAlpha = 0.6; ctx.drawImage(P0.shadow, bx - 6 + 3, by - 6 + 6); ctx.globalAlpha = 0.45;
@@ -1138,7 +1201,7 @@ export function render(ctx, g) {
         if (n.x - 6 < camX + W && n.x + sh.width > camX && n.y < camY + H && n.y + sh.height > camY) { ctx.globalAlpha = 0.6; ctx.drawImage(sh, n.x - 6 + 3, n.y - 6 + 6); ctx.globalAlpha = 0.45; } }
       ctx.globalAlpha = 1;
     }
-    if (g.sect && vis.nha) for (const b of g.sect.nhaAll) { const n = b.nha, v = n && vis.nha[n.id]; if (v) ctx.drawImage(v.base, n.x, n.y); }   // M8-15: nền nhà lớn
+    if (g.sect && vis.nha) for (const b of g.sect.nhaAll) { const n = b.nha, v = n && vis.nha[n.id]; if (v && !behindNha(p, n, v)) ctx.drawImage(v.base, n.x, n.y); }   // M8-15: nền nhà lớn (đứng sau nhà: vẽ mờ ở lớp vật thể)
     if (g.sect && g.sect.gate && FEATURES.run && g.portal && vis.pfx) {   // xoáy bí cảnh trong lòng cổng (cổng là nhà lớn: nền đã vẽ, vòng cổng ở lớp che)
       const f = vis.pfx.portal, rg = g.sect.gate.ring; f.x = Math.round(rg.x); f.y = Math.round(rg.y + 30); f.scale = 0.95; f.draw(ctx); f.scale = 1;
     }
@@ -1212,7 +1275,8 @@ export function render(ctx, g) {
     }
     if (vis.nha) for (const b of g.sect.nhaAll) {   // M8-15: lớp che nhà lớn + tên khu trên mái
       const n = b.nha, v = n && vis.nha[n.id]; if (!v) continue;
-      for (const s of v.strips) { const dy = n.y + s.y; if (dy < camY + H && dy + s.img.height > camY && n.x + s.x < camX + W && n.x + s.x + s.img.width > camX) objs.push({ y: n.y + s.foot, img: s.img, x: n.x + s.x, dy, noFade: true }); }
+      if (behindNha(p, n, v)) objs.push({ y: n.y + v.base.height, img: v.base, x: n.x, dy: n.y, noFade: true, fade: true });   // cả nhà vẽ mờ đè lên người
+      else for (const s of v.strips) { const dy = n.y + s.y; if (dy < camY + H && dy + s.img.height > camY && n.x + s.x < camX + W && n.x + s.x + s.img.width > camX) objs.push({ y: n.y + s.foot, img: s.img, x: n.x + s.x, dy, noFade: true }); }
       if (b.name && Math.hypot(p.x - b.doorPx.x, p.y - b.doorPx.y) < 140) {
         const act = g.interact && g.interact.id === b.id, st = g.sectStatus && g.sectStatus(b.id);
         txt(ctx, b.name, Math.round(n.x + n.w / 2), n.y - (st ? 10 : 2), act ? '#fff6c8' : '#ffd978', act ? 11 : 10);
@@ -1228,6 +1292,12 @@ export function render(ctx, g) {
       if (!vis.penRail) vis.penRail = penRailSegs(ring.posts, vis.tm.tru_rao);
       for (const s of vis.penRail) if (s.x < camX + W && s.x + s.img.width > camX && s.dy < camY + H && s.y > camY) objs.push(s);
     }
+    if (vis.props && map._nhaRects) {   // (17/11) cỏ/hoa ngay trước nhà: vẽ ở lớp vật thể (đè lên nền nhà)
+      if (!map._decorOver) { map._decorOver = [];
+        for (let ty = 0; ty < map.h; ty++) for (let tx = 0; tx < map.w; tx++) { const d = hash(tx, ty, 8); if (map.tileAt(tx, ty) !== GRASS || d >= 0.05) continue;
+          const im = vis.props[pick(DECOR_KINDS, d / 0.05)]; if (im && decorOverNha(map, vis.props, tx, ty, im, map._nhaRects) === 2) map._decorOver.push({ y: ty * T + T - 1, img: im, x: tx * T + 8 - im.ax, dy: ty * T + T - 1 - im.ay, noFade: true }); } }
+      for (const o of map._decorOver) if (o.x < camX + W && o.x + o.img.width > camX && o.dy < camY + H && o.y > camY) objs.push(o);
+    }
     if (vis.tm) for (const o of g.sect.props) {
       const img = !o.flat && vis.tm[o.s];
       if (img && vis1(img, o.x, o.y)) objs.push({ y: o.y, img, x: Math.round(o.x - img.width / 2), dy: Math.round(o.y - img.height) });
@@ -1240,7 +1310,7 @@ export function render(ctx, g) {
       const covers = (ux, uy) => o.y > uy && ux > o.x - 2 && ux < o.x + o.img.width + 2 && uy - 16 < o.y && uy > o.dy;
       // cây ×2 tán lớn: cũng mờ khi có quái đứng sau (không để quái/đòn đánh khuất sau tán)
       const hide = covers(p.x, p.y) || (o.img.width > 60 && scene.monsters.some(m => !m.dead && covers(m.x, m.y)));
-      if (hide && !o.noFade) ctx.globalAlpha = 0.45;
+      if ((hide && !o.noFade) || o.fade) ctx.globalAlpha = 0.45;
       ctx.drawImage(o.img, o.x, o.dy);
       ctx.globalAlpha = 1;
       if (o.label && Math.hypot(p.x - o.door.x, p.y - o.door.y) < 96) {   // M8-03: đứng ở cửa -> "E · tên khu"

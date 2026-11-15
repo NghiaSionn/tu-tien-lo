@@ -30,8 +30,8 @@ ISLAND = [(12, 14), (40, 13), (52, 10), (70, 10), (78, 6), (106, 6), (112, 14), 
 FOREST = [(40, 0), (78, 0), (78, 6), (70, 10), (52, 10), (40, 13)]          # rừng tím sau cổng (đặc, chỉ để nhìn)
 WATER = [   # khoanh theo ảnh concept (16/11)
     [(40, 20), (45, 19.5), (48, 22), (47.5, 26.5), (44, 27.5), (41, 25)],     # ao + thác nhỏ cạnh tháp
-    [(29, 57.5), (38, 57.5), (44, 59.5), (52, 61), (62, 61.5), (70, 61), (78, 60), (84, 59.5), (87, 61), (78, 62.5), (70, 63),
-     (60, 63.5), (50, 63), (42, 62), (30, 61)],                               # suối nam: dưới cầu đá -> men mép nam -> thác phải
+    [(29, 57.5), (38, 57.5), (44, 58.5), (52, 59.6), (62, 60), (70, 59.6), (76, 59.3), (80, 59.7), (84.4, 59.7), (85.4, 60.4), (85.4, 62.4), (80, 62.6), (70, 63),
+     (60, 63.5), (50, 63), (42, 62), (30, 61)],   # (17/11) nới rộng thêm ~1 ô về phía bắc; đầu đông rộng ra trọn trên thác phải                               # suối nam: dưới cầu đá -> men mép nam -> thác phải
 ]
 # Luyện Võ Trường: rào chữ nhật, cổng rào cạnh bắc lệch trái (đầu đường đông nam) + sân đất elip
 PEN = dict(x=82, y=41, w=26, h=16, gate=[83, 86], door=[84.5, 40.2])   # (16/11) Chuồng Linh Thú: nới lên 3 ô để chuồng nằm trọn trong rào
@@ -47,7 +47,7 @@ BUILDINGS = {
 }
 BIA = dict(box=(52, 46, 66, 55))
 BRIDGE = dict(box=(33, 54, 38, 60))
-FALLS = [(5, 5, 9, 22), (31, 61, 36, 68), (81, 61, 87, 68)]   # thác trái (vách tây), thác dưới cầu, thác phải
+FALLS = [(5, 5, 9, 22), (31, None, 36, 68), (80, None, 85, 68)]   # y0=None: thác bắt đầu ngay ô vách đầu tiên dưới nước suối (mép đá sỏi)   # thác trái (vách tây), thác dưới cầu, thác phải
 F = {k: v['foot'] for k, v in BUILDINGS.items()}
 PATHS = []   # đường dò từ ảnh (trace_paths)
 
@@ -97,7 +97,8 @@ def build():
     c = PLAZA['c']; d.ellipse([c[0] - PLAZA['rx'], c[1] - PLAZA['ry'], c[0] + PLAZA['rx'], c[1] + PLAZA['ry']], fill=ord('P'))
     d.rectangle([GATE['x'][0], GATE['y'][0], GATE['x'][1], GATE['y'][1]], fill=ord('G'))
     d.rectangle(BIA['box'], fill=ord('b'))
-    for f in FALLS: d.rectangle(f, fill=ord('W'))
+    for f in FALLS:
+        if f[1] is not None: d.rectangle(f, fill=ord('W'))
     g = np.array(L)
     # (17/11) bỏ nước nhô 1 ô (>= 3 cạnh là đất) cho bờ ao/suối tròn trịa, không răng cưa
     for _ in range(3):
@@ -124,6 +125,13 @@ def build():
         if not (0 <= x < NX and 0 <= y < NY) or seen[y, x] or not walk[y, x]: continue
         seen[y, x] = True; st += [(x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)]
     g[walk & ~seen] = ord('^')
+    # (17/11) thác từ suối: mỗi cột đổ từ ngay dưới ô nước thấp nhất xuống đáy -> đỉnh thác khớp mép bờ, cùng dòng với suối
+    for x0, y0, x1, y1 in FALLS:
+        if y0 is not None: continue
+        for x in range(x0, x1 + 1):
+            ws = np.where(g[:y1 + 1, x] == ord('~'))[0]
+            if not ws.size: continue
+            for y in range(ws.max() + 1, min(NY, y1 + 1)): g[y, x] = ord('W')
     return g
 
 

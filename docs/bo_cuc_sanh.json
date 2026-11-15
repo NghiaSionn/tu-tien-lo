@@ -2,8 +2,8 @@
  "nx": 120,
  "ny": 68,
  "rows": [
-  "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX^^^^^^^^^^^TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT^^^^^^^^^^^XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-  "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX^^^^^^^^^^^TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT^^^^^^^^^^^XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+  "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX^^TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT^^XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+  "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX^^TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT^^XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
   "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX^^TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT^^XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
   "XXX^^^^^^^^^XXXXXXXXXXXXXXXXXXXXXXXXXX^^TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT^^XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
   "XXX^^^^^^^^^XXXXXXXXXXXXXXXXXXXXXXXXXX^^TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTB^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^XXXXXXXXXXX",
@@ -60,16 +60,16 @@
   "XXXXXXXXXXXX^^^.............=======................=bbbbbbbbbbbbbbb==.......=====................................^^^^XXX",
   "XXXXXXXXXXXX^^^^........=..========..............................=.==........====.=.............................^^^^^XXX",
   "XXXXXXXXXXXXX^^^^^^^^...=====~~~~~~~~~~.===........................==........==========.........................^^^^XXXX",
-  "XXXXXXXXXXXXXX^^^^^^^^^^^^===~~~~~~~~~~~~~=..................................==..=======.......................^^^^XXXXX",
-  "XXXXXXXXXXXXXX^^^^^^^^^^^^^^^^~~~~~~~~~~~~~~~......................................=.===...................^^^^^^^^XXXXX",
-  "XXXXXXXXXXXXXXX^^^^^^^^^^^^^^^~~~~~~~~~~~~~~~~~~~.............................~~~~~~~~..................^^^^^^^^^^XXXXXX",
-  "XXXXXXXXXXXXXXX^^^^^^^^^^^^^^^~WWWWWW~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~WWWWWWW^^..........^^^^^^^^^^^^^XXXXXXX",
-  "XXXXXXXXXXXXXXXX^^^^^^^^^^^^^^^WWWWWW^^^^^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^WWWWWWW^^^^^^^^.^^^^^^^^^^^^^^^XXXXXXXX",
-  "XXXXXXXXXXXXXXXXXXXXX^^^^^^^^^^WWWWWW^^^^^^^^^^^^^~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^WWWWWWW^^^^^^^^^^^^^^^^^^^^^^^^XXXXXXXX",
-  "XXXXXXXXXXXXXXXXXXXXXXXXXX^^^^^WWWWWW^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^WWWWWWW^^^^^^^^^^^^^^^^^^^^^^^XXXXXXXXX",
-  "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX^^WWWWWW^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^WWWWWWW^^^^^^^^^^^^^^^^^^^XXXXXXXXXXXXX",
-  "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX^^WWWWWW^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^WWWWWWW^^^^^^^^^^^^^^^^XXXXXXXXXXXXXXXX",
-  "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX^^WWWWWW^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^WWWWWWW^^^^^^^^^^^^XXXXXXXXXXXXXXXXXXXX"
+  "XXXXXXXXXXXXXX^^^^^^^^^^^^===~~~~~~~~~~~~~~~~................................==..=======.......................^^^^XXXXX",
+  "XXXXXXXXXXXXXX^^^^^^^^^^^^^^^^~~~~~~~~~~~~~~~~~~~~~~~.................~~~~~~~~~~~~~~~===...................^^^^^^^^XXXXX",
+  "XXXXXXXXXXXXXXX^^^^^^^^^^^^^^^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~..................^^^^^^^^^^XXXXXX",
+  "XXXXXXXXXXXXXXX^^^^^^^^^^^^^^^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^..........^^^^^^^^^^^^^XXXXXXX",
+  "XXXXXXXXXXXXXXXX^^^^^^^^^^^^^^^WWWWWW^^^^^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^.^^^^^^^^^^^^^^^XXXXXXXX",
+  "XXXXXXXXXXXXXXXXXXXXX^^^^^^^^^^WWWWWW^^^^^^^^^^^^^~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^WWWWWW^^^^^^^^^^^^^^^^^^^^^^^^^^XXXXXXXX",
+  "XXXXXXXXXXXXXXXXXXXXXXXXXX^^^^^WWWWWW^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^WWWWWW^^^^^^^^^^^^^^^^^^^^^^^^^XXXXXXXXX",
+  "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX^WWWWWW^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^WWWWWW^^^^^^^^^^^^^^^^^^^^^XXXXXXXXXXXXX",
+  "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX^WWWWWW^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^WWWWWW^^^^^^^^^^^^^^^^^^XXXXXXXXXXXXXXXX",
+  "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX^WWWWWW^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^WWWWWWXXXX^^^^^^^^^^XXXXXXXXXXXXXXXXXXXX"
  ],
  "buildings": {
   "truyen_thua": {
@@ -166,14 +166,14 @@
   ],
   [
    31,
-   61,
+   null,
    36,
    68
   ],
   [
-   81,
-   61,
-   87,
+   80,
+   null,
+   85,
    68
   ]
  ]
