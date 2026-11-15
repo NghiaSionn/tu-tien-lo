@@ -196,22 +196,36 @@ function castShadow(img) {
 }
 // (17/11) sương mù/mây trôi động trên biển mây: dải sương mềm lớn trôi ngang chậm, dày dần ra xa mép đảo; vài làn mỏng trôi qua mép vách
 let _fogPuff = null;
-function fogPuff() {
+function fogPuff() {   // làn sương: elip dẹt, mép tan rất mềm (không lõi đặc)
   if (_fogPuff || typeof document === 'undefined') return _fogPuff;
-  const c = document.createElement('canvas'); c.width = 96; c.height = 48; const g = c.getContext('2d');
-  const gr = g.createRadialGradient(48, 24, 2, 48, 24, 46); gr.addColorStop(0, 'rgba(240,242,255,.9)'); gr.addColorStop(0.55, 'rgba(225,228,248,.45)'); gr.addColorStop(1, 'rgba(225,228,248,0)');
-  g.setTransform(1, 0, 0, 0.5, 0, 12); g.fillStyle = gr; g.fillRect(0, 0, 96, 96); return (_fogPuff = c);
+  const c = document.createElement('canvas'); c.width = 128; c.height = 48; const g = c.getContext('2d');
+  const gr = g.createRadialGradient(64, 64, 0, 64, 64, 62);
+  gr.addColorStop(0, 'rgba(244,246,255,.75)'); gr.addColorStop(0.35, 'rgba(236,238,252,.5)'); gr.addColorStop(0.7, 'rgba(228,231,250,.18)'); gr.addColorStop(1, 'rgba(228,231,250,0)');
+  g.setTransform(1, 0, 0, 0.375, 0, 0); g.fillStyle = gr; g.fillRect(0, 0, 128, 128); return (_fogPuff = c);
 }
+// (17/11) sương mù biển mây: 2 lớp trôi (xa chậm, gần nhanh), toạ độ lẻ + làm mịn -> trôi đều không giật;
+// cắt theo ô mây (clip) thay vì bỏ cả làn khi tâm chạm đảo -> làn sương không bật/tắt đột ngột
+// ô mây ngay trên mép đảo không có vách (rừng phía bắc): tán cây vẽ lấn lên đó -> không phủ sương
+const fogOk = d => d === CLOUD || d === CLIFF || d === FALL;
 function drawFogFx(ctx, map, camX, camY, time) {
   const img = fogPuff(); if (!img) return;
-  const cols = Math.ceil(W / 64) + 3, rows = Math.ceil(H / 28) + 3;
-  for (let j = -1; j < rows; j++) for (let i = -1; i < cols; i++) {
-    const gy = Math.floor(camY / 28) + j, gi = i + Math.floor(camX / 64), h = hash(gi, gy, 160), sp = 6 + h * 8;
-    let x = gi * 64 + ((time * sp + h * 64) % 64) - 32, y = gy * 28 + hash(gi, gy, 161) * 14;
-    const t = map.tileAt(Math.floor((x + 48) / T), Math.floor((y + 24) / T)); if (t !== CLOUD) continue;
-    ctx.globalAlpha = 0.35 + 0.25 * Math.sin(time * 0.5 + h * 6); ctx.drawImage(img, Math.round(x), Math.round(y));
+  const tx0 = Math.floor(camX / T), ty0 = Math.floor(camY / T), tw = Math.ceil(W / T) + 1, th = Math.ceil(H / T) + 1;
+  ctx.save(); ctx.beginPath(); let any = false;
+  for (let ty = ty0; ty <= ty0 + th; ty++) for (let tx = tx0; tx <= tx0 + tw; tx++) if (map.tileAt(tx, ty) === CLOUD && fogOk(map.tileAt(tx, ty + 1))) { ctx.rect(tx * T, ty * T, T, T); any = true; }
+  if (!any) { ctx.restore(); return; }
+  ctx.clip(); ctx.imageSmoothingEnabled = true;
+  for (const [cw, ch, sp0, a0, sc0, seed] of [[96, 26, 3, 0.34, 1.5, 160], [72, 20, 7, 0.4, 1.0, 180]]) {
+    const cols = Math.ceil(W / cw) + 3, rows = Math.ceil(H / ch) + 3;
+    for (let j = -2; j < rows; j++) for (let i = -2; i < cols; i++) {
+      const gy = Math.floor(camY / ch) + j, gi = Math.floor(camX / cw) + i, h = hash(gi, gy, seed), sc = sc0 * (0.8 + hash(gi, gy, seed + 2) * 0.5);
+      const w = 128 * sc, hh = 48 * sc;
+      const x = gi * cw + ((time * sp0 * (0.7 + h * 0.6) + h * cw) % cw) + (gy & 1) * cw / 2 - w / 2;
+      const y = gy * ch + hash(gi, gy, seed + 1) * ch * 0.8 + Math.sin(time * 0.3 + h * 6.28) * 2.5 - hh / 2;
+      if (x > camX + W || x + w < camX || y > camY + H || y + hh < camY) continue;
+      ctx.globalAlpha = a0 * (0.75 + 0.25 * Math.sin(time * 0.25 + h * 6.28)); ctx.drawImage(img, x, y, w, hh);
+    }
   }
-  ctx.globalAlpha = 1;
+  ctx.restore();
 }
 function fenceSpr() {
   if (_fence || typeof document === 'undefined') return _fence;
