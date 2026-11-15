@@ -1150,8 +1150,11 @@ export function render(ctx, g) {
       const ring = (cx, cy, rx, ry, seed) => { for (let k = 0; k < 2; k++) { const t = ((time * 0.45 + seed + k * 0.5) % 1);
         ctx.globalAlpha = 0.75 * (1 - t); ctx.strokeStyle = '#f2fdff'; ctx.lineWidth = 1; ctx.beginPath(); ctx.ellipse(Math.round(cx) + 0.5, Math.round(cy) + 0.5, rx + t * 9, ry + t * 4, 0, 0, 6.283); ctx.stroke(); } ctx.globalAlpha = 1; };
       for (let ty = ty0; ty <= ty0 + Math.ceil(H / T) + 1; ty++) for (let tx = tx0 - 1; tx <= tx0 + Math.ceil(W / T) + 1; tx++) {
-        if (map.tileAt(tx, ty) !== WATER || hash(tx, ty, 8) >= 0.05 || map.tileAt(tx, ty - 1) !== WATER || !vis.props || !vis.props.sen) continue;
-        if (map.tileAt(tx, ty + 1) === WATER && map.tileAt(tx - 1, ty) === WATER && map.tileAt(tx + 1, ty) === WATER) continue;   // (17/11) sen chỉ mọc sát mép nước, không trôi giữa dòng
+        if (map.tileAt(tx, ty) !== WATER || hash(tx, ty, 8) >= 0.08 || !vis.props || !vis.props.sen) continue;
+        let open = true; for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) if (map.tileAt(tx + dx, ty + dy) !== WATER) open = false;
+        if (map.tileAt(tx - 1, ty - 2) !== WATER || map.tileAt(tx, ty - 2) !== WATER || map.tileAt(tx + 1, ty - 2) !== WATER) open = false;   // hình sen cao ~1 ô: phía trên cũng phải là nước
+        if (open && g.sect.props.some(o => o.s === 'cau_da' && Math.abs(o.x - (tx * T + 8)) < 48 && Math.abs(o.y - (ty * T + 8)) < 40)) open = false;   // không đè lên cầu đá
+        if (!open) continue;   // (17/11) sen chỉ ở giữa mặt nước: các ô quanh là nước -> lá sen không lấn lên bờ cỏ
         const img = vis.props.sen, x = tx * T, y = ty * T, ph = time * 0.9 + hash(tx, ty, 141) * 6.28;
         ring(x + 8, y + T - 3, 11, 4, hash(tx, ty, 140));
         // lá sen trôi êm: lên xuống 1 px + lắc ngang 0,6 px ở toạ độ lẻ -> vẽ ở lớp nét cao (#hi), không nhảy nấc điểm ảnh
