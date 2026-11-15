@@ -8,7 +8,7 @@
   156
  ],
  "image": "tm_chuong.png",
- "source": "docs/concept/chuong_linh_thu_chatgpt.png",
+ "source": "docs/concept/chuong_linh_thu_chatgpt.png + chuong_rao_cong_chatgpt.png",
  "tool": "sprite_clean, cỡ riêng từng vật",
  "frames": {
   "chuong_thu": [
@@ -27,12 +27,36 @@
    594,
    0
   ],
-  "cot_den": [
+  "o_rom": [
    792,
    0
   ],
-  "o_rom": [
+  "cot_den": [
    990,
+   0
+  ],
+  "cay_dao": [
+   1188,
+   0
+  ],
+  "cay_tung": [
+   1386,
+   0
+  ],
+  "cong_chuong": [
+   1584,
+   0
+  ],
+  "rao_ngang": [
+   1782,
+   0
+  ],
+  "tru_co": [
+   1980,
+   0
+  ],
+  "tru_rao": [
+   2178,
    0
   ]
  }

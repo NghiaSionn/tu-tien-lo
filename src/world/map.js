@@ -161,6 +161,16 @@ export function makeSectMap(S = SECT) {
   m.sect.nhaAll = m.sect.gate ? [...m.sect.buildings, m.sect.gate] : m.sect.buildings;
   // hàng rào Luyện Võ Trường: sprite hang_rao dọc mép bắc/nam (bỏ chỗ cổng) + cổng rào; mép đông/tây vẽ cọc rào theo ô
   const P = S.PEN;
+  if (P.art) {   // (16/11) Chuồng Linh Thú: rào/cổng/trụ cờ ChatGPT vẽ (sprites/tm_chuong) — đoạn rào ngang nối tiếp theo px, trụ dọc mỗi 2 ô
+    const seg = P.art.seg, X0 = P.x * T, X1 = (P.x + P.w) * T, gx0 = P.gate[0] * T, gx1 = (P.gate[1] + 1) * T;
+    const run = (a, b, fy) => { for (let x = a; x < b - 4; x += seg) m.sect.props.push({ s: 'rao_ngang', x: Math.min(x + seg / 2, b - seg / 2), y: fy, flat: false }); };
+    const fyN = (oy + P.y + 1) * T, fyS = (oy + P.y + P.h) * T, ox16 = ox * T;
+    run(ox16 + X0 + 6, ox16 + gx0, fyN); run(ox16 + gx1, ox16 + X1 - 6, fyN); run(ox16 + X0 + 6, ox16 + X1 - 6, fyS);
+    for (let y = P.y + 2; y < P.y + P.h - 1; y += 2) for (const x of [P.x, P.x + P.w - 1]) m.sect.props.push({ s: 'tru_rao', ...px([x + 0.5, y + 1]), flat: false });
+    for (const [x, y] of [[P.x, P.y], [P.x + P.w - 1, P.y], [P.x, P.y + P.h - 1], [P.x + P.w - 1, P.y + P.h - 1]]) m.sect.props.push({ s: 'tru_co', ...px([x + 0.5, y + 1]), flat: false });
+    m.sect.props.push({ s: 'cong_chuong', ...px([(P.gate[0] + P.gate[1] + 1) / 2, P.y + 1]), flat: false });
+    return m;
+  }
   for (const ey of [P.y, P.y + P.h - 1]) for (let x = P.x; x < P.x + P.w - 1; x += 2) {
     if (ey === P.y && x + 1 >= P.gate[0] && x <= P.gate[1]) continue;
     m.sect.props.push({ s: 'hang_rao', ...px([x + 1, ey + 1]), flat: false });

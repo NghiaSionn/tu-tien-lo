@@ -139,6 +139,14 @@ function dirtTile() {
   for (let i = 0; i < 18; i++) { const v = hash(i, 3, 11); g.fillStyle = v < 0.5 ? '#9a774a' : '#c49a66'; g.fillRect(Math.floor(hash(i, 1, 12) * T), Math.floor(hash(i, 2, 13) * T), 1 + (v > 0.8), 1); }
   return (_dirt = c);
 }
+// (16/11) Chuồng Linh Thú: mép đông/tây = 2 thanh gỗ dọc (màu rào ChatGPT vẽ) nối các trụ sprite tru_rao
+let _rail = null;
+function railSpr() {
+  if (_rail || typeof document === 'undefined') return _rail;
+  const c = document.createElement('canvas'); c.width = T; c.height = T + 6; const g = c.getContext('2d');
+  for (const x0 of [4, 10]) { g.fillStyle = '#5a2e12'; g.fillRect(x0, 0, 3, T + 6); g.fillStyle = '#c2782c'; g.fillRect(x0, 0, 2, T + 6); g.fillStyle = '#e8a64a'; g.fillRect(x0, 0, 1, T + 6); }
+  return (_rail = c);
+}
 function fenceSpr() {
   if (_fence || typeof document === 'undefined') return _fence;
   const c = document.createElement('canvas'); c.width = T; c.height = 20; const g = c.getContext('2d');
@@ -174,7 +182,7 @@ function tileObj(map, tx, ty, props) {
   const t = map.tileAt(tx, ty), x = tx * T, y = ty * T;
   if (t === FENCE) {   // M8: mép bắc/nam rào là sprite hang_rao (map.sect.props); chỉ vẽ cọc rào cho mép đông/tây
     if (map.sect && (map.tileAt(tx - 1, ty) === FENCE || map.tileAt(tx + 1, ty) === FENCE)) return null;
-    const f = fenceSpr(); return f ? { y: y + T, img: f, x, dy: y + T - f.height } : null;
+    const f = map.sect && map.sect.pen && map.sect.pen.art ? railSpr() : fenceSpr(); return f ? { y: y + T, img: f, x, dy: y + T - f.height } : null;
   }
   if (props && t === TREE) { const img = props[pick(TREE_KINDS, hash(tx, ty, 6))]; return { y: y + T, img, x: x + 8 - img.ax, dy: y + T - 1 - img.ay }; }
   if (props && t === ROCK) { const img = props[pick(ROCK_KINDS, hash(tx, ty, 7))]; return { y: y + T - 2, img, x: x + 8 - img.ax, dy: y + T - 2 - img.ay }; }
