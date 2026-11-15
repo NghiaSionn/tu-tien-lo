@@ -304,31 +304,21 @@ function paintCliffVN(g, map, tx, ty, x, y) {   // (17/11) chỉ dùng ô mặt 
       g.fillStyle = '#4f8a3c'; g.fillRect(gx, y + r, w, 1); g.fillStyle = 'rgba(30,25,50,.45)'; g.fillRect(dx < 0 ? x + w : x + T - w - 1, y + r, 1, 1); }
   }
 }
-function paintWaterVN(g, map, tx, ty, x, y) {   // (17/11) nước trơn + bờ vẽ theo từng cạnh/góc (cỏ thật + viền đá + bọt), hết góc lỗi
-  vnTile(g, 24 + Math.floor(hash(tx, ty, 85) * 8), x, y);
-  const land = (dx, dy) => { const t = map.tileAt(tx + dx, ty + dy); return isWalkT(t) || t === CLIFF; };
-  const grass = (gx, gy, w, h) => { if (CODA) g.drawImage(CODA, ((gx - x) & 15), ((gy - y) & 15), w, h, gx, gy, w, h); else { g.fillStyle = '#6a9a44'; g.fillRect(gx, gy, w, h); } };
-  const B = 4;
+// (17/11) bờ nước: ô bờ cũ của tileset (trên/dưới/trái/phải); ô góc (nếu có trong tileset: hàng 6–7) cho góc ngoài/trong
+const VN_CORNER = { out: { nw: 48, ne: 49, sw: 50, se: 51 }, inn: { nw: 56, ne: 57, sw: 58, se: 59 } };
+let VN_HAS_CORNER = false;
+export function setVachNuocCorners(ok) { VN_HAS_CORNER = ok; }
+function paintWaterVN(g, map, tx, ty, x, y) {
+  const land = (dx, dy) => { const t = map.tileAt(tx + dx, ty + dy); return isWalkT(t) || t === CLIFF; }, v = Math.floor(hash(tx, ty, 83) * 2);
   const n = land(0, -1), s = land(0, 1), w = land(-1, 0), e = land(1, 0);
-  const edge = (gx, gy, ww, hh, dir) => { grass(gx, gy, ww, hh); g.fillStyle = '#5b6b78';
-    if (dir === 'n') g.fillRect(gx, gy + hh, ww, 1); if (dir === 's') g.fillRect(gx, gy - 1, ww, 1); if (dir === 'w') g.fillRect(gx + ww, gy, 1, hh); if (dir === 'e') g.fillRect(gx - 1, gy, 1, hh);
-    g.fillStyle = 'rgba(220,248,255,.55)';
-    if (dir === 'n') g.fillRect(gx, gy + hh + 1, ww, 1); if (dir === 's') g.fillRect(gx, gy - 2, ww, 1); if (dir === 'w') g.fillRect(gx + ww + 1, gy, 1, hh); if (dir === 'e') g.fillRect(gx - 2, gy, 1, hh); };
-  if (n) edge(x, y, T, B, 'n'); if (s) edge(x, y + T - B, T, B, 's'); if (w) edge(x, y, B, T, 'w'); if (e) edge(x + T - B, y, B, T, 'e');
-  // góc ngoài (hai cạnh kề đều là đất): bo tròn bán kính 8 px — cỏ lấp phần góc, viền đá + bọt chạy theo cung
-  for (const [dx, dy, a1, b1] of [[-1, -1, w, n], [1, -1, e, n], [-1, 1, w, s], [1, 1, e, s]]) if (a1 && b1) {
-    const R = 13, cx = dx < 0 ? x + R : x + T - R, cy = dy < 0 ? y + R : y + T - R;
-    for (let yy = 0; yy < R; yy++) for (let xx = 0; xx < R; xx++) {
-      const px = dx < 0 ? x + xx : x + T - 1 - xx, py = dy < 0 ? y + yy : y + T - 1 - yy, d = Math.hypot(px + 0.5 - cx, py + 0.5 - cy);
-      if (d > R - B) { grass(px, py, 1, 1); if (d < R - B + 1.2) { g.fillStyle = '#5b6b78'; g.fillRect(px, py, 1, 1); } }
-      else if (d > R - B - 1.2 && (dx < 0 ? px < cx : px >= cx) && (dy < 0 ? py < cy : py >= cy)) { g.fillStyle = 'rgba(220,248,255,.55)'; g.fillRect(px, py, 1, 1); }
-    }
-  }
-  // góc trong (chỉ chéo là đất): khối cỏ tròn nhỏ ở góc
-  for (const [dx, dy] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) if (land(dx, dy) && !land(dx, 0) && !land(0, dy)) {
-    const cx = dx < 0 ? x : x + T, cy = dy < 0 ? y : y + T;
-    for (let k = 0; k < B + 3; k++) { const l = Math.round(Math.sqrt(Math.max(0, (B + 3) ** 2 - k * k))); grass(dx < 0 ? cx : cx - l, dy < 0 ? cy + k : cy - k - 1, l, 1); }
-  }
+  let id;
+  if (VN_HAS_CORNER && n && w) id = VN_CORNER.out.nw; else if (VN_HAS_CORNER && n && e) id = VN_CORNER.out.ne;
+  else if (VN_HAS_CORNER && s && w) id = VN_CORNER.out.sw; else if (VN_HAS_CORNER && s && e) id = VN_CORNER.out.se;
+  else if (n) id = 32 + v; else if (s) id = 34 + v; else if (w) id = 36; else if (e) id = 37;
+  else if (VN_HAS_CORNER && land(-1, -1)) id = VN_CORNER.inn.nw; else if (VN_HAS_CORNER && land(1, -1)) id = VN_CORNER.inn.ne;
+  else if (VN_HAS_CORNER && land(-1, 1)) id = VN_CORNER.inn.sw; else if (VN_HAS_CORNER && land(1, 1)) id = VN_CORNER.inn.se;
+  else id = 24 + Math.floor(hash(tx, ty, 85) * 8);
+  vnTile(g, id, x, y);
 }
 function paintCliff(g, map, tx, ty, x, y) {   // mặt vách dọc: nhìn 3/4 thấy mặt đá dưới mép đảo; càng xuống càng tối
   let depth = 0; while (depth < 6 && map.tileAt(tx, ty - depth - 1) === CLIFF) depth++;
@@ -1034,13 +1024,18 @@ export function render(ctx, g) {
       const tx0 = Math.floor(camX / T), ty0 = Math.floor(camY / T);
       for (let ty = ty0; ty <= ty0 + Math.ceil(H / T); ty++) for (let tx = tx0; tx <= tx0 + Math.ceil(W / T); tx++) {
         if (map.tileAt(tx, ty) !== WATER) continue;
-        let nearLand = false; for (let dy = -1; dy <= 1 && !nearLand; dy++) for (let dx = -1; dx <= 1; dx++) if (map.tileAt(tx + dx, ty + dy) !== WATER && map.tileAt(tx + dx, ty + dy) !== FALL) { nearLand = true; break; }
-        if (nearLand) continue;   // (17/11) không vẽ gợn lên bờ cỏ
-        for (let i = 0; i < 2; i++) {
-          const h1 = hash(tx, ty, 120 + i), h2 = hash(tx, ty, 130 + i), a = 0.5 + 0.5 * Math.sin(time * 1.6 + h1 * 6.28);
-          const px = tx * T + ((h1 * 16 + time * 5) % 18) - 1, py = ty * T + 3 + Math.floor(h2 * 10), len = 3 + Math.floor(h2 * 3);
-          ctx.globalAlpha = 0.25 + 0.45 * a; ctx.fillStyle = '#dff8ff'; ctx.fillRect(Math.round(px), py, len, 1);
-          if (a > 0.7) { ctx.fillStyle = '#ffffff'; ctx.fillRect(Math.round(px) + 1, py, 1, 1); }
+        const L = (dx, dy) => { const t = map.tileAt(tx + dx, ty + dy); return t !== WATER && t !== FALL; }, M = 7;
+        const x0 = L(-1, 0) ? M : 0, x1 = L(1, 0) ? T - M : T, y0 = L(0, -1) ? M : 0, y1 = L(0, 1) ? T - M : T;
+        for (let i = 0; i < 3; i++) {
+          const h1 = hash(tx, ty, 120 + i), h2 = hash(tx, ty, 130 + i), a = 0.5 + 0.5 * Math.sin(time * 1.6 + h1 * 6.28), len = 4 + Math.floor(h2 * 3);
+          const py = y0 + 2 + Math.floor(h2 * Math.max(1, y1 - y0 - 4)), span = Math.max(1, x1 - x0 - len);
+          let px = x0 + ((h1 * span + time * 5) % span);
+          const cx = (dx, dy) => L(dx, dy) && (dx < 0 ? px < M : px + len > T - M) && (dy < 0 ? py < M : py > T - M);   // chừa góc chéo có đất
+          if (cx(-1, -1) || cx(1, -1) || cx(-1, 1) || cx(1, 1)) continue;
+          px = tx * T + Math.round(px);
+          ctx.globalAlpha = 0.45 + 0.5 * a; ctx.fillStyle = '#e9fbff'; ctx.fillRect(px, ty * T + py, len, 1);
+          ctx.fillStyle = 'rgba(40,110,160,.5)'; ctx.fillRect(px + 1, ty * T + py + 1, len - 1, 1);
+          if (a > 0.65) { ctx.fillStyle = '#ffffff'; ctx.fillRect(px + 1, ty * T + py, 2, 1); }
         }
       }
       ctx.globalAlpha = 1;

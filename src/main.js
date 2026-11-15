@@ -16,7 +16,7 @@ import { spawnHubMonster, updateMonsters, reapMonsters, damageMonster, moveEntit
 import { loadSave, writeSave, commitMigration, exportSave, importSave, defaultMeta, KEYS } from './persistence/save.js';
 import { loadFx, createFx } from '../lib/beanfx.js';
 import { loadPixelfx } from './render/pixelfx.js';
-import { makeVis, consumeEvents, updateVis, clearVis, render, setTextQueue, drawTextQueue, setCoDa, setVachNuoc, spawnFx, burst, floatText, addShake, addFlash, part, PART_CAP } from './render/render.js';
+import { makeVis, consumeEvents, updateVis, clearVis, render, setTextQueue, drawTextQueue, setCoDa, setVachNuoc, setVachNuocCorners, spawnFx, burst, floatText, addShake, addFlash, part, PART_CAP } from './render/render.js';
 import * as UI from './ui/ui.js';
 import { EVOLUTIONS } from './data/skills.js';
 import { computeRunReward, stageReward, claimReward, rewardText } from './progression/rewards.js';
@@ -116,7 +116,12 @@ if (vis.tm && vis.tm.tran) {
 // Lớp trước xếp theo CHÂN của từng dải đục liền theo cột (cờ = chân bệ cờ, lan can nam = chân vách) rồi gom theo nấc 8 px
 // -> nhân vật đứng sau cờ/lan can bị che đúng, đứng trước thì không (cắt dải ngang cũ sai với vật cao).
 if (vis.tm) try { setCoDa(await loadImg('sprites/tm_co_da.png')); } catch (e) { console.warn('[sprite] co_da', e); }
-if (vis.tm) try { setVachNuoc(await loadImg('sprites/tm_vach_nuoc.png')); } catch (e) { console.warn('[sprite] vach_nuoc', e); }   // M8: vách/suối/thác theo concept   // M8: cỏ/đá theo concept
+if (vis.tm) try {
+  const vn = await loadImg('sprites/tm_vach_nuoc.png'); setVachNuoc(vn);
+  const c = document.createElement('canvas'); c.width = 128; c.height = 32; c.getContext('2d').drawImage(vn, 0, 96, 128, 32, 0, 0, 128, 32);   // hàng 7–8: ô góc bờ (nếu đã vẽ)
+  const d = c.getContext('2d').getImageData(0, 0, 128, 32).data; let n = 0; for (let i = 3; i < d.length; i += 4) if (d[i]) n++;
+  setVachNuocCorners(n > 128 * 32 * 0.4);
+} catch (e) { console.warn('[sprite] vach_nuoc', e); }   // M8: vách/suối/thác theo concept   // M8: cỏ/đá theo concept
 if (vis.tm) try {
   const { PLAZA } = await import('./data/sect_plaza.js');
   const ld = loadImg;
