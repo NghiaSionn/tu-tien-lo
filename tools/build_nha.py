@@ -23,9 +23,9 @@ ROOT = Path(__file__).resolve().parent.parent
 # số đo px trên sprite đã làm sạch: seed = điểm trên sàn; stair = cột bậc [x0,y0,x1,y1]; interact = chỗ đứng bấm E (trước đồ vật chính)
 NHA = {
     # (16/11) tách đúng từ concept ảnh 1 (ChatGPT, người phát triển chỉnh: lò luyện đan + nguyên liệu, bậc bên trái)
-    'dan_duoc': dict(src='docs/concept/nha_dan_duoc_concept_chatgpt.png', scale=4.5, floor_all=True, seed=(166, 136), stair=(58, 148, 108, 204), interact=(166, 136),   # số đo trên bản 4,5 px
-                     block=[(58, 75, 110, 126), (215, 85, 270, 128), (140, 75, 192, 122), (98, 126, 142, 150), (180, 127, 232, 150)],   # kệ trái/phải, lò đan, 2 bàn
-                     floor=[(60, 135), (62, 100), (105, 95), (225, 95), (268, 100), (272, 135), (262, 146), (115, 146), (108, 152), (58, 152)]),
+    'dan_duoc': dict(src='docs/concept/nha_dan_duoc_pixel_chatgpt.png', scale=4.42, floor_all=True, seed=(165, 140), stair=(58, 155, 110, 217), interact=(165, 140),   # (16/11) bản PIXEL ART thật (ChatGPT vẽ lại: màu phẳng, viền đen) — hết nhoè
+                     block=[(62, 80, 112, 125), (220, 85, 268, 128), (140, 80, 200, 128), (102, 132, 150, 155), (180, 130, 235, 155)],   # kệ trái/phải, lò đan, 2 bàn
+                     floor=[(65, 140), (70, 105), (115, 98), (215, 98), (265, 105), (272, 140), (262, 152), (118, 152), (110, 158), (58, 158)]),
     # (16/11) tách đúng từ concept ảnh 1: lò rèn + ống khói, đe giữa sân, giá thương, thùng quặng, bậc trái
     'luyen_khi': dict(src='docs/concept/nha_luyen_khi_concept_chatgpt.png', scale=4.5, floor_all=True, seed=(178, 160), stair=(30, 152, 78, 212), interact=(178, 160),
                       block=[(95, 103, 118, 122), (88, 135, 116, 156), (148, 120, 205, 150), (228, 105, 288, 150), (200, 70, 265, 120), (15, 80, 92, 136)],   # hộp sắt, thùng quặng, đe, giá thương, lò rèn, chái trái (thùng gỗ nhỏ không chặn: lối thẳng từ bậc tới đe)
@@ -46,7 +46,7 @@ NHA = {
 }
 # (16/11) cỡ nhà: thu theo khối 4,5 px ảnh gốc (bản 3 px to gấp rưỡi và mờ vì chi tiết nhỏ hơn mật độ điểm ảnh game; bản 8,6 px vỡ hạt).
 # Số đo trong NHA vẫn ghi theo bản thu 3 px (scale) và được đổi tỉ lệ f = scale*UP/px.
-PX = {'dan_duoc': 4.5, 'luyen_khi': 4.5, 'tang_kinh': 4.5, 'cong_duc': 4.5, 'truyen_thua': 4.5}
+PX = {'dan_duoc': 4.42, 'luyen_khi': 4.5, 'tang_kinh': 4.5, 'cong_duc': 4.5, 'truyen_thua': 4.5}
 UP = 1
 LUM_MIN, OPEN_R, FOOT, GROW, PAD, C = 85, 2, 8, 4, 8, 4
 OBJ_FOOT = 12
