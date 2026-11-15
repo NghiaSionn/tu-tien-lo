@@ -84,7 +84,7 @@ export function buildSectGrid(S = SECT) {
     for (let y = Math.floor(ecy - ry) - 1; y <= ecy + ry + 1; y++) for (let x = Math.floor(ecx - rx) - 1; x <= ecx + rx + 1; x++) {
       const ds = [dd(x, y), dd(x + 1, y), dd(x, y + 1), dd(x + 1, y + 1)], lo = Math.min(...ds), hi = Math.max(...ds);
       if (hi < 1) set(x, y, GRASS);
-      else if (lo < 1) set(x, y, Math.hypot(x + 0.5 - gx, y + 0.5 - gy) < 1.9 ? GRASS : FENCE);
+      else if (lo < 1) set(x, y, Math.hypot(x + 0.5 - gx, y + 0.5 - gy) < 1.3 ? GRASS : FENCE);
     }
   } else for (let y = P.y; y < P.y + P.h; y++) for (let x = P.x; x < P.x + P.w; x++) {
     const edge = x === P.x || y === P.y || x === P.x + P.w - 1 || y === P.y + P.h - 1;
@@ -172,7 +172,7 @@ export function makeSectMap(S = SECT) {
     const { c: [ecx, ecy], rx, ry, gate: [gx, gy] } = P.ring, posts = [];
     const N = Math.round(2 * Math.PI * Math.sqrt((rx * rx + ry * ry) / 2) * T / 22);
     for (let i = 0; i < N; i++) { const a = i / N * 2 * Math.PI, x = ecx + rx * Math.cos(a), y = ecy + ry * Math.sin(a);
-      posts.push({ x: (ox + x) * T, y: (oy + y) * T, gate: Math.hypot(x - gx, y - gy) < 2.1 }); }
+      posts.push({ x: (ox + x) * T, y: (oy + y) * T, gate: Math.hypot(x - gx, y - gy) < 1.5 }); }
     m.sect.pen.ring = { ...P.ring, posts };
     for (const a of P.ring.flags) m.sect.props.push({ s: 'tru_co', ...px([ecx + rx * Math.cos(a), ecy + ry * Math.sin(a) + 0.4]), flat: false });
     m.sect.props.push({ s: 'cong_chuong', ...px([gx, gy + 0.6]), flat: false });
