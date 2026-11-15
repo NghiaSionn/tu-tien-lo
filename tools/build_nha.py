@@ -26,9 +26,10 @@ NHA = {
     'dan_duoc': dict(src='docs/concept/nha_dan_duoc_concept_chatgpt.png', scale=3.0, seed=(250, 198), stair=(92, 226, 158, 306), interact=(250, 198),
                      block=[(92, 112, 166, 200), (322, 130, 402, 196), (212, 112, 288, 182), (146, 192, 214, 224), (270, 190, 350, 224)],   # kệ trái/phải, lò đan, 2 bàn
                      floor=[(92, 196), (98, 150), (165, 142), (330, 142), (402, 150), (408, 200), (400, 228), (170, 234), (96, 232)]),
-    'luyen_khi': dict(src='docs/concept/nha_luyen_khi_lon_chatgpt.png', scale=4.4, seed=(130, 162), stair=(97, 168, 163, 229), interact=(131, 160),
-                      block=[(104, 118, 158, 156), (46, 128, 102, 168), (176, 98, 224, 156)],   # đe, thùng than + hộp đồ, giá thương
-                      floor=[(90, 104), (172, 104), (215, 140), (218, 168), (165, 170), (97, 170), (42, 168), (45, 140)]),
+    # (16/11) tách đúng từ concept ảnh 1: lò rèn + ống khói, đe giữa sân, giá thương, thùng quặng, bậc trái
+    'luyen_khi': dict(src='docs/concept/nha_luyen_khi_concept_chatgpt.png', scale=3.0, seed=(262, 238), stair=(50, 228, 104, 316), interact=(262, 238),
+                      block=[(140, 155, 180, 182), (130, 198, 196, 248), (176, 218, 216, 252), (220, 178, 306, 226), (334, 155, 432, 226), (298, 110, 402, 182)],   # hộp sắt, thùng quặng, thùng gỗ, đe, giá thương, lò rèn
+                      floor=[(68, 206), (140, 178), (150, 166), (282, 166), (300, 176), (340, 196), (422, 214), (412, 242), (150, 250), (62, 242)]),
 }
 LUM_MIN, OPEN_R, FOOT, GROW, PAD, C = 85, 2, 8, 4, 8, 4
 OBJ_FOOT = 12
