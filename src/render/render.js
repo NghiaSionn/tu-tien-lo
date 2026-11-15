@@ -247,7 +247,7 @@ function drawFogFx(ctx, map, camX, camY, time) {
   const tx0 = Math.floor(camX / T) - 1, ty0 = Math.floor(camY / T) - 1, tw = Math.ceil(W / T) + 3, th = Math.ceil(H / T) + 3;
   if (_fogM.width !== tw || _fogM.height !== th) { _fogM.width = tw; _fogM.height = th; }
   const mg = _fogM.getContext('2d'), md = mg.createImageData(tw, th); let any = false;
-  for (let y = 0; y < th; y++) for (let x = 0; x < tw; x++) if (map.tileAt(tx0 + x, ty0 + y) === CLOUD && fogOk(map.tileAt(tx0 + x, ty0 + y + 1))) { md.data[(y * tw + x) * 4 + 3] = 255; any = true; }
+  for (let y = 0; y < th; y++) for (let x = 0; x < tw; x++) if ((map.tileAt(tx0 + x, ty0 + y) === CLOUD && fogOk(map.tileAt(tx0 + x, ty0 + y + 1))) || (map.tileAt(tx0 + x, ty0 + y) === FALL && (map.tileAt(tx0 + x - 1, ty0 + y) === CLOUD || map.tileAt(tx0 + x + 1, ty0 + y) === CLOUD))) { md.data[(y * tw + x) * 4 + 3] = 255; any = true; }
   if (!any) return;
   mg.putImageData(md, 0, 0);
   const g = _fogC.getContext('2d'); g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'source-over'; g.clearRect(0, 0, W, H); g.imageSmoothingEnabled = true;
@@ -1151,6 +1151,7 @@ export function render(ctx, g) {
         ctx.globalAlpha = 0.75 * (1 - t); ctx.strokeStyle = '#f2fdff'; ctx.lineWidth = 1; ctx.beginPath(); ctx.ellipse(Math.round(cx) + 0.5, Math.round(cy) + 0.5, rx + t * 9, ry + t * 4, 0, 0, 6.283); ctx.stroke(); } ctx.globalAlpha = 1; };
       for (let ty = ty0; ty <= ty0 + Math.ceil(H / T) + 1; ty++) for (let tx = tx0 - 1; tx <= tx0 + Math.ceil(W / T) + 1; tx++) {
         if (map.tileAt(tx, ty) !== WATER || hash(tx, ty, 8) >= 0.05 || map.tileAt(tx, ty - 1) !== WATER || !vis.props || !vis.props.sen) continue;
+        if (map.tileAt(tx, ty + 1) === WATER && map.tileAt(tx - 1, ty) === WATER && map.tileAt(tx + 1, ty) === WATER) continue;   // (17/11) sen chỉ mọc sát mép nước, không trôi giữa dòng
         const img = vis.props.sen, x = tx * T, y = ty * T, ph = time * 0.9 + hash(tx, ty, 141) * 6.28;
         ring(x + 8, y + T - 3, 11, 4, hash(tx, ty, 140));
         // lá sen trôi êm: lên xuống 1 px + lắc ngang 0,6 px ở toạ độ lẻ -> vẽ ở lớp nét cao (#hi), không nhảy nấc điểm ảnh
@@ -1166,7 +1167,7 @@ export function render(ctx, g) {
       for (let ty = ty0; ty <= ty0 + Math.ceil(H / T); ty++) for (let tx = tx0; tx <= tx0 + Math.ceil(W / T); tx++) {
         if (map.tileAt(tx, ty) !== FALL) continue;
         const x = tx * T, y = ty * T, off = Math.floor(time * 40) % 8;
-        if (VN) { const top = map.tileAt(tx, ty - 1) !== FALL, bot = map.tileAt(tx, ty + 1) !== FALL;   // thác bằng tileset: đỉnh / thân 4 khung / chân bọt
+        if (VN) { const top = map.tileAt(tx, ty - 1) !== FALL, bot = map.tileAt(tx, ty + 1) !== FALL && ty < map.h - 1;   // thác bằng tileset: đỉnh / thân 4 khung / chân bọt
           const id = 41 + (tx & 3), sx = (id & 7) * T, sy = (id >> 3) * T, o = Math.floor((time * 30 + hash(tx, 0, 77) * 16) % T);   // thân thác cuộn xuống liên tục 30 px/s (ô đã liền trên-dưới)
           if (o > 0) ctx.drawImage(VN, sx, sy + T - o, T, o, x, y, T, o);
           ctx.drawImage(VN, sx, sy, T, T - o, x, y + o, T, T - o);
@@ -1189,6 +1190,8 @@ export function render(ctx, g) {
       ctx.globalAlpha = 0.45;
       const cast = (img, x, footY) => { const sh = castShadow(img); const top = footY - sh.height + 7; if (x - 4 < camX + W && x + sh.width > camX && top < camY + H && top + sh.height > camY) ctx.drawImage(sh, x - 4, top); };   // đáy bóng lấn 3 px dưới chân
       for (const o of g.sect.props) { const img = !o.flat && vis.tm[o.s]; if (img && img.width > 6) cast(img, Math.round(o.x - img.width / 2), Math.round(o.y)); }
+      { const ring = g.sect.pen && g.sect.pen.ring;   // (17/11) rào chuồng cũng đổ bóng (mỗi đoạn trụ + thanh gỗ)
+        if (ring && vis.tm.tru_rao) { if (!vis.penRail) vis.penRail = penRailSegs(ring.posts, vis.tm.tru_rao); for (const s of vis.penRail) cast(s.img, s.x, s.y); } }
       ctx.fillStyle = '#141626';   // (17/11) vật nhỏ (đèn đá, bia nhỏ, khóm hoa): thêm bóng tiếp đất elip mềm dưới chân — bóng hắt quá mỏng để thấy
       for (const o of g.sect.props) { const img = !o.flat && vis.tm[o.s]; if (!img || img.width > 48 || o.x < camX - 40 || o.x > camX + W + 40 || o.y < camY - 10 || o.y > camY + H + 20) continue;
         const rx = Math.max(5, img.width * 0.42); for (const [k, a] of [[1.3, 0.16], [1, 0.22], [0.65, 0.28]]) { ctx.globalAlpha = a; ctx.beginPath(); ctx.ellipse(o.x + 2, o.y - 1, rx * k, 2.6 * k, 0, 0, 6.283); ctx.fill(); } }
