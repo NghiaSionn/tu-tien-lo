@@ -115,7 +115,7 @@ export function makeSectMap(S = SECT) {
   const inR = (x, y, r) => x >= r[0] && x <= r[2] && y >= r[1] && y <= r[3];
   const themSolid = (x, y) => { for (const b of m.sect.buildings) { const t = b.them; if (!t) continue; const lx = x - t.x, ly = y - t.y;
     if (lx >= 0 && ly >= 0 && lx < t.w && ly < t.h) return !(inR(lx, ly, t.inner) || inR(lx, ly, t.stair)); } return false; };
-  const nhaSolid = (x, y) => { for (const b of m.sect.buildings) { const n = b.nha; if (!n) continue; const fx = x - n.x + n.pad, fy = y - n.y + n.pad;
+  const nhaSolid = (x, y) => { for (const b of m.sect.nhaAll) { const n = b.nha; if (!n) continue; const fx = x - n.x + n.pad, fy = y - n.y + n.pad;
     if (fx >= 0 && fy >= 0 && fy < n.fine.length * n.cell && fx < n.fine[0].length * n.cell) return n.fine[Math.floor(fy / n.cell)][Math.floor(fx / n.cell)] === '#'; } return false; };
   m.solidPx = (x, y) => {
     if (m.sect && (themSolid(x, y) || nhaSolid(x, y))) return true;
@@ -143,9 +143,17 @@ export function makeSectMap(S = SECT) {
       return { ...b, px: (ox + r.x0) * T, py: (oy + r.y0) * T, pw: b.base[0] * T, ph: b.base[1] * T, footPx: fp, doorPx: door, them };
     }),
     pen: { ...S.PEN, px: (ox + S.PEN.x) * T, py: (oy + S.PEN.y) * T, pw: S.PEN.w * T, ph: S.PEN.h * T, doorPx: px(S.PEN.door) },
-    portal: px(S.PORTAL), bia: px(S.BIA),
+    portal: S.PORTAL ? px(S.PORTAL) : null, bia: px(S.BIA),
     props: S.PROPS.map(([s, x, y, sd, flat]) => ({ s, ...px([x, y]), flat: !!flat })),
   };
+  // cổng bí cảnh (nhà lớn riêng): chỗ đứng bấm E = interact, tâm xoáy = ring
+  m.sect.gate = null;
+  if (S.GATE && NHA[S.GATE.nha]) {
+    const N = NHA[S.GATE.nha], at = px(S.GATE.at), x = Math.round(at.x - N.foot[0]), y = Math.round(at.y - N.foot[1]);
+    m.sect.gate = { id: 'cong_bi_canh', nha: { id: S.GATE.nha, x, y, ...N }, doorPx: { x: x + N.interact[0], y: y + N.interact[1] }, ring: { x: x + N.ring[0], y: y + N.ring[1] } };
+    m.sect.portal = m.sect.gate.doorPx;
+  }
+  m.sect.nhaAll = m.sect.gate ? [...m.sect.buildings, m.sect.gate] : m.sect.buildings;
   // hàng rào Luyện Võ Trường: sprite hang_rao dọc mép bắc/nam (bỏ chỗ cổng) + cổng rào; mép đông/tây vẽ cọc rào theo ô
   const P = S.PEN;
   for (const ey of [P.y, P.y + P.h - 1]) for (let x = P.x; x < P.x + P.w - 1; x += 2) {

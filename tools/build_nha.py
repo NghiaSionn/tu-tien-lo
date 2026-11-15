@@ -43,10 +43,13 @@ NHA = {
     'truyen_thua': dict(src='docs/concept/nha_truyen_thua_concept_chatgpt.png', scale=3.0, floor_all=True, cut=[(95, 196, 200)], seed=(212, 312), stair=(212, 316, 282, 431), interact=(212, 312),   # cut: số đo bản 4,5 px
                         block=[(174, 262, 256, 300)],   # bàn thờ
                         floor=[(172, 300), (258, 294), (268, 312), (256, 324), (180, 324)]),
+    # (16/11) cổng bí cảnh tách từ concept (lòng cổng để trống: game vẽ xoáy pixelfx vào đó), bậc giữa, bệ đá + 2 trụ đèn
+    'cong_bi_canh': dict(src='docs/concept/cong_bi_canh_concept_chatgpt.png', scale=6.5, floor_all=True, seed=(98, 106), stair=(68, 112, 130, 162), interact=(98, 106),
+                         block=[], floor=[(70, 100), (128, 100), (130, 112), (68, 112)], ring=(98, 62)),
 }
 # (16/11) cỡ nhà: thu theo khối 4,5 px ảnh gốc (bản 3 px to gấp rưỡi và mờ vì chi tiết nhỏ hơn mật độ điểm ảnh game; bản 8,6 px vỡ hạt).
 # Số đo trong NHA vẫn ghi theo bản thu 3 px (scale) và được đổi tỉ lệ f = scale*UP/px.
-PX = {'dan_duoc': 4.5, 'luyen_khi': 4.5, 'tang_kinh': 4.5, 'cong_duc': 4.5, 'truyen_thua': 4.5}
+PX = {'cong_bi_canh': 6.5, 'dan_duoc': 4.5, 'luyen_khi': 4.5, 'tang_kinh': 4.5, 'cong_duc': 4.5, 'truyen_thua': 4.5}
 UP = 1
 LUM_MIN, OPEN_R, FOOT, GROW, PAD, C = 85, 2, 8, 4, 8, 4
 OBJ_FOOT = 12
@@ -120,7 +123,9 @@ def build(id_, cfg):
     bg = Image.new('RGBA', (W, H), (20, 20, 40, 255)); bg.alpha_composite(Image.fromarray(ov))
     bg.resize((W * 2, H * 2), Image.NEAREST).save(ROOT / f'docs/playtest/M8_nha_{id_}_va_cham.png')
     print(id_, W, H, 'sàn px', int(floor.sum()))
-    return {'w': W, 'h': H, 'foot': foot, 'cell': C, 'pad': PAD, 'fine': fine, 'interact': list(cfg['interact'])}
+    out = {'w': W, 'h': H, 'foot': foot, 'cell': C, 'pad': PAD, 'fine': fine, 'interact': list(cfg['interact'])}
+    if 'ring' in cfg: out['ring'] = list(cfg['ring'])   # tâm lòng cổng (px sprite): game vẽ xoáy ở đây
+    return out
 
 
 def main():

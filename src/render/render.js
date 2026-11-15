@@ -964,7 +964,10 @@ export function render(ctx, g) {
         if (map.tileAt(tx, ty + 1) !== FALL) { ctx.fillStyle = 'rgba(255,255,255,.85)'; for (let i = 0; i < 4; i++) ctx.fillRect(x - 2 + Math.floor(hash(tx, Math.floor(time * 6) + i, 67) * 18), y + T - 4 + (i & 1) * 2, 4, 2); }
       }
     }
-    if (g.sect && vis.nha) for (const b of g.sect.buildings) { const n = b.nha, v = n && vis.nha[n.id]; if (v) ctx.drawImage(v.base, n.x, n.y); }   // M8-15: nền nhà lớn
+    if (g.sect && vis.nha) for (const b of g.sect.nhaAll) { const n = b.nha, v = n && vis.nha[n.id]; if (v) ctx.drawImage(v.base, n.x, n.y); }   // M8-15: nền nhà lớn
+    if (g.sect && g.sect.gate && FEATURES.run && g.portal && vis.pfx) {   // xoáy bí cảnh trong lòng cổng (cổng là nhà lớn: nền đã vẽ, vòng cổng ở lớp che)
+      const f = vis.pfx.portal, rg = g.sect.gate.ring; f.x = Math.round(rg.x); f.y = Math.round(rg.y + 30); f.scale = 0.95; f.draw(ctx); f.scale = 1;
+    }
     if (g.sect && vis.plaza) ctx.drawImage(vis.plaza.base, Math.round(map.cx - vis.plaza.ax), Math.round(map.cy - vis.plaza.ay));   // M8: bệ pháp đài
     const TR = g.sect && vis.tm && vis.tm.tran ? vis.tm : ct;   // M8: sảnh tông môn dùng tụ linh trận vẽ theo concept ảnh 1 (sprites/tm_tran)
     if (TR === vis.tm && TR.tran) {   // M8: trận đứng yên một chỗ; tọa thiền trong trận thì các đường khắc sáng lên (không nhấp nháy)
@@ -1021,7 +1024,7 @@ export function render(ctx, g) {
   mark('ground');
   for (const m of scene.monsters) objs.push({ y: m.y, m });
   objs.push({ y: p.y, player: true });
-  if (scene.kind === 'hub' && FEATURES.run && g.portal && vis.pfx) objs.push({ y: g.portal.y, portal: true });
+  if (scene.kind === 'hub' && FEATURES.run && g.portal && vis.pfx && !(g.sect && g.sect.gate)) objs.push({ y: g.portal.y, portal: true });
   if (scene.kind === 'hub' && g.bia && vis.ct && vis.ct.bia) objs.push({ y: g.bia.y, bia: true });
   if (scene.kind === 'hub' && g.sect) {   // M8: công trình + đồ vật + cây tông môn (sprite tm_*, xếp theo chân); thiếu sprite -> khối tạm
     const vis1 = (img, fx, fy) => fx - img.width / 2 < camX + W && fx + img.width / 2 > camX && fy - img.height < camY + H && fy > camY - 4;
@@ -1032,10 +1035,10 @@ export function render(ctx, g) {
       const f = b.footPx;
       if (vis1(img, f.x, f.y)) objs.push({ y: f.y, img, x: Math.round(f.x - img.width / 2), dy: Math.round(f.y - img.height), label: b.name, door: b.doorPx, id: b.id });
     }
-    if (vis.nha) for (const b of g.sect.buildings) {   // M8-15: lớp che nhà lớn + tên khu trên mái
+    if (vis.nha) for (const b of g.sect.nhaAll) {   // M8-15: lớp che nhà lớn + tên khu trên mái
       const n = b.nha, v = n && vis.nha[n.id]; if (!v) continue;
       for (const s of v.strips) { const dy = n.y + s.y; if (dy < camY + H && dy + s.img.height > camY && n.x + s.x < camX + W && n.x + s.x + s.img.width > camX) objs.push({ y: n.y + s.foot, img: s.img, x: n.x + s.x, dy, noFade: true }); }
-      if (Math.hypot(p.x - b.doorPx.x, p.y - b.doorPx.y) < 140) {
+      if (b.name && Math.hypot(p.x - b.doorPx.x, p.y - b.doorPx.y) < 140) {
         const act = g.interact && g.interact.id === b.id, st = g.sectStatus && g.sectStatus(b.id);
         txt(ctx, b.name, Math.round(n.x + n.w / 2), n.y - (st ? 10 : 2), act ? '#fff6c8' : '#ffd978', act ? 11 : 10);
         if (st) txt(ctx, st.s, Math.round(n.x + n.w / 2), n.y, st.hot ? '#ffe9a0' : '#cfc6b0', 8);

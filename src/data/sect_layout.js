@@ -37,7 +37,8 @@ export const SECT = {
   ],
   // Luyện Võ Trường: sân đất (elip trong lưới) + rào chữ nhật bên trong, cổng rào phía bắc lệch trái (đầu đường đông nam)
   PEN: { id: 'luyen_vo', name: 'Luyện Võ Trường', ...BOCUC.pen },
-  PORTAL: tf([60.5, 17.5]),
+  GATE: { nha: 'cong_bi_canh', at: [60.5, 21] },   // (16/11) cổng bí cảnh tách từ concept: chân bậc (ô); PORTAL = chỗ đứng bấm E trên bệ
+  PORTAL: null,
   BIA: tf([60.5, 53.4]),   // bia lớn giữa vườn bia (concept: chân bia ~ (60.6, 53.9))
   // (16/11) cây, đèn, bia đặt theo ĐÚNG vị trí đo trên ảnh concept (chân vật = đáy hình trong ảnh, đơn vị ô concept)
   PROPS: [
