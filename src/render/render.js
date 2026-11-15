@@ -165,6 +165,18 @@ function penRailSegs(posts, post) {
 }
 // (16/11) bóng dưới vật: hình bóng của sprite ép dẹt theo chiều cao, làm mềm mép, đặt ngay dưới chân (không đổ lệch sang bên)
 const _shadow = new WeakMap();
+// (16/11) bóng nhà: chỉ phần chân (từ đỉnh cầu thang xuống) của hình nhà, làm mềm, xóa cột cầu thang -> viền tối quanh bệ đá
+const _baseShadow = new WeakMap();
+function baseShadow(img, stair) {
+  let c = _baseShadow.get(img); if (c) return c;
+  const pad = 6, w = img.width, h = img.height, y0 = stair ? Math.max(0, stair[1] - 12) : Math.round(h * 0.6);
+  c = document.createElement('canvas'); c.width = w + pad * 2; c.height = h + pad * 2; const g = c.getContext('2d');
+  g.filter = 'blur(3px)'; for (const [dx, dy] of [[0, 0], [-2, 0], [2, 0], [0, 2]]) g.drawImage(img, 0, y0, w, h - y0, pad + dx, pad + y0 + dy, w, h - y0); g.filter = 'none';   // nới ra 2 px rồi làm mềm
+  g.globalCompositeOperation = 'source-in'; g.fillStyle = '#14182c'; g.fillRect(0, 0, c.width, c.height);
+  g.globalCompositeOperation = 'destination-out';
+  if (stair) g.fillRect(pad + stair[0] - 2, pad + stair[1] - 6, stair[2] - stair[0] + 4, c.height);   // né cầu thang
+  _baseShadow.set(img, c); return c;
+}
 function castShadow(img) {
   let c = _shadow.get(img); if (c) return c;
   const w = img.width, h = img.height, f = 0.26, pad = 4;   // bóng nằm ngay dưới vật: hình bóng ép dẹt, mép làm mềm
@@ -1035,7 +1047,8 @@ export function render(ctx, g) {
       ctx.globalAlpha = 0.45;
       const cast = (img, x, footY) => { const sh = castShadow(img); const top = footY - sh.height + 7; if (x - 4 < camX + W && x + sh.width > camX && top < camY + H && top + sh.height > camY) ctx.drawImage(sh, x - 4, top); };   // đáy bóng lấn 3 px dưới chân
       for (const o of g.sect.props) { const img = !o.flat && vis.tm[o.s]; if (img && img.width > 20) cast(img, Math.round(o.x - img.width / 2), Math.round(o.y)); }
-      if (vis.nha) for (const b of g.sect.nhaAll || []) { const n = b.nha, v = n && vis.nha[n.id]; if (v) cast(v.base, n.x, n.y + n.h); }
+      if (vis.nha) for (const b of g.sect.nhaAll || []) { const n = b.nha, v = n && vis.nha[n.id]; if (!v) continue; const sh = baseShadow(v.base, n.stair);   // nhà: bóng quanh bệ đá, né cầu thang
+        if (n.x - 6 < camX + W && n.x + sh.width > camX && n.y < camY + H && n.y + sh.height > camY) { ctx.globalAlpha = 0.6; ctx.drawImage(sh, n.x - 6 + 3, n.y - 6 + 6); ctx.globalAlpha = 0.45; } }
       ctx.globalAlpha = 1;
     }
     if (FEATURES.run && g.portal && !vis.pfx) drawPortal(ctx, g.portal.x, g.portal.y, time, g.portal.near);

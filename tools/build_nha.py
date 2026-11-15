@@ -123,7 +123,7 @@ def build(id_, cfg):
     bg = Image.new('RGBA', (W, H), (20, 20, 40, 255)); bg.alpha_composite(Image.fromarray(ov))
     bg.resize((W * 2, H * 2), Image.NEAREST).save(ROOT / f'docs/playtest/M8_nha_{id_}_va_cham.png')
     print(id_, W, H, 'sàn px', int(floor.sum()))
-    out = {'w': W, 'h': H, 'foot': foot, 'cell': C, 'pad': PAD, 'fine': fine, 'interact': list(cfg['interact'])}
+    out = {'w': W, 'h': H, 'foot': foot, 'cell': C, 'pad': PAD, 'fine': fine, 'interact': list(cfg['interact']), 'stair': list(cfg['stair'])}   # stair: cột bậc (px sprite) — bóng nhà né chỗ này
     if 'ring' in cfg: out['ring'] = list(cfg['ring'])   # tâm lòng cổng (px sprite): game vẽ xoáy ở đây
     return out
 
