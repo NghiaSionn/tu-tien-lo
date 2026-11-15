@@ -53,10 +53,10 @@ export const SECT = {
     ['anh_dao_lon', 46, 58.8, [2, 1]], ['anh_dao_nho', 56.2, 51.6, [1, 1]], ['anh_dao_lon', 70.5, 55.2, [2, 1]], ['anh_dao_lon', 77.6, 48.2, [2, 1]],
     ['anh_dao_lon', 41.5, 18.8, [2, 1]], ['anh_dao_lon', 108, 23.2, [2, 1]], ['anh_dao_lon', 11.5, 38, [2, 1]], ['anh_dao_lon', 11.5, 51.5, [2, 1]],
     ['cay_tron', 41.2, 47.8, [2, 1]], ['tung_cao', 11, 21, [1, 1]], ['tung_cao', 108, 12, [1, 1]], ['tung_bonsai', 50.5, 18.5, [2, 1]],
-    ['tung_bonsai', 72, 17.5, [2, 1]], ['cay_tron', 100, 58, [2, 1]], ['cay_tron', 13.5, 53, [2, 1]], ['bui_cay', 76, 39, [2, 1]],
+    ['tung_bonsai', 72, 17.5, [2, 1]], ['cay_tron', 111, 56, [2, 1]], ['cay_tron', 13.5, 53, [2, 1]], ['bui_cay', 76, 39, [2, 1]],
     ['khom_hoa', 58, 56.5], ['khom_hoa', 63, 57], ['khom_hoa', 52, 42], ['khom_hoa', 70, 30],
     // Luyện Võ Trường: chòi, giá binh khí, mộc nhân, cờ (theo concept)
-    ['luyen_vo', 103, 48, [4, 2]], ['gia_binh_khi', 94.6, 46.6, [2, 1]],
+    ['luyen_vo', 103, 50.5, [4, 2]], ['gia_binh_khi', 94.6, 47.6, [2, 1]],   // chòi + giá trong sân (không đè rào bắc)
     ['moc_nhan', 86.5, 50.8, [1, 1]], ['moc_nhan', 89.5, 49.5, [1, 1]], ['moc_nhan', 92.3, 51.7, [1, 1]],
     ['co_phuon', 83.1, 47.8, [1, 1]], ['co_phuon', 106.5, 50.8, [1, 1]],
   ].map(([n, x, y, ...r]) => [n, ...tf([x, y + (PEN_PROPS.has(n) || (n === 'co_phuon' && x > 80) ? PEN_DY : 0)]), ...r]),

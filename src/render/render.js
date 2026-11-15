@@ -221,6 +221,18 @@ function paintCoDa(g, map, tx, ty, x, y) {
 let VN = null;
 export function setVachNuoc(img) { VN = img; }
 const vnTile = (g, id, x, y) => g.drawImage(VN, (id & 7) * T, (id >> 3) * T, T, T, x, y, T, T);
+// M8 (16/11): sân đất Luyện Võ — nền đất + viền: mép giáp rào/cỏ có dải đất sẫm và vệt cỏ lấn vào, góc bo tròn
+function paintDirtYard(g, map, tx, ty, x, y) {
+  g.drawImage(dirtTile(), x, y);
+  const o = (dx, dy) => map.tileAt(tx + dx, ty + dy) !== DIRT;
+  const n = o(0, -1), s = o(0, 1), w = o(-1, 0), e = o(1, 0);
+  g.fillStyle = 'rgba(92,58,30,.55)';
+  if (n) g.fillRect(x, y, T, 3); if (s) g.fillRect(x, y + T - 3, T, 3); if (w) g.fillRect(x, y, 3, T); if (e) g.fillRect(x + T - 3, y, 3, T);
+  g.fillStyle = 'rgba(60,110,40,.9)';
+  for (let i = 0; i < 3; i++) { const h = hash(tx, ty, 91 + i), k = Math.floor(h * 14);
+    if (n) g.fillRect(x + k, y, 2, 1 + (i & 1)); if (s) g.fillRect(x + k, y + T - 1 - (i & 1), 2, 1 + (i & 1));
+    if (w) g.fillRect(x, y + k, 1 + (i & 1), 2); if (e) g.fillRect(x + T - 1 - (i & 1), y + k, 1 + (i & 1), 2); }
+}
 function paintCliffVN(g, map, tx, ty, x, y) {
   const up = map.tileAt(tx, ty - 1), h = hash(tx, ty, 81), v = Math.floor(hash(tx, ty, 82) * 8);
   let id;
@@ -271,6 +283,7 @@ function buildChunk(map, cx, cy, phase, props) {
   for (let ty = ty0; ty < ty0 + CH; ty++) for (let tx = tx0; tx < tx0 + CH; tx++) {
     const t = map.tileAt(tx, ty), x = tx * T, y = ty * T;
     if (t === WATER && !(map.sect && VN)) { g.drawImage(waterTiles[(phase + tx + ty) & 1], x, y); if (map.tileAt(tx, ty - 1) !== WATER) g.drawImage(waterBank, x, y); }
+    else if (map.sect && t === DIRT) paintDirtYard(g, map, tx, ty, x, y);
     else if (map.sect && VN && t === WATER) paintWaterVN(g, map, tx, ty, x, y, phase);
     else if (map.sect && VN && (t === CLIFF || t === FALL)) paintCliffVN(g, map, tx, ty, x, y);
     else if (map.sect && CODA && (t === STONE || t === GRASS || t === BUILDING)) paintCoDa(g, map, tx, ty, x, y);

@@ -35,7 +35,7 @@ WATER = [   # khoanh theo ảnh concept (16/11)
 ]
 # Luyện Võ Trường: rào chữ nhật, cổng rào cạnh bắc lệch trái (đầu đường đông nam) + sân đất elip
 PEN = dict(x=82, y=44, w=26, h=13, gate=[83, 86], door=[84.5, 43.2])
-DIRT = [((95, 50.5), 15, 7.5)]
+DIRT = []   # (16/11) sân đất chỉ trong rào Luyện Võ (map.js lát DIRT trong PEN) — bỏ elip tràn ra ngoài rào
 PLAZA = dict(c=C, rx=14, ry=9)
 GATE = dict(x=(57, 64), y=(11, 19))
 BUILDINGS = {
