@@ -99,6 +99,11 @@ def build():
     d.rectangle(BIA['box'], fill=ord('b'))
     for f in FALLS: d.rectangle(f, fill=ord('W'))
     g = np.array(L)
+    # (17/11) bỏ nước nhô 1 ô (>= 3 cạnh là đất) cho bờ ao/suối tròn trịa, không răng cưa
+    for _ in range(3):
+        wt = g == ord('~'); nb = sum(np.roll(wt, s, ax) for s, ax in ((1, 0), (-1, 0), (1, 1), (-1, 1)))
+        land = np.isin(g, [ord(c) for c in '.=dPbBG'])
+        g[wt & (nb <= 1) & (sum(np.roll(land, s, ax) for s, ax in ((1, 0), (-1, 0), (1, 1), (-1, 1))) >= 3)] = ord('.')
     # vách núi: ô ngoài đảo kề ô đảo (viền dày 2) -> đặc, vẽ đá
     inside = g != ord('X')
     near = np.zeros_like(inside)

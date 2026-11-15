@@ -283,29 +283,52 @@ function paintDirtYard(g, map, tx, ty, x, y) {
     if (n) g.fillRect(x + k, y, 2, 1 + (i & 1)); if (s) g.fillRect(x + k, y + T - 1 - (i & 1), 2, 1 + (i & 1));
     if (w) g.fillRect(x, y + k, 1 + (i & 1), 2); if (e) g.fillRect(x + T - 1 - (i & 1), y + k, 1 + (i & 1), 2); }
 }
-function paintCliffVN(g, map, tx, ty, x, y) {
-  const up = map.tileAt(tx, ty - 1), h = hash(tx, ty, 81), v = Math.floor(hash(tx, ty, 82) * 8);
-  let id;
-  if (isWalkT(up) || up === WATER) id = 8 + v;                                   // mép trên: cỏ rủ xuống vách
-  else if (map.tileAt(tx, ty + 1) === CLOUD) id = 16 + (v & 3);                  // chân vách tan vào mây
-  else if (map.tileAt(tx - 1, ty) === CLOUD) id = 20;                            // cạnh trái
-  else if (map.tileAt(tx + 1, ty) === CLOUD) id = 23;                            // cạnh phải
-  else id = h < 0.12 ? 21 + (v & 1) : v;                                         // mặt vách
-  vnTile(g, id, x, y);
-  // (16/11) mép vách giáp mây: phủ mây theo đường gợn sóng liên tục qua các ô (không lộ cạnh ô vuông)
-  const cl = (dx, dy) => map.tileAt(tx + dx, ty + dy) === CLOUD;
-  for (const [side, dx] of [[-1, -1], [1, 1]]) if (cl(dx, 0)) for (let r = 0; r < T; r++) {
-    const gy = ty * T + r, w = Math.max(1, Math.round(3.5 + 2.5 * Math.sin(gy / 7 + tx * 1.3) + 1.5 * Math.sin(gy / 3.1 + tx)));
-    g.fillStyle = '#c3c6e4'; g.fillRect(side < 0 ? x : x + T - w, y + r, w, 1);
-    g.fillStyle = 'rgba(150,150,196,.7)'; g.fillRect(side < 0 ? x + w : x + T - w - 1, y + r, 1, 1);
+function paintCliffVN(g, map, tx, ty, x, y) {   // (17/11) chỉ dùng ô mặt vách (0-7, mép chung) + ô mép trên (8-15); mép giáp mây/cỏ/đáy vẽ phủ theo đường cong
+  const up = map.tileAt(tx, ty - 1), v = Math.floor(hash(tx, ty, 82) * 8);
+  vnTile(g, isWalkT(up) || up === WATER ? 8 + v : v, x, y);
+  const cl = (dx, dy) => map.tileAt(tx + dx, ty + dy) === CLOUD, wk = (dx, dy) => isWalkT(map.tileAt(tx + dx, ty + dy));
+  const wav = (k, s) => Math.max(1, Math.round(3.5 + 2.5 * Math.sin(k / 7 + s * 1.3) + 1.5 * Math.sin(k / 3.1 + s)));
+  // giáp mây trái/phải: mây gợn sóng liên tục
+  for (const dx of [-1, 1]) if (cl(dx, 0)) for (let r = 0; r < T; r++) {
+    const w = wav(ty * T + r, tx); g.fillStyle = '#c3c6e4'; g.fillRect(dx < 0 ? x : x + T - w, y + r, w, 1);
+    g.fillStyle = 'rgba(150,150,196,.7)'; g.fillRect(dx < 0 ? x + w : x + T - w - 1, y + r, 1, 1);
+  }
+  // chân vách tan vào mây: các hàng cuối mờ dần sang màu mây theo đường gợn
+  if (cl(0, 1)) for (let c = 0; c < T; c++) {
+    const hgt = wav(tx * T + c, ty) + 2; g.fillStyle = 'rgba(195,198,228,.55)'; g.fillRect(x + c, y + T - hgt - 3, 1, 3);
+    g.fillStyle = '#c3c6e4'; g.fillRect(x + c, y + T - hgt, 1, hgt);
+  }
+  // cạnh vách giáp cỏ (đảo bậc thang): cỏ phủ mép bên + bóng tối, góc trên bo tròn
+  for (const dx of [-1, 1]) if (wk(dx, 0)) {
+    for (let r = 0; r < T; r++) { const w = 2 + ((hash(tx, ty * T + r, 93) * 2) | 0); const gx = dx < 0 ? x : x + T - w;
+      g.fillStyle = '#4f8a3c'; g.fillRect(gx, y + r, w, 1); g.fillStyle = 'rgba(30,25,50,.45)'; g.fillRect(dx < 0 ? x + w : x + T - w - 1, y + r, 1, 1); }
   }
 }
-function paintWaterVN(g, map, tx, ty, x, y, phase) {
-  const land = (dx, dy) => isWalkT(map.tileAt(tx + dx, ty + dy)), v = Math.floor(hash(tx, ty, 83) * 2);
-  let id;
-  if (land(0, -1)) id = 32 + v; else if (land(0, 1)) id = 34 + v; else if (land(-1, 0)) id = 36; else if (land(1, 0)) id = 37;
-  else id = hash(tx, ty, 84) < 0.05 ? 38 + v : 24 + Math.floor(hash(tx, ty, 85) * 8);   // (16/11) tĩnh; gợn sóng chạy mượt vẽ mỗi khung (drawWaterFx)
-  vnTile(g, id, x, y);
+function paintWaterVN(g, map, tx, ty, x, y) {   // (17/11) nước trơn + bờ vẽ theo từng cạnh/góc (cỏ thật + viền đá + bọt), hết góc lỗi
+  vnTile(g, 24 + Math.floor(hash(tx, ty, 85) * 8), x, y);
+  const land = (dx, dy) => { const t = map.tileAt(tx + dx, ty + dy); return isWalkT(t) || t === CLIFF; };
+  const grass = (gx, gy, w, h) => { if (CODA) g.drawImage(CODA, ((gx - x) & 15), ((gy - y) & 15), w, h, gx, gy, w, h); else { g.fillStyle = '#6a9a44'; g.fillRect(gx, gy, w, h); } };
+  const B = 4;
+  const n = land(0, -1), s = land(0, 1), w = land(-1, 0), e = land(1, 0);
+  const edge = (gx, gy, ww, hh, dir) => { grass(gx, gy, ww, hh); g.fillStyle = '#5b6b78';
+    if (dir === 'n') g.fillRect(gx, gy + hh, ww, 1); if (dir === 's') g.fillRect(gx, gy - 1, ww, 1); if (dir === 'w') g.fillRect(gx + ww, gy, 1, hh); if (dir === 'e') g.fillRect(gx - 1, gy, 1, hh);
+    g.fillStyle = 'rgba(220,248,255,.55)';
+    if (dir === 'n') g.fillRect(gx, gy + hh + 1, ww, 1); if (dir === 's') g.fillRect(gx, gy - 2, ww, 1); if (dir === 'w') g.fillRect(gx + ww + 1, gy, 1, hh); if (dir === 'e') g.fillRect(gx - 2, gy, 1, hh); };
+  if (n) edge(x, y, T, B, 'n'); if (s) edge(x, y + T - B, T, B, 's'); if (w) edge(x, y, B, T, 'w'); if (e) edge(x + T - B, y, B, T, 'e');
+  // góc ngoài (hai cạnh kề đều là đất): bo tròn bán kính 8 px — cỏ lấp phần góc, viền đá + bọt chạy theo cung
+  for (const [dx, dy, a1, b1] of [[-1, -1, w, n], [1, -1, e, n], [-1, 1, w, s], [1, 1, e, s]]) if (a1 && b1) {
+    const R = 13, cx = dx < 0 ? x + R : x + T - R, cy = dy < 0 ? y + R : y + T - R;
+    for (let yy = 0; yy < R; yy++) for (let xx = 0; xx < R; xx++) {
+      const px = dx < 0 ? x + xx : x + T - 1 - xx, py = dy < 0 ? y + yy : y + T - 1 - yy, d = Math.hypot(px + 0.5 - cx, py + 0.5 - cy);
+      if (d > R - B) { grass(px, py, 1, 1); if (d < R - B + 1.2) { g.fillStyle = '#5b6b78'; g.fillRect(px, py, 1, 1); } }
+      else if (d > R - B - 1.2 && (dx < 0 ? px < cx : px >= cx) && (dy < 0 ? py < cy : py >= cy)) { g.fillStyle = 'rgba(220,248,255,.55)'; g.fillRect(px, py, 1, 1); }
+    }
+  }
+  // góc trong (chỉ chéo là đất): khối cỏ tròn nhỏ ở góc
+  for (const [dx, dy] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) if (land(dx, dy) && !land(dx, 0) && !land(0, dy)) {
+    const cx = dx < 0 ? x : x + T, cy = dy < 0 ? y : y + T;
+    for (let k = 0; k < B + 3; k++) { const l = Math.round(Math.sqrt(Math.max(0, (B + 3) ** 2 - k * k))); grass(dx < 0 ? cx : cx - l, dy < 0 ? cy + k : cy - k - 1, l, 1); }
+  }
 }
 function paintCliff(g, map, tx, ty, x, y) {   // mặt vách dọc: nhìn 3/4 thấy mặt đá dưới mép đảo; càng xuống càng tối
   let depth = 0; while (depth < 6 && map.tileAt(tx, ty - depth - 1) === CLIFF) depth++;
@@ -341,7 +364,7 @@ function buildChunk(map, cx, cy, phase, props) {
     const t = map.tileAt(tx, ty), x = tx * T, y = ty * T;
     if (t === WATER && !(map.sect && VN)) { g.drawImage(waterTiles[(phase + tx + ty) & 1], x, y); if (map.tileAt(tx, ty - 1) !== WATER) g.drawImage(waterBank, x, y); }
     else if (map.sect && t === DIRT) paintDirtYard(g, map, tx, ty, x, y);
-    else if (map.sect && VN && t === WATER) paintWaterVN(g, map, tx, ty, x, y, phase);
+    else if (map.sect && VN && t === WATER) paintWaterVN(g, map, tx, ty, x, y);
     else if (map.sect && VN && (t === CLIFF || t === FALL)) paintCliffVN(g, map, tx, ty, x, y);
     else if (map.sect && CODA && (t === STONE || t === GRASS || t === BUILDING)) paintCoDa(g, map, tx, ty, x, y);
     else if (map.sect && t === STONE) paintPath(g, map, tx, ty, x, y);
@@ -1011,6 +1034,8 @@ export function render(ctx, g) {
       const tx0 = Math.floor(camX / T), ty0 = Math.floor(camY / T);
       for (let ty = ty0; ty <= ty0 + Math.ceil(H / T); ty++) for (let tx = tx0; tx <= tx0 + Math.ceil(W / T); tx++) {
         if (map.tileAt(tx, ty) !== WATER) continue;
+        let nearLand = false; for (let dy = -1; dy <= 1 && !nearLand; dy++) for (let dx = -1; dx <= 1; dx++) if (map.tileAt(tx + dx, ty + dy) !== WATER && map.tileAt(tx + dx, ty + dy) !== FALL) { nearLand = true; break; }
+        if (nearLand) continue;   // (17/11) không vẽ gợn lên bờ cỏ
         for (let i = 0; i < 2; i++) {
           const h1 = hash(tx, ty, 120 + i), h2 = hash(tx, ty, 130 + i), a = 0.5 + 0.5 * Math.sin(time * 1.6 + h1 * 6.28);
           const px = tx * T + ((h1 * 16 + time * 5) % 18) - 1, py = ty * T + 3 + Math.floor(h2 * 10), len = 3 + Math.floor(h2 * 3);
@@ -1026,10 +1051,17 @@ export function render(ctx, g) {
         if (map.tileAt(tx, ty) !== FALL) continue;
         const x = tx * T, y = ty * T, off = Math.floor(time * 40) % 8;
         if (VN) { const top = map.tileAt(tx, ty - 1) !== FALL, bot = map.tileAt(tx, ty + 1) !== FALL;   // thác bằng tileset: đỉnh / thân 4 khung / chân bọt
-          if (top || bot) { vnTile(ctx, top ? 40 : 45 + (Math.floor(time * 4 + tx) & 1), x, y); continue; }
           const id = 41 + (tx & 3), sx = (id & 7) * T, sy = (id >> 3) * T, o = Math.floor((time * 30 + hash(tx, 0, 77) * 16) % T);   // thân thác cuộn xuống liên tục 30 px/s (ô đã liền trên-dưới)
           if (o > 0) ctx.drawImage(VN, sx, sy + T - o, T, o, x, y, T, o);
-          ctx.drawImage(VN, sx, sy, T, T - o, x, y + o, T, T - o); continue; }
+          ctx.drawImage(VN, sx, sy, T, T - o, x, y + o, T, T - o);
+          if (top) {   // đỉnh thác: mép nước tràn qua (màu nước suối) + dải bọt trắng gợn
+            for (let c = 0; c < T; c++) { const k = tx * T + c, hb = 2 + Math.round(1.5 + 1.5 * Math.sin(k / 3 + time * 3)); ctx.fillStyle = '#4b8fb5'; ctx.fillRect(x + c, y, 1, 2); ctx.fillStyle = '#e8f8ff'; ctx.fillRect(x + c, y + 2, 1, hb); ctx.fillStyle = 'rgba(255,255,255,.5)'; ctx.fillRect(x + c, y + 2 + hb, 1, 1); }
+          }
+          if (bot) {   // chân thác: bọt trắng cuộn tan vào mây
+            for (let i = 0; i < 6; i++) { const ph = time * 2.2 + i * 1.7 + tx, r = 2.5 + 1.8 * Math.sin(ph), bx = x + ((i * 5 + tx * 3) % T), by = y + T - 4 - (i & 1) * 3;
+              ctx.fillStyle = i & 1 ? 'rgba(255,255,255,.85)' : 'rgba(225,240,255,.8)'; ctx.beginPath(); ctx.ellipse(bx, by, r + 1.5, r, 0, 0, 6.283); ctx.fill(); }
+          }
+          continue; }
         ctx.fillStyle = '#5fb4e6'; ctx.fillRect(x, y, T, T);
         for (let i = 0; i < 4; i++) { const sx = x + i * 4 + Math.floor(hash(tx, i, 66) * 2); ctx.fillStyle = (i & 1) ? '#9bd8f5' : '#cdeffc';
           for (let k = -1; k < 3; k++) ctx.fillRect(sx, y + ((off + k * 8 + i * 3) & 15) - 2, 2, 5); }
