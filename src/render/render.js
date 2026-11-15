@@ -199,35 +199,19 @@ let _fogPuff = null;
 function fogPuff() {
   if (_fogPuff || typeof document === 'undefined') return _fogPuff;
   const c = document.createElement('canvas'); c.width = 96; c.height = 48; const g = c.getContext('2d');
-  const gr = g.createRadialGradient(48, 24, 2, 48, 24, 46); gr.addColorStop(0, 'rgba(250,251,255,1)'); gr.addColorStop(0.5, 'rgba(232,234,250,.7)'); gr.addColorStop(1, 'rgba(225,228,248,0)');
+  const gr = g.createRadialGradient(48, 24, 2, 48, 24, 46); gr.addColorStop(0, 'rgba(240,242,255,.9)'); gr.addColorStop(0.55, 'rgba(225,228,248,.45)'); gr.addColorStop(1, 'rgba(225,228,248,0)');
   g.setTransform(1, 0, 0, 0.5, 0, 12); g.fillStyle = gr; g.fillRect(0, 0, 96, 96); return (_fogPuff = c);
 }
-function drawFogFx(ctx, map, camX, camY, time) {   // (17/11) sương mù mềm: vẽ toạ độ lẻ + làm mịn ảnh -> trôi liên tục, không giật nấc, không thành dải
+function drawFogFx(ctx, map, camX, camY, time) {
   const img = fogPuff(); if (!img) return;
-  const sm = ctx.imageSmoothingEnabled; ctx.imageSmoothingEnabled = true;
-  // 1) làn sương trôi ngang trên biển mây (lệch hàng so le, kích thước khác nhau)
-  const cols = Math.ceil(W / 72) + 3, rows = Math.ceil(H / 34) + 3;
+  const cols = Math.ceil(W / 64) + 3, rows = Math.ceil(H / 28) + 3;
   for (let j = -1; j < rows; j++) for (let i = -1; i < cols; i++) {
-    const gy = Math.floor(camY / 34) + j, gi = i + Math.floor(camX / 72), h = hash(gi, gy, 160), sp = 4 + h * 5, sc = 0.9 + hash(gi, gy, 162) * 0.9;
-    const x = gi * 72 + ((time * sp + h * 72) % 72) - 36 + (gy & 1) * 36, y = gy * 34 + hash(gi, gy, 161) * 20 + Math.sin(time * 0.4 + h * 6) * 3;
-    if (map.tileAt(Math.floor((x + 48) / T), Math.floor((y + 24) / T)) !== CLOUD) continue;
-    ctx.globalAlpha = 0.22 + 0.12 * Math.sin(time * 0.35 + h * 6); ctx.drawImage(img, x, y, 96 * sc, 48 * sc);
+    const gy = Math.floor(camY / 28) + j, gi = i + Math.floor(camX / 64), h = hash(gi, gy, 160), sp = 6 + h * 8;
+    let x = gi * 64 + ((time * sp + h * 64) % 64) - 32, y = gy * 28 + hash(gi, gy, 161) * 14;
+    const t = map.tileAt(Math.floor((x + 48) / T), Math.floor((y + 24) / T)); if (t !== CLOUD) continue;
+    ctx.globalAlpha = 0.35 + 0.25 * Math.sin(time * 0.5 + h * 6); ctx.drawImage(img, Math.round(x), Math.round(y));
   }
-  // 2) sương dày ôm chân vách: mỗi ô mây sát vách vài làn mềm, phập phồng chậm, che chân vách
-  const tx0 = Math.floor(camX / T) - 3, ty0 = Math.floor(camY / T) - 3;
-  for (let ty = ty0; ty <= ty0 + Math.ceil(H / T) + 6; ty++) for (let tx = tx0; tx <= tx0 + Math.ceil(W / T) + 6; tx++) {
-    if (map.tileAt(tx, ty) !== CLOUD) continue;
-    const up = map.tileAt(tx, ty - 1), below = up === CLIFF || up === FALL;
-    const sd = map.tileAt(tx - 1, ty) === CLIFF ? -1 : map.tileAt(tx + 1, ty) === CLIFF ? 1 : 0;
-    if (!below && !sd) continue;
-    for (let k = 0; k < 2; k++) {
-      const h = hash(tx, ty, 170 + k), ph = time * (0.25 + h * 0.2) + h * 6.28;
-      const w = 44 + h * 30, hh = w * 0.45, cx = tx * T + 8 + (k ? 6 : -6) + Math.sin(ph) * 4 - sd * 4, cy = ty * T + (below ? 2 : 8) + Math.sin(ph * 0.7) * 2;
-      ctx.globalAlpha = 0.45 + 0.2 * (0.5 + 0.5 * Math.sin(ph * 1.1));
-      ctx.drawImage(img, cx - w / 2, cy - hh / 2, w, hh);
-    }
-  }
-  ctx.globalAlpha = 1; ctx.imageSmoothingEnabled = sm;
+  ctx.globalAlpha = 1;
 }
 function fenceSpr() {
   if (_fence || typeof document === 'undefined') return _fence;
