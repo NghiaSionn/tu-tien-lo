@@ -23,37 +23,48 @@ ROOT = Path(__file__).resolve().parent.parent
 # số đo px trên sprite đã làm sạch: seed = điểm trên sàn; stair = cột bậc [x0,y0,x1,y1]; interact = chỗ đứng bấm E (trước đồ vật chính)
 NHA = {
     # (16/11) tách đúng từ concept ảnh 1 (ChatGPT, người phát triển chỉnh: lò luyện đan + nguyên liệu, bậc bên trái)
-    'dan_duoc': dict(src='docs/concept/nha_dan_duoc_concept_chatgpt.png', scale=3.0, seed=(250, 198), stair=(92, 226, 158, 306), interact=(250, 198),
-                     block=[(92, 112, 166, 200), (322, 130, 402, 196), (212, 112, 288, 182), (146, 192, 214, 224), (270, 190, 350, 224)],   # kệ trái/phải, lò đan, 2 bàn
-                     floor=[(92, 196), (98, 150), (165, 142), (330, 142), (402, 150), (408, 200), (400, 228), (170, 234), (96, 232)]),
+    'dan_duoc': dict(src='docs/concept/nha_dan_duoc_concept_chatgpt.png', scale=4.5, floor_all=True, seed=(166, 136), stair=(58, 148, 108, 204), interact=(166, 136),   # số đo trên bản 4,5 px
+                     block=[(58, 75, 110, 126), (215, 85, 270, 128), (140, 75, 192, 122), (98, 126, 142, 150), (180, 127, 232, 150)],   # kệ trái/phải, lò đan, 2 bàn
+                     floor=[(60, 135), (62, 100), (105, 95), (225, 95), (268, 100), (272, 135), (262, 146), (115, 146), (108, 152), (58, 152)]),
     # (16/11) tách đúng từ concept ảnh 1: lò rèn + ống khói, đe giữa sân, giá thương, thùng quặng, bậc trái
-    'luyen_khi': dict(src='docs/concept/nha_luyen_khi_concept_chatgpt.png', scale=3.0, seed=(262, 238), stair=(50, 228, 104, 316), interact=(262, 238),
-                      block=[(140, 155, 180, 182), (130, 198, 196, 248), (176, 218, 216, 252), (220, 178, 306, 226), (334, 155, 432, 226), (298, 110, 402, 182)],   # hộp sắt, thùng quặng, thùng gỗ, đe, giá thương, lò rèn
-                      floor=[(68, 206), (140, 178), (150, 166), (282, 166), (300, 176), (340, 196), (422, 214), (412, 242), (150, 250), (62, 242)]),
+    'luyen_khi': dict(src='docs/concept/nha_luyen_khi_concept_chatgpt.png', scale=4.5, floor_all=True, seed=(178, 160), stair=(30, 152, 78, 212), interact=(178, 160),
+                      block=[(95, 103, 118, 122), (88, 135, 116, 156), (148, 120, 205, 150), (228, 105, 288, 150), (200, 70, 265, 120), (15, 80, 92, 136)],   # hộp sắt, thùng quặng, đe, giá thương, lò rèn, chái trái (thùng gỗ nhỏ không chặn: lối thẳng từ bậc tới đe)
+                      floor=[(45, 140), (95, 118), (100, 110), (195, 110), (210, 118), (230, 130), (285, 145), (280, 165), (105, 168), (78, 160), (30, 160)]),
     # (16/11) tách đúng từ concept ảnh 1: thư viện, kệ sách, sách mở trên bục, chồng sách, bậc phải
-    'tang_kinh': dict(src='docs/concept/nha_tang_kinh_concept_chatgpt.png', scale=3.0, behind=[(0, 0, 230, 236)],   # bên phải để trống: đường xuống từ tháp Truyền Thừa đi qua
-                      seed=(290, 228), stair=(322, 236, 394, 325), interact=(290, 228),
-                      block=[(106, 185, 150, 234), (175, 195, 266, 236), (268, 185, 296, 212), (310, 140, 382, 226)],   # chồng sách, bục sách, hộp, kệ phải
-                      floor=[(80, 200), (150, 195), (290, 195), (345, 205), (385, 225), (396, 242), (300, 242), (290, 236), (80, 236)]),
+    'tang_kinh': dict(src='docs/concept/nha_tang_kinh_concept_chatgpt.png', scale=4.5, floor_all=True, behind=[(0, 0, 150, 156)],   # bên phải để trống: đường xuống từ tháp
+                      seed=(192, 150), stair=(212, 156, 262, 217), interact=(192, 150),
+                      block=[(72, 125, 100, 153), (118, 128, 175, 157), (210, 90, 255, 146), (40, 60, 70, 156), (255, 90, 290, 156)],   # sách, bục, kệ phải, vách 2 đầu (hộp nhỏ cạnh bục bỏ chặn: hở lối sang trái)
+                      floor=[(55, 140), (70, 132), (200, 132), (240, 140), (265, 152), (270, 160), (205, 162), (200, 156), (55, 156)]),
     # (16/11) tách đúng từ concept ảnh 1: sảnh dài, 5 bảng nhiệm vụ vàng, 2 ghế + bục sách, bậc giữa
-    'cong_duc': dict(src='docs/concept/nha_cong_duc_concept_chatgpt.png', scale=3.0, behind=[(0, 40, 512, 232)], seed=(270, 216), stair=(236, 232, 318, 301), interact=(270, 216),
-                     block=[(168, 175, 233, 206), (240, 172, 300, 204), (304, 172, 369, 202)],   # ghế trái, bục sách, ghế phải
-                     floor=[(95, 212), (140, 198), (395, 198), (435, 212), (410, 228), (330, 228), (318, 236), (236, 236), (225, 228), (120, 228)]),
+    'cong_duc': dict(src='docs/concept/nha_cong_duc_concept_chatgpt.png', scale=4.5, floor_all=True, behind=[(0, 27, 342, 152)], seed=(182, 145), stair=(152, 152, 220, 201), interact=(182, 145),
+                     block=[(112, 118, 155, 135), (160, 116, 200, 136), (203, 116, 245, 135)],   # ghế trái, bục sách, ghế phải
+                     floor=[(65, 140), (95, 128), (270, 128), (300, 140), (290, 152), (225, 152), (220, 158), (152, 158), (148, 152), (75, 152)]),
     # (16/11) tách đúng từ concept ảnh 1: tháp 4 tầng, tầng trệt mở có bàn thờ truyền thừa phát sáng, bậc dài bên phải
-    'truyen_thua': dict(src='docs/concept/nha_truyen_thua_concept_chatgpt.png', scale=3.0, floor_all=True, seed=(222, 312), stair=(212, 316, 282, 431), interact=(222, 312),
+    'truyen_thua': dict(src='docs/concept/nha_truyen_thua_concept_chatgpt.png', scale=3.0, floor_all=True, cut=[(95, 196, 200)], seed=(212, 312), stair=(212, 316, 282, 431), interact=(212, 312),   # cut: số đo bản 4,5 px
                         block=[(174, 262, 256, 300)],   # bàn thờ
                         floor=[(172, 300), (258, 294), (268, 312), (256, 324), (180, 324)]),
 }
+# (16/11) cỡ nhà: thu theo khối 4,5 px ảnh gốc (bản 3 px to gấp rưỡi và mờ vì chi tiết nhỏ hơn mật độ điểm ảnh game; bản 8,6 px vỡ hạt).
+# Số đo trong NHA vẫn ghi theo bản thu 3 px (scale) và được đổi tỉ lệ f = scale*UP/px.
+PX = {'dan_duoc': 4.5, 'luyen_khi': 4.5, 'tang_kinh': 4.5, 'cong_duc': 4.5, 'truyen_thua': 4.5}
+UP = 1
 LUM_MIN, OPEN_R, FOOT, GROW, PAD, C = 85, 2, 8, 4, 8, 4
 OBJ_FOOT = 12
 
 
 def build(id_, cfg):
     tmp = Path(tempfile.mkdtemp()); nf = tmp / 'n.txt'; nf.write_text(id_, encoding='utf-8')
+    px = PX.get(id_)
     subprocess.run([sys.executable, str(ROOT / 'tools/sprite_clean.py'), str(ROOT / cfg['src']), '--cols', '1', '--rows', '1', '--names', str(nf),
-                    '--out', str(tmp / 'o'), '--scale', str(cfg['scale']), '--colors', '96', '--tol', '60'], check=True, capture_output=True,
+                    '--out', str(tmp / 'o'), '--scale', str(px or cfg['scale']), '--colors', '96', '--tol', '60'], check=True, capture_output=True,
                    env=dict(os.environ, PYTHONIOENCODING='utf-8'))
-    a = np.array(Image.open(tmp / 'o.png').convert('RGBA')); drop_magenta(a)
+    im = Image.open(tmp / 'o.png').convert('RGBA')
+    if px:   # phóng nguyên lần + đổi số đo
+        im = im.resize((im.width * UP, im.height * UP), Image.NEAREST); f = cfg['scale'] * UP / px
+        sc = lambda t: tuple(round(v * f) for v in t)
+        cfg = dict(cfg, seed=sc(cfg['seed']), stair=sc(cfg['stair']), interact=sc(cfg['interact']), block=[sc(b) for b in cfg.get('block', [])],
+                   floor=[sc(q) for q in cfg['floor']], **({'behind': [sc(b) for b in cfg['behind']]} if 'behind' in cfg else {}))
+    a = np.array(im); drop_magenta(a)
     H, W = a.shape[:2]; alpha = a[..., 3] > 0
     lum = 0.3 * a[..., 0] + 0.59 * a[..., 1] + 0.11 * a[..., 2]
     r_, g_, b_ = [a[..., i].astype(int) for i in range(3)]
@@ -90,9 +101,10 @@ def build(id_, cfg):
         for dy in range(0, 6): box |= sh(reach, -dx, dy)   # điểm (x+dx, y-dy) thuộc hộp của chân (x, y)
     walk &= box
     if os.environ.get('NHA_DEBUG'):
-        for y in range(100, 172, 3): print(y, ''.join('R' if reach[y, x] else ('s' if stand[y, x] else ('w' if walk[y, x] else ('#' if ofoot[y, x] else ('.' if poly[y, x] else ' ')))) for x in range(36, 224, 2)))
+        for y in range(90, H, 3): print(y, ''.join('R' if reach[y, x] else ('s' if stand[y, x] else ('w' if walk[y, x] else ('#' if ofoot[y, x] else ('.' if poly[y, x] else ' ')))) for x in range(40, 280, 2)))
     Image.fromarray(a).save(ROOT / f'sprites/nha_{id_}.png')
     front = a.copy(); front[vis_floor] = 0
+    for cx0, cy, cx1 in cfg.get('cut', []): front[cy, cx0:cx1] = 0   # cắt rời cột/vách ở ngang sàn (lớp che xếp theo chân dải liền): phần trên ra sau người; nền vẫn vẽ hàng đó nên không lộ
     Image.fromarray(front).save(ROOT / f'sprites/nha_{id_}_front.png')
     # nhà lớn: chỉ sàn (loang từ hạt giống, nên góc kín tự thành đặc) + bậc đi được; mọi điểm ảnh khác của nhà đều đặc
     solid = alpha & ~walk   # walk đã gồm phần trên đồ đạc (chỉ chân đặc) và bỏ ngóc ngách kín
