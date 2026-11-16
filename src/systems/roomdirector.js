@@ -31,7 +31,7 @@ function spot(run, r, player) {
   let best = null, bd = -1;
   for (let i = 0; i < 30; i++) {
     const x = (r.x0 + 1.5 + rng() * (r.x1 - r.x0 - 2)) * T, y = (r.y0 + 1.5 + rng() * (r.y1 - r.y0 - 2)) * T;
-    if (!map.canStand(x, y)) continue;
+    if (!map.canStand(x, y) || (map.reach && !map.reach[Math.floor(y / T) * map.w + Math.floor(x / T)])) continue;
     const d = Math.hypot(x - player.x, y - player.y);
     if (d >= R.SPAWN_MIN_DIST && rng() < 0.5) return [x, y];
     if (d > bd) { bd = d; best = [x, y]; }   // không đủ xa: lấy chỗ xa nhất đã thử
@@ -126,6 +126,12 @@ export function updateRoomDirector(run, player, dt, ev, power) {
     }
   }
   const left = run.scene.monsters.filter(m => !m.dead).length;
+  // chống kẹt: còn ít quái mà lâu không hạ được con nào -> đưa chúng tới chỗ đi được gần người chơi
+  if (left !== rs.lastLeft) { rs.lastLeft = left; rs.stallT = 0; }
+  else if (left > 0 && left <= R.STALL.MAX && !run.scene.monsters.some(m => m.boss && !m.dead) && (rs.stallT = (rs.stallT || 0) + dt) > R.STALL.T) {
+    rs.stallT = 0;
+    for (const m of run.scene.monsters) { if (m.dead) continue; const s = spot(run, r, player); if (s) { m.x = s[0]; m.y = s[1]; } }
+  }
   if (rs.waveLeft > 0 && !rs.queue.length && left <= Math.max(2, (rs.waveSize || 0) * R.WAVE_OVERLAP)) { if ((rs.gapT -= dt) > 0) return; }
   else if (rs.queue.length || left) { rs.gapT = R.WAVE_GAP; return; }
   else if ((rs.gapT -= dt) > 0) return;

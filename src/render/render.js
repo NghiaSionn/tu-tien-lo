@@ -373,6 +373,69 @@ function drawRoomSeals(ctx, map, camX, camY, time) {
     for (let i = 0; i < 3; i++) { const o = Math.floor((time * 20 + i * 9 + (tx + ty) * 5) % (T + 10)); ctx.fillRect(x + 3 + ((i * 5 + tx * 3) % 10), y - 10 + o, 2, 3); }
   }
 }
+// (17/11) trang trí riêng 2 phòng boss, vẽ trên nền (dưới nhân vật):
+// - Đàn tế Ma Ảnh Yêu Vương: pháp trận tím 3 vòng + 8 phù văn quay chậm, phập phồng; đèn ma trơi trên 4 cột đá
+// - Hang Lang Vương: xương thú, vết cào, vệt máu khô rải trên sân đất
+function drawBossRoomFloor(ctx, map, camX, camY, time) {
+  const dg = map.rooms; if (!dg) return;
+  for (const r of dg.rooms) {
+    if (r.type !== 'boss' && r.type !== 'mini') continue;
+    const cx = (r.cx + 0.5) * T, cy = (r.cy + 0.5) * T, w = (r.x1 - r.x0 + 1) * T, h = (r.y1 - r.y0 + 1) * T;
+    if (cx + w / 2 < camX || cx - w / 2 > camX + W || cy + h / 2 < camY || cy - h / 2 > camY + H) continue;
+    if (r.type === 'boss') {
+      const pul = 0.5 + 0.5 * Math.sin(time * 1.6);
+      ctx.save(); ctx.translate(cx, cy); ctx.scale(1, 0.55);   // nhìn nghiêng 3/4: vòng dẹt
+      for (const [rad, a, lw] of [[150, 0.35, 2], [118, 0.5, 2], [70, 0.55, 3]]) {
+        ctx.globalAlpha = a * (0.7 + 0.3 * pul); ctx.strokeStyle = '#a45cff'; ctx.lineWidth = lw; ctx.beginPath(); ctx.arc(0, 0, rad, 0, 6.283); ctx.stroke();
+      }
+      ctx.globalAlpha = 0.5; ctx.strokeStyle = '#d6a8ff'; ctx.lineWidth = 1.5; ctx.beginPath();   // ngôi sao 8 cánh nối vòng giữa
+      for (let i = 0; i <= 8; i++) { const a = time * 0.15 + i * 3 * Math.PI / 4, x = Math.cos(a) * 118, y = Math.sin(a) * 118; i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }
+      ctx.stroke();
+      for (let i = 0; i < 8; i++) {   // phù văn trên vòng ngoài
+        const a = -time * 0.25 + i * Math.PI / 4, x = Math.cos(a) * 134, y = Math.sin(a) * 134;
+        ctx.globalAlpha = 0.55 + 0.35 * Math.sin(time * 3 + i); ctx.fillStyle = '#e9d2ff';
+        ctx.fillRect(x - 4, y - 6, 8, 2); ctx.fillRect(x - 1, y - 6, 2, 12); ctx.fillRect(x - 4, y + 2, 8, 2);
+      }
+      ctx.restore(); ctx.globalAlpha = 1;
+      const rx = (r.x1 - r.x0 + 1) / 2 - 3, ry = (r.y1 - r.y0 + 1) / 2 - 2;   // ma trơi trên 4 cột đá (khớp map.js)
+      for (const [sx, sy] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) {
+        const px = (Math.round(r.cx + 0.5 + sx * rx * 0.55)) * T, py = (Math.round(r.cy + 0.5 + sy * ry * 0.55) - 1) * T - 32 + Math.sin(time * 2 + sx + sy * 2) * 3;
+        ctx.globalAlpha = 0.35; ctx.fillStyle = '#7b2cff'; ctx.beginPath(); ctx.arc(px, py, 9, 0, 6.283); ctx.fill();
+        ctx.globalAlpha = 0.9; ctx.fillStyle = '#e6c8ff'; ctx.beginPath(); ctx.arc(px, py, 3, 0, 6.283); ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+    } else {
+      const H3 = (i, k) => hash(r.id * 31 + i, k, 181);
+      for (let i = 0; i < 22; i++) {
+        const a = H3(i, 1) * 6.283, rr = Math.sqrt(H3(i, 2)) * 0.85, x = Math.round(cx + Math.cos(a) * rr * (w / 2 - 64)), y = Math.round(cy + Math.sin(a) * rr * (h / 2 - 48)), k = H3(i, 3);   // chỉ trong sân đất elip
+        if (k < 0.45) {   // xương: thân + 2 đầu khớp
+          const hz = H3(i, 4) < 0.5;
+          ctx.fillStyle = '#5a4a3a'; ctx.fillRect(x - (hz ? 6 : 1), y - (hz ? 0 : 5) + 1, hz ? 12 : 3, hz ? 3 : 11);
+          ctx.fillStyle = '#e8e0cc'; ctx.fillRect(x - (hz ? 5 : 0), y - (hz ? 0 : 5), hz ? 10 : 2, hz ? 2 : 10);
+          ctx.fillRect(x - (hz ? 7 : 2), y - (hz ? 1 : 6), 3, 3); ctx.fillRect(x + (hz ? 4 : -1), y + (hz ? -1 : 4), 3, 3);
+        } else if (k < 0.8) {   // vết cào 3 vạch
+          ctx.fillStyle = 'rgba(60,30,20,.55)';
+          for (let j = 0; j < 3; j++) for (let t = 0; t < 8; t++) ctx.fillRect(x + j * 4 + t, y + t - j, 1, 2);
+        } else { ctx.fillStyle = 'rgba(110,20,20,.35)'; ctx.fillRect(x - 5, y - 2, 10, 4); ctx.fillRect(x - 3, y - 4, 6, 8); }   // vệt máu khô
+      }
+    }
+  }
+}
+// (17/11) cột đá phù văn ở đàn tế Yêu Vương (vẽ code, 26×58): đế, thân chạm 3 đai, phù văn tím, mũ đá, tinh thể tím trên đỉnh
+let _pillar = null;
+function pillarSpr() {
+  if (_pillar || typeof document === 'undefined') return _pillar;
+  const c = document.createElement('canvas'); c.width = 26; c.height = 58; const g = c.getContext('2d');
+  const R = (x, y, w, h, col) => { g.fillStyle = col; g.fillRect(x, y, w, h); };
+  R(1, 50, 24, 8, '#3d3a4a'); R(2, 49, 22, 7, '#7c7790'); R(2, 49, 22, 2, '#a29db6');   // đế
+  R(5, 16, 16, 34, '#5b5670'); R(6, 16, 12, 34, '#8a849f'); R(6, 16, 3, 34, '#aaa4bf');   // thân
+  for (const yy of [22, 34, 44]) { R(4, yy, 18, 3, '#4a4560'); R(5, yy, 16, 1, '#b4aec8'); }   // đai
+  R(10, 26, 6, 6, '#3a2a5a'); R(11, 27, 4, 4, '#b07cff'); R(12, 28, 2, 2, '#f0e0ff');   // phù văn
+  R(10, 37, 6, 5, '#3a2a5a'); R(11, 38, 4, 3, '#9a5cff');
+  R(3, 12, 20, 5, '#4a4560'); R(3, 12, 20, 2, '#b4aec8');   // mũ
+  R(10, 2, 6, 10, '#6a2ccf'); R(11, 1, 4, 11, '#b07cff'); R(12, 3, 2, 6, '#f2e4ff');   // tinh thể
+  return (_pillar = c);
+}
 // M9-B: minimap góc phải: ô phòng đã thấy (mờ) / đã vào (sáng), phòng hiện tại viền vàng, biểu tượng loại phòng
 const ROOM_ICON = { boss: '#ff5a5a', mini: '#ff9a5a', elite: '#c98cff', reward: '#ffd978', shrine: '#7fe3ff' };
 function drawMinimap(ctx, run) {
@@ -406,6 +469,7 @@ function groundTile(t, tx, ty, map) {
 function tileObj(map, tx, ty, props) {
   const t = map.tileAt(tx, ty), x = tx * T, y = ty * T;
   if (map.deep && tx >= 0 && ty >= 0 && tx < map.w && ty < map.h && map.deep[ty * map.w + tx]) return null;   // M9-B: rừng sâu tô tán, không vẽ cây
+  if (map.pillarTile && map.pillarTile.has(ty * map.w + tx)) { if (!map.pillars.has(ty * map.w + tx)) return null; const img = pillarSpr(); return { y: y + 2 * T, img, x: x + T - img.width / 2, dy: y + 2 * T - img.height }; }   // cột đá phù văn đàn tế
   if (t === FENCE) {   // M8: mép bắc/nam rào là sprite hang_rao (map.sect.props); chỉ vẽ cọc rào cho mép đông/tây
     if (map.sect && (map.sect.pen?.ring || map.tileAt(tx - 1, ty) === FENCE || map.tileAt(tx + 1, ty) === FENCE)) return null;   // rào bo tròn vẽ riêng
     const f = map.sect && map.sect.pen && map.sect.pen.art ? railSpr() : fenceSpr(); return f ? { y: y + T, img: f, x, dy: y + T - f.height } : null;
@@ -440,12 +504,12 @@ let CODA = null;
 export function setCoDa(img) { CODA = img; }
 const CODA_IDX = { '1121': 32, '1122': 33, '1112': 34, '1221': 40, '2222': 41, '2112': 42, '1211': 48, '2211': 49, '2111': 50, '1222': 35, '2122': 36, '2221': 43, '2212': 44 };
 function paintCoDa(g, map, tx, ty, x, y) {
-  const st = (a, b) => map.tileAt(a, b) === STONE ? 1 : 0;
+  const st = (a, b) => map.tileAt(a, b) === STONE || (map.pillarTile && map.pillarTile.has(b * map.w + a)) ? 1 : 0;   // cột đàn tế đứng trên nền đá
   const v = (a, b) => (st(a - 1, b - 1) + st(a, b - 1) + st(a - 1, b) + st(a, b) >= 2 ? '2' : '1');
   const k = v(tx, ty) + v(tx + 1, ty) + v(tx + 1, ty + 1) + v(tx, ty + 1), h = hash(tx, ty, 71);
   let id;
   if (k === '2222') id = (h < 0.75 ? 16 : 24) + Math.floor(hash(tx, ty, 72) * 8);
-  else if (k === '1111') id = map.tileAt(tx, ty) === STONE ? 16 + Math.floor(h * 8) : (h < 0.1 ? 8 : 0) + Math.floor(hash(tx, ty, 72) * 8);
+  else if (k === '1111') id = st(tx, ty) ? 16 + Math.floor(h * 8) : (h < 0.1 ? 8 : 0) + Math.floor(hash(tx, ty, 72) * 8);
   else id = CODA_IDX[k] ?? 41;
   g.drawImage(CODA, (id & 7) * T, (id >> 3) * T, T, T, x, y, T, T);
 }
@@ -565,14 +629,15 @@ function buildChunk(map, cx, cy, phase, props) {
   for (let ty = ty0; ty < ty0 + CH; ty++) for (let tx = tx0; tx < tx0 + CH; tx++) {
     const t = map.tileAt(tx, ty), x = tx * T, y = ty * T;
     if (t === WATER && !(map.sect && VN)) { g.drawImage(waterTiles[(phase + tx + ty) & 1], x, y); if (map.tileAt(tx, ty - 1) !== WATER) g.drawImage(waterBank, x, y); }
-    else if (map.sect && t === DIRT) paintDirtYard(g, map, tx, ty, x, y);
+    else if ((map.sect || map.rooms) && t === DIRT) paintDirtYard(g, map, tx, ty, x, y);   // M9-B: sân đất hang Lang Vương dùng chung kiểu sân chuồng
     else if (map.sect && VN && t === WATER) paintWaterVN(g, map, tx, ty, x, y);
     else if (map.sect && VN && (t === CLIFF || t === FALL)) paintCliffVN(g, map, tx, ty, x, y);
-    else if (map.sect && CODA && (t === STONE || t === GRASS || t === BUILDING || t === FENCE || t === DIRT)) { paintCoDa(g, map, tx, ty, x, y); if (VN) roundLandCorner(g, map, tx, ty, x, y); }
+    else if ((map.sect || (map.rooms && (t === STONE || t === GRASS))) && CODA && (t === STONE || t === GRASS || t === BUILDING || t === FENCE || t === DIRT)) { paintCoDa(g, map, tx, ty, x, y); if (VN && map.sect) roundLandCorner(g, map, tx, ty, x, y); }   // M9-B: bí cảnh phòng dùng bộ cỏ/đá bo mép như sảnh
     else if (map.sect && t === STONE) paintPath(g, map, tx, ty, x, y);
     else if (map.sect && (t === CLIFF || t === FALL)) paintCliff(g, map, tx, ty, x, y);
     else if (map.sect && t === CLOUD) paintCloud(g, tx, ty, x, y);
     else if (map.deep && map.deep[ty * map.w + tx]) paintCanopy(g, tx, ty, x, y);   // M9-B: rừng sâu giữa các phòng
+    else if (CODA && map.pillarTile && map.pillarTile.has(ty * map.w + tx)) paintCoDa(g, map, tx, ty, x, y);   // nền đá dưới cột đàn tế
     else g.drawImage(groundTile(t, tx, ty, map), x, y);
   }
   // (17/11) bỏ bông mây vẽ sẵn: sương mù/mây trôi vẽ động mỗi khung (drawFogFx)
@@ -1369,6 +1434,7 @@ export function render(ctx, g) {
     }
     ctx.globalCompositeOperation = 'source-over';
     if (g.run) drawSkillsUnder(ctx, g.run, p, time, vis, g.dtWorld || 0);
+    if (scene.kind === 'run') drawBossRoomFloor(ctx, map, camX, camY, time);   // (17/11)
     drawTelegraphs(ctx, scene);
     if (g.run && g.run.shrine && !g.run.shrine.used) drawShrine(ctx, g.run, p, time, vis);
   }

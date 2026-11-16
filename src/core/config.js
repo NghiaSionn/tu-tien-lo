@@ -93,7 +93,7 @@ export const RUN = {
 // shrine (Linh Mạch), boss (Ma Ảnh Yêu Vương, phòng xa nhất). Vào phòng chiến đấu: cửa phong ấn tới khi hạ hết các đợt.
 // Sức quái tính theo "thời gian quy đổi" T_PER_DEPTH × độ sâu phòng (dùng lại công thức RUN.ENEMY/DIRECTOR như chế độ cũ).
 export const ROOMS = {
-  GRID: [5, 4], CELL: [34, 24], ROOM_W: [22, 28], ROOM_H: [14, 18], CORRIDOR: 4,
+  GRID: [5, 4], CELL: [46, 32], ROOM_W: [30, 38], ROOM_H: [18, 24], CORRIDOR: 5, BOSS_ROOM: [42, 28],   // (17/11) phòng rộng hơn; phòng 2 boss to nhất
   COUNT: [8, 10], MIN_BOSS_DEPTH: 4,
   WAVES: { combat: [2, 4], elite: 2, mini: 1, boss: 1 },   // combat: phòng độ sâu 1 = 2 đợt, sâu dần +1 (tối đa 4)
   WAVE_N: { base: 3, perDepth: 5, max: 36 }, WAVE_GAP: 0.9, WAVE_OVERLAP: 0.3,   // đợt sau ập tới khi đợt trước còn ≤ 30% (không chờ chết hết)
@@ -105,6 +105,7 @@ export const ROOMS = {
   ENTER_INSET: 1.5,            // ô: phải vào sâu bấy nhiêu mới khóa cửa (không khóa khi đứng ở ngưỡng cửa)
   SPAWN_MIN_DIST: 120,         // px: quái mới không hiện sát người chơi (ưu tiên chỗ xa nhất trong vài lần thử)
   REWARD: { HEAL: 0.3, STONES: 30, XP: 30 },
+  STALL: { T: 12, MAX: 4 },    // chống kẹt: còn ≤ MAX quái, T giây không hạ được con nào -> đưa chúng lại chỗ đi được trong phòng
   CLEAR_HEAL: 0,               // dọn xong một phòng chiến đấu: hồi bấy nhiêu khí huyết (0 = không; hồi ở phòng thưởng/Linh Mạch)
 };
 

@@ -209,26 +209,79 @@ export function makeRoomsMap(seed) {
   const carve = (x0, y0, x1, y1) => { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) if (x > 0 && y > 0 && x < W - 1 && y < H - 1) g[y * W + x] = GRASS; };
   for (const r of dg.rooms) carve(r.x0, r.y0, r.x1, r.y1);
   for (const c of dg.corridors) carve(c.x0, c.y0, c.x1, c.y1);
-  // chướng ngại trong phòng chiến đấu: vài cụm đá/cây nhỏ ở 4 góc phần tư, tránh dải lối đi qua tâm và dải 4 ô sát mép
+  // (17/11) phòng tự nhiên hơn: bo 4 góc, mép tường lồi lõm (cây mọc lấn vào), cụm cây/đá/ao nhỏ ở 4 góc phần tư.
+  // Luôn chừa dải lối đi ngang/dọc qua tâm phòng (thẳng các cửa) — `lane`.
+  const set = (x, y, t) => { if (x > 0 && y > 0 && x < W - 1 && y < H - 1) g[y * W + x] = t; };
+  const H2 = (a, b, c) => hash(a, b, c, seed), pillars = [];
   for (const r of dg.rooms) {
+    const lane = (x, y) => Math.abs(x + 0.5 - (r.cx + 0.5)) < 4 || Math.abs(y + 0.5 - (r.cy + 0.5)) < 4;
+    const w = r.x1 - r.x0 + 1, h = r.y1 - r.y0 + 1, R0 = r.type === 'boss' || r.type === 'mini' ? 7 : 4;
+    // bo góc: ô gần góc ngoài cung tròn bán kính R0 -> cây
+    for (let y = r.y0; y <= r.y1; y++) for (let x = r.x0; x <= r.x1; x++) {
+      const inX = x < r.x0 + R0 || x > r.x1 - R0, inY = y < r.y0 + R0 || y > r.y1 - R0;
+      if (!inX || !inY || lane(x, y)) continue;   // chỉ 4 góc
+      const cx = x < r.x0 + R0 ? r.x0 + R0 : r.x1 - R0, cy = y < r.y0 + R0 ? r.y0 + R0 : r.y1 - R0;
+      if (Math.hypot(x - cx, y - cy) > R0 - 0.2 - H2(x, y, 66) * 0.8) set(x, y, TREE);
+    }
+    // mép lồi lõm: cây lấn 1–2 ô dọc tường
+    for (let x = r.x0; x <= r.x1; x++) for (const [y, d] of [[r.y0, 1], [r.y1, -1]]) if (!lane(x, y) && H2(x, y, 67) < 0.35) { set(x, y, TREE); if (H2(x, y, 68) < 0.4) set(x, y + d, TREE); }
+    for (let y = r.y0; y <= r.y1; y++) for (const [x, d] of [[r.x0, 1], [r.x1, -1]]) if (!lane(x, y) && H2(x, y, 69) < 0.35) { set(x, y, TREE); if (H2(x, y, 70) < 0.4) set(x + d, y, TREE); }
+    if (r.type === 'mini') {   // Hang Lang Vương: sân đất nện hình elip, vòng đá lởm chởm quanh sân, ngoài là cỏ
+      const ex = (r.cx + 0.5), ey = (r.cy + 0.5), rx = w / 2 - 4, ry = h / 2 - 3;
+      for (let y = r.y0; y <= r.y1; y++) for (let x = r.x0; x <= r.x1; x++) {
+        if (g[y * W + x] !== GRASS) continue;
+        const e = ((x + 0.5 - ex) / rx) ** 2 + ((y + 0.5 - ey) / ry) ** 2;
+        if (e < 1) set(x, y, DIRT);
+        else if (e < 1.25 && !lane(x, y) && H2(x, y, 71) < 0.45) set(x, y, ROCK);
+      }
+      continue;
+    }
+    if (r.type === 'boss') {   // Đàn tế Ma Ảnh Yêu Vương: nền đá hình bát giác, 4 cột đá đối xứng, viền cây dày
+      const ex = r.cx + 0.5, ey = r.cy + 0.5, rx = w / 2 - 3, ry = h / 2 - 2;
+      for (let y = r.y0; y <= r.y1; y++) for (let x = r.x0; x <= r.x1; x++) {
+        if (g[y * W + x] !== GRASS) continue;
+        const dx = Math.abs(x + 0.5 - ex) / rx, dy = Math.abs(y + 0.5 - ey) / ry;
+        if (Math.max(dx, dy) < 1 && dx + dy < 1.42) set(x, y, STONE);
+      }
+      for (const [sx, sy] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) {
+        const px = Math.round(ex + sx * rx * 0.55) - 1, py = Math.round(ey + sy * ry * 0.55) - 1;
+        for (let k = 0; k < 4; k++) set(px + (k & 1), py + (k >> 1), ROCK);
+        pillars.push([px, py]);   // render vẽ cột đá phù văn thay cho đá thường
+      }
+      continue;
+    }
     if (r.type === 'start' || r.type === 'reward' || r.type === 'shrine') continue;
-    const n = r.type === 'boss' || r.type === 'mini' ? 3 : 2 + Math.floor(hash(r.gx, r.gy, 61, seed) * 3);
+    // phòng chiến đấu/tinh anh: 2–4 cụm (cây 2×2, đá, ao nhỏ 3×2) ở góc phần tư, tránh lối và sát mép
+    const n = 2 + Math.floor(H2(r.gx, r.gy, 61) * 3);
     for (let i = 0; i < n; i++) {
-      const x = r.x0 + 4 + Math.floor(hash(r.id, i, 62, seed) * (r.x1 - r.x0 - 8)), y = r.y0 + 4 + Math.floor(hash(r.id, i, 63, seed) * (r.y1 - r.y0 - 8));
-      if (Math.abs(x + 0.5 - r.cx) < 4 || Math.abs(y + 0.5 - r.cy) < 4) continue;   // chừa dải lối đi ngang/dọc qua tâm phòng (thẳng các cửa)
-      const t = hash(r.id, i, 64, seed) < 0.6 ? ROCK : TREE;
-      g[y * W + x] = t; if (hash(r.id, i, 65, seed) < 0.5) g[y * W + x + 1] = t;
+      const x = r.x0 + 5 + Math.floor(H2(r.id, i, 62) * (w - 11)), y = r.y0 + 4 + Math.floor(H2(r.id, i, 63) * (h - 9));
+      if (lane(x, y) || lane(x + 2, y + 2) || lane(x - 1, y - 1)) continue;
+      const kind = H2(r.id, i, 64);
+      if (kind < 0.35) { for (let k = 0; k < 4; k++) set(x + (k & 1), y + (k >> 1), TREE); }
+      else if (kind < 0.7) { set(x, y, ROCK); if (H2(r.id, i, 65) < 0.6) set(x + 1, y, ROCK); if (H2(r.id, i, 72) < 0.4) set(x, y + 1, ROCK); }
+      else { for (let yy = 0; yy < 2; yy++) for (let xx = 0; xx < 3; xx++) set(x + xx, y + yy, WATER); }
     }
   }
+  for (const c of dg.corridors) carve(c.x0, c.y0, c.x1, c.y1);   // hành lang khắc lại sau cùng (không bị cây góc lấp)
   const m = makeMap(W, H, seed, 'arena', (x, y) => g[y * W + x]);
   m.rooms = dg;
+  m.pillars = new Map(pillars.map(([x, y]) => [y * W + x, 1]));   // ô trái-trên của cột 2×2
+  m.pillarTile = new Set(pillars.flatMap(([x, y]) => [y * W + x, y * W + x + 1, (y + 1) * W + x, (y + 1) * W + x + 1]));
   const st = dg.rooms[dg.start]; m.cx = (st.cx + 0.5) * T; m.cy = (st.cy + 0.5) * T;
   m.deep = new Uint8Array(W * H);
   for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
     if (g[y * W + x] !== TREE) continue;
     let near = false;
-    for (let dy = -3; dy <= 3 && !near; dy++) for (let dx = -3; dx <= 3; dx++) { const xx = x + dx, yy = y + dy; if (xx >= 0 && yy >= 0 && xx < W && yy < H && g[yy * W + xx] === GRASS) { near = true; break; } }
+    for (let dy = -3; dy <= 3 && !near; dy++) for (let dx = -3; dx <= 3; dx++) { const xx = x + dx, yy = y + dy; if (xx >= 0 && yy >= 0 && xx < W && yy < H && g[yy * W + xx] !== TREE) { near = true; break; } }
     if (!near) m.deep[y * W + x] = 1;
+  }
+  // ô trong phòng đi tới được từ tâm phòng (loang 4 hướng, chỉ trong khung phòng) — quái chỉ sinh ở đây (không kẹt trong góc cây/ao kín)
+  m.reach = new Uint8Array(W * H);
+  const walkable = (x, y) => { const t = g[y * W + x]; return t === GRASS || t === STONE || t === DIRT; };
+  for (const r of dg.rooms) {
+    const q = [[r.cx, r.cy]]; if (!walkable(r.cx, r.cy)) continue; m.reach[r.cy * W + r.cx] = 1;
+    while (q.length) { const [x, y] = q.pop(); for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const nx = x + dx, ny = y + dy;
+      if (nx < r.x0 || ny < r.y0 || nx > r.x1 || ny > r.y1 || m.reach[ny * W + nx] || !walkable(nx, ny)) continue; m.reach[ny * W + nx] = 1; q.push([nx, ny]); } }
   }
   m.blocked = new Set();
   const solid0 = m.solidTile;

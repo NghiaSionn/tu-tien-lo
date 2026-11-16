@@ -56,8 +56,8 @@ export function generateDungeon(seed) {
   const [CW, CH] = R.CELL, PAD = 2;
   for (const r of rooms) {
     const big = r.type === 'boss' || r.type === 'mini';
-    const w = big ? R.ROOM_W[1] : R.ROOM_W[0] + Math.floor(rng() * (R.ROOM_W[1] - R.ROOM_W[0] + 1));
-    const h = big ? R.ROOM_H[1] : R.ROOM_H[0] + Math.floor(rng() * (R.ROOM_H[1] - R.ROOM_H[0] + 1));
+    const w = big ? R.BOSS_ROOM[0] : R.ROOM_W[0] + Math.floor(rng() * (R.ROOM_W[1] - R.ROOM_W[0] + 1));
+    const h = big ? R.BOSS_ROOM[1] : R.ROOM_H[0] + Math.floor(rng() * (R.ROOM_H[1] - R.ROOM_H[0] + 1));
     const cx = PAD + r.gx * CW + Math.floor(CW / 2), cy = PAD + r.gy * CH + Math.floor(CH / 2);
     r.cx = cx; r.cy = cy; r.x0 = cx - Math.floor(w / 2); r.y0 = cy - Math.floor(h / 2); r.x1 = r.x0 + w - 1; r.y1 = r.y0 + h - 1;
     r.doors = [];   // ô gạch hành lang sát mép phòng: bị phong ấn khi phòng đang đánh
