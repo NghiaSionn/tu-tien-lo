@@ -97,7 +97,8 @@ function cropFrames(sheet) {
   return out;
 }
 if (vis.tienHoa) vis.thx = cropFrames(vis.tienHoa);
-vis.pb = Object.assign({}, ...[vis.pbLang, vis.pbYeu].filter(Boolean).map(cropFrames));   // M9-B: vật trang trí 2 phòng boss (ChatGPT vẽ, tools/build_phong_boss.py)   // han_an, khoi_bang, vong_phong_an, bang_no
+vis.pb = Object.assign({}, ...[vis.pbLang, vis.pbYeu].filter(Boolean).map(cropFrames));
+try { [vis.pb.phap_tran, vis.pb.phap_tran_glow] = await Promise.all([loadImg('sprites/pb_tran.png'), loadImg('sprites/pb_tran_glow.png')]); } catch (e) { console.warn('[sprite] pb_tran', e); }   // pháp trận đàn tế (ChatGPT vẽ)   // M9-B: vật trang trí 2 phòng boss (ChatGPT vẽ, tools/build_phong_boss.py)   // han_an, khoi_bang, vong_phong_an, bang_no
 if (vis.congTrinh) vis.ct = cropFrames(vis.congTrinh);
 if (vis.bia) vis.ct = { ...(vis.ct || {}), ...cropFrames(vis.bia) };   // M7-14: bia, bia_sang
 // M8: công trình/đồ vật/cây tông môn (concept ảnh 1, tools/build_tong_mon.py)

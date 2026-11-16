@@ -376,13 +376,27 @@ function drawRoomSeals(ctx, map, camX, camY, time) {
 // (17/11) trang trí riêng 2 phòng boss, vẽ trên nền (dưới nhân vật):
 // - Đàn tế Ma Ảnh Yêu Vương: pháp trận tím 3 vòng + 8 phù văn quay chậm, phập phồng; đèn ma trơi trên 4 cột đá
 // - Hang Lang Vương: xương thú, vết cào, vệt máu khô rải trên sân đất
-function drawBossRoomFloor(ctx, map, camX, camY, time) {
+function drawBossRoomFloor(ctx, map, camX, camY, time, vis) {
   const dg = map.rooms; if (!dg) return;
   for (const r of dg.rooms) {
     if (r.type !== 'boss' && r.type !== 'mini') continue;
     const cx = (r.cx + 0.5) * T, cy = (r.cy + 0.5) * T, w = (r.x1 - r.x0 + 1) * T, h = (r.y1 - r.y0 + 1) * T;
     if (cx + w / 2 < camX || cx - w / 2 > camX + W || cy + h / 2 < camY || cy - h / 2 > camY + H) continue;
     if (r.type === 'boss') {
+      const P = vis && vis.pb && vis.pb.phap_tran;
+      if (P) {   // (17/11) pháp trận ChatGPT vẽ: nền đá khắc + lớp phù văn sáng phập phồng (cộng sáng) + khí tím bốc lên
+        const x = Math.round(cx - P.width / 2), y = Math.round(cy - P.height / 2);
+        ctx.drawImage(P, x, y);
+        const G = vis.pb.phap_tran_glow, pul = 0.5 + 0.5 * Math.sin(time * 1.8);
+        if (G) { ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 0.25 + 0.4 * pul; ctx.drawImage(G, x, y); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1; }
+        for (let i = 0; i < 26; i++) {   // hạt khí tím bay lên từ rãnh khắc
+          const h = hash(i, r.id, 191), a = h * 6.283, rr = 0.25 + hash(i, 3, 192) * 0.7, t = (time * (0.25 + h * 0.2) + hash(i, 5, 193)) % 1;
+          const px = cx + Math.cos(a) * rr * P.width / 2, py = cy + Math.sin(a) * rr * P.height / 2 - t * 40;
+          ctx.globalAlpha = Math.min(1, t * 4, (1 - t) * 2) * 0.8; ctx.fillStyle = i & 1 ? '#c98cff' : '#f0dcff'; ctx.fillRect(Math.round(px), Math.round(py), 2, 2);
+        }
+        ctx.globalAlpha = 1;
+        continue;
+      }
       const pul = 0.5 + 0.5 * Math.sin(time * 1.6);
       const K = ((r.x1 - r.x0 + 1) / 2 - 3) * T / 288;   // pháp trận to theo phòng
       ctx.save(); ctx.translate(cx, cy); ctx.scale(K, 0.55 * K);   // nhìn nghiêng 3/4: vòng dẹt
@@ -1415,7 +1429,16 @@ export function render(ctx, g) {
     }
     ctx.globalCompositeOperation = 'source-over';
     if (g.run) drawSkillsUnder(ctx, g.run, p, time, vis, g.dtWorld || 0);
-    if (scene.kind === 'run') drawBossRoomFloor(ctx, map, camX, camY, time);   // (17/11)
+    if (scene.kind === 'run') drawBossRoomFloor(ctx, map, camX, camY, time, vis);   // (17/11)
+    if (scene.kind === 'run' && map.decor && vis.pb) {   // (17/11) đổ bóng vật trang trí phòng boss: bóng hắt (như sảnh) + bóng tiếp đất elip
+      for (const d of map.decor) {
+        const img = vis.pb[d.s]; if (!img || d.px < camX - 80 || d.px > camX + W + 80 || d.py < camY - 10 || d.py > camY + H + 80) continue;
+        const sh = castShadow(img); ctx.globalAlpha = 0.45; ctx.drawImage(sh, Math.round(d.px - img.width / 2) - 4, Math.round(d.py) - sh.height + 7);
+        ctx.fillStyle = '#141626'; const rx = Math.max(6, img.width * 0.4);
+        for (const [k, a] of [[1.25, 0.14], [1, 0.2], [0.65, 0.26]]) { ctx.globalAlpha = a; ctx.beginPath(); ctx.ellipse(d.px + 2, d.py - 1, rx * k, 3 * k, 0, 0, 6.283); ctx.fill(); }
+      }
+      ctx.globalAlpha = 1;
+    }
     drawTelegraphs(ctx, scene);
     if (g.run && g.run.shrine && !g.run.shrine.used) drawShrine(ctx, g.run, p, time, vis);
   }
