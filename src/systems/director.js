@@ -35,7 +35,7 @@ export function validSpawn(map, player, x, y) {
 
 // Tạo một con theo kiểu; sức mạnh theo thời gian + cảnh giới như M1, rồi nhân hệ số kiểu
 export function makeRunEnemy(run, arch, x, y, realmPower) {
-  const A = ARCH[arch], E = RUN.ENEMY, t = run.time, rng = run.rng;
+  const A = ARCH[arch], E = RUN.ENEMY, t = run.tEff ?? run.time, rng = run.rng;   // M9-B: chế độ phòng dùng thời gian quy đổi theo độ sâu phòng
   const grade = Math.max(0, Math.min(3, Math.floor(t / 120) - (rng() < 0.35 ? 1 : 0)));
   const scale = Math.pow(realmPower, E.REALM_SCALE) * DIFFICULTY[run.diff || 0].enemy;
   const hp = Math.round(E.HP_BASE * (1 + t * E.HP_TIME) * (1 + grade * 0.6) * scale * A.hp);
@@ -55,7 +55,7 @@ function spawnAt(run, player, arch, x, y, power) {
 
 // Boss: sức mạnh theo công thức quái thường ở grade 2, nhân hệ số BOSS[kind]
 export function makeBoss(run, kind, x, y, realmPower) {
-  const B = BOSS[kind], E = RUN.ENEMY, t = run.time;
+  const B = BOSS[kind], E = RUN.ENEMY, t = run.tEff ?? run.time;
   const scale = Math.pow(realmPower, E.REALM_SCALE) * DIFFICULTY[run.diff || 0].enemy;
   const hp = Math.round(E.HP_BASE * (1 + t * E.HP_TIME) * 2.2 * scale * B.hp);
   const dmg = Math.max(1, Math.round(E.DMG_BASE * (1 + t * E.DMG_TIME) * 1.8 * scale * B.dmg));

@@ -4,6 +4,7 @@ import { hash, noise } from '../core/rng.js';
 import { SECT, THEM } from '../data/sect_layout.js';
 import { PLAZA } from '../data/sect_plaza.js';
 import { NHA } from '../data/sect_nha.js';
+import { generateDungeon } from './rooms.js';
 
 export const GRASS = 0, WATER = 1, STONE = 2, TREE = 3, ROCK = 4;
 export const BUILDING = 5, FENCE = 6, DIRT = 7, CLIFF = 8, CLOUD = 9, FALL = 10;   // M8 (15/11): vách núi rìa đảo, mây ngoài đảo (đặc)   // M8-02: nền công trình (đặc), hàng rào (đặc), sân đất (đi được)
@@ -200,6 +201,41 @@ export function makeSectMap(S = SECT) {
 }
 
 // Đấu trường bí cảnh: rộng, thưa vật cản để dễ né; viền cây; giữa là bệ đá
+// M9-B: bí cảnh nhiều phòng — khắc sơ đồ (world/rooms.js) ra lưới ô: phòng + hành lang là cỏ, còn lại là rừng.
+// Rừng sâu (cách nền đi được > 3 ô) đánh dấu map.deep để render tô tán rừng tối thay vì vẽ từng cây (đỡ nặng).
+// map.blocked: tập ô cửa đang phong ấn (đặc như cây) — director phòng bật/tắt.
+export function makeRoomsMap(seed) {
+  const dg = generateDungeon(seed), W = dg.w, H = dg.h, g = new Uint8Array(W * H).fill(TREE);
+  const carve = (x0, y0, x1, y1) => { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) if (x > 0 && y > 0 && x < W - 1 && y < H - 1) g[y * W + x] = GRASS; };
+  for (const r of dg.rooms) carve(r.x0, r.y0, r.x1, r.y1);
+  for (const c of dg.corridors) carve(c.x0, c.y0, c.x1, c.y1);
+  // chướng ngại trong phòng chiến đấu: vài cụm đá/cây nhỏ ở 4 góc phần tư, tránh dải lối đi qua tâm và dải 4 ô sát mép
+  for (const r of dg.rooms) {
+    if (r.type === 'start' || r.type === 'reward' || r.type === 'shrine') continue;
+    const n = r.type === 'boss' || r.type === 'mini' ? 3 : 2 + Math.floor(hash(r.gx, r.gy, 61, seed) * 3);
+    for (let i = 0; i < n; i++) {
+      const x = r.x0 + 4 + Math.floor(hash(r.id, i, 62, seed) * (r.x1 - r.x0 - 8)), y = r.y0 + 4 + Math.floor(hash(r.id, i, 63, seed) * (r.y1 - r.y0 - 8));
+      if (Math.abs(x + 0.5 - r.cx) < 4 || Math.abs(y + 0.5 - r.cy) < 4) continue;   // chừa dải lối đi ngang/dọc qua tâm phòng (thẳng các cửa)
+      const t = hash(r.id, i, 64, seed) < 0.6 ? ROCK : TREE;
+      g[y * W + x] = t; if (hash(r.id, i, 65, seed) < 0.5) g[y * W + x + 1] = t;
+    }
+  }
+  const m = makeMap(W, H, seed, 'arena', (x, y) => g[y * W + x]);
+  m.rooms = dg;
+  const st = dg.rooms[dg.start]; m.cx = (st.cx + 0.5) * T; m.cy = (st.cy + 0.5) * T;
+  m.deep = new Uint8Array(W * H);
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    if (g[y * W + x] !== TREE) continue;
+    let near = false;
+    for (let dy = -3; dy <= 3 && !near; dy++) for (let dx = -3; dx <= 3; dx++) { const xx = x + dx, yy = y + dy; if (xx >= 0 && yy >= 0 && xx < W && yy < H && g[yy * W + xx] === GRASS) { near = true; break; } }
+    if (!near) m.deep[y * W + x] = 1;
+  }
+  m.blocked = new Set();
+  const solid0 = m.solidTile;
+  m.solidTile = (tx, ty) => solid0(tx, ty) || (m.blocked.size > 0 && m.blocked.has(ty * W + tx));
+  return m;
+}
+
 export function makeArenaMap(w, h, seed) {
   return makeMap(w, h, seed, 'arena', (x, y) => {
     const d = Math.hypot(x + 0.5 - w / 2, y + 0.5 - h / 2);

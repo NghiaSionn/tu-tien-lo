@@ -13,7 +13,7 @@ export function computeRunReward(run, meta) {
   const min = run.time / 60, S = REWARD.STONE;
   const bosses = run.rewards.map(r => r.kind);
   const r = {
-    linhThach: run.kills * S.PER_KILL + run.level * S.PER_LEVEL + min * S.PER_MIN,
+    linhThach: run.kills * S.PER_KILL + run.level * S.PER_LEVEL + min * S.PER_MIN + (run.bonusStones || 0),   // + rương phòng thưởng (M9-B)
     lingQi: min * REWARD.LINGQI_PER_MIN + (run.bonusQi || 0),   // + Linh Mạch (M3-04)
     craftMats: (run.eliteKills || 0) * REWARD.MATS_PER_ELITE,
     tickets: 0,

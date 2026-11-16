@@ -1,5 +1,5 @@
 // Giao diện DOM: HUD động phủ, HUD bí cảnh, các bảng (chuẩn bị, chọn thẻ, kết quả, tạm dừng, cài đặt), nhật ký.
-import { RUN, ITEMS, BOSS, TRIBULATION, DIFFICULTY, REALM_UNLOCKS } from '../core/config.js';
+import { RUN, ITEMS, BOSS, TRIBULATION, DIFFICULTY, REALM_UNLOCKS, FEATURES } from '../core/config.js';
 import { levelName, maxHp, atk, need, isMajor, MAX_L } from '../progression/realm.js';
 import { xpToNext } from '../progression/runxp.js';
 import { canBreak, isFull, convertRate, yieldOf, trickleRate, pillQi } from '../systems/cultivation.js';
@@ -82,7 +82,8 @@ export function runHud(run) {
   const n = xpToNext(run.level);
   $('rXpFill').style.width = Math.min(100, run.xp / n * 100) + '%';
   // đếm ngược tới boss cuối; khi boss đã ra thì hiện tên
-  $('rTime').textContent = run.dir.final === 'PENDING' ? fmtTime(Math.max(0, BOSS.FINAL.AT - run.time)) : '☠ Yêu Vương';
+  $('rTime').textContent = run.rooms ? (run.dir.final === 'ALIVE' ? '☠ Yêu Vương' : `Phòng ${run.rooms.cleared}/${run.rooms.total}`)   // M9-B: số phòng đã dọn
+    : run.dir.final === 'PENDING' ? fmtTime(Math.max(0, BOSS.FINAL.AT - run.time)) : '☠ Yêu Vương';
   $('rHpTxt').textContent = `${Math.ceil(run.hp)} / ${run.maxHp}`;
   $('rHpFill').style.width = run.hp / run.maxHp * 100 + '%';
   const sh = run.skills.find(s => skillKind(s) === 'shield');
@@ -142,7 +143,7 @@ export function showPrepare(meta, onPick, onCancel, variant = null) {
   const diffHtml = () => DIFFICULTY.map((d, i) => `<button class="${i === diff ? '' : 'ghost'}" data-diff="${i}" ${i > maxTier ? 'disabled' : ''}>${esc(d.name)}${i ? ` · quái ×${d.enemy} · thưởng ×${d.reward}` : ''}</button>`).join('');
   open(`<h2>Bí Cảnh · Rừng Linh Thú</h2>
     <p class="sub">${esc(levelName(meta.realmLevel))} · Công ${atk(meta.realmLevel)} · Khí huyết ${maxHp(meta.realmLevel)}</p>
-    <p class="sub">${esc(BOSS.MINI.name)} chặn đường lúc ${fmtTime(BOSS.MINI.AT)}; ${esc(BOSS.FINAL.name)} xuất hiện lúc ${fmtTime(BOSS.FINAL.AT)} — hạ nó để vượt bí cảnh. Đánh yêu thú lấy chiến ý, đủ thì chọn công pháp mới. Chết trong bí cảnh không mất tu vi hay cảnh giới.</p>
+    <p class="sub">${FEATURES.rooms && !/[?&]rooms=0/.test(location.search) ? `Bí cảnh gồm nhiều phòng: vào phòng bị phong ấn tới khi hạ hết yêu thú. ${esc(BOSS.MINI.name)} giữ một phòng giữa đường; ${esc(BOSS.FINAL.name)} ở phòng sâu nhất — hạ nó để vượt bí cảnh.` : `${esc(BOSS.MINI.name)} chặn đường lúc ${fmtTime(BOSS.MINI.AT)}; ${esc(BOSS.FINAL.name)} xuất hiện lúc ${fmtTime(BOSS.FINAL.AT)} — hạ nó để vượt bí cảnh.`} Đánh yêu thú lấy chiến ý, đủ thì chọn công pháp mới. Chết trong bí cảnh không mất tu vi hay cảnh giới.</p>
     ${variant ? `<div class="variant${variant.id === 'thuong' ? ' plain' : ''}"><b>Biến thể lượt này: ${esc(variant.name)}</b>${variant.id === 'thuong' ? '' : `<ul>${variant.rules.map(r => `<li>${esc(r)}</li>`).join('')}</ul>`}</div>` : ''}
     <h3>Độ khó (D)</h3><div class="row diff">${diffHtml()}</div>
     ${nextLock ? `<p class="sub">Đột phá ${esc(levelName(+nextLock[0]))} để mở: ${esc(nextLock[1].text)}.</p>` : ''}

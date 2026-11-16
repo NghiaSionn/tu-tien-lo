@@ -1,7 +1,8 @@
 // Một lượt bí cảnh (runState). Tạo mới mỗi lượt, không bao giờ được lưu; metaState chỉ được đọc (cảnh giới -> sức mạnh).
 import { RUN, PLAYER, BOSS, DIFFICULTY, FEATURES } from '../core/config.js';
 import { mulberry32 } from '../core/rng.js';
-import { makeArenaMap } from '../world/map.js';
+import { makeArenaMap, makeRoomsMap } from '../world/map.js';
+import { createRoomState, updateRoomDirector } from './roomdirector.js';
 import { power, atk, maxHp } from '../progression/realm.js';
 import { addRunXp } from '../progression/runxp.js';
 import { updateMonsters, reapMonsters } from '../entities/monsters.js';
@@ -14,8 +15,8 @@ import { runStats, updateSkills, updateProjectiles, updateZones, absorbDamage } 
 
 let runCounter = 0;
 
-export function createRun({ seed, startSkill, realmLevel, difficulty = 0, unlocked = [], gear = null, variant = 'thuong' }) {
-  const map = makeArenaMap(RUN.ARENA_W, RUN.ARENA_H, seed);
+export function createRun({ seed, startSkill, realmLevel, difficulty = 0, unlocked = [], gear = null, variant = 'thuong', mode = 'arena' }) {
+  const map = mode === 'rooms' ? makeRoomsMap(seed) : makeArenaMap(RUN.ARENA_W, RUN.ARENA_H, seed);   // M9-B: 'rooms' = bí cảnh nhiều phòng
   const run = {
     diff: Math.max(0, Math.min(DIFFICULTY.length - 1, difficulty | 0)),   // M3-02: độ khó bí cảnh
     unlocked: [...unlocked], gear,                                     // M4: công pháp đã mở (pool thẻ), chỉ số trang bị
@@ -29,6 +30,8 @@ export function createRun({ seed, startSkill, realmLevel, difficulty = 0, unlock
   };
   if (vmod(run, 'eliteFirst', null) != null) run.dir.eliteT = vmod(run, 'eliteFirst');
   run.scene = { kind: 'run', map, monsters: [], projectiles: [], zones: [], orbs: [], enemyShots: [], hazards: [] };
+  run.mode = mode === 'rooms' ? 'rooms' : 'arena';
+  if (run.mode === 'rooms') { run.rooms = createRoomState(map.rooms); run.tEff = 0; }
   refreshMaxHp(run, true);
   return run;
 }
@@ -77,7 +80,8 @@ export function updateRun(run, player, dt, ev, realmPowerOverride) {
   run.time += dt;
   run.hp = Math.min(run.maxHp, run.hp + run.maxHp * RUN.REGEN * (run.gear ? run.gear.regenMul : 1) * dt);
   const sc = run.scene;
-  updateDirector(run, player, dt, ev, realmPowerOverride ?? power(run.realmLevel));
+  if (run.mode === 'rooms') updateRoomDirector(run, player, dt, ev, realmPowerOverride ?? power(run.realmLevel));
+  else updateDirector(run, player, dt, ev, realmPowerOverride ?? power(run.realmLevel));
   const ctx = makeCtx(run, player, ev);
   updateSkills(ctx, dt);
   updateProjectiles(ctx, dt);
@@ -102,7 +106,7 @@ export function updateRun(run, player, dt, ev, realmPowerOverride) {
       for (let i = sc.enemyShots.length - 1; i >= 0; i--) if (sc.enemyShots[i].kind === 'dark') sc.enemyShots.splice(i, 1);
       ev.push({ type: 'announce', x: m.x, y: m.y, text: `Đã hạ ${B.name}!`, color: '#ffd978' }, { type: 'boom', x: m.x, y: m.y, r: 50, color: '#ffd978' }, { type: 'shake', t: 0.3 });
       if (m.bossKind === 'FINAL') finalDown = true;
-      else { placeShrine(run, m.x, m.y); ev.push({ type: 'text', x: m.x, y: m.y - 30, text: 'Linh Mạch hiện ra — đứng gần, nhấn E', color: '#7fe3ff' }); }
+      else if (run.mode !== 'rooms') { placeShrine(run, m.x, m.y); ev.push({ type: 'text', x: m.x, y: m.y - 30, text: 'Linh Mạch hiện ra — đứng gần, nhấn E', color: '#7fe3ff' }); }   // chế độ phòng: Linh Mạch có phòng riêng
     }
     ev.push({ type: 'death', x: m.x, y: m.y, tier: m.tier });
     if (sc.orbs.length < RUN.MAX_ORBS) sc.orbs.push({ x: m.x, y: m.y - 2, v: m.xp });

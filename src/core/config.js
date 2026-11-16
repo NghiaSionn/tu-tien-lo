@@ -1,7 +1,7 @@
 // Mọi thông số gameplay. Các con số có nhãn [THỬ NGHIỆM] trong GDD là mặc định để playtest, không phải luật cuối.
 
 // M7-04: phiên bản ghi vào log playtest (đổi khi phát hành bản thử mới)
-export const BUILD = '0.5.0-m9a';
+export const BUILD = '0.5.0-m9b';
 
 export const FEATURES = {
   run: true,            // M1: cổng bí cảnh + vòng run roguelite. false = game chạy như v0.1
@@ -13,6 +13,7 @@ export const FEATURES = {
   sectHub: true,        // M8: sảnh chờ tông môn (đi tới từng khu thay hàng nút). BẬT mặc định từ 14/11 (người phát triển); false hoặc ?sect=0 = động phủ cũ y hệt
   bossRemix: true,      // M7-13 [GIẢ THUYẾT H7]: mỗi boss thêm 1 chiêu phối từ cảnh báo có sẵn, chỉ từ độ khó BOSS.REMIX_MIN_DIFF. false = như cũ
   lore: true,           // M7-14 [GIẢ THUYẾT H8]: Bia Truyền Thừa (phím L) — mẩu truyện mở theo mốc. false = ẩn nút, không báo
+  rooms: true,          // M9-B: bí cảnh nhiều phòng kiểu Soul Knight (sơ đồ ngẫu nhiên theo seed, khóa cửa tới khi dọn phòng, minimap). false = đấu trường sinh tồn cũ
   runVariants: true,    // M7-10 [GIẢ THUYẾT H5]: mỗi lượt bốc ngẫu nhiên (theo seed) một biến thể bí cảnh, báo luật ở màn chuẩn bị. false = luôn Bình thường  // M7-09 [GIẢ THUYẾT H4]: thẻ công pháp mới ghép được tiến hóa với công pháp đang có nặng ×RUN.SYNERGY_MULT. Tắt tới khi playtest    // M7-07 [GIẢ THUYẾT H2]: màn kết quả hiện tối đa 2 mục tiêu meta + nút Tọa thiền/Đột phá/Vào bí cảnh mới. false = như cũ
 };
 
@@ -84,6 +85,27 @@ export const RUN = {
   SLOW_MAX: 0.6,
   DRAFT_INPUT_DELAY: 0.25,      // giây khóa input khi vừa mở bảng thẻ (chống bấm nhầm/bấm đúp)
   MAX_ENEMY_SHOTS: 120,
+};
+
+// ---------- M9-B: bí cảnh nhiều phòng [THỬ NGHIỆM] ----------
+// Sơ đồ: lưới GRID ô, mỗi ô CELL ô gạch chứa tối đa 1 phòng; phòng nối với ô kề bằng hành lang rộng CORRIDOR (cây 2 bên).
+// Loại phòng: start (an toàn), combat, elite (tinh anh), mini (Lang Vương, giữa đường chính), reward (rương: hồi máu + linh thạch),
+// shrine (Linh Mạch), boss (Ma Ảnh Yêu Vương, phòng xa nhất). Vào phòng chiến đấu: cửa phong ấn tới khi hạ hết các đợt.
+// Sức quái tính theo "thời gian quy đổi" T_PER_DEPTH × độ sâu phòng (dùng lại công thức RUN.ENEMY/DIRECTOR như chế độ cũ).
+export const ROOMS = {
+  GRID: [5, 4], CELL: [34, 24], ROOM_W: [22, 28], ROOM_H: [14, 18], CORRIDOR: 4,
+  COUNT: [8, 10], MIN_BOSS_DEPTH: 4,
+  WAVES: { combat: [2, 4], elite: 2, mini: 1, boss: 1 },   // combat: phòng độ sâu 1 = 2 đợt, sâu dần +1 (tối đa 4)
+  WAVE_N: { base: 3, perDepth: 5, max: 36 }, WAVE_GAP: 0.9, WAVE_OVERLAP: 0.3,   // đợt sau ập tới khi đợt trước còn ≤ 30% (không chờ chết hết)
+  SPAWN_SPREAD: 1.2,           // giây: quái một đợt hiện rải trong khoảng này (có vòng báo trước), không bật ra cùng lúc
+  HP_PER_DEPTH: 0.2, DMG_PER_DEPTH: 0.22, BOSS_HP: 2.0,   // quái phòng độ sâu d: máu ×(1 + d·HP_PER_DEPTH), sát thương ×(1 + d·DMG_PER_DEPTH); boss máu ×BOSS_HP
+  BOSS_TRICKLE: { EVERY: 2.4, MAX: 8 },   // phòng boss/tinh anh: quái thường lai rai kéo tới suốt trận (như đấu trường), tối đa MAX con
+  XP_MULT: 2.2,                // chiến ý mỗi con ×: ít quái hơn đấu trường nhưng vẫn đủ cấp để chọn thẻ/tiến hóa
+  T_FIRST: 20, T_PER_DEPTH: 95, T_MAX: 340, T_BOSS: { MINI: 210, FINAL: 360 },   // thời gian quy đổi = T_FIRST + (độ sâu − 1) × T_PER_DEPTH: phòng đầu chỉ quái đuổi
+  ENTER_INSET: 1.5,            // ô: phải vào sâu bấy nhiêu mới khóa cửa (không khóa khi đứng ở ngưỡng cửa)
+  SPAWN_MIN_DIST: 120,         // px: quái mới không hiện sát người chơi (ưu tiên chỗ xa nhất trong vài lần thử)
+  REWARD: { HEAL: 0.3, STONES: 30, XP: 30 },
+  CLEAR_HEAL: 0,               // dọn xong một phòng chiến đấu: hồi bấy nhiêu khí huyết (0 = không; hồi ở phòng thưởng/Linh Mạch)
 };
 
 // ---------- Director bí cảnh (M2-01) [THỬ NGHIỆM] ----------

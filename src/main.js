@@ -584,7 +584,8 @@ function startRun(skill, difficulty = 0) {
   save();
   const seed = nextRunSeed ?? ((Date.now() ^ Math.floor(Math.random() * 0x7fffffff)) >>> 0);
   nextRunSeed = null;
-  run = createRun({ seed, variant: pickVariant(seed), startSkill: skill, realmLevel: meta.realmLevel, difficulty, unlocked: meta.unlocks.skills, gear: gearMods(meta) });
+  const roomsMode = FEATURES.rooms && !/[?&]rooms=0/.test(location.search);   // M9-B: ?rooms=0 = đấu trường cũ
+  run = createRun({ seed, variant: pickVariant(seed), startSkill: skill, realmLevel: meta.realmLevel, difficulty, unlocked: meta.unlocks.skills, gear: gearMods(meta), mode: roomsMode ? 'rooms' : 'arena' });
   p.x = run.scene.map.cx; p.y = run.scene.map.cy; p.inv = 1; p.med = false; p.cd = 0;
   hubShots.length = 0; clearVis(vis); input.clear(); ev.length = 0;
   view = 'RUN'; paused = false;
@@ -595,6 +596,7 @@ function startRun(skill, difficulty = 0) {
   if (run.variant !== 'thuong') UI.log(`Biến thể: ${variantOf(run.variant).name} — ${variantOf(run.variant).rules.join('; ')}.`, 'gold', 10000);
   UI.setMode('run');
   UI.log('Bước vào bí cảnh. Công pháp tự thi triển khi có yêu thú trong tầm.', 'gold');
+  if (run.mode === 'rooms') UI.log('Bí cảnh gồm nhiều phòng: vào phòng sẽ bị phong ấn tới khi hạ hết yêu thú. Tìm phòng Yêu Vương (chấm đỏ trên bản đồ góc phải).', 'gold', 10000);
 }
 function runShoot() {
   p.cd = BASIC_ATTACK.CD;

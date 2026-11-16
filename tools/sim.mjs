@@ -11,6 +11,7 @@
 //   REROLL=1 ...                           # M7-09: bot đổi bảng thẻ khi không có thẻ nào trong danh sách muốn
 //   SYNERGY=1 ...                          # M7-09: bật FEATURES.draftSynergy (ưu tiên nhẹ thẻ ghép tiến hóa)
 //   VARIANT=linh_trieu ...                 # M7-10: ép biến thể bí cảnh (mặc định: Bình thường, để so với kết quả cũ)
+//   ROOMS=1 ...                            # M9-B: bí cảnh nhiều phòng — bot đi hết các phòng (boss cuối cùng), dùng Linh Mạch
 import { createRun, updateRun, refreshMaxHp } from '../src/systems/run.js';
 import { drawCards, applyCard, rerollDraft } from '../src/progression/draft.js';
 import { runStats } from '../src/systems/combat.js';
@@ -19,6 +20,34 @@ import { PLAYER, ARCH, BOSS, FEATURES } from '../src/core/config.js';
 if (process.env.SYNERGY) FEATURES.draftSynergy = true;
 const REROLL = !!process.env.REROLL;
 import { computeRunReward } from '../src/progression/rewards.js';
+import { roomAt } from '../src/world/rooms.js';
+import { useShrine, shrineReady } from '../src/systems/shrine.js';
+const ROOMS_MODE = !!process.env.ROOMS;
+
+// M9-B: điểm đến kế tiếp của bot trong chế độ phòng: đi hết phòng chưa dọn (gần nhất trước), boss sau cùng
+function roomTarget(run, p) {
+  const d = run.scene.map.rooms, rs = run.rooms, T = 16, tx = Math.floor(p.x / T), ty = Math.floor(p.y / T);
+  const cur = roomAt(d, tx, ty);
+  if (rs.active >= 0) { const r = d.rooms[rs.active]; return [(r.cx + 0.5) * T, (r.cy + 0.5) * T, 0.004]; }
+  if (run.shrine && !run.shrine.used) return [run.shrine.x, run.shrine.y, 1];
+  const from = cur >= 0 ? cur : rs.cur;
+  // BFS trên cây phòng
+  const prev = new Map([[from, -1]]), q = [from];
+  for (let i = 0; i < q.length; i++) for (const n of d.rooms[q[i]].nb) if (!prev.has(n)) { prev.set(n, q[i]); q.push(n); }
+  const todo = q.filter(id => rs.rooms[id].state !== 'cleared' && d.rooms[id].type !== 'boss');
+  const goal = todo.length ? todo[0] : d.boss;
+  if (goal === from) { const r = d.rooms[from]; return [(r.cx + 0.5) * T, (r.cy + 0.5) * T, 1]; }
+  let step = goal; while (prev.get(step) !== from) step = prev.get(step);
+  const nr = d.rooms[step];
+  if (cur < 0) return [(nr.cx + 0.5) * T, (nr.cy + 0.5) * T, 1];   // trong hành lang: đi thẳng vào phòng kế
+  const c = d.corridors.find(k => (k.a === from && k.b === nr.id) || (k.b === from && k.a === nr.id));
+  const mx = (c.x0 + c.x1 + 1) / 2 * T, my = (c.y0 + c.y1 + 1) / 2 * T, r0 = d.rooms[from];
+  // căn thẳng hàng cửa trước khi đi (tránh kẹt vào góc tường)
+  const horiz = c.y1 - c.y0 + 1 === 4 && c.x1 - c.x0 + 1 !== 4 ? true : r0.gy === nr.gy;
+  if (horiz && Math.abs(p.y - my) > 6) return [p.x, my, 1];
+  if (!horiz && Math.abs(p.x - mx) > 6) return [mx, p.y, 1];
+  return [mx, my, 1];
+}
 
 export const BUILDS = {
   kiem_loi: { start: 'sword_qi', want: ['evo:loi_dinh_van_kiem', 'up:sword_qi', 'new:thunder_strike', 'new:sword_qi', 'up:thunder_strike', 'pas:linh_luc', 'pas:ngung_than', 'new:body_aura'] },
@@ -70,7 +99,7 @@ function dodge(run, p) {
 
 export function simulate(buildName, L, seed, maxTime = 720) {
   const b = BUILDS[buildName];
-  const run = createRun({ variant: process.env.VARIANT || 'thuong', unlocked: b.unlock || [], seed, startSkill: b.start, realmLevel: L, difficulty: +(process.env.DIFF || 0) });
+  const run = createRun({ variant: process.env.VARIANT || 'thuong', unlocked: b.unlock || [], seed, startSkill: b.start, realmLevel: L, difficulty: +(process.env.DIFF || 0), mode: ROOMS_MODE ? 'rooms' : 'arena' });
   const p = { x: run.scene.map.cx, y: run.scene.map.cy, fx: 1, fy: 0, inv: 0, dead: false };
   const ev = [], dt = 1 / 30;
   const evoAt = {};
@@ -85,7 +114,11 @@ export function simulate(buildName, L, seed, maxTime = 720) {
     let best = null, bd = 1e9;
     for (const o of run.scene.orbs) { const d = Math.hypot(o.x - p.x, o.y - p.y); if (d < bd) { bd = d; best = o; } }
     if (best && bd < 160) { vx += (best.x - p.x) / bd * 0.6; vy += (best.y - p.y) / bd * 0.6; }
-    vx += (run.scene.map.cx - p.x) * 0.0015; vy += (run.scene.map.cy - p.y) * 0.0015;
+    if (ROOMS_MODE) {
+      const [gx, gy, w] = roomTarget(run, p), dd = Math.hypot(gx - p.x, gy - p.y) || 1;
+      if (w >= 1) { vx += (gx - p.x) / dd * w; vy += (gy - p.y) / dd * w; } else { vx += (gx - p.x) * w * 0.4; vy += (gy - p.y) * w * 0.4; }
+      if (shrineReady(run, p)) useShrine(run, run.hp < run.maxHp * 0.6 ? 'heal' : 'power');
+    } else { vx += (run.scene.map.cx - p.x) * 0.0015; vy += (run.scene.map.cy - p.y) * 0.0015; }
     const l = Math.hypot(vx, vy);
     if (l > 0.05) {
       p.fx = vx / l; p.fy = vy / l;
@@ -93,6 +126,7 @@ export function simulate(buildName, L, seed, maxTime = 720) {
       moveEntity(run.scene.map, p, p.fx * sp, p.fy * sp, null);
     }
     p.inv -= dt;
+    if (process.env.TRACE && Math.floor(run.time * 30) % 300 === 0) console.log('t', Math.round(run.time), 'tile', Math.floor(p.x / 16), Math.floor(p.y / 16), 'room', run.rooms && run.rooms.cur, 'active', run.rooms && run.rooms.active, 'alive', run.scene.monsters.filter(m => !m.dead).length, 'tgt', ROOMS_MODE ? roomTarget(run, p).map(v => Math.round(v / 16 * 10) / 10) : '');
     updateRun(run, p, dt, ev);
     ev.length = 0;
     while (run.pendingDrafts > 0 && run.status === 'RUNNING') {

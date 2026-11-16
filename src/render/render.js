@@ -349,6 +349,53 @@ function edgeTile(kind, v) {
   }
   return (_edge[key] = c);
 }
+// M9-B: tán rừng tối dày đặc giữa các phòng (thay cho hàng nghìn sprite cây): nền xanh thẫm + đốm lá sáng/tối theo ô
+const CANOPY = ['#132218', '#18291c', '#1d3322', '#26402a', '#0e1a12'];
+function paintCanopy(g, tx, ty, x, y) {
+  g.fillStyle = CANOPY[0]; g.fillRect(x, y, T, T);
+  for (let i = 0; i < 5; i++) {
+    const h = hash(tx * 3 + i, ty * 5 - i, 171), px = x + Math.floor(h * 14), py = y + Math.floor(hash(tx, ty * 7 + i, 172) * 14), r = 2 + Math.floor(hash(tx + i, ty, 173) * 3);
+    g.fillStyle = CANOPY[1 + (i % 3)]; g.fillRect(px - r, py - r + 1, r * 2, r * 2 - 2); g.fillRect(px - r + 1, py - r, r * 2 - 2, r * 2);
+  }
+  if (hash(tx, ty, 174) < 0.3) { g.fillStyle = CANOPY[4]; g.fillRect(x + Math.floor(hash(tx, ty, 175) * 12), y + Math.floor(hash(tx, ty, 176) * 12), 4, 3); }
+}
+// M9-B: cửa phòng đang phong ấn — màn linh lực tím, vạch phù văn chạy
+function drawRoomSeals(ctx, map, camX, camY, time) {
+  if (!map.blocked || !map.blocked.size) return;
+  const W0 = map.w;
+  for (const k of map.blocked) {
+    const tx = k % W0, ty = (k - tx) / W0, x = tx * T, y = ty * T;
+    if (x + T < camX || x > camX + W || y + T < camY - 32 || y > camY + H) continue;
+    const a = 0.62 + 0.18 * Math.sin(time * 4 + tx + ty);
+    ctx.fillStyle = `rgba(110,40,200,${a})`; ctx.fillRect(x, y - 10, T, T + 10);   // màn cao hơn ô: thấy rõ như bức tường linh lực
+    ctx.fillStyle = `rgba(200,140,255,${a * 0.8})`; ctx.fillRect(x, y - 10, T, 2); ctx.fillRect(x, y + T - 2, T, 2);
+    ctx.fillStyle = '#f2e2ff';
+    for (let i = 0; i < 3; i++) { const o = Math.floor((time * 20 + i * 9 + (tx + ty) * 5) % (T + 10)); ctx.fillRect(x + 3 + ((i * 5 + tx * 3) % 10), y - 10 + o, 2, 3); }
+  }
+}
+// M9-B: minimap góc phải: ô phòng đã thấy (mờ) / đã vào (sáng), phòng hiện tại viền vàng, biểu tượng loại phòng
+const ROOM_ICON = { boss: '#ff5a5a', mini: '#ff9a5a', elite: '#c98cff', reward: '#ffd978', shrine: '#7fe3ff' };
+function drawMinimap(ctx, run) {
+  const dg = run.scene.map.rooms, rs = run.rooms; if (!dg || !rs) return;
+  const cw = 16, ch = 11, gap = 4, allGX = 5, allGY = 4, mw = allGX * (cw + gap) + gap, mh = allGY * (ch + gap) + gap, x0 = W - mw - 6, y0 = 30;
+  ctx.fillStyle = 'rgba(8,6,18,.72)'; ctx.fillRect(x0, y0, mw, mh);
+  ctx.strokeStyle = 'rgba(255,233,160,.35)'; ctx.lineWidth = 1; ctx.strokeRect(x0 + 0.5, y0 + 0.5, mw - 1, mh - 1);
+  const pos = r => [x0 + gap + r.gx * (cw + gap), y0 + gap + r.gy * (ch + gap)];
+  ctx.fillStyle = 'rgba(200,190,230,.55)';
+  for (const [a, b] of dg.edges) {
+    if (!(rs.rooms[a].seen && rs.rooms[b].seen) || !(rs.rooms[a].visited || rs.rooms[b].visited)) continue;
+    const [ax, ay] = pos(dg.rooms[a]), [bx, by] = pos(dg.rooms[b]);
+    if (ay === by) ctx.fillRect(Math.min(ax, bx) + cw, ay + ch / 2 - 1, gap, 2); else ctx.fillRect(ax + cw / 2 - 1, Math.min(ay, by) + ch, 2, gap);
+  }
+  for (const r of dg.rooms) {
+    const st = rs.rooms[r.id]; if (!st.seen) continue;
+    const [x, y] = pos(r);
+    ctx.fillStyle = st.visited ? (st.state === 'cleared' ? 'rgba(170,165,200,.9)' : 'rgba(120,110,150,.9)') : 'rgba(70,65,95,.75)'; ctx.fillRect(x, y, cw, ch);
+    const ic = ROOM_ICON[r.type];
+    if (ic && (st.visited || r.type === 'boss')) { ctx.fillStyle = ic; ctx.fillRect(x + cw / 2 - 2, y + ch / 2 - 2, 4, 4); }
+    if (r.id === rs.cur) { ctx.strokeStyle = '#ffe9a0'; ctx.lineWidth = 1; ctx.strokeRect(x - 0.5, y - 0.5, cw + 1, ch + 1); }
+  }
+}
 function groundTile(t, tx, ty, map) {
   if (t === CLIFF) return edgeTile('cliff', Math.floor(hash(tx, ty, 47) * 4));
   if (t === CLOUD) return edgeTile('cloud', Math.floor(hash(tx, ty, 48) * 4));
@@ -358,6 +405,7 @@ function groundTile(t, tx, ty, map) {
 }
 function tileObj(map, tx, ty, props) {
   const t = map.tileAt(tx, ty), x = tx * T, y = ty * T;
+  if (map.deep && tx >= 0 && ty >= 0 && tx < map.w && ty < map.h && map.deep[ty * map.w + tx]) return null;   // M9-B: rừng sâu tô tán, không vẽ cây
   if (t === FENCE) {   // M8: mép bắc/nam rào là sprite hang_rao (map.sect.props); chỉ vẽ cọc rào cho mép đông/tây
     if (map.sect && (map.sect.pen?.ring || map.tileAt(tx - 1, ty) === FENCE || map.tileAt(tx + 1, ty) === FENCE)) return null;   // rào bo tròn vẽ riêng
     const f = map.sect && map.sect.pen && map.sect.pen.art ? railSpr() : fenceSpr(); return f ? { y: y + T, img: f, x, dy: y + T - f.height } : null;
@@ -524,6 +572,7 @@ function buildChunk(map, cx, cy, phase, props) {
     else if (map.sect && t === STONE) paintPath(g, map, tx, ty, x, y);
     else if (map.sect && (t === CLIFF || t === FALL)) paintCliff(g, map, tx, ty, x, y);
     else if (map.sect && t === CLOUD) paintCloud(g, tx, ty, x, y);
+    else if (map.deep && map.deep[ty * map.w + tx]) paintCanopy(g, tx, ty, x, y);   // M9-B: rừng sâu giữa các phòng
     else g.drawImage(groundTile(t, tx, ty, map), x, y);
   }
   // (17/11) bỏ bông mây vẽ sẵn: sương mù/mây trôi vẽ động mỗi khung (drawFogFx)
@@ -1396,6 +1445,7 @@ export function render(ctx, g) {
     else drawPlayer(ctx, p, time, g.medFx, g.inForm, vis, !!(g.sect && p.med && g.inForm && vis.tm && vis.tm.tran));
   }
 
+  if (scene.kind === 'run') drawRoomSeals(ctx, map, camX, camY, time);   // M9-B: màn phong ấn cửa phòng — vẽ trên cây để luôn thấy rõ
   if (scene.kind === 'hub' && g.sect && vis.tm && vis.quality !== 'low') drawPetals(ctx, g.sect.props, vis.tm, camX, camY, time);   // (17/11) cánh hoa đào rơi
   mark('objects');
   if (g.run) drawSkillsOver(ctx, g.run, p, time, vis);
@@ -1444,6 +1494,7 @@ export function render(ctx, g) {
   mark('texts');
 
   ctx.setTransform(1, 0, 0, 1, 0, 0);
+  if (g.run && g.run.rooms && scene.kind === 'run') drawMinimap(ctx, g.run);   // M9-B
   drawBossBar(ctx, scene, camX, camY);
   if (vis.banner) {
     const b = vis.banner; ctx.globalAlpha = Math.min(1, b.life * 2);
