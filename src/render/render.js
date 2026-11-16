@@ -623,9 +623,9 @@ function buildChunk(map, cx, cy, phase, props) {
   const tx0 = cx * CH, ty0 = cy * CH;
   for (let ty = ty0; ty < ty0 + CH; ty++) for (let tx = tx0; tx < tx0 + CH; tx++) {
     const t = map.tileAt(tx, ty), x = tx * T, y = ty * T;
-    if (t === WATER && !(map.sect && VN)) { g.drawImage(waterTiles[(phase + tx + ty) & 1], x, y); if (map.tileAt(tx, ty - 1) !== WATER) g.drawImage(waterBank, x, y); }
+    if (t === WATER && !((map.sect || map.kind === 'arena') && VN)) { g.drawImage(waterTiles[(phase + tx + ty) & 1], x, y); if (map.tileAt(tx, ty - 1) !== WATER) g.drawImage(waterBank, x, y); }
     else if ((map.sect || map.rooms) && t === DIRT) paintDirtYard(g, map, tx, ty, x, y);   // M9-B: sân đất hang Lang Vương dùng chung kiểu sân chuồng
-    else if (map.sect && VN && t === WATER) paintWaterVN(g, map, tx, ty, x, y);
+    else if ((map.sect || map.kind === 'arena') && VN && t === WATER) paintWaterVN(g, map, tx, ty, x, y);   // (17/11) bí cảnh dùng chung nước/bờ/góc của sảnh
     else if (map.sect && VN && (t === CLIFF || t === FALL)) paintCliffVN(g, map, tx, ty, x, y);
     else if ((map.sect || (map.rooms && (t === STONE || t === GRASS))) && CODA && (t === STONE || t === GRASS || t === BUILDING || t === FENCE || t === DIRT)) { paintCoDa(g, map, tx, ty, x, y); if (VN && map.sect) roundLandCorner(g, map, tx, ty, x, y); }   // M9-B: bí cảnh phòng dùng bộ cỏ/đá bo mép như sảnh
     else if (map.sect && t === STONE) paintPath(g, map, tx, ty, x, y);
@@ -641,7 +641,7 @@ function buildChunk(map, cx, cy, phase, props) {
     const t = map.tileAt(tx, ty), d = hash(tx, ty, 8), x = tx * T, y = ty * T;
     let img = null;
     if (t === GRASS && d < 0.05) img = props[pick(DECOR_KINDS, d / 0.05)];
-    else if (t === WATER && d < 0.05 && map.tileAt(tx, ty - 1) === WATER && !(map.sect && VN)) img = props.sen;   // sảnh: sen vẽ trên gợn nước (drawWaterFx)
+    else if (t === WATER && d < 0.05 && map.tileAt(tx, ty - 1) === WATER && !((map.sect || map.kind === 'arena') && VN)) img = props.sen;   // sảnh: sen vẽ trên gợn nước (drawWaterFx)
     if (img && map.sect && map._nhaRects && t === GRASS && decorOverNha(map, props, tx, ty, img, map._nhaRects)) continue;
     if (img) g.drawImage(img, x + 8 - img.ax, y + T - 1 - img.ay);
   }
@@ -1296,7 +1296,7 @@ export function render(ctx, g) {
       if (img && t.x < camX + W && t.x + t.w > camX && t.y < camY + H && t.y + t.h > camY) ctx.drawImage(img, t.x, t.y);
     }
     vis.hiSprites = [];
-    if (g.sect && VN) {   // (16/11) gợn nước chạy mượt: mỗi ô 2 vệt sáng trôi ngang theo thời gian, sáng tắt dần
+    if ((g.sect || map.kind === 'arena') && VN) {   // (16/11) gợn nước chạy mượt (17/11: cả bí cảnh): mỗi ô 2 vệt sáng trôi ngang theo thời gian, sáng tắt dần
       const tx0 = Math.floor(camX / T), ty0 = Math.floor(camY / T);
       for (let ty = ty0; ty <= ty0 + Math.ceil(H / T); ty++) for (let tx = tx0; tx <= tx0 + Math.ceil(W / T); tx++) {
         if (map.tileAt(tx, ty) !== WATER) continue;
@@ -1321,14 +1321,14 @@ export function render(ctx, g) {
         if (map.tileAt(tx, ty) !== WATER || hash(tx, ty, 8) >= 0.08 || !vis.props || !vis.props.sen) continue;
         let open = true; for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) if (map.tileAt(tx + dx, ty + dy) !== WATER) open = false;
         if (map.tileAt(tx - 1, ty - 2) !== WATER || map.tileAt(tx, ty - 2) !== WATER || map.tileAt(tx + 1, ty - 2) !== WATER) open = false;   // hình sen cao ~1 ô: phía trên cũng phải là nước
-        if (open && g.sect.props.some(o => o.s === 'cau_da' && Math.abs(o.x - (tx * T + 8)) < 48 && Math.abs(o.y - (ty * T + 8)) < 40)) open = false;   // không đè lên cầu đá
+        if (open && g.sect && g.sect.props.some(o => o.s === 'cau_da' && Math.abs(o.x - (tx * T + 8)) < 48 && Math.abs(o.y - (ty * T + 8)) < 40)) open = false;   // không đè lên cầu đá
         if (!open) continue;   // (17/11) sen chỉ ở giữa mặt nước: các ô quanh là nước -> lá sen không lấn lên bờ cỏ
         const img = vis.props.sen, x = tx * T, y = ty * T, ph = time * 0.9 + hash(tx, ty, 141) * 6.28;
         ring(x + 8, y + T - 3, 11, 4, hash(tx, ty, 140));
         // lá sen trôi êm: lên xuống 1 px + lắc ngang 0,6 px ở toạ độ lẻ -> vẽ ở lớp nét cao (#hi), không nhảy nấc điểm ảnh
         (vis.hiSprites || (vis.hiSprites = [])).push({ img, x: x + 8 - img.ax + Math.sin(ph * 0.7) * 0.6, y: y + T - 1 - img.ay + Math.sin(ph) * 1.0 });
       }
-      for (const o of g.sect.props) if (o.s === 'cau_da' && vis.tm && vis.tm.cau_da) {
+      if (g.sect) for (const o of g.sect.props) if (o.s === 'cau_da' && vis.tm && vis.tm.cau_da) {
         const img = vis.tm.cau_da; if (o.x < camX - 40 || o.x > camX + W + 40 || o.y < camY - 20 || o.y > camY + H + 40) continue;
         ring(o.x - img.width * 0.3, o.y - 3, 5, 2, 0.2); ring(o.x + img.width * 0.3, o.y - 3, 5, 2, 0.7);
       }
@@ -1429,6 +1429,18 @@ export function render(ctx, g) {
     }
     ctx.globalCompositeOperation = 'source-over';
     if (g.run) drawSkillsUnder(ctx, g.run, p, time, vis, g.dtWorld || 0);
+    if (map.kind === 'arena' && !map.rooms) {   // (17/11) đổ bóng cây/đá bí cảnh: bóng hắt mờ + bóng tiếp đất (như sảnh)
+      const tx0 = Math.floor(camX / T) - 3, ty0 = Math.floor(camY / T) - 1, tx1 = tx0 + Math.ceil(W / T) + 6, ty1 = ty0 + Math.ceil(H / T) + 6;
+      ctx.fillStyle = '#141626';
+      for (let ty = ty0; ty <= ty1; ty++) for (let tx = tx0; tx <= tx1; tx++) {
+        const o = tileObj(map, tx, ty, vis.props); if (!o) continue;
+        const sh = castShadow(o.img), fx = o.x + o.img.width / 2;
+        ctx.globalAlpha = 0.4; ctx.drawImage(sh, Math.round(o.x) - 4, Math.round(o.y) - sh.height + 7);
+        const rx = Math.max(6, o.img.width * 0.32);
+        for (const [k, a] of [[1.2, 0.12], [0.8, 0.18]]) { ctx.globalAlpha = a; ctx.beginPath(); ctx.ellipse(fx + 2, o.y - 1, rx * k, 3 * k, 0, 0, 6.283); ctx.fill(); }
+      }
+      ctx.globalAlpha = 1;
+    }
     if (scene.kind === 'run') drawBossRoomFloor(ctx, map, camX, camY, time, vis);   // (17/11)
     if (scene.kind === 'run' && map.decor && vis.pb) {   // (17/11) đổ bóng vật trang trí phòng boss: bóng hắt (như sảnh) + bóng tiếp đất elip
       for (const d of map.decor) {

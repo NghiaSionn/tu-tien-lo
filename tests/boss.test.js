@@ -19,7 +19,7 @@ function runFor(r, p, seconds, each) {
 test('mini-boss ra đúng giờ, một lần; hạ rồi không sinh lại', () => {
   const r = newRun(), p = player(r);
   r.time = BOSS.MINI.AT - 0.5;
-  runFor(r, p, 1);
+  runFor(r, p, 0.55);   // đo ngay sau khi boss xuất hiện (17/11: trước đo sau 0,5 s boss đã đi lại gần -> phụ thuộc may rủi vào bản đồ)
   const bosses = () => r.scene.monsters.filter(m => m.bossKind === 'MINI');
   assert.equal(bosses().length, 1); assert.equal(r.dir.mini, 'ALIVE');
   const b = bosses()[0];

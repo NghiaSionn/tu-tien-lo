@@ -314,15 +314,42 @@ export function makeRoomsMap(seed) {
 }
 
 export function makeArenaMap(w, h, seed) {
-  return makeMap(w, h, seed, 'arena', (x, y) => {
+  // (17/11) hồ tròn trịa (bỏ mũi nước 1 ô / lấp vịnh hẹp) + cây/đá cách mép hồ ≥ 2 ô -> bờ hồ vẽ được bằng tileset bờ/góc của sảnh
+  const g = new Uint8Array(w * h), at = (x, y) => (x < 0 || y < 0 || x >= w || y >= h) ? GRASS : g[y * w + x];
+  const center = (x, y) => Math.hypot(x + 0.5 - w / 2, y + 0.5 - h / 2) < 7;
+  // hồ = 4–6 cụm, mỗi cụm 2–3 hình elip chồng nhau (bờ cong tròn, ít bậc thang), tránh vùng giữa
+  const nL = 4 + Math.floor(hash(1, 2, 90, seed) * 3);
+  for (let L = 0; L < nL; L++) {
+    let cx = 0, cy = 0;
+    for (let k = 0; k < 20; k++) { cx = 8 + hash(L, k, 91, seed) * (w - 16); cy = 8 + hash(L, k, 92, seed) * (h - 16); if (Math.hypot(cx - w / 2, cy - h / 2) > 19) break; }   // ngoài vòng sinh quái quanh tâm (RING_R ~15 ô)
+    const parts = 2 + Math.floor(hash(L, 0, 93, seed) * 2);
+    for (let q = 0; q < parts; q++) {
+      const ex = cx + (hash(L, q, 94, seed) - 0.5) * 7, ey = cy + (hash(L, q, 95, seed) - 0.5) * 5, rx = 3.5 + hash(L, q, 96, seed) * 3.5, ry = 2.5 + hash(L, q, 97, seed) * 2.5;
+      for (let y = Math.floor(ey - ry - 1); y <= ey + ry + 1; y++) for (let x = Math.floor(ex - rx - 1); x <= ex + rx + 1; x++)
+        if (x > 3 && y > 3 && x < w - 4 && y < h - 4 && !center(x, y) && ((x + 0.5 - ex) / rx) ** 2 + ((y + 0.5 - ey) / ry) ** 2 < 1) g[y * w + x] = WATER;
+    }
+  }
+  for (let it = 0; it < 4; it++) {   // làm mượt: ô nước ít láng giềng nước -> cỏ; ô cỏ bị nước bao 3 phía -> nước
+    const n = new Uint8Array(g);
+    for (let y = 1; y < h - 1; y++) for (let x = 1; x < w - 1; x++) {
+      let c4 = 0; for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) if (at(x + dx, y + dy) === WATER) c4++;
+      if (g[y * w + x] === WATER && c4 <= 1) n[y * w + x] = GRASS;
+      else if (g[y * w + x] !== WATER && c4 >= 3 && !center(x, y)) n[y * w + x] = WATER;
+    }
+    g.set(n);
+  }
+  const nearWater = (x, y, r) => { for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) if (at(x + dx, y + dy) === WATER) return true; return false; };
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    if (g[y * w + x] === WATER) continue;
     const d = Math.hypot(x + 0.5 - w / 2, y + 0.5 - h / 2);
-    if (x === 0 || y === 0 || x === w - 1 || y === h - 1) return TREE;
-    if (x === 1 || y === 1 || x === w - 2 || y === h - 2) return hash(x, y, 7, seed) < 0.6 ? TREE : GRASS;
-    if (d < 3.5) return STONE;
-    if (d < 7) return GRASS;
-    if (noise(x / 7, y / 7, 1, seed) < 0.18) return WATER;
-    if (hash(x, y, 2, seed) < (noise(x / 5, y / 5, 3, seed) > 0.62 ? 0.16 : 0.012)) return TREE;
-    if (hash(x, y, 4, seed) < 0.012) return ROCK;
-    return GRASS;
-  });
+    let t = GRASS;
+    if (x === 0 || y === 0 || x === w - 1 || y === h - 1) t = TREE;
+    else if (x === 1 || y === 1 || x === w - 2 || y === h - 2) t = hash(x, y, 7, seed) < 0.6 ? TREE : GRASS;
+    else if (d < 3.5) t = STONE;
+    else if (d < 7 || nearWater(x, y, 2)) t = GRASS;   // không mọc cây/đá sát hồ
+    else if (hash(x, y, 2, seed) < (noise(x / 5, y / 5, 3, seed) > 0.62 ? 0.16 : 0.012)) t = TREE;
+    else if (hash(x, y, 4, seed) < 0.012) t = ROCK;
+    g[y * w + x] = t;
+  }
+  return makeMap(w, h, seed, 'arena', (x, y) => g[y * w + x]);
 }
