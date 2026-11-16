@@ -435,6 +435,7 @@ Thiết kế + backlog đầy đủ (ChatGPT, 13/11): **`docs/chatgpt_tong_mon_M
 - [x] (17/11) Thác tây thành "thác trời": dời ra mép ngoài (cột 1–4), rút ngắn (đổ từ trên mép bản đồ tới hàng 22), bỏ vách dưới chân; chân thác chìm vào đụn sương dày mép mềm, phập phồng (`drawFallMist`) như đổ mãi xuống dưới mây. Test 209/209. Ảnh `docs/playtest/M8_thac_troi.png`
 - [x] (17/11) Đi sau nhà: giữ kiểu mờ cũ (đứng sau nhà -> cả nhà mờ 45%); va chạm chỉ để DẢI ĐỈNH MÁI (18 px từ điểm ảnh cao nhất mỗi cột) đi xuyên được, thân nhà/vách sau đặc (`tools/build_nha.py` ROOF). Thử bằng phím S thật: 4 nhà dừng ở dải đỉnh mái, mái đè chân người. Test 209/209. Ảnh `docs/playtest/M8_di_qua_mai.png`
 - [x] (17/11) Hitbox sau nhà theo ảnh người phát triển: chỉ đi xuyên tới đường nóc mái (30% chiều cao nhà từ đỉnh, tháp Truyền Thừa 45%; `roof` trong build_nha), giữa nhà/tường/vách sau đặc; chuồng linh thú đặc 12×8 ô (tới nóc). Thử phím S: 4 nhà dừng ở 0,29–0,30. Test 209/209.
+- [x] (17/11) Nhãn tên khu theo mẫu Tụ Linh Pháp Đài (một màu #fff6c8 cỡ 11, không đổi màu/phóng to khi lại gần; dòng trạng thái nhỏ dưới): căn giữa phần nhìn thấy của sprite, hạ xuống ngang mái (tháp: ≤120 px trên cửa); Chuồng Linh Thú đặt giữa cổng chuồng; Cổng Bí Cảnh giữa lòng cổng; bia hạ thấp. Sửa: đứng trong nhà không còn mờ (chỉ mờ khi đứng ở vùng mái phía sau). Ảnh `docs/playtest/M8_nhan_ten.png`
 - [ ] M8-12 HUD, M8-14 cảm ứng, M8-16 save/regression, M8-17..18 playtest
 
 ---

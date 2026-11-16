@@ -235,9 +235,21 @@ function drawPetals(ctx, props, tm, camX, camY, time) {
 }
 // (17/11) người chơi đứng sau nhà (lớp che có chân thấp hơn người phủ lên thân) -> cả nhà vẽ mờ như tán cây
 function behindNha(p, n, v) {
-  if (!(p.x > n.x && p.x < n.x + v.base.width && p.y > n.y - 8 && p.y < n.y + v.base.height)) return false;
+  if (!(p.x > n.x && p.x < n.x + v.base.width && p.y > n.y - 8 && p.y < n.y + v.base.height * 0.5)) return false;   // chỉ vùng mái phía sau (sàn trong nhà ở nửa dưới -> không mờ)
   for (const s of v.strips) { if (n.y + s.foot <= p.y) continue; for (const oy of [3, 10, 18]) if (alphaAt(s.img, p.x - n.x - s.x, p.y - oy - n.y - s.y) > 100) return true; }
   return false;
+}
+// (17/11) nhãn tên khu sảnh: theo mẫu Tụ Linh Pháp Đài — một màu, cỡ 11, không đổi màu/phóng to khi lại gần; dòng trạng thái nhỏ bên dưới
+function sectLabel(ctx, name, st, x, y) {
+  txt(ctx, name, Math.round(x), Math.round(y), '#fff6c8', 11);
+  if (st) txt(ctx, st.s, Math.round(x), Math.round(y + 10), '#cfc6b0', 8);
+}
+const _bbox = new WeakMap();
+function opaqueBox(img) {   // khung điểm ảnh đục của sprite (cache) -> căn nhãn đúng giữa phần nhìn thấy, không theo khung ảnh
+  let b = _bbox.get(img); if (b) return b;
+  let x0 = img.width, x1 = 0, y0 = img.height;
+  for (let y = 0; y < img.height; y += 2) for (let x = 0; x < img.width; x += 2) if (alphaAt(img, x, y) > 100) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; }
+  b = { cx: (x0 + x1) / 2, top: y0 }; _bbox.set(img, b); return b;
 }
 function castShadow(img) {
   let c = _shadow.get(img); if (c) return c;
@@ -769,7 +781,7 @@ function drawBia(ctx, b, vis, time) {
   ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.fillRect(x - 15, y - 2, 30, 4);
   ctx.drawImage(spr, x - (spr.width >> 1), y + 2 - spr.height);
   if (b.lit && Math.floor(time * 2) % 2 === 0) { ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 0.25; ctx.drawImage(spr, x - (spr.width >> 1), y + 2 - spr.height); ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over'; }
-  if (b.near) txt(ctx, b.label || 'E · đọc bia', x, y - spr.height - 4, b.label ? '#fff6c8' : '#ffd978', b.label ? 11 : 10);
+  if (b.near) txt(ctx, b.label || 'E · đọc bia', x, y - spr.height + 10, '#fff6c8', 11);   // (17/11) cùng kiểu nhãn Tụ Linh Pháp Đài, hạ xuống tầm mắt
 }
 
 // M8-02: công trình tông môn — PLACEHOLDER (khối tường + mái + cửa + tên) tới khi có art vẽ theo concept ảnh 2.
@@ -1331,9 +1343,8 @@ export function render(ctx, g) {
       if (behindNha(p, n, v)) objs.push({ y: n.y + v.base.height, img: v.base, x: n.x, dy: n.y, noFade: true, fade: true });   // cả nhà vẽ mờ đè lên người
       else for (const s of v.strips) { const dy = n.y + s.y; if (dy < camY + H && dy + s.img.height > camY && n.x + s.x < camX + W && n.x + s.x + s.img.width > camX) objs.push({ y: n.y + s.foot, img: s.img, x: n.x + s.x, dy, noFade: true }); }
       if (b.name && Math.hypot(p.x - b.doorPx.x, p.y - b.doorPx.y) < 140) {
-        const act = g.interact && g.interact.id === b.id, st = g.sectStatus && g.sectStatus(b.id);
-        txt(ctx, b.name, Math.round(n.x + n.w / 2), n.y - (st ? 10 : 2), act ? '#fff6c8' : '#ffd978', act ? 11 : 10);
-        if (st) txt(ctx, st.s, Math.round(n.x + n.w / 2), n.y, st.hot ? '#ffe9a0' : '#cfc6b0', 8);
+        const st = g.sectStatus && g.sectStatus(b.id), bb = opaqueBox(v.base);
+        sectLabel(ctx, b.name, st, n.x + bb.cx, Math.max(n.y + bb.top + 16, b.doorPx.y - 120));   // giữa phần nhìn thấy của nhà, ngang mái; tháp cao: không quá 120 px trên cửa (tầm mắt)
       }
     }
     if (vis.plaza) {   // lớp trước của bệ: từng nhóm điểm ảnh xếp theo chân cột đục của nó (xem main.js)
@@ -1396,11 +1407,11 @@ export function render(ctx, g) {
   mark('projectiles');
   for (const s of g.hubShots || []) { s.fx.x = Math.round(s.x); s.fx.y = Math.round(s.y); s.fx.draw(ctx); }
   if (scene.kind === 'hub' && g.interact && (g.interact.id === 'phap_dai' || g.interact.id === 'portal'))   // tên cố định ngay trên vật thể
-    txt(ctx, g.interact.name, Math.round(g.interact.x), Math.round(g.interact.id === 'portal' ? g.interact.y - 70 : map.cy - 74), '#fff6c8', 11);
+    txt(ctx, g.interact.name, Math.round(g.sect && g.sect.gate && g.interact.id === 'portal' ? g.sect.gate.ring.x : g.interact.x), Math.round(g.interact.id === 'portal' ? g.interact.y - 62 : map.cy - 74), '#fff6c8', 11);
   if (scene.kind === 'hub' && g.sect && Math.hypot(p.x - g.sect.pen.doorPx.x, p.y - g.sect.pen.doorPx.y) < 96) {   // Luyện Võ Trường: tên trên cổng rào
-    const d = g.sect.pen.doorPx, st = g.sectStatus && g.sectStatus('luyen_vo'), act = g.interact && g.interact.id === 'luyen_vo';
-    txt(ctx, g.sect.pen.name, Math.round(d.x), Math.round(d.y - 50), act ? '#fff6c8' : '#ffd978', act ? 11 : 10);
-    if (st) txt(ctx, st.s, Math.round(d.x), Math.round(d.y - 40), '#cfc6b0', 8);
+    const st = g.sectStatus && g.sectStatus('luyen_vo'), gt = g.sect.props.find(o => o.s === 'cong_chuong'), gi = gt && vis.tm && vis.tm.cong_chuong;
+    if (gi) { const bb = opaqueBox(gi); sectLabel(ctx, g.sect.pen.name, st, gt.x - gi.width / 2 + bb.cx, gt.y - gi.height + bb.top + 14); }   // giữa cổng chuồng
+    else { const d = g.sect.pen.doorPx; sectLabel(ctx, g.sect.pen.name, st, d.x, d.y - 36); }
   }
   if (scene.kind === 'hub' && g.sect) { updateQiParts(vis, map, !!(p.med && g.inForm), g.dtWorld || 0); drawQiParts(ctx, vis); }
   for (const fx of vis.fxs) fx.draw(ctx);
