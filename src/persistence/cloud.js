@@ -4,7 +4,10 @@
 import { FIREBASE } from '../core/firebase_config.js';
 
 const SDK = 'https://www.gstatic.com/firebasejs/10.12.2/';
-let F = null, auth = null, db = null;
+let F = null, auth = null, db = null, started = null, current = null, known = false;
+const subs = new Set();
+// đăng ký nghe trạng thái đăng nhập (màn đăng nhập + game dùng chung một phiên); đã biết trạng thái thì gọi ngay
+export function onAuth(cb) { subs.add(cb); if (known) cb(current); return () => subs.delete(cb); }
 
 export const cloudConfigured = () => !!(FIREBASE && FIREBASE.apiKey && FIREBASE.projectId);
 
@@ -22,15 +25,22 @@ const MSG = {
 export const errText = e => MSG[e && e.code] || (e && e.message) || String(e);
 
 // onUser(user|null) gọi mỗi khi trạng thái đăng nhập đổi (kể cả lúc mở game đã đăng nhập sẵn)
-export async function initCloud(onUser) {
-  if (!cloudConfigured()) return false;
-  const [app, a, fs] = await Promise.all([import(SDK + 'firebase-app.js'), import(SDK + 'firebase-auth.js'), import(SDK + 'firebase-firestore.js')]);
-  F = { ...a, ...fs };
-  const inst = app.initializeApp(FIREBASE);
-  auth = a.getAuth(inst); db = fs.getFirestore(inst);
-  a.onAuthStateChanged(auth, u => onUser(u ? { uid: u.uid, email: u.email, name: u.displayName, verified: u.emailVerified, google: u.providerData.some(p => p.providerId === 'google.com') } : null));
-  a.getRedirectResult(auth).catch(() => {});   // đăng nhập kiểu chuyển trang (khi popup bị chặn)
-  return true;
+export function initCloud(onUser) {   // gọi nhiều lần vẫn chỉ khởi tạo một lần
+  if (!cloudConfigured()) return Promise.resolve(false);
+  if (onUser) onAuth(onUser);
+  if (!started) started = (async () => {
+    const [app, a, fs] = await Promise.all([import(SDK + 'firebase-app.js'), import(SDK + 'firebase-auth.js'), import(SDK + 'firebase-firestore.js')]);
+    F = { ...a, ...fs };
+    const inst = app.initializeApp(FIREBASE);
+    auth = a.getAuth(inst); db = fs.getFirestore(inst);
+    a.onAuthStateChanged(auth, u => {
+      current = u ? { uid: u.uid, email: u.email, name: u.displayName, verified: u.emailVerified, google: u.providerData.some(p => p.providerId === 'google.com') } : null;
+      known = true; for (const f of subs) f(current);
+    });
+    a.getRedirectResult(auth).catch(() => {});   // đăng nhập kiểu chuyển trang (khi popup bị chặn)
+    return true;
+  })();
+  return started;
 }
 
 export async function signInGoogle() {
