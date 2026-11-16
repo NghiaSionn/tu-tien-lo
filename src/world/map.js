@@ -111,7 +111,8 @@ export function makeSectMap(S = SECT) {
   const m = makeMap(MW, MH, SEED, 'hub', (x, y) => {
     const lx = x - ox, ly = y - oy;
     if (lx >= 0 && ly >= 0 && lx < S.W && ly < S.H) return grid[ly * S.W + lx];
-    if (S.ROWS && ly >= S.H && lx >= 0 && lx < S.W && grid[(S.H - 1) * S.W + lx] === FALL) return FALL;   // (17/11) thác đổ tiếp xuống qua mép dưới bản đồ (chạy qua camera)
+    if (S.ROWS && ly >= S.H && lx >= 0 && lx < S.W && grid[(S.H - 1) * S.W + lx] === FALL) return FALL;
+    if (S.ROWS && ly < 0 && lx >= 0 && lx < S.W && grid[lx] === FALL) return FALL;   // thác đổ từ trên cao (qua mép trên bản đồ)   // (17/11) thác đổ tiếp xuống qua mép dưới bản đồ (chạy qua camera)
     if (S.ROWS) return CLOUD;   // ngoài khung: biển mây
     if (x === 0 || y === 0 || x === MW - 1 || y === MH - 1) return TREE;
     if (noise(x / 8, y / 8, 1, SEED) < 0.3) return WATER;

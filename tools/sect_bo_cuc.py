@@ -37,7 +37,7 @@ WATER = [   # khoanh theo ảnh concept (16/11)
 PEN = dict(x=82, y=41, w=26, h=16, gate=[83, 86], door=[84.5, 40.2])   # (16/11) Chuồng Linh Thú: nới lên 3 ô để chuồng nằm trọn trong rào
 DIRT = []   # (16/11) sân đất chỉ trong rào Luyện Võ (map.js lát DIRT trong PEN) — bỏ elip tràn ra ngoài rào
 PLAZA = dict(c=C, rx=14, ry=9)
-GATE = dict(x=(57, 64), y=(11, 19))
+GATE = dict(x=(55, 66), y=(11, 21))   # (17/11) sân đá ôm trọn bệ cổng bí cảnh (sprite rộng 12 ô)
 BUILDINGS = {
     'truyen_thua': dict(box=(17, 0, 36, 21), foot=(35, 24), name='Truyền Thừa Các (tháp)'),
     'tang_kinh': dict(box=(10, 21, 34, 37), foot=(34, 37), name='Tàng Kinh Các'),
@@ -47,7 +47,7 @@ BUILDINGS = {
 }
 BIA = dict(box=(52, 46, 66, 55))
 BRIDGE = dict(box=(33, 54, 38, 60))
-FALLS = [(5, 5, 9, 22), (31, None, 36, 68), (80, None, 85, 68)]   # y0=None: thác bắt đầu ngay ô vách đầu tiên dưới nước suối (mép đá sỏi)   # thác trái (vách tây), thác dưới cầu, thác phải
+FALLS = [(5, 0, 9, 67), (31, None, 36, 68), (80, None, 85, 68)]   # y0=None: thác bắt đầu ngay ô vách đầu tiên dưới nước suối (mép đá sỏi)   # thác trái (vách tây), thác dưới cầu, thác phải
 F = {k: v['foot'] for k, v in BUILDINGS.items()}
 PATHS = []   # đường dò từ ảnh (trace_paths)
 

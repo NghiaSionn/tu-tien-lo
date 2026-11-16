@@ -443,6 +443,7 @@ function paintWaterVN(g, map, tx, ty, x, y) {
   if (VN_HAS_CORNER && n && w) id = VN_CORNER.out.nw; else if (VN_HAS_CORNER && n && e) id = VN_CORNER.out.ne;
   else if (VN_HAS_CORNER && s && w) id = VN_CORNER.out.sw; else if (VN_HAS_CORNER && s && e) id = VN_CORNER.out.se;
   else if (n) id = 32 + v; else if (s) id = 34 + v; else if (w) id = 36; else if (e) id = 37;
+  else if (map.tileAt(tx, ty + 1) === FALL) id = 24 + Math.floor(hash(tx, ty, 85) * 8);   // (17/11) ô nước ngay trên đỉnh thác: nước tràn trọn bề ngang, không vẽ góc bờ cỏ đè lên thác
   else if (VN_HAS_CORNER && land(-1, -1)) id = VN_CORNER.inn.nw; else if (VN_HAS_CORNER && land(1, -1)) id = VN_CORNER.inn.ne;
   else if (VN_HAS_CORNER && land(-1, 1)) id = VN_CORNER.inn.sw; else if (VN_HAS_CORNER && land(1, 1)) id = VN_CORNER.inn.se;
   else id = 24 + Math.floor(hash(tx, ty, 85) * 8);
