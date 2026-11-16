@@ -210,12 +210,6 @@ function decorOverNha(map, props, tx, ty, img, rects) {   // 0: không chạm nh
   }
   return hit;
 }
-// (17/11) người chơi đứng sau nhà: thân bị lớp che (strip có chân thấp hơn người) phủ -> cả nhà vẽ mờ như tán cây
-function behindNha(p, n, v) {
-  if (!(p.x > n.x && p.x < n.x + v.base.width && p.y > n.y && p.y < n.y + v.base.height)) return false;
-  for (const s of v.strips) { if (n.y + s.foot <= p.y) continue; if (alphaAt(s.img, p.x - n.x - s.x, p.y - 10 - n.y - s.y) > 100 && alphaAt(s.img, p.x - n.x - s.x, p.y - 20 - n.y - s.y) > 100) return true; }   // dò ngực, đầu (lan can thấp không tính)
-  return false;
-}
 // (17/11) cánh hoa đào rơi lả tả quanh tán cây hoa đào: mỗi cây vài cánh, vòng đời lặp theo thời gian (không cấp phát, không trạng thái)
 const PETAL_C = ['#ffd3e6', '#ffb3d1', '#f58fbc', '#fff0f6'];
 function drawPetals(ctx, props, tm, camX, camY, time) {
@@ -1254,7 +1248,7 @@ export function render(ctx, g) {
         if (n.x - 6 < camX + W && n.x + sh.width > camX && n.y < camY + H && n.y + sh.height > camY) { ctx.globalAlpha = 0.6; ctx.drawImage(sh, n.x - 6 + 3, n.y - 6 + 6); ctx.globalAlpha = 0.45; } }
       ctx.globalAlpha = 1;
     }
-    if (g.sect && vis.nha) for (const b of g.sect.nhaAll) { const n = b.nha, v = n && vis.nha[n.id]; if (v && !behindNha(p, n, v)) ctx.drawImage(v.base, n.x, n.y); }   // M8-15: nền nhà lớn (đứng sau nhà: vẽ mờ ở lớp vật thể)
+    if (g.sect && vis.nha) for (const b of g.sect.nhaAll) { const n = b.nha, v = n && vis.nha[n.id]; if (v) ctx.drawImage(v.base, n.x, n.y); }   // M8-15: nền nhà lớn
     if (g.sect && g.sect.gate && FEATURES.run && g.portal && vis.pfx) {   // xoáy bí cảnh trong lòng cổng (cổng là nhà lớn: nền đã vẽ, vòng cổng ở lớp che)
       const f = vis.pfx.portal, rg = g.sect.gate.ring; f.x = Math.round(rg.x); f.y = Math.round(rg.y + 30); f.scale = 0.95; f.draw(ctx); f.scale = 1;
     }
@@ -1328,8 +1322,7 @@ export function render(ctx, g) {
     }
     if (vis.nha) for (const b of g.sect.nhaAll) {   // M8-15: lớp che nhà lớn + tên khu trên mái
       const n = b.nha, v = n && vis.nha[n.id]; if (!v) continue;
-      if (behindNha(p, n, v)) objs.push({ y: n.y + v.base.height, img: v.base, x: n.x, dy: n.y, noFade: true, fade: true });   // cả nhà vẽ mờ đè lên người
-      else for (const s of v.strips) { const dy = n.y + s.y; if (dy < camY + H && dy + s.img.height > camY && n.x + s.x < camX + W && n.x + s.x + s.img.width > camX) objs.push({ y: n.y + s.foot, img: s.img, x: n.x + s.x, dy, noFade: true }); }
+      for (const s of v.strips) { const dy = n.y + s.y; if (dy < camY + H && dy + s.img.height > camY && n.x + s.x < camX + W && n.x + s.x + s.img.width > camX) objs.push({ y: n.y + s.foot, img: s.img, x: n.x + s.x, dy, noFade: true }); }
       if (b.name && Math.hypot(p.x - b.doorPx.x, p.y - b.doorPx.y) < 140) {
         const act = g.interact && g.interact.id === b.id, st = g.sectStatus && g.sectStatus(b.id);
         txt(ctx, b.name, Math.round(n.x + n.w / 2), n.y - (st ? 10 : 2), act ? '#fff6c8' : '#ffd978', act ? 11 : 10);
@@ -1363,7 +1356,7 @@ export function render(ctx, g) {
       const covers = (ux, uy) => o.y > uy && ux > o.x - 2 && ux < o.x + o.img.width + 2 && uy - 16 < o.y && uy > o.dy;
       // cây ×2 tán lớn: cũng mờ khi có quái đứng sau (không để quái/đòn đánh khuất sau tán)
       const hide = covers(p.x, p.y) || (o.img.width > 60 && scene.monsters.some(m => !m.dead && covers(m.x, m.y)));
-      if ((hide && !o.noFade) || o.fade) ctx.globalAlpha = 0.45;
+      if (hide && !o.noFade) ctx.globalAlpha = 0.45;
       ctx.drawImage(o.img, o.x, o.dy);
       ctx.globalAlpha = 1;
       if (o.label && Math.hypot(p.x - o.door.x, p.y - o.door.y) < 96) {   // M8-03: đứng ở cửa -> "E · tên khu"
