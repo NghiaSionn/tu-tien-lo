@@ -32,8 +32,9 @@ export function spawnHubMonster(scene, player, rng) {
 
 // Sinh quái trong bí cảnh: xem systems/director.js (M2-01)
 
-export function moveEntity(map, e, dx, dy, safe) {
-  const ok = (x, y) => map.canStand(x, y) && !(safe && Math.hypot(x - safe.x, y - safe.y) < safe.r);
+export function moveEntity(map, e, dx, dy, safe, mon = false) {   // mon: quái — bí cảnh cho xuyên cây/đá (map.monStand)
+  const stand = mon && map.monStand ? map.monStand : map.canStand;
+  const ok = (x, y) => stand(x, y) && !(safe && Math.hypot(x - safe.x, y - safe.y) < safe.r);
   if (dx && ok(e.x + dx, e.y)) e.x += dx;
   if (dy && ok(e.x, e.y + dy)) e.y += dy;
 }
@@ -66,6 +67,7 @@ export function damageMonster(m, dmg, ev, color = '#fff') {
 export function updateMonsters(scene, player, dt, ev, opts) {
   const map = scene.map, safe = opts.safe;
   const playerSafe = safe && Math.hypot(player.x - safe.x, player.y - safe.y) < safe.r;
+  if (map.updateFlow) map.updateFlow(player.x, player.y);
   for (const m of scene.monsters) {
     if (m.dead) continue;
     m.hit -= dt; m.atkCd -= dt; m.think -= dt;
@@ -87,7 +89,12 @@ export function updateMonsters(scene, player, dt, ev, opts) {
       if (Math.random() < 0.5) m.vx = m.vy = 0; else { const a = Math.random() * 6.283; m.vx = Math.cos(a) * HM.WANDER; m.vy = Math.sin(a) * HM.WANDER; }
     }
     if (m.boss) m.kx = m.ky = 0;                       // boss không bị đẩy lùi
-    moveEntity(map, m, (m.vx * slowF + m.kx) * dt, (m.vy * slowF + m.ky) * dt, safe);
+    // (17/11) hồ chắn đường tới người chơi -> đi theo bản đồ hướng để vòng qua hồ (chỉ khi đang đi bộ, không đổi hướng lao/gồng)
+    if (map.flowDir && m.aggro && (!m.st || m.st === 'move') && (m.vx || m.vy) && map.waterBetween(m.x, m.y, player.x, player.y)) {
+      const [fx, fy] = map.flowDir(m.x, m.y), s = Math.hypot(m.vx, m.vy);
+      if (fx || fy) { m.vx = fx * s; m.vy = fy * s; }
+    }
+    moveEntity(map, m, (m.vx * slowF + m.kx) * dt, (m.vy * slowF + m.ky) * dt, safe, true);
     m.kx *= 0.85; m.ky *= 0.85;
   }
 }

@@ -269,7 +269,7 @@ const KINDS = {
         if ((m.tags[key] ?? -1) > ctx.time) continue;
         m.tags[key] = ctx.time + p.hitCd;
         hitMonster(ctx, m, p.dmg * ctx.atk, '#f3a6c8');
-        if (p.knock && !m.boss) { const dx = m.x - pl.x, dy = m.y - pl.y, d = Math.hypot(dx, dy) || 1; moveEntity(ctx.scene.map, m, dx / d * p.knock, dy / d * p.knock, null); }
+        if (p.knock && !m.boss) { const dx = m.x - pl.x, dy = m.y - pl.y, d = Math.hypot(dx, dy) || 1; moveEntity(ctx.scene.map, m, dx / d * p.knock, dy / d * p.knock, null, true); }
       }
     }
   },
@@ -292,7 +292,7 @@ const KINDS = {
       if (p.pull) for (const m of ctx.scene.monsters) {
         if (m.dead || m.boss) continue;
         const dx = im.x - m.x, dy = im.y - m.y, d = Math.hypot(dx, dy);
-        if (d < r * 1.7 && d > 3) moveEntity(ctx.scene.map, m, dx / d * p.pull * dt, dy / d * p.pull * dt, null);
+        if (d < r * 1.7 && d > 3) moveEntity(ctx.scene.map, m, dx / d * p.pull * dt, dy / d * p.pull * dt, null, true);
       }
       if (im.t > 0) continue;
       st.images.splice(i, 1);
@@ -327,7 +327,7 @@ const KINDS = {
       for (const m of ctx.scene.monsters) {
         if (m.dead) continue;
         const dx = an.x - m.x, dy = an.y - m.y, d = Math.hypot(dx, dy);
-        if (!m.boss && d < r * 2.4 && d > 4) moveEntity(ctx.scene.map, m, dx / d * p.pull * dt, dy / d * p.pull * dt, null);
+        if (!m.boss && d < r * 2.4 && d > 4) moveEntity(ctx.scene.map, m, dx / d * p.pull * dt, dy / d * p.pull * dt, null, true);
       }
       for (let k = 0; k < p.anchorOrbs; k++) {
         const [bx, by] = sealOrbPos(an, k, p.anchorOrbs, r);
@@ -357,7 +357,7 @@ const KINDS = {
       for (const m of ctx.scene.monsters) {
         if (m.dead) continue;
         const dx = tx - m.x, dy = ty - m.y, d = Math.hypot(dx, dy);
-        if (d < pr && d > 3 && !m.boss) moveEntity(ctx.scene.map, m, dx / d * p.pull * dt, dy / d * p.pull * dt, null);
+        if (d < pr && d > 3 && !m.boss) moveEntity(ctx.scene.map, m, dx / d * p.pull * dt, dy / d * p.pull * dt, null, true);
         if (tick && d < r + 4) { hitMonster(ctx, m, p.dmg * ctx.atk, '#ffb070'); applyBurn(m, p.burn * ctx.atk * ctx.stats.damage, p.burnTime); }
       }
     }

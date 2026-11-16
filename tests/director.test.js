@@ -55,7 +55,7 @@ test('quái mới sinh: đứng được, không sát người chơi, không vư
         const m = ms[i];
         if (m._seen) continue; m._seen = true; checked++;
         if (m.summoned) { assert.ok(Math.hypot(m.x - p.x, m.y - p.y) >= 40 - 5, 'quái được gọi không sát người chơi'); continue; }   // sinh cách ≥40, có thể đã đi 1 bước trong khung
-        assert.ok(r.scene.map.canStand(m.x, m.y), 'đứng được');
+        assert.ok((r.scene.map.monStand || r.scene.map.canStand)(m.x, m.y), 'đứng được');   // (17/11) quái đi xuyên cây/đá: kiểm theo luật đi lại của quái
         assert.ok(Math.hypot(m.x - p.x, m.y - p.y) >= DIRECTOR.SAFE_R - 1, 'không sát người chơi');
       }
     });

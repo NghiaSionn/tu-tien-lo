@@ -351,5 +351,54 @@ export function makeArenaMap(w, h, seed) {
     else if (hash(x, y, 4, seed) < 0.012) t = ROCK;
     g[y * w + x] = t;
   }
-  return makeMap(w, h, seed, 'arena', (x, y) => g[y * w + x]);
+  const m = makeMap(w, h, seed, 'arena', (x, y) => g[y * w + x]);
+  addMonsterNav(m, (tx, ty) => tx < 1 || ty < 1 || tx >= w - 1 || ty >= h - 1 || g[ty * w + tx] === WATER);
+  return m;
+}
+
+// (17/11) đi lại của quái trong bí cảnh: xuyên cây/đá (không kẹt góc cây), chỉ nước + mép ngoài chặn.
+// Bản đồ hướng (flow field): BFS từ ô người chơi qua các ô quái đi được, tính lại khi người chơi đổi ô.
+// Quái thấy hồ chắn giữa mình và người chơi -> đi theo ô có khoảng cách nhỏ hơn => tự vòng qua hồ.
+function addMonsterNav(m, solid) {
+  const W = m.w, H = m.h, fl = Math.floor;
+  m.monSolid = solid;
+  m.monStand = (x, y) => Number.isFinite(x) && Number.isFinite(y) &&
+    !solid(fl((x - 4) / T), fl((y - 5) / T)) && !solid(fl((x + 4) / T), fl((y - 5) / T)) && !solid(fl((x - 4) / T), fl(y / T)) && !solid(fl((x + 4) / T), fl(y / T));
+  const dist = new Int16Array(W * H), q = new Int32Array(W * H);
+  let key = -1;
+  const N8 = [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [1, -1], [-1, 1], [-1, -1]];
+  m.updateFlow = (px, py) => {
+    const sx = fl(px / T), sy = fl(py / T), k = sy * W + sx;
+    if (k === key || sx < 0 || sy < 0 || sx >= W || sy >= H) return;
+    key = k; dist.fill(-1); let h = 0, n = 0; dist[k] = 0; q[n++] = k;
+    while (h < n) {
+      const c = q[h++], cx = c % W, cy = (c - cx) / W, d = dist[c] + 1;
+      for (const [dx, dy] of N8) {
+        const nx = cx + dx, ny = cy + dy;
+        if (nx < 0 || ny < 0 || nx >= W || ny >= H || solid(nx, ny) || (dx && dy && (solid(cx + dx, cy) || solid(cx, cy + dy)))) continue;
+        const nk = ny * W + nx; if (dist[nk] >= 0) continue;
+        dist[nk] = d; q[n++] = nk;
+      }
+    }
+  };
+  // hướng đơn vị tới ô láng giềng gần người chơi hơn; [0,0] nếu không có
+  m.flowDir = (x, y) => {
+    const tx = fl(x / T), ty = fl(y / T), c = dist[ty * W + tx];
+    if (!(c > 0)) return [0, 0];
+    let best = c, bx = 0, by = 0;
+    for (const [dx, dy] of N8) {
+      const nx = tx + dx, ny = ty + dy; if (nx < 0 || ny < 0 || nx >= W || ny >= H) continue;
+      if (dx && dy && (solid(tx + dx, ty) || solid(tx, ty + dy))) continue;
+      const d = dist[ny * W + nx]; if (d >= 0 && d < best) { best = d; bx = nx; by = ny; }
+    }
+    if (best === c) return [0, 0];
+    const vx = (bx + 0.5) * T - x, vy = (by + 0.5) * T - y, l = Math.hypot(vx, vy) || 1;
+    return [vx / l, vy / l];
+  };
+  // có nước (ô chặn quái) trên đường thẳng giữa hai điểm không
+  m.waterBetween = (x0, y0, x1, y1) => {
+    const d = Math.hypot(x1 - x0, y1 - y0), n = Math.ceil(d / 8);
+    for (let i = 1; i < n; i++) { const k = i / n; if (solid(fl((x0 + (x1 - x0) * k) / T), fl((y0 + (y1 - y0) * k) / T))) return true; }
+    return false;
+  };
 }
