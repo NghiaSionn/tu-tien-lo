@@ -40,7 +40,7 @@ NHA = {
                      block=[(112, 118, 155, 135), (160, 116, 200, 136), (203, 116, 245, 135)],   # ghế trái, bục sách, ghế phải
                      floor=[(65, 140), (95, 128), (270, 128), (300, 140), (290, 152), (225, 152), (220, 158), (152, 158), (148, 152), (75, 152)]),
     # (16/11) tách đúng từ concept ảnh 1: tháp 4 tầng, tầng trệt mở có bàn thờ truyền thừa phát sáng, bậc dài bên phải
-    'truyen_thua': dict(src='docs/concept/nha_truyen_thua_concept_chatgpt.png', scale=3.0, floor_all=True, cut=[(95, 196, 200)], seed=(212, 312), stair=(212, 316, 282, 431), interact=(212, 312),   # cut: số đo bản 4,5 px
+    'truyen_thua': dict(src='docs/concept/nha_truyen_thua_concept_chatgpt.png', scale=3.0, floor_all=True, roof=0.45, cut=[(95, 196, 200)], seed=(212, 312), stair=(212, 316, 282, 431), interact=(212, 312),   # cut: số đo bản 4,5 px
                         block=[(174, 262, 256, 300)],   # bàn thờ
                         floor=[(172, 300), (258, 294), (268, 312), (256, 324), (180, 324)]),
     # (16/11) cổng bí cảnh tách từ concept (lòng cổng để trống: game vẽ xoáy pixelfx vào đó), bậc giữa, bệ đá + 2 trụ đèn
@@ -111,12 +111,10 @@ def build(id_, cfg):
     Image.fromarray(front).save(ROOT / f'sprites/nha_{id_}_front.png')
     # nhà lớn: chỉ sàn (loang từ hạt giống, nên góc kín tự thành đặc) + bậc đi được; mọi điểm ảnh khác của nhà đều đặc
     solid = alpha & ~walk   # walk đã gồm phần trên đồ đạc (chỉ chân đặc) và bỏ ngóc ngách kín
-    # (17/11) chỉ dải MÁI TRÊN CÙNG (ROOF px tính từ điểm ảnh cao nhất của từng cột) đi xuyên được — người đi qua đỉnh mái
-    # bị mái đè chân; cả thân nhà phía dưới (tường, vách sau) là đặc, không đi xuyên ra sau nhà
-    ROOF = 18
-    for x in range(W):
-        ys = np.where(alpha[:, x])[0]
-        if ys.size: solid[:ys.min() + ROOF, x] = False
+    # (17/11) phía sau nhà chỉ đi xuyên tới ĐƯỜNG NÓC MÁI (đo theo ảnh người phát triển chụp: chân người ở ~30% chiều cao
+    # nhà tính từ đỉnh; tháp nhiều tầng ~45%) — người đi qua mái bị mái đè + nhà mờ; dưới đó (giữa nhà, tường, vách sau) đặc
+    roof = int(H * cfg.get('roof', 0.30))
+    solid[:roof, :] = False
     sp = np.zeros((H + 2 * PAD, W + 2 * PAD), bool); sp[PAD:PAD + H, PAD:PAD + W] = solid
     HP, WP = sp.shape
     fine = [''.join('#' if sp[j * C:(j + 1) * C, i * C:(i + 1) * C].mean() >= 0.3 else '.' for i in range((WP + C - 1) // C)) for j in range((HP + C - 1) // C)]

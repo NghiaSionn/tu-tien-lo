@@ -67,7 +67,7 @@ export const SECT = {
     // (16/11) Chuồng Linh Thú (thay Luyện Võ Trường): chuồng mái ngói, máng ăn, máng nước, ụ rơm, ổ rơm, cột đèn (sprites/tm_chuong)
     // xếp theo mẫu bố cục ChatGPT (docs/concept/chuong_linh_thu_bo_cuc_chatgpt.png): chuồng giữa sau, ụ rơm trái chuồng, giếng nước phải,
     // ổ rơm phải trước, máng ăn trái trước, cột đèn giữa trước, cây hoa đào góc trái, cờ trên rào, khóm hoa rải
-    ['chuong_thu', 97.6, 50.2, [11, 2]],   // chuồng giữa sau (điểm nhấn)
+    ['chuong_thu', 97.6, 50.2, [12, 8]],   // (17/11) đặc tới đường nóc mái: sau chuồng chỉ đi qua phần mái trên cùng   // chuồng giữa sau (điểm nhấn)
     ['u_rom', 90.6, 46.6, [3, 1]], ['anh_dao_nho', 104.4, 45.2, [1, 1]], ['mang_nuoc', 106.6, 49.2, [3, 1]],
     ['anh_dao_lon', 83.4, 55, [2, 1]], ['mang_an', 89.8, 56.4, [3, 1]], ['cot_den', 96, 56.9, [1, 1]], ['o_rom', 103.4, 56.2, [3, 1]],
     ['khom_hoa', 92.8, 54.6], ['khom_hoa', 100, 54.8], ['khom_hoa', 108.4, 53.4], ['khom_hoa', 81.4, 49.4], ['khom_hoa', 92.4, 44.6], ['khom_hoa', 101.6, 57.6],
