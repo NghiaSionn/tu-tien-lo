@@ -289,6 +289,29 @@ function drawFogFx(ctx, map, camX, camY, time) {
   g.drawImage(_fogM, tx0 * T - camX, ty0 * T - camY, tw * T, th * T);   // nội suy song tuyến: mép mờ dần ~1 ô
   g.globalCompositeOperation = 'source-over';
   ctx.drawImage(_fogC, camX, camY);
+  drawFallMist(ctx, map, camX, camY, time, img);
+}
+// (17/11) thác trời (chân thác lơ lửng trên biển mây): chân thác + vách tan dần vào một đụn sương dày, phập phồng -> như thác đổ mãi xuống dưới mây
+function drawFallMist(ctx, map, camX, camY, time, img) {
+  const tx0 = Math.floor(camX / T) - 6, ty0 = Math.floor(camY / T) - 3, tx1 = tx0 + Math.ceil(W / T) + 12, ty1 = ty0 + Math.ceil(H / T) + 6;
+  const sm = ctx.imageSmoothingEnabled; ctx.imageSmoothingEnabled = true;
+  for (let ty = ty0; ty <= ty1; ty++) for (let tx = tx0; tx <= tx1; tx++) {
+    if (map.tileAt(tx, ty) !== FALL || map.tileAt(tx, ty + 1) !== CLOUD || map.tileAt(tx - 1, ty) === FALL) continue;   // ô trái nhất của chân thác
+    let n = 1; while (map.tileAt(tx + n, ty) === FALL) n++;
+    const cx = tx * T + n * T / 2, yb = ty * T + T, wd = (n + 4) * T;
+    // nền sương dày, mép tan mềm (ảnh elip gradient): che hẳn chân thác + chân vách hai bên
+    for (const [dy, sx, sy, a] of [[-6, 1.25, 1.5, 0.95], [-20, 1.0, 1.2, 0.85], [6, 1.5, 1.3, 0.9]]) {
+      const w = wd * sx, h = 48 * sy; ctx.globalAlpha = a; ctx.drawImage(img, cx - w / 2, yb + dy - h / 2, w, h);
+    }
+    // đụn sương cuộn chậm phía trên
+    for (let k = 0; k < 5; k++) {
+      const h = hash(tx, k, 190), ph = time * (0.35 + h * 0.3) + h * 6.28, w = 60 + h * 40 + Math.sin(ph) * 8, hh = w * 0.45;
+      const x = cx + (k - 2) * (wd / 6) + Math.sin(ph * 0.7) * 6, y = yb - 14 - (k & 1) * 10 + Math.sin(ph) * 3;
+      ctx.globalAlpha = 0.5 + 0.3 * (0.5 + 0.5 * Math.sin(ph * 1.3)); ctx.drawImage(img, x - w / 2, y - hh / 2, w, hh);
+    }
+    ctx.globalAlpha = 1;
+  }
+  ctx.imageSmoothingEnabled = sm;
 }
 function fenceSpr() {
   if (_fence || typeof document === 'undefined') return _fence;
@@ -1194,7 +1217,7 @@ export function render(ctx, g) {
       for (let ty = ty0; ty <= ty0 + Math.ceil(H / T); ty++) for (let tx = tx0; tx <= tx0 + Math.ceil(W / T); tx++) {
         if (map.tileAt(tx, ty) !== FALL) continue;
         const x = tx * T, y = ty * T, off = Math.floor(time * 40) % 8;
-        if (VN) { const top = map.tileAt(tx, ty - 1) !== FALL, bot = map.tileAt(tx, ty + 1) !== FALL && ty < map.h - 1;   // thác bằng tileset: đỉnh / thân 4 khung / chân bọt
+        if (VN) { const top = map.tileAt(tx, ty - 1) !== FALL, bot = map.tileAt(tx, ty + 1) !== FALL && map.tileAt(tx, ty + 1) !== CLOUD && ty < map.h - 1;   // thác bằng tileset: đỉnh / thân 4 khung / chân bọt
           const id = 41 + (tx & 3), sx = (id & 7) * T, sy = (id >> 3) * T, o = Math.floor((time * 30 + hash(tx, 0, 77) * 16) % T);   // thân thác cuộn xuống liên tục 30 px/s (ô đã liền trên-dưới)
           if (o > 0) ctx.drawImage(VN, sx, sy + T - o, T, o, x, y, T, o);
           ctx.drawImage(VN, sx, sy, T, T - o, x, y + o, T, T - o);

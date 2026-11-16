@@ -47,7 +47,7 @@ BUILDINGS = {
 }
 BIA = dict(box=(52, 46, 66, 55))
 BRIDGE = dict(box=(33, 54, 38, 60))
-FALLS = [(5, 0, 9, 67), (31, None, 36, 68), (80, None, 85, 68)]   # y0=None: thác bắt đầu ngay ô vách đầu tiên dưới nước suối (mép đá sỏi)   # thác trái (vách tây), thác dưới cầu, thác phải
+FALLS = [(1, 0, 4, 22), (31, None, 36, 68), (80, None, 85, 68)]   # y0=None: thác bắt đầu ngay ô vách đầu tiên dưới nước suối (mép đá sỏi)   # thác trái (vách tây), thác dưới cầu, thác phải
 F = {k: v['foot'] for k, v in BUILDINGS.items()}
 PATHS = []   # đường dò từ ảnh (trace_paths)
 
@@ -125,6 +125,11 @@ def build():
         if not (0 <= x < NX and 0 <= y < NY) or seen[y, x] or not walk[y, x]: continue
         seen[y, x] = True; st += [(x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)]
     g[walk & ~seen] = ord('^')
+    # (17/11) thác trời phía tây: cột đá riêng ngoài mép đảo, thác đổ từ trên cao rồi chìm vào sương (VFX) — bỏ vách dưới chân thác
+    x0, y0, x1, y1 = FALLS[0]
+    for y in range(y1 + 1, NY):
+        for x in range(max(0, x0 - 1), x1 + 3):
+            if g[y, x] == ord('^'): g[y, x] = ord('X')
     # (17/11) thác từ suối: mỗi cột đổ từ ngay dưới ô nước thấp nhất xuống đáy -> đỉnh thác khớp mép bờ, cùng dòng với suối
     for x0, y0, x1, y1 in FALLS:
         if y0 is not None: continue

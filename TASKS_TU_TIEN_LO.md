@@ -432,6 +432,7 @@ Thiết kế + backlog đầy đủ (ChatGPT, 13/11): **`docs/chatgpt_tong_mon_M
 - [x] (17/11) Thác dưới cầu/thác phải đổ tiếp qua mép dưới bản đồ (chạy qua camera, sương phủ phần treo trong mây); sen chỉ ở giữa mặt nước (các ô quanh và 2 ô phía trên đều là nước, tránh cầu đá — lá không lấn lên bờ); xoá viền tím (#FF00FF sót) quanh cây/đồ (`tools/clean_magenta.py` trên tm_cay_da, tm_chuong, tm_do_vat); rào chuồng đổ bóng. Test 209/209, chụp kiểm trong trình duyệt.
 - [x] (17/11) Ảnh toàn cảnh sảnh (`docs/playtest/M8_toan_canh_truoc.png` -> `M8_toan_canh.png`); trang trí thêm bãi cỏ trống: tre cạnh rừng/vách, bụi cây, cây tùng/tròn/hoa đào nhỏ ở rìa đông, đông bắc, tây, quanh cổng; khóm hoa, đá nhỏ; cánh hoa đào rơi theo gió quanh các cây hoa đào (VFX vẽ code, tắt khi chất lượng thấp). Test 209/209.
 - [x] (17/11) Thác tây đổ thẳng từ trên cao (qua mép trên bản đồ) xuống đáy; ô nước ngay trên đỉnh thác không vẽ góc bờ cỏ (thác không còn đè lên cỏ); sân đá quanh cổng bí cảnh nới ôm trọn bệ cổng (GATE 55–66 × 11–21). Test 209/209. Ảnh `docs/playtest/M8_thac_cong.png`
+- [x] (17/11) Thác tây thành "thác trời": dời ra mép ngoài (cột 1–4), rút ngắn (đổ từ trên mép bản đồ tới hàng 22), bỏ vách dưới chân; chân thác chìm vào đụn sương dày mép mềm, phập phồng (`drawFallMist`) như đổ mãi xuống dưới mây. Test 209/209. Ảnh `docs/playtest/M8_thac_troi.png`
 - [ ] M8-12 HUD, M8-14 cảm ứng, M8-16 save/regression, M8-17..18 playtest
 
 ---
