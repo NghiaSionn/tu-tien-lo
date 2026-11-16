@@ -440,6 +440,19 @@ Thiết kế + backlog đầy đủ (ChatGPT, 13/11): **`docs/chatgpt_tong_mon_M
 
 ---
 
+## M9 — GAMEPLAY BÍ CẢNH: ĐỘ KHÓ + MAP NHIỀU PHÒNG (người phát triển chọn 17/11: gameplay trước, Firebase/đăng nhập sau)
+
+Hướng do ChatGPT đề xuất 17/11, người phát triển duyệt "Làm gameplay trước". Firebase/đăng nhập Google để sau M9 (nếu làm thì phải sửa quy tắc "không login" trong CLAUDE.md và M6-03 trước).
+
+- [x] M9-A Cân bằng chiến đấu — tăng độ khó (game quá dễ). Đổi ở config (`RUN.REGEN` 0,005→0,004; `RUN.ENEMY` DMG 3→3,5, DMG_TIME 0,0016→0,002, HP_TIME 0,0045→0,005, SPEED 34→36, SPEED_TIME 0,04→0,045; `DIRECTOR.PHASES` dày hơn, quái lao từ 30 s, bắn xa từ 80 s, đầu lượt vẫn chỉ quái đuổi; `BUDGET` 22/0,4/180; tinh anh 130 s, mỗi 75 s). Sim bot biết né, cảnh giới 0, 10 seed × 6 build: thắng 29/60 (trước 40/48 ≈ 83%); chết do nhiều nguồn (Lang Vương lao, đạn băng, quái đuổi, boss). Cảnh giới 9: 24/36. Linh Phong (build khóa) yếu 0/10 → xem lại ở M9-A2. Thử phím thật: vào bí cảnh từ cổng, chọn thẻ, đi vòng không né còn 93/582 máu lúc 77 s. BUILD 0.5.0-m9a. Test 209/209.
+- [ ] M9-A2 Chỉnh hành vi (không chỉ chỉ số): AI quái, tín hiệu báo đòn, sức mạnh từng công pháp; đo bằng log playtest (run_end cause) khi có người chơi.
+- [ ] M9-B Bí cảnh nhiều phòng kiểu Soul Knight (bản nhỏ): mẫu phòng thiết kế sẵn + bộ sinh sơ đồ theo seed (6–10 phòng: chiến đấu, thưởng, sự kiện, tinh anh, boss), khóa cửa tới khi dọn phòng, minimap phòng đã khám phá, boss cuối tầng. **THAY ĐỔI KIẾN TRÚC LỚN (đấu trường sinh tồn → phòng) — cần người phát triển duyệt thiết kế trước khi code**; giữ chế độ cũ sau cờ `FEATURES` để rollback.
+- [ ] M9-C Gia cố save: schemaVersion, bản sao lưu, xuất/nhập save JSON, migration (không đổi khóa `tutien_save_v1`).
+- [ ] M9-D Nối vòng lặp tông môn: phần thưởng bí cảnh dùng thật ở Luyện Khí / Đan Dược / Tàng Kinh, ít nhất 1 nâng cấp lâu dài cảm nhận được lượt sau.
+- [ ] M9-E Playtest 5–10 người ngoài nhóm → quyết định Firebase + Google Auth.
+
+---
+
 ## M6 — LATER / KHÔNG ĐƯỢC TỰ LÀM (P3)
 
 - [ ] `M6-01` Thêm bí cảnh/biome/boss sau khi build loop được playtest tốt.

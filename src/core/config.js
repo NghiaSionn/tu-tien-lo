@@ -1,7 +1,7 @@
 // Mọi thông số gameplay. Các con số có nhãn [THỬ NGHIỆM] trong GDD là mặc định để playtest, không phải luật cuối.
 
 // M7-04: phiên bản ghi vào log playtest (đổi khi phát hành bản thử mới)
-export const BUILD = '0.4.0-m7';
+export const BUILD = '0.5.0-m9a';
 
 export const FEATURES = {
   run: true,            // M1: cổng bí cảnh + vòng run roguelite. false = game chạy như v0.1
@@ -75,9 +75,9 @@ export const RUN = {
   REROLLS: 1, SYNERGY_MULT: 1.3,   // M7-09 [THỬ NGHIỆM]
   XP_BASE: 4, XP_GROWTH: 1.13, XP_LINEAR: 1,
   MAGNET: 56, PICKUP: 10, ORB_SPEED: 160,
-  REGEN: 0.005,                 // hồi khí huyết mỗi giây trong run (tỉ lệ khí huyết tối đa)
+  REGEN: 0.004,                 // M9-A: 0,005 -> 0,004 (game quá dễ). hồi khí huyết mỗi giây trong run (tỉ lệ khí huyết tối đa)
   SPAWN: { MAX_ALIVE: 90, DIST_MIN: 330, DIST_MAX: 410 },   // ngoài khung nhìn 640×360 (nửa chéo ~367)   // nhịp sinh nằm ở DIRECTOR
-  ENEMY: { HP_BASE: 18, HP_TIME: 0.0045, DMG_BASE: 3, DMG_TIME: 0.0016, SPEED: 34, SPEED_TIME: 0.04, REALM_SCALE: 0.9 },
+  ENEMY: { HP_BASE: 18, HP_TIME: 0.005, DMG_BASE: 3.5, DMG_TIME: 0.002, SPEED: 36, SPEED_TIME: 0.045, REALM_SCALE: 0.9 },   // M9-A: đánh đau + nhanh hơn (cũ DMG 3/0,0016, SPEED 34/0,04, HP_TIME 0,0045)
   CHAIN_BUDGET_PER_TICK: 24,    // tổng số lần nhảy sét tối đa mỗi khung (chặn chuỗi vô hạn)
   MAX_PROJECTILES: 220, MAX_ZONES: 40, MAX_ORBS: 300,
   BURN_MAX_DPS_MULT: 1,         // thiêu đốt không cộng dồn: chỉ giữ dps lớn nhất
@@ -92,14 +92,16 @@ export const DIRECTOR = {
   SAFE_R: 150,                  // không sinh quái gần người chơi hơn khoảng này
   // giai đoạn: nhịp sinh (giây/con, nội suy tới giai đoạn sau) và tỉ lệ kiểu quái
   PHASES: [
-    { t: 0,   every: 1.3,  mix: { chaser: 1 } },
-    { t: 55,  every: 1.05, mix: { chaser: 0.8, charger: 0.2 } },
-    { t: 110, every: 0.8,  mix: { chaser: 0.6, charger: 0.25, ranged: 0.15 } },
-    { t: 210, every: 0.55, mix: { chaser: 0.5, charger: 0.25, ranged: 0.25 } },
-    { t: 300, every: 0.4,  mix: { chaser: 0.45, charger: 0.25, ranged: 0.3 } },
+    // M9-A: dày hơn + quái lao/bắn xa tới sớm hơn (cũ 1,3/1,05/0,8/0,55/0,4; lao từ 55 s, bắn từ 110 s)
+    { t: 0,   every: 1.2,  mix: { chaser: 1 } },   // đầu lượt chỉ quái đuổi (người mới làm quen)
+    { t: 30,  every: 1.12, mix: { chaser: 0.85, charger: 0.15 } },
+    { t: 50,  every: 1.0,  mix: { chaser: 0.75, charger: 0.25 } },
+    { t: 80,  every: 0.75, mix: { chaser: 0.6, charger: 0.25, ranged: 0.15 } },
+    { t: 200, every: 0.5,  mix: { chaser: 0.5, charger: 0.25, ranged: 0.25 } },
+    { t: 300, every: 0.36, mix: { chaser: 0.45, charger: 0.25, ranged: 0.3 } },
   ],
   // ngân sách: tổng "cost" quái đang sống không vượt quá BASE + t*PER_SEC (tối đa MAX); MAX_ALIVE là trần cứng
-  BUDGET: { BASE: 18, PER_SEC: 0.3, MAX: 150 },
+  BUDGET: { BASE: 22, PER_SEC: 0.4, MAX: 180 },   // M9-A (cũ 18/0,3/150)
   // đợt sự kiện; form: ring = vây tròn, pack = một bầy từ một hướng, arc = hàng cung trước mặt.
   // M2-04: run 6–8 phút (Lang Vương 3:30, Yêu Vương 6:00) nên các đợt dồn về trước 6:00
   WAVES: [
@@ -110,7 +112,7 @@ export const DIRECTOR = {
     { t: 290, arch: 'charger', n: 6,  form: 'pack', text: 'Bầy Hỏa Hồ!' },
     { t: 330, arch: 'ranged',  n: 7,  form: 'arc',  text: 'Mưa băng tiễn — Yêu Vương sắp tới!' },
   ],
-  ELITE: { FIRST: 165, EVERY: 90, MAX_ALIVE: 2, TEXT: 'Ma Ảnh tinh anh xuất hiện!' },
+  ELITE: { FIRST: 130, EVERY: 75, MAX_ALIVE: 2, TEXT: 'Ma Ảnh tinh anh xuất hiện!' },
   RING_R: 235, PACK_R: 265, ARC_R: 225,   // ×1,33 theo khung nhìn 640×360: đội hình hiện sát mép màn như cũ
 };
 
