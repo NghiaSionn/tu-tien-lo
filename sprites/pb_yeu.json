@@ -1,0 +1,63 @@
+{
+ "frameSize": [
+  47,
+  67
+ ],
+ "pivot": [
+  23,
+  66
+ ],
+ "image": "pb_yeu.png",
+ "source": "docs/concept/phong_yeu_vuong_chatgpt.png",
+ "tool": "tools/build_tong_mon.py (sprite_clean từng món)",
+ "frames": {
+  "cot_phu_van": [
+   0,
+   0
+  ],
+  "cot_gay": [
+   47,
+   0
+  ],
+  "lu_lua_ma": [
+   94,
+   0
+  ],
+  "tuong_ma": [
+   141,
+   0
+  ],
+  "ban_te": [
+   188,
+   0
+  ],
+  "chan_nen": [
+   235,
+   0
+  ],
+  "xich_sat": [
+   282,
+   0
+  ],
+  "dong_dau_lau": [
+   329,
+   0
+  ],
+  "tinh_the_ma": [
+   376,
+   0
+  ],
+  "phuon_den": [
+   423,
+   0
+  ],
+  "da_ri_khi": [
+   470,
+   0
+  ],
+  "bia_phu_van": [
+   517,
+   0
+  ]
+ }
+}

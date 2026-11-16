@@ -80,7 +80,7 @@ async function loadSheet(name) {
   const tint = col => { const c = document.createElement('canvas'); c.width = img.width; c.height = img.height; const g = c.getContext('2d'); g.drawImage(img, 0, 0); g.globalCompositeOperation = 'source-in'; g.fillStyle = col; g.fillRect(0, 0, c.width, c.height); return c; };
   return { img, meta, white: tint('#ffffff'), glow: tint('#c070ff'), wind: tint('#7ff0c8') };   // wind: tàn ảnh Phong Ảnh Bộ
 }
-for (const [key, name] of [['hero', 'nhan_vat'], ['mobs', 'quai'], ['bosses', 'boss'], ['rung', 'rung'], ['congTrinh', 'cong_trinh'], ['icons', 'bieu_tuong'], ['tienHoa', 'tien_hoa'], ['bia', 'bia'], ['phim', 'phim'],
+for (const [key, name] of [['pbLang', 'pb_lang'], ['pbYeu', 'pb_yeu'], ['hero', 'nhan_vat'], ['mobs', 'quai'], ['bosses', 'boss'], ['rung', 'rung'], ['congTrinh', 'cong_trinh'], ['icons', 'bieu_tuong'], ['tienHoa', 'tien_hoa'], ['bia', 'bia'], ['phim', 'phim'],
   ...(FEATURES.sectHub || /[?&]sect=1/.test(location.search) ? [['tmCt', 'tm_cong_trinh'], ['tmDv', 'tm_do_vat'], ['tmCd', 'tm_cay_da'], ['tmTran', 'tm_tran'], ['tmThem', 'tm_them'], ['tmCh', 'tm_chuong'], ['tmNui', 'tm_nui']] : [])]) {
   try { vis[key] = await loadSheet(name); } catch (e) { console.warn('[sprite] dùng hình cũ:', name, e); }
 }
@@ -96,7 +96,8 @@ function cropFrames(sheet) {
   }
   return out;
 }
-if (vis.tienHoa) vis.thx = cropFrames(vis.tienHoa);   // han_an, khoi_bang, vong_phong_an, bang_no
+if (vis.tienHoa) vis.thx = cropFrames(vis.tienHoa);
+vis.pb = Object.assign({}, ...[vis.pbLang, vis.pbYeu].filter(Boolean).map(cropFrames));   // M9-B: vật trang trí 2 phòng boss (ChatGPT vẽ, tools/build_phong_boss.py)   // han_an, khoi_bang, vong_phong_an, bang_no
 if (vis.congTrinh) vis.ct = cropFrames(vis.congTrinh);
 if (vis.bia) vis.ct = { ...(vis.ct || {}), ...cropFrames(vis.bia) };   // M7-14: bia, bia_sang
 // M8: công trình/đồ vật/cây tông môn (concept ảnh 1, tools/build_tong_mon.py)

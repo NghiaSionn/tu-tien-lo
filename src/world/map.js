@@ -212,7 +212,7 @@ export function makeRoomsMap(seed) {
   // (17/11) phòng tự nhiên hơn: bo 4 góc, mép tường lồi lõm (cây mọc lấn vào), cụm cây/đá/ao nhỏ ở 4 góc phần tư.
   // Luôn chừa dải lối đi ngang/dọc qua tâm phòng (thẳng các cửa) — `lane`.
   const set = (x, y, t) => { if (x > 0 && y > 0 && x < W - 1 && y < H - 1) g[y * W + x] = t; };
-  const H2 = (a, b, c) => hash(a, b, c, seed), pillars = [];
+  const H2 = (a, b, c) => hash(a, b, c, seed), pillars = [], decor = [];
   for (const r of dg.rooms) {
     const lane = (x, y) => Math.abs(x + 0.5 - (r.cx + 0.5)) < 4 || Math.abs(y + 0.5 - (r.cy + 0.5)) < 4;
     const w = r.x1 - r.x0 + 1, h = r.y1 - r.y0 + 1, R0 = r.type === 'boss' || r.type === 'mini' ? 7 : 4;
@@ -226,14 +226,25 @@ export function makeRoomsMap(seed) {
     // mép lồi lõm: cây lấn 1–2 ô dọc tường
     for (let x = r.x0; x <= r.x1; x++) for (const [y, d] of [[r.y0, 1], [r.y1, -1]]) if (!lane(x, y) && H2(x, y, 67) < 0.35) { set(x, y, TREE); if (H2(x, y, 68) < 0.4) set(x, y + d, TREE); }
     for (let y = r.y0; y <= r.y1; y++) for (const [x, d] of [[r.x0, 1], [r.x1, -1]]) if (!lane(x, y) && H2(x, y, 69) < 0.35) { set(x, y, TREE); if (H2(x, y, 70) < 0.4) set(x + d, y, TREE); }
-    if (r.type === 'mini') {   // Hang Lang Vương: sân đất nện hình elip, vòng đá lởm chởm quanh sân, ngoài là cỏ
+    if (r.type === 'mini') {   // Hang Lang Vương: sân đất nện hình elip; vành ngoài sân là vật trang trí ChatGPT vẽ (decor)
       const ex = (r.cx + 0.5), ey = (r.cy + 0.5), rx = w / 2 - 4, ry = h / 2 - 3;
       for (let y = r.y0; y <= r.y1; y++) for (let x = r.x0; x <= r.x1; x++) {
         if (g[y * W + x] !== GRASS) continue;
-        const e = ((x + 0.5 - ex) / rx) ** 2 + ((y + 0.5 - ey) / ry) ** 2;
-        if (e < 1) set(x, y, DIRT);
-        else if (e < 1.25 && !lane(x, y) && H2(x, y, 71) < 0.45) set(x, y, ROCK);
+        if (((x + 0.5 - ex) / rx) ** 2 + ((y + 0.5 - ey) / ry) ** 2 < 1) set(x, y, DIRT);
       }
+      // vành ngoài: tô-tem, cờ rách, đá cào, gốc cây cào, ổ rơm (vật lớn, chặn ở chân); trong sân: xương, đầu lâu, hố lửa (vật thấp, đi qua được)
+      const ring = ['totem_soi', 'co_rach', 'da_cao', 'goc_cay_cao', 'o_rom_soi', 'da_xuong', 'totem_soi', 'co_rach', 'da_cao', 'goc_cay_cao', 'da_soi', 'da_xuong', 'giao_gay', 'da_cao'];
+      ring.forEach((n, i) => {
+        const a = (i + 0.5) / ring.length * 6.283 + 0.2, x = Math.floor(ex + Math.cos(a) * (rx - 2)), y = Math.floor(ey + Math.sin(a) * (ry - 1.5));   // sát mép trong sân
+        if (lane(x, y) || lane(x + 1, y)) return;
+        decor.push({ s: n, x: x + 0.5, y: y + 1, solid: [x, y] });
+      });
+      const floor = ['dau_lau_soi', 'xuong_suon', 'dong_xuong', 'dong_xuong', 'ho_lua', 'dong_xuong', 'giao_gay', 'dong_xuong', 'dau_lau_soi', 'xuong_suon', 'dong_xuong', 'ho_lua', 'dong_xuong', 'da_xuong'];
+      floor.forEach((n, i) => {
+        const a = (i + H2(r.id, i, 73) * 0.6) / floor.length * 6.283, k = 0.3 + H2(r.id, i, 74) * 0.42, x = Math.floor(ex + Math.cos(a) * rx * k), y = Math.floor(ey + Math.sin(a) * ry * k);
+        if (lane(x, y) || Math.hypot(x - ex, y - ey) < 5) return;
+        decor.push({ s: n, x: x + 0.5, y: y + 1, solid: n === 'ho_lua' || n === 'xuong_suon' || n === 'dau_lau_soi' ? [x, y] : null });
+      });
       continue;
     }
     if (r.type === 'boss') {   // Đàn tế Ma Ảnh Yêu Vương: nền đá hình bát giác, 4 cột đá đối xứng, viền cây dày
@@ -243,10 +254,21 @@ export function makeRoomsMap(seed) {
         const dx = Math.abs(x + 0.5 - ex) / rx, dy = Math.abs(y + 0.5 - ey) / ry;
         if (Math.max(dx, dy) < 1 && dx + dy < 1.42) set(x, y, STONE);
       }
-      for (const [sx, sy] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) {
-        const px = Math.round(ex + sx * rx * 0.55) - 1, py = Math.round(ey + sy * ry * 0.55) - 1;
-        for (let k = 0; k < 4; k++) set(px + (k & 1), py + (k >> 1), ROCK);
-        pillars.push([px, py]);   // render vẽ cột đá phù văn thay cho đá thường
+      // bày đàn tế (ChatGPT vẽ, sprites/pb_yeu): [món, x, y] theo phần bán trục; chừa giữa (pháp trận) + lối cửa
+      const place = [
+        ['cot_phu_van', -0.55, -0.55], ['cot_phu_van', 0.55, -0.55], ['cot_phu_van', -0.55, 0.62], ['cot_phu_van', 0.55, 0.62],
+        ['tuong_ma', -0.86, -0.62], ['tuong_ma', 0.86, -0.62], ['ban_te', -0.3, -0.82], ['ban_te', 0.3, -0.82],
+        ['lu_lua_ma', -0.32, -0.5], ['lu_lua_ma', 0.32, -0.5], ['phuon_den', -0.9, 0.3], ['phuon_den', 0.9, 0.3],
+        ['chan_nen', -0.72, -0.25], ['chan_nen', 0.72, -0.25], ['chan_nen', -0.72, 0.42], ['chan_nen', 0.72, 0.42], ['chan_nen', -0.3, 0.75], ['chan_nen', 0.3, 0.75],
+        ['bia_phu_van', -0.86, 0.75], ['bia_phu_van', 0.86, 0.75], ['tinh_the_ma', -0.45, 0.88], ['tinh_the_ma', 0.62, 0.88],
+        ['cot_gay', -0.95, -0.05], ['dong_dau_lau', 0.95, -0.02], ['xich_sat', -0.35, 0.35], ['xich_sat', 0.4, -0.3],
+        ['da_ri_khi', -0.18, 0.55], ['da_ri_khi', 0.2, 0.52], ['dong_dau_lau', -0.6, 0.1], ['tinh_the_ma', 0.62, 0.08],
+      ];
+      const LOW = new Set(['xich_sat', 'da_ri_khi', 'dong_dau_lau']);   // vật thấp: đi qua được
+      for (const [n, fx, fy] of place) {
+        const x = Math.floor(ex + fx * rx), y = Math.floor(ey + fy * ry);
+        if (lane(x, y) || g[y * W + x] !== STONE) continue;
+        decor.push({ s: n, x: x + 0.5, y: y + 1, solid: LOW.has(n) ? null : [x, y] });
       }
       continue;
     }
@@ -263,8 +285,10 @@ export function makeRoomsMap(seed) {
     }
   }
   for (const c of dg.corridors) carve(c.x0, c.y0, c.x1, c.y1);   // hành lang khắc lại sau cùng (không bị cây góc lấp)
+  const decoSolid = new Set(decor.filter(d => d.solid).map(d => d.solid[1] * W + d.solid[0]));   // chân vật trang trí chặn đường
   const m = makeMap(W, H, seed, 'arena', (x, y) => g[y * W + x]);
   m.rooms = dg;
+  m.decor = decor.map(d => ({ ...d, px: d.x * T, py: d.y * T }));   // M9-B: vật trang trí phòng boss (sprites/pb_*), chân ở (px, py)
   m.pillars = new Map(pillars.map(([x, y]) => [y * W + x, 1]));   // ô trái-trên của cột 2×2
   m.pillarTile = new Set(pillars.flatMap(([x, y]) => [y * W + x, y * W + x + 1, (y + 1) * W + x, (y + 1) * W + x + 1]));
   const st = dg.rooms[dg.start]; m.cx = (st.cx + 0.5) * T; m.cy = (st.cy + 0.5) * T;
@@ -285,7 +309,7 @@ export function makeRoomsMap(seed) {
   }
   m.blocked = new Set();
   const solid0 = m.solidTile;
-  m.solidTile = (tx, ty) => solid0(tx, ty) || (m.blocked.size > 0 && m.blocked.has(ty * W + tx));
+  m.solidTile = (tx, ty) => solid0(tx, ty) || (m.blocked.size > 0 && m.blocked.has(ty * W + tx)) || decoSolid.has(ty * W + tx);
   return m;
 }
 

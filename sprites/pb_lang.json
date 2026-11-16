@@ -1,0 +1,63 @@
+{
+ "frameSize": [
+  44,
+  52
+ ],
+ "pivot": [
+  22,
+  51
+ ],
+ "image": "pb_lang.png",
+ "source": "docs/concept/phong_lang_vuong_chatgpt.png",
+ "tool": "tools/build_tong_mon.py (sprite_clean từng món)",
+ "frames": {
+  "dau_lau_soi": [
+   0,
+   0
+  ],
+  "dong_xuong": [
+   44,
+   0
+  ],
+  "xuong_suon": [
+   88,
+   0
+  ],
+  "giao_gay": [
+   132,
+   0
+  ],
+  "da_cao": [
+   176,
+   0
+  ],
+  "totem_soi": [
+   220,
+   0
+  ],
+  "ho_lua": [
+   264,
+   0
+  ],
+  "da_soi": [
+   308,
+   0
+  ],
+  "goc_cay_cao": [
+   352,
+   0
+  ],
+  "o_rom_soi": [
+   396,
+   0
+  ],
+  "co_rach": [
+   440,
+   0
+  ],
+  "da_xuong": [
+   484,
+   0
+  ]
+ }
+}

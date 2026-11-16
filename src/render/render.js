@@ -384,7 +384,8 @@ function drawBossRoomFloor(ctx, map, camX, camY, time) {
     if (cx + w / 2 < camX || cx - w / 2 > camX + W || cy + h / 2 < camY || cy - h / 2 > camY + H) continue;
     if (r.type === 'boss') {
       const pul = 0.5 + 0.5 * Math.sin(time * 1.6);
-      ctx.save(); ctx.translate(cx, cy); ctx.scale(1, 0.55);   // nhìn nghiêng 3/4: vòng dẹt
+      const K = ((r.x1 - r.x0 + 1) / 2 - 3) * T / 288;   // pháp trận to theo phòng
+      ctx.save(); ctx.translate(cx, cy); ctx.scale(K, 0.55 * K);   // nhìn nghiêng 3/4: vòng dẹt
       for (const [rad, a, lw] of [[150, 0.35, 2], [118, 0.5, 2], [70, 0.55, 3]]) {
         ctx.globalAlpha = a * (0.7 + 0.3 * pul); ctx.strokeStyle = '#a45cff'; ctx.lineWidth = lw; ctx.beginPath(); ctx.arc(0, 0, rad, 0, 6.283); ctx.stroke();
       }
@@ -397,30 +398,10 @@ function drawBossRoomFloor(ctx, map, camX, camY, time) {
         ctx.fillRect(x - 4, y - 6, 8, 2); ctx.fillRect(x - 1, y - 6, 2, 12); ctx.fillRect(x - 4, y + 2, 8, 2);
       }
       ctx.restore(); ctx.globalAlpha = 1;
-      const rx = (r.x1 - r.x0 + 1) / 2 - 3, ry = (r.y1 - r.y0 + 1) / 2 - 2;   // ma trơi trên 4 cột đá (khớp map.js)
-      for (const [sx, sy] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) {
-        const px = (Math.round(r.cx + 0.5 + sx * rx * 0.55)) * T, py = (Math.round(r.cy + 0.5 + sy * ry * 0.55) - 1) * T - 32 + Math.sin(time * 2 + sx + sy * 2) * 3;
-        ctx.globalAlpha = 0.35; ctx.fillStyle = '#7b2cff'; ctx.beginPath(); ctx.arc(px, py, 9, 0, 6.283); ctx.fill();
-        ctx.globalAlpha = 0.9; ctx.fillStyle = '#e6c8ff'; ctx.beginPath(); ctx.arc(px, py, 3, 0, 6.283); ctx.fill();
-      }
-      ctx.globalAlpha = 1;
-    } else {
-      const H3 = (i, k) => hash(r.id * 31 + i, k, 181);
-      for (let i = 0; i < 22; i++) {
-        const a = H3(i, 1) * 6.283, rr = Math.sqrt(H3(i, 2)) * 0.85, x = Math.round(cx + Math.cos(a) * rr * (w / 2 - 64)), y = Math.round(cy + Math.sin(a) * rr * (h / 2 - 48)), k = H3(i, 3);   // chỉ trong sân đất elip
-        if (k < 0.45) {   // xương: thân + 2 đầu khớp
-          const hz = H3(i, 4) < 0.5;
-          ctx.fillStyle = '#5a4a3a'; ctx.fillRect(x - (hz ? 6 : 1), y - (hz ? 0 : 5) + 1, hz ? 12 : 3, hz ? 3 : 11);
-          ctx.fillStyle = '#e8e0cc'; ctx.fillRect(x - (hz ? 5 : 0), y - (hz ? 0 : 5), hz ? 10 : 2, hz ? 2 : 10);
-          ctx.fillRect(x - (hz ? 7 : 2), y - (hz ? 1 : 6), 3, 3); ctx.fillRect(x + (hz ? 4 : -1), y + (hz ? -1 : 4), 3, 3);
-        } else if (k < 0.8) {   // vết cào 3 vạch
-          ctx.fillStyle = 'rgba(60,30,20,.55)';
-          for (let j = 0; j < 3; j++) for (let t = 0; t < 8; t++) ctx.fillRect(x + j * 4 + t, y + t - j, 1, 2);
-        } else { ctx.fillStyle = 'rgba(110,20,20,.35)'; ctx.fillRect(x - 5, y - 2, 10, 4); ctx.fillRect(x - 3, y - 4, 6, 8); }   // vệt máu khô
-      }
     }
   }
 }
+const GLOW_PB = { cot_phu_van: 0.12, lu_lua_ma: 0.25, chan_nen: 0.15, tinh_the_ma: 0.45 };   // vị trí quầng sáng (phần chiều cao từ đỉnh)
 // (17/11) cột đá phù văn ở đàn tế Yêu Vương (vẽ code, 26×58): đế, thân chạm 3 đai, phù văn tím, mũ đá, tinh thể tím trên đỉnh
 let _pillar = null;
 function pillarSpr() {
@@ -1444,6 +1425,15 @@ export function render(ctx, g) {
   objs.push({ y: p.y, player: true });
   if (scene.kind === 'hub' && FEATURES.run && g.portal && vis.pfx && !(g.sect && g.sect.gate)) objs.push({ y: g.portal.y, portal: true });
   if (scene.kind === 'hub' && g.bia && vis.ct && vis.ct.bia) objs.push({ y: g.bia.y, bia: true });
+  if (scene.kind === 'run' && map.decor && vis.pb) for (const d of map.decor) {   // M9-B: vật trang trí phòng boss (ChatGPT vẽ), xếp theo chân
+    const img = vis.pb[d.s]; if (!img) continue;
+    const x = Math.round(d.px - img.width / 2), dy = Math.round(d.py - img.height);
+    if (x < camX + W && x + img.width > camX && dy < camY + H && d.py > camY) {
+      objs.push({ y: d.py, img, x, dy });
+      if (GLOW_PB[d.s]) { const gy = dy + img.height * GLOW_PB[d.s], a = 0.18 + 0.12 * Math.sin(time * 3 + d.px * 0.1);   // quầng lửa ma / tinh thể phập phồng
+        ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = a; ctx.fillStyle = '#9a4cff'; ctx.beginPath(); ctx.ellipse(d.px, gy, 14, 10, 0, 0, 6.283); ctx.fill(); ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over'; }
+    }
+  }
   if (scene.kind === 'hub' && g.sect) {   // M8: công trình + đồ vật + cây tông môn (sprite tm_*, xếp theo chân); thiếu sprite -> khối tạm
     const vis1 = (img, fx, fy) => fx - img.width / 2 < camX + W && fx + img.width / 2 > camX && fy - img.height < camY + H && fy > camY - 4;
     for (const b of g.sect.buildings) {

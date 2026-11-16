@@ -93,12 +93,12 @@ export const RUN = {
 // shrine (Linh Mạch), boss (Ma Ảnh Yêu Vương, phòng xa nhất). Vào phòng chiến đấu: cửa phong ấn tới khi hạ hết các đợt.
 // Sức quái tính theo "thời gian quy đổi" T_PER_DEPTH × độ sâu phòng (dùng lại công thức RUN.ENEMY/DIRECTOR như chế độ cũ).
 export const ROOMS = {
-  GRID: [5, 4], CELL: [46, 32], ROOM_W: [30, 38], ROOM_H: [18, 24], CORRIDOR: 5, BOSS_ROOM: [42, 28],   // (17/11) phòng rộng hơn; phòng 2 boss to nhất
+  GRID: [5, 4], CELL: [58, 40], ROOM_W: [40, 50], ROOM_H: [26, 32], CORRIDOR: 5, BOSS_ROOM: [52, 34],   // (17/11) phòng rộng hơn; phòng 2 boss to nhất
   COUNT: [8, 10], MIN_BOSS_DEPTH: 4,
   WAVES: { combat: [2, 4], elite: 2, mini: 1, boss: 1 },   // combat: phòng độ sâu 1 = 2 đợt, sâu dần +1 (tối đa 4)
   WAVE_N: { base: 3, perDepth: 5, max: 36 }, WAVE_GAP: 0.9, WAVE_OVERLAP: 0.3,   // đợt sau ập tới khi đợt trước còn ≤ 30% (không chờ chết hết)
   SPAWN_SPREAD: 1.2,           // giây: quái một đợt hiện rải trong khoảng này (có vòng báo trước), không bật ra cùng lúc
-  HP_PER_DEPTH: 0.2, DMG_PER_DEPTH: 0.22, BOSS_HP: 2.0,   // quái phòng độ sâu d: máu ×(1 + d·HP_PER_DEPTH), sát thương ×(1 + d·DMG_PER_DEPTH); boss máu ×BOSS_HP
+  HP_PER_DEPTH: 0.26, DMG_PER_DEPTH: 0.32, BOSS_HP: 2.0,   // quái phòng độ sâu d: máu ×(1 + d·HP_PER_DEPTH), sát thương ×(1 + d·DMG_PER_DEPTH); boss máu ×BOSS_HP
   BOSS_TRICKLE: { EVERY: 2.4, MAX: 8 },   // phòng boss/tinh anh: quái thường lai rai kéo tới suốt trận (như đấu trường), tối đa MAX con
   XP_MULT: 2.2,                // chiến ý mỗi con ×: ít quái hơn đấu trường nhưng vẫn đủ cấp để chọn thẻ/tiến hóa
   T_FIRST: 20, T_PER_DEPTH: 95, T_MAX: 340, T_BOSS: { MINI: 210, FINAL: 360 },   // thời gian quy đổi = T_FIRST + (độ sâu − 1) × T_PER_DEPTH: phòng đầu chỉ quái đuổi

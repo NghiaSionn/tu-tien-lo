@@ -24,6 +24,29 @@ import { roomAt } from '../src/world/rooms.js';
 import { useShrine, shrineReady } from '../src/systems/shrine.js';
 const ROOMS_MODE = !!process.env.ROOMS;
 
+// M9-B: tìm đường theo ô (BFS 8 hướng không cắt góc) tới đích; trả về điểm ảnh của ô cách vài bước trên đường đi
+const _path = { key: '', way: null, t: 0 };
+function pathStep(run, p, gx, gy) {
+  const map = run.scene.map, W = map.w, H = map.h, T = 16, sx = Math.floor(p.x / T), sy = Math.floor(p.y / T), tx = Math.floor(gx / T), ty = Math.floor(gy / T);
+  const key = tx + ',' + ty;
+  if (_path.key !== key || run.time - _path.t > 0.5 || !_path.way) {
+    _path.key = key; _path.t = run.time;
+    const prev = new Int32Array(W * H).fill(-1), q = new Int32Array(W * H); let h = 0, n = 0;
+    const s0 = sy * W + sx; prev[s0] = s0; q[n++] = s0;
+    const ok = (x, y) => x >= 0 && y >= 0 && x < W && y < H && !map.solidTile(x, y);
+    while (h < n) { const c = q[h++], cx = c % W, cy = (c - cx) / W; if (cx === tx && cy === ty) break;
+      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [1, -1], [-1, 1], [-1, -1]]) {
+        const nx = cx + dx, ny = cy + dy, k = ny * W + nx; if (!ok(nx, ny) || prev[k] >= 0) continue;
+        if (dx && dy && (!ok(cx + dx, cy) || !ok(cx, cy + dy))) continue;
+        prev[k] = c; q[n++] = k; } }
+    const t0 = ty * W + tx; if (prev[t0] < 0) { _path.way = null; return [gx, gy]; }
+    const way = []; for (let k = t0; k !== s0; k = prev[k]) way.push(k); way.reverse(); _path.way = way;
+  }
+  const way = _path.way; if (!way || !way.length) return [gx, gy];
+  // bỏ các ô đã đi qua, nhắm ô thứ 2 phía trước
+  let i = 0; while (i < way.length && Math.hypot((way[i] % W + 0.5) * T - p.x, (Math.floor(way[i] / W) + 0.5) * T - p.y) < 10) i++;
+  const k = way[Math.min(way.length - 1, i + 1)]; return [(k % W + 0.5) * T, (Math.floor(k / W) + 0.5) * T];
+}
 // M9-B: điểm đến kế tiếp của bot trong chế độ phòng: đi hết phòng chưa dọn (gần nhất trước), boss sau cùng
 function roomTarget(run, p) {
   const d = run.scene.map.rooms, rs = run.rooms, T = 16, tx = Math.floor(p.x / T), ty = Math.floor(p.y / T);
@@ -115,7 +138,9 @@ export function simulate(buildName, L, seed, maxTime = 720) {
     for (const o of run.scene.orbs) { const d = Math.hypot(o.x - p.x, o.y - p.y); if (d < bd) { bd = d; best = o; } }
     if (best && bd < 160) { vx += (best.x - p.x) / bd * 0.6; vy += (best.y - p.y) / bd * 0.6; }
     if (ROOMS_MODE) {
-      const [gx, gy, w] = roomTarget(run, p), dd = Math.hypot(gx - p.x, gy - p.y) || 1;
+      let [gx, gy, w] = roomTarget(run, p);
+      if (w >= 1) [gx, gy] = pathStep(run, p, gx, gy);
+      const dd = Math.hypot(gx - p.x, gy - p.y) || 1;
       if (w >= 1) { vx += (gx - p.x) / dd * w; vy += (gy - p.y) / dd * w; } else { vx += (gx - p.x) * w * 0.4; vy += (gy - p.y) * w * 0.4; }
       if (shrineReady(run, p)) useShrine(run, run.hp < run.maxHp * 0.6 ? 'heal' : 'power');
     } else { vx += (run.scene.map.cx - p.x) * 0.0015; vy += (run.scene.map.cy - p.y) * 0.0015; }
