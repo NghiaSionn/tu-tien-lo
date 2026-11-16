@@ -13,7 +13,8 @@ import { TRIBULATION } from './core/config.js';
 import { createRun, updateRun, endRun, refreshMaxHp } from './systems/run.js';
 import { runStats } from './systems/combat.js';
 import { spawnHubMonster, updateMonsters, reapMonsters, damageMonster, moveEntity, makeMonster } from './entities/monsters.js';
-import { loadSave, writeSave, commitMigration, exportSave, importSave, defaultMeta, KEYS } from './persistence/save.js';
+import { loadSave, writeSave, commitMigration, exportSave, importSave, defaultMeta, KEYS, pickFurther, parseWrapped, localSavedAt } from './persistence/save.js';
+import { cloudConfigured, initCloud, signInGoogle, signInEmail, signUpEmail, resetPassword, signOutCloud, pullSave, pushSave, errText } from './persistence/cloud.js';
 import { loadFx, createFx } from '../lib/beanfx.js';
 import { loadPixelfx } from './render/pixelfx.js';
 import { makeVis, consumeEvents, updateVis, clearVis, render, setTextQueue, drawTextQueue, setCoDa, setVachNuoc, setVachNuocCorners, spawnFx, burst, floatText, addShake, addFlash, part, PART_CAP } from './render/render.js';
@@ -263,7 +264,63 @@ function save() {
   if (view !== 'HUB' && run) meta.hubPos = { ...hubPosBeforeRun };
   else meta.hubPos = { x: p.x, y: p.y };
   writeSave(storage, meta);
+  if (ACCT.user) ACCT.dirty = true;
 }
+// ---------- M9: tài khoản + lưu trên mây (tùy chọn; chưa đăng nhập = chơi khách như cũ) ----------
+// Đăng nhập: tải bản trên mây; bản nào tiến xa hơn (cảnh giới/tu vi/số lượt) thì giữ. Bản mây thắng -> chờ về sảnh mới áp
+// (không thay giữa bí cảnh/thiên kiếp), bản trên máy chép sang tutien_save_v2_cloud_bak. Bản máy thắng -> đẩy lên mây.
+// Sau đó tự đẩy lên tối đa mỗi 30 s khi có thay đổi, và khi rời trang. Không bao giờ ghi/xóa tutien_save_v1.
+const ACCT = { user: null, status: '', busy: false, dirty: false, lastPush: 0, pending: null, subs: new Set() };
+const acctNotify = () => { for (const f of ACCT.subs) f(); };
+async function cloudSync() {
+  const u = ACCT.user; if (!u || ACCT.busy) return;
+  ACCT.busy = true; ACCT.status = 'Đang đồng bộ…'; acctNotify();
+  try {
+    save();
+    const raw = await pullSave(u.uid), cloud = raw && parseWrapped(raw, saveCtx);
+    if (ACCT.user !== u) return;
+    if (cloud && pickFurther({ meta, savedAt: localSavedAt(storage) }, cloud) === 'cloud') {
+      ACCT.pending = cloud.meta; ACCT.status = 'Bản trên mây tiến xa hơn — sẽ tải khi bạn ở sảnh.';
+    } else {
+      await pushSave(u.uid, storage.getItem(KEYS.V2), meta.realmLevel);
+      ACCT.dirty = false; ACCT.lastPush = Date.now(); ACCT.status = `Đã lưu lên mây lúc ${new Date().toLocaleTimeString('vi-VN')}.`;
+    }
+  } catch (e) { ACCT.status = 'Lỗi đồng bộ: ' + errText(e); }
+  finally { ACCT.busy = false; acctNotify(); }
+}
+function cloudTick() {
+  if (!ACCT.user) return;
+  if (ACCT.pending && view === 'HUB' && !trib && !p.med) {   // áp bản mây
+    const m = ACCT.pending; ACCT.pending = null;
+    storage.setItem(KEYS.CLOUD_BAK, storage.getItem(KEYS.V2));
+    meta = m; p.x = meta.hubPos.x; p.y = meta.hubPos.y; readyNotified = C.isFull(meta); grantUnlocks(meta); applySettings();
+    writeSave(storage, meta); ACCT.dirty = false;
+    ACCT.status = `Đã tải tiến độ từ tài khoản (${levelName(meta.realmLevel)}). Bản trên máy trước đó được giữ dự phòng.`;
+    UI.log(ACCT.status, 'good', 8000); acctNotify();
+    return;
+  }
+  if (ACCT.dirty && !ACCT.busy && !ACCT.pending && Date.now() - ACCT.lastPush > 30000) {
+    const u = ACCT.user; ACCT.dirty = false; ACCT.lastPush = Date.now();
+    pushSave(u.uid, storage.getItem(KEYS.V2), meta.realmLevel).then(() => { ACCT.status = `Đã lưu lên mây lúc ${new Date().toLocaleTimeString('vi-VN')}.`; acctNotify(); },
+      e => { ACCT.dirty = true; ACCT.status = 'Lỗi lưu lên mây: ' + errText(e); acctNotify(); });
+  }
+}
+async function onAcct(act, email, pass) {
+  if (ACCT.busy && act !== 'out') return;
+  const run1 = async (f, okMsg) => { ACCT.busy = true; ACCT.status = 'Đang xử lý…'; acctNotify();
+    try { await f(); if (okMsg) ACCT.status = okMsg; } catch (e) { ACCT.status = errText(e); } finally { ACCT.busy = false; acctNotify(); } };
+  if (act === 'google') await run1(signInGoogle);
+  else if (act === 'in') await run1(() => signInEmail(email, pass));
+  else if (act === 'up') await run1(() => signUpEmail(email, pass), 'Đã tạo tài khoản — kiểm tra email để xác minh.');
+  else if (act === 'reset') { if (!email.trim()) { ACCT.status = 'Nhập email rồi bấm Quên mật khẩu.'; acctNotify(); return; } await run1(() => resetPassword(email), 'Đã gửi email đặt lại mật khẩu.'); }
+  else if (act === 'sync') await cloudSync();
+  else if (act === 'out') { if (ACCT.dirty && ACCT.user) { try { await pushSave(ACCT.user.uid, storage.getItem(KEYS.V2), meta.realmLevel); } catch (e) { /* vẫn đăng xuất */ } } await run1(signOutCloud, 'Đã đăng xuất — tiến độ vẫn còn trên máy này.'); }
+}
+if (cloudConfigured()) initCloud(u => {
+  const prev = ACCT.user; ACCT.user = u; ACCT.pending = null; acctNotify();
+  if (u && (!prev || prev.uid !== u.uid)) { UI.log(`Đã đăng nhập: ${u.name || u.email || 'tài khoản'}.`, 'good'); cloudSync(); }
+}).catch(e => { ACCT.status = 'Không tải được đăng nhập: ' + errText(e); acctNotify(); });
+addEventListener('pagehide', () => { if (ACCT.user && ACCT.dirty && !ACCT.pending) pushSave(ACCT.user.uid, storage.getItem(KEYS.V2), meta.realmLevel).catch(() => {}); });
 
 // ---------- người chơi ----------
 const p = { x: meta.hubPos.x, y: meta.hubPos.y, face: 'down', flip: false, fx: 0, fy: 1, moving: false, anim: 0, med: false, cd: 0, inv: 0, inForm: false, dead: false };
@@ -769,6 +826,10 @@ function openSettings() {
   UI.showSettings(meta, {
     onClose: () => { view = 'HUB'; if (!tipShown) showTipIf('portal'); },
     onSetting: (k, v) => { meta.settings[k] = v; applySettings(); save(); },
+    // M9: tài khoản
+    acct: () => ({ configured: cloudConfigured(), user: ACCT.user, status: ACCT.status, busy: ACCT.busy }),
+    acctSubscribe: f => ACCT.subs.add(f),
+    onAcct,
     onExport: () => { save(); download(exportSave(meta), `tutien_save_${new Date().toISOString().slice(0, 10)}.json`, 'application/json'); },
     // M7-04
     pt: PT,
@@ -964,6 +1025,7 @@ function frame(now) {
   setTextQueue(null); drawTextQueue(hiCtx, textQ, hiK);   // chữ trên khung game: nét theo độ phân giải màn hình
   updatePrompt();
   if ((hudT += dt) > 0.1) { hudT = 0; if (view === 'HUB' || !run) UI.hubHud(meta, p, trib, PORTAL.near); else UI.runHud(run); }
+  cloudTick();
   input.endFrame();
   const t1 = performance.now();
   perfFrame(t1 - t0, lastFrameAt ? t1 - lastFrameAt : 16.7); lastFrameAt = t1;

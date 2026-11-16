@@ -6,6 +6,7 @@
 //   tutien_save_v2          bản hiện hành
 //   tutien_save_v2_bak      bản v2 tốt liền trước (xoay vòng mỗi lần lưu)
 //   tutien_save_v2_corrupt  bản v2 hỏng gần nhất, giữ lại để cứu dữ liệu
+//   tutien_save_v2_cloud_bak bản v2 trên máy trước khi bị bản lưu trên mây (tiến xa hơn) thay — giữ lại để cứu
 import { REALM, ITEMS, REWARD } from '../core/config.js';
 import { defaultTutorial, sanitizeTutorial } from '../progression/tutorial.js';
 import { defaultLore, sanitizeLore } from '../progression/lore.js';
@@ -18,6 +19,7 @@ import { maxHp, need } from '../progression/realm.js';
 export const KEYS = {
   V1: 'tutien_save_v1', V1_BACKUP: 'tutien_save_v1_backup',
   V2: 'tutien_save_v2', V2_BAK: 'tutien_save_v2_bak', V2_CORRUPT: 'tutien_save_v2_corrupt',
+  CLOUD_BAK: 'tutien_save_v2_cloud_bak',   // M9 (đăng nhập): bản trên máy bị bản mây thay — giữ lại để cứu
 };
 export const VERSION = 2;
 const MAX_MONEY = 1e9, MAX_PILLS = 1e6;
@@ -193,3 +195,25 @@ export function memoryStorage(init = {}) {
   const m = new Map(Object.entries(init));
   return { getItem: k => m.has(k) ? m.get(k) : null, setItem: (k, v) => m.set(k, String(v)), removeItem: k => m.delete(k), dump: () => Object.fromEntries(m) };
 }
+
+// ---------- M9: lưu trên mây (đăng nhập) — chọn bản tiến xa hơn ----------
+// Tiến độ so theo: cảnh giới -> tu vi -> số lượt bí cảnh -> linh thạch. Bằng nhau hoàn toàn -> bản lưu sau.
+export function progressKey(meta) {
+  const s = meta.stats || {};
+  return [meta.realmLevel | 0, +meta.cultivationXp || 0, s.runs | 0, meta.linhThach | 0];
+}
+// local/cloud: { meta, savedAt }. Trả về 'local' | 'cloud' (bản nên giữ).
+export function pickFurther(local, cloud) {
+  if (!cloud || !cloud.meta) return 'local';
+  if (!local || !local.meta) return 'cloud';
+  const a = progressKey(local.meta), b = progressKey(cloud.meta);
+  for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return a[i] > b[i] ? 'local' : 'cloud';
+  return (cloud.savedAt || 0) > (local.savedAt || 0) ? 'cloud' : 'local';
+}
+// Đọc chuỗi save (định dạng wrap v2) -> { meta, savedAt } đã làm sạch, hoặc null nếu hỏng
+export function parseWrapped(raw, ctx) {
+  const p = parse(raw); const v = p.value;
+  if (!v || v.version !== VERSION || !v.meta) return null;
+  return { meta: sanitizeMeta(v.meta, ctx, []), savedAt: +v.savedAt || 0 };
+}
+export const localSavedAt = storage => { const v = parse(storage.getItem(KEYS.V2)).value; return v && +v.savedAt || 0; };

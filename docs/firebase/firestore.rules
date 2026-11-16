@@ -1,0 +1,15 @@
+rules_version = '2';
+// Tu Tiên Lộ — mỗi người chỉ đọc/ghi đúng tài liệu save của mình: saves/{uid}
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /saves/{uid} {
+      allow read, delete: if request.auth != null && request.auth.uid == uid;
+      allow create, update: if request.auth != null && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['save', 'savedAt', 'realm', 'v'])
+        && request.resource.data.save is string
+        && request.resource.data.save.size() < 300000
+        && request.resource.data.realm is int;
+    }
+    match /{document=**} { allow read, write: if false; }
+  }
+}

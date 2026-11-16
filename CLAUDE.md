@@ -16,7 +16,7 @@
 - Giữ gameplay hiện có: 18 bậc, tọa thiền/tụ linh trận, đột phá/lôi kiếp, kiếm khí, quái, beanfx VFX. Refactor có rollback.
 - Hệ thống mục tiêu gồm **meta tu tiên vĩnh viễn** và **run roguelite có EXP/thẻ tạm thời**. Không trộn chúng trong save.
 - **Bảo vệ `localStorage` khóa `tutien_save_v1`**, migrate có backup; không được xóa tiến độ người chơi.
-- Không tự làm multiplayer, login, pay-to-win, quảng cáo, nạp tiền hay paid gacha.
+- Không tự làm multiplayer, pay-to-win, quảng cáo, nạp tiền hay paid gacha. **Đăng nhập (Google/email) + lưu tiến độ lên Firebase: người phát triển duyệt 17/11/2026** — luôn tùy chọn (chơi khách vẫn được), không dùng cho xếp hạng/cạnh tranh khi chưa có xác thực phía máy chủ (`docs/firebase/HUONG_DAN.md`).
 - Test chức năng bằng input thật trong browser nếu có công cụ; không nói đã kiểm thử khi chưa thực sự test.
 - Thay đổi cân bằng ở config; art phải rõ gameplay; đẹp nhưng không đánh đổi lag/telegraph.
 - Mỗi task: cập nhật checklist trong `TASKS_TU_TIEN_LO.md`, ghi test/các lỗi còn lại và handoff mới.

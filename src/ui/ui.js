@@ -286,6 +286,8 @@ export function showSettings(meta, h) {
     <h3>Dữ liệu</h3>
     <p class="sub">Tiến độ lưu trong trình duyệt này. Nên xuất bản sao trước khi xóa dữ liệu trình duyệt.</p>
     <div class="row"><button data-act="export">Xuất save (.json)</button><button data-act="import">Nhập save…</button><input type="file" id="importFile" accept="application/json,.json" hidden></div>
+    <h3>Tài khoản</h3>
+    <div id="acct"></div>
     <h3>Ghi playtest (tùy chọn)</h3>
     <p class="sub">Mặc định tắt. Khi bật, game ghi các mốc chơi (vào bí cảnh, chọn thẻ, boss, kết quả, đột phá…) <b>chỉ trên máy này</b> — không gửi đi đâu, không có tên, email hay IP. Muốn giúp người phát triển: bấm Xuất rồi tự gửi file.</p>
     <label class="opt"><input type="checkbox" id="optPt" ${h.pt.enabled ? 'checked' : ''}> Bật ghi playtest</label>
@@ -324,6 +326,29 @@ export function showSettings(meta, h) {
     m.querySelector('[data-act=feedback]').textContent = ok ? 'Đã sao chép ✓' : 'Chép tay ô bên dưới';
   });
   m.querySelector('[data-act=close]').addEventListener('click', () => { closeModal(); h.onClose(); });
+  // M9: tài khoản (đăng nhập Google/email, lưu lên mây)
+  const box = m.querySelector('#acct');
+  const render = () => {
+    if (!box.isConnected) return;
+    const a = h.acct();
+    if (!a.configured) { box.innerHTML = '<p class="sub">Bản này chưa bật đăng nhập — tiến độ lưu trên máy (dùng Xuất/Nhập save để chuyển máy).</p>'; return; }
+    const st = `<p class="sub" id="acctSt">${esc(a.status || '')}</p>`;
+    if (a.user) {
+      const who = a.user.name ? `${esc(a.user.name)}${a.user.email ? ' · ' + esc(a.user.email) : ''}` : esc(a.user.email || 'tài khoản');
+      box.innerHTML = `<p class="sub">Đang đăng nhập: <b>${who}</b>. Tiến độ tự lưu lên mây; mở game ở máy khác và đăng nhập là chơi tiếp (luôn giữ bản tiến xa hơn, bản kia được sao lưu).</p>${st}
+        <div class="row"><button data-acc="sync" ${a.busy ? 'disabled' : ''}>Đồng bộ ngay</button><button class="ghost" data-acc="out">Đăng xuất</button></div>`;
+    } else {
+      box.innerHTML = `<p class="sub">Đang chơi khách: tiến độ chỉ lưu trên máy này. Đăng nhập để lưu lên mây và chơi trên nhiều máy (tự giữ bản tiến xa hơn, bản kia vẫn được sao lưu).</p>
+        <div class="row"><button data-acc="google" ${a.busy ? 'disabled' : ''}>Đăng nhập bằng Google</button></div>
+        <div class="row"><input id="accEmail" type="email" placeholder="Email" autocomplete="email"><input id="accPass" type="password" placeholder="Mật khẩu (ít nhất 6 ký tự)" autocomplete="current-password"></div>
+        <div class="row"><button data-acc="in" ${a.busy ? 'disabled' : ''}>Đăng nhập</button><button data-acc="up" ${a.busy ? 'disabled' : ''}>Đăng ký</button><button class="ghost" data-acc="reset">Quên mật khẩu</button></div>${st}`;
+    }
+    box.querySelectorAll('[data-acc]').forEach(b => b.addEventListener('click', () => {
+      const em = box.querySelector('#accEmail'), pw = box.querySelector('#accPass');
+      h.onAcct(b.dataset.acc, em ? em.value : '', pw ? pw.value : '');
+    }));
+  };
+  h.acctSubscribe(render); render();
 }
 
 export { fmtTime, evolutionHint };
