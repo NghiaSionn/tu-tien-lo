@@ -353,6 +353,38 @@ export function showSettings(meta, h) {
 
 export { fmtTime, evolutionHint };
 
+// ---------- M9: màn đăng nhập (hiện đầu tiên khi mở game) ----------
+// h: { state(): {status, busy, checking, error}, onAct(act, email, pass) } — act: google | in | up | reset | guest
+const G_ICON = '<svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.6l6.7-6.7C35.6 2.4 30.2 0 24 0 14.6 0 6.6 5.4 2.6 13.2l7.8 6C12.3 13.3 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17.5z"/><path fill="#FBBC05" d="M10.4 28.8c-.5-1.4-.8-3-.8-4.8s.3-3.3.8-4.8l-7.8-6C.9 16.5 0 20.1 0 24s.9 7.5 2.6 10.8l7.8-6z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.8 2.3-8.4 2.3-6.3 0-11.7-3.8-13.6-9.3l-7.8 6C6.6 42.6 14.6 48 24 48z"/></svg>';
+export function showLogin(h) {
+  let el = $('login');
+  if (!el) { el = document.createElement('div'); el.id = 'login'; document.body.appendChild(el); }
+  el.hidden = false;
+  const draw = () => {
+    const s = h.state(), dis = s.busy || s.checking ? 'disabled' : '';
+    el.innerHTML = `<div class="card">
+      <h1>Tu Tiên Lộ</h1><p class="tag">THANH HUYỀN TÔNG</p>
+      ${s.checking ? '<p class="st">Đang kiểm tra đăng nhập…</p>' : `
+      <button class="google" data-a="google" ${dis}>${G_ICON} Đăng nhập bằng Google</button>
+      <div class="or">hoặc email</div>
+      <input id="lgEmail" type="email" placeholder="Email" autocomplete="email" value="${esc(s.email || '')}">
+      <input id="lgPass" type="password" placeholder="Mật khẩu (ít nhất 6 ký tự)" autocomplete="current-password">
+      <div class="two"><button data-a="in" ${dis}>Đăng nhập</button><button data-a="up" ${dis}>Đăng ký</button></div>
+      <button class="link" data-a="reset" ${dis}>Quên mật khẩu?</button>
+      <div class="or">hoặc</div>
+      <button class="guest" data-a="guest" ${dis}>Chơi khách (lưu trên máy này)</button>
+      <p class="st">${esc(s.status || '')}</p>
+      <p class="note">Đăng nhập để lưu tiến độ lên mây và chơi tiếp trên máy khác. Có thể đăng nhập sau trong Cài đặt.</p>`}
+    </div>`;
+    const em = el.querySelector('#lgEmail'), pw = el.querySelector('#lgPass');
+    el.querySelectorAll('[data-a]').forEach(b => b.addEventListener('click', () => h.onAct(b.dataset.a, em ? em.value : '', pw ? pw.value : '')));
+    if (pw) pw.addEventListener('keydown', e => { if (e.key === 'Enter') h.onAct('in', em.value, pw.value); });
+  };
+  draw();
+  return { redraw: draw };
+}
+export function hideLogin() { const el = $('login'); if (el) { el.hidden = true; el.innerHTML = ''; } }
+
 // ================= M4: Luyện Khí, Truyền Thừa Các, Thành Tựu (bảng danh sách đơn giản) =================
 import { ITEMS_DEF, SLOTS, CRAFT, MAX_ITEM_LEVEL } from '../data/items.js';
 import { ACHIEVEMENTS } from '../data/achievements.js';

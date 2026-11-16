@@ -271,7 +271,7 @@ function save() {
 // (không thay giữa bí cảnh/thiên kiếp), bản trên máy chép sang tutien_save_v2_cloud_bak. Bản máy thắng -> đẩy lên mây.
 // Sau đó tự đẩy lên tối đa mỗi 30 s khi có thay đổi, và khi rời trang. Không bao giờ ghi/xóa tutien_save_v1.
 const ACCT = { user: null, status: '', busy: false, dirty: false, lastPush: 0, pending: null, subs: new Set() };
-const acctNotify = () => { for (const f of ACCT.subs) f(); };
+const acctNotify = () => { for (const f of ACCT.subs) f(); if (LOGIN) LOGIN.redraw(); };
 async function cloudSync() {
   const u = ACCT.user; if (!u || ACCT.busy) return;
   ACCT.busy = true; ACCT.status = 'Đang đồng bộ…'; acctNotify();
@@ -305,6 +305,19 @@ function cloudTick() {
       e => { ACCT.dirty = true; ACCT.status = 'Lỗi lưu lên mây: ' + errText(e); acctNotify(); });
   }
 }
+// M9: màn đăng nhập đầu game. Đã đăng nhập sẵn (phiên cũ) -> tự vào; chưa -> chọn Google / email / chơi khách.
+let LOGIN = null;
+const loginState = { checking: true, status: '', email: '' };
+function enterGame() { LOGIN = null; UI.hideLogin(); if (view === 'LOGIN') view = 'HUB'; input.clear(); }
+function openLogin(checking = false) {
+  if (!cloudConfigured()) return;
+  loginState.checking = checking; loginState.status = ''; view = 'LOGIN'; p.med = false;
+  LOGIN = UI.showLogin({ state: () => ({ ...loginState, busy: ACCT.busy, status: loginState.status || ACCT.status }), onAct: async (a, email, pass) => {
+    loginState.email = email;
+    if (a === 'guest') { enterGame(); UI.log('Đang chơi khách — tiến độ lưu trên máy này. Đăng nhập lúc nào cũng được trong Cài đặt.', 'gold'); return; }
+    loginState.status = ''; await onAcct(a, email, pass);
+  } });
+}
 async function onAcct(act, email, pass) {
   if (ACCT.busy && act !== 'out') return;
   const run1 = async (f, okMsg) => { ACCT.busy = true; ACCT.status = 'Đang xử lý…'; acctNotify();
@@ -316,10 +329,6 @@ async function onAcct(act, email, pass) {
   else if (act === 'sync') await cloudSync();
   else if (act === 'out') { if (ACCT.dirty && ACCT.user) { try { await pushSave(ACCT.user.uid, storage.getItem(KEYS.V2), meta.realmLevel); } catch (e) { /* vẫn đăng xuất */ } } await run1(signOutCloud, 'Đã đăng xuất — tiến độ vẫn còn trên máy này.'); }
 }
-if (cloudConfigured()) initCloud(u => {
-  const prev = ACCT.user; ACCT.user = u; ACCT.pending = null; acctNotify();
-  if (u && (!prev || prev.uid !== u.uid)) { UI.log(`Đã đăng nhập: ${u.name || u.email || 'tài khoản'}.`, 'good'); cloudSync(); }
-}).catch(e => { ACCT.status = 'Không tải được đăng nhập: ' + errText(e); acctNotify(); });
 addEventListener('pagehide', () => { if (ACCT.user && ACCT.dirty && !ACCT.pending) pushSave(ACCT.user.uid, storage.getItem(KEYS.V2), meta.realmLevel).catch(() => {}); });
 
 // ---------- người chơi ----------
@@ -1041,6 +1050,16 @@ loreCheck();   // M7-14: save cũ đã qua mốc -> khắc ngay các đoạn tư
 for (const [m, c] of startNotes) UI.log(m, c);
 UI.hubHud(meta, p, trib, false);
 
+if (cloudConfigured()) {
+  openLogin(true);   // màn đăng nhập hiện ngay, chờ Firebase báo phiên cũ
+  initCloud(u => {
+    const prev = ACCT.user; ACCT.user = u; ACCT.pending = null;
+    if (LOGIN) { loginState.checking = false; if (u) enterGame(); }
+    else if (!u && prev && view === 'HUB') openLogin();   // đăng xuất -> về màn đăng nhập
+    acctNotify();
+    if (u && (!prev || prev.uid !== u.uid)) { UI.log(`Đã đăng nhập: ${u.name || u.email || 'tài khoản'}.`, 'good'); cloudSync(); }
+  }).catch(e => { ACCT.status = 'Không kết nối được máy chủ đăng nhập (' + errText(e) + ') — có thể chơi khách.'; loginState.checking = false; acctNotify(); });
+}
 // Gỡ lỗi (console): __game.meta, __game.p, __game.run, __game.view ...
 window.__game = {
   get meta() { return meta; }, get run() { return run; }, get view() { return view; }, get paused() { return paused; },

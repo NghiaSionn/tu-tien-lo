@@ -157,6 +157,30 @@
   }
   @keyframes rot { 40%, 70% { transform: rotate(-90deg); } }
 </style>
+  <style>
+  /* M9: màn đăng nhập — hiện đầu tiên khi mở game (nếu đã bật Firebase) */
+  #login { position: fixed; inset: 0; z-index: 30; display: flex; align-items: center; justify-content: center;
+    background: #0b0816 url(sprites/login_bg.jpg) center / cover no-repeat; font-family: inherit; color: #eee; }
+  #login[hidden] { display: none; }
+  #login::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at center, rgba(10,6,24,.35) 0%, rgba(10,6,24,.82) 75%); }
+  #login .card { position: relative; width: min(23em, 92vw); background: rgba(16, 11, 28, .9); border: 1px solid #b89a54; border-radius: .6em;
+    padding: 1.4em 1.4em 1.1em; box-shadow: 0 10px 40px rgba(0,0,0,.6), 0 0 0 1px rgba(255,217,120,.08) inset; text-align: center; }
+  #login h1 { margin: 0; font-size: 2.3em; letter-spacing: .08em; color: #ffd978; text-shadow: 0 2px 0 #6b4a12, 0 0 18px rgba(255,200,90,.45); }
+  #login .tag { margin: .2em 0 1em; font-size: .85em; opacity: .8; letter-spacing: .1em; }
+  #login button { width: 100%; padding: .65em; margin: .3em 0; border-radius: .35em; border: 1px solid #b89a54; background: #2a1f3d; color: #ffe9b0; font: inherit; cursor: pointer; }
+  #login button:hover:not(:disabled) { background: #3a2b55; }
+  #login button:disabled { opacity: .5; cursor: default; }
+  #login button.google { background: #fff; color: #222; border-color: #fff; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: .5em; }
+  #login button.google:hover:not(:disabled) { background: #eee; }
+  #login button.guest { background: transparent; border-color: rgba(255,255,255,.25); color: #cfc6b0; }
+  #login input { width: 100%; box-sizing: border-box; padding: .6em; margin: .25em 0; border-radius: .35em; border: 1px solid #5a4a7a; background: #120d1f; color: #fff; font: inherit; }
+  #login .two { display: flex; gap: .4em; } #login .two button { flex: 1; }
+  #login .or { display: flex; align-items: center; gap: .6em; margin: .7em 0 .4em; font-size: .8em; opacity: .6; }
+  #login .or::before, #login .or::after { content: ''; flex: 1; height: 1px; background: rgba(255,255,255,.25); }
+  #login .link { background: none; border: none; color: #9fc8ff; width: auto; padding: .2em; font-size: .82em; text-decoration: underline; }
+  #login .st { min-height: 1.3em; margin: .5em 0 0; font-size: .85em; color: #ffd978; }
+  #login .note { font-size: .74em; opacity: .6; margin-top: .6em; line-height: 1.35; }
+  </style>
 </head>
 <body data-mode="hub">
 <div id="wrap">
