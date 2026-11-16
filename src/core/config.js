@@ -79,6 +79,7 @@ export const RUN = {
   REGEN: 0.004,                 // M9-A: 0,005 -> 0,004 (game quá dễ). hồi khí huyết mỗi giây trong run (tỉ lệ khí huyết tối đa)
   SPAWN: { MAX_ALIVE: 90, DIST_MIN: 330, DIST_MAX: 410 },   // ngoài khung nhìn 640×360 (nửa chéo ~367)   // nhịp sinh nằm ở DIRECTOR
   ENEMY: { HP_BASE: 18, HP_TIME: 0.005, DMG_BASE: 3.5, DMG_TIME: 0.002, SPEED: 36, SPEED_TIME: 0.045, REALM_SCALE: 0.9 },   // M9-A: đánh đau + nhanh hơn (cũ DMG 3/0,0016, SPEED 34/0,04, HP_TIME 0,0045)
+  SEPARATION: { R: 11, BOSS_R: 26, PUSH: 70 },   // (17/11) quái đẩy tách nhau: khoảng cách tối thiểu (px), boss chiếm chỗ rộng, tốc độ đẩy tối đa (px/s)
   CHAIN_BUDGET_PER_TICK: 24,    // tổng số lần nhảy sét tối đa mỗi khung (chặn chuỗi vô hạn)
   MAX_PROJECTILES: 220, MAX_ZONES: 40, MAX_ORBS: 300,
   BURN_MAX_DPS_MULT: 1,         // thiêu đốt không cộng dồn: chỉ giữ dps lớn nhất

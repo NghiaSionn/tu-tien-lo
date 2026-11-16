@@ -45,3 +45,13 @@ test('quái ở bên kia hồ vòng qua hồ tới được người chơi', () 
   }
   assert.ok(tested >= 2, 'đã thử ' + tested + ' hồ');
 });
+
+test('quái đông không chồng lên nhau: 30 con sinh cùng chỗ tự dàn ra', () => {
+  const map = makeArenaMap(56, 56, 7), cx = map.cx + 120, cy = map.cy;
+  const ms = Array.from({ length: 30 }, (_, i) => Object.assign(makeMonster(cx + (i % 3) * 0.5, cy, 1, { tier: 0, hp: 10, dmg: 1, speed: 40, aggro: true, xp: 1, ph: i }), { st: 'move' }));
+  const scene = { kind: 'run', map, monsters: ms }, player = { x: map.cx, y: map.cy, dead: false };
+  for (let i = 0; i < 45; i++) updateMonsters(scene, player, 1 / 30, [], { safe: null, onAttack: () => {} });
+  let close = 0;
+  for (let i = 0; i < ms.length; i++) for (let j = i + 1; j < ms.length; j++) if (Math.hypot(ms[i].x - ms[j].x, ms[i].y - ms[j].y) < 4) close++;
+  assert.ok(close <= 3, `${close} cặp còn chồng nhau (< 4 px)`);
+});

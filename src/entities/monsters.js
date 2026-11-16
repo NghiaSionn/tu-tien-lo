@@ -32,6 +32,31 @@ export function spawnHubMonster(scene, player, rng) {
 
 // Sinh quái trong bí cảnh: xem systems/director.js (M2-01)
 
+// (17/11) đẩy tách: quái gần nhau hơn R thì đẩy ra (lưới ô 32 px, O(n)) -> bầy dàn ra, không chồng lên nhau đi thành một cục.
+// Boss chiếm chỗ rộng và không bị quái nhỏ đẩy; đẩy chia theo "khối" (boss nặng).
+const SEP_CELL = 32;
+function separation(ms) {
+  const S = RUN.SEPARATION; if (!S || ms.length < 2) return;
+  const grid = new Map(), key = (cx, cy) => cx * 73856093 ^ cy * 19349663;
+  for (const m of ms) { if (m.dead) continue; m.sx = 0; m.sy = 0; const k = key(Math.floor(m.x / SEP_CELL), Math.floor(m.y / SEP_CELL)); let a = grid.get(k); if (!a) grid.set(k, a = []); a.push(m); }
+  for (const m of ms) {
+    if (m.dead) continue;
+    const cx = Math.floor(m.x / SEP_CELL), cy = Math.floor(m.y / SEP_CELL), rm = m.boss ? S.BOSS_R : S.R;
+    for (let gy = cy - 1; gy <= cy + 1; gy++) for (let gx = cx - 1; gx <= cx + 1; gx++) {
+      const a = grid.get(key(gx, gy)); if (!a) continue;
+      for (const o of a) {
+        if (o === m || o.dead) continue;
+        const r = Math.max(rm, o.boss ? S.BOSS_R : S.R), dx = m.x - o.x, dy = m.y - o.y, d2 = dx * dx + dy * dy;
+        if (d2 >= r * r) continue;
+        if (m.boss && !o.boss) continue;   // boss không bị quái nhỏ đẩy
+        const d = Math.sqrt(d2) || 0.01, f = (1 - d / r);
+        const ux = d2 ? dx / d : Math.cos(m.ph * 9), uy = d2 ? dy / d : Math.sin(m.ph * 9);   // trùng khít: tách theo hướng riêng mỗi con
+        m.sx += ux * f; m.sy += uy * f;
+      }
+    }
+  }
+}
+
 export function moveEntity(map, e, dx, dy, safe, mon = false) {   // mon: quái — bí cảnh cho xuyên cây/đá (map.monStand)
   const stand = mon && map.monStand ? map.monStand : map.canStand;
   const ok = (x, y) => stand(x, y) && !(safe && Math.hypot(x - safe.x, y - safe.y) < safe.r);
@@ -68,6 +93,7 @@ export function updateMonsters(scene, player, dt, ev, opts) {
   const map = scene.map, safe = opts.safe;
   const playerSafe = safe && Math.hypot(player.x - safe.x, player.y - safe.y) < safe.r;
   if (map.updateFlow) map.updateFlow(player.x, player.y);
+  if (scene.kind === 'run') separation(scene.monsters);
   for (const m of scene.monsters) {
     if (m.dead) continue;
     m.hit -= dt; m.atkCd -= dt; m.think -= dt;
@@ -94,7 +120,8 @@ export function updateMonsters(scene, player, dt, ev, opts) {
       const [fx, fy] = map.flowDir(m.x, m.y), s = Math.hypot(m.vx, m.vy);
       if (fx || fy) { m.vx = fx * s; m.vy = fy * s; }
     }
-    moveEntity(map, m, (m.vx * slowF + m.kx) * dt, (m.vy * slowF + m.ky) * dt, safe, true);
+    const P = RUN.SEPARATION && m.sx !== undefined ? RUN.SEPARATION.PUSH : 0, sl = Math.hypot(m.sx || 0, m.sy || 0), sk = sl > 1 ? 1 / sl : 1;   // lực tách (tối đa PUSH px/s)
+    moveEntity(map, m, (m.vx * slowF + m.kx + (m.sx || 0) * sk * P) * dt, (m.vy * slowF + m.ky + (m.sy || 0) * sk * P) * dt, safe, true);
     m.kx *= 0.85; m.ky *= 0.85;
   }
 }
