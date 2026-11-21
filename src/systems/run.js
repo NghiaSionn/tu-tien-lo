@@ -89,15 +89,16 @@ export function updateRun(run, player, dt, ev, realmPowerOverride) {
   updateSkills(ctx, dt);
   updateProjectiles(ctx, dt);
   updateZones(ctx, dt);
-  const onAttack = (m, dmg) => hurtRunPlayer(run, player, dmg, ev, (m.arch || 'chaser') + (m.st === 'move' ? '' : ':' + m.st));
+  const onAttack = (m, dmg, src) => hurtRunPlayer(run, player, dmg, ev, src || (m.arch || 'chaser') + (m.st === 'move' ? '' : ':' + m.st));   // M10-03: nguồn = tên chiêu (SKILL_NAMES)
   const pw = realmPowerOverride ?? power(run.realmLevel);
   const tactics = run.tactics ?? FEATURES.enemyTactics;   // M10-02: cờ theo lượt (test/sim đặt run.tactics), mặc định theo FEATURES
   const io = { map: sc.map, shots: sc.enemyShots, hazards: sc.hazards, ev, onAttack, rng: run.rng, scene: sc,
     summon: (m, n, r) => summonAround(run, player, m.x, m.y, n, r, pw),
     tactics, retry: TACTICS.RETRY, threat: tactics ? threatScan(sc, player, run.diff || 0) : null,
     log: (kind, id) => { const k = kind + ':' + id; run.skillsUsed[k] = (run.skillsUsed[k] || 0) + 1; } };
+  sc.aiThreat = io.threat;   // M10-03: cho lớp debug AI
   updateMonsters(sc, player, dt, ev, { safe: null, onAttack, ai: (m, pl, dx, dy, d, t) => archetypeAI(m, pl, dx, dy, d, t, io) });
-  updateEnemyShots(sc, player, dt, dmg => hurtRunPlayer(run, player, dmg, ev, 'shot'));
+  updateEnemyShots(sc, player, dt, (dmg, s) => hurtRunPlayer(run, player, dmg, ev, (s && s.src) || 'ranged:shot'));
   updateHazards(sc, player, dt, ev, (dmg, h) => hurtRunPlayer(run, player, dmg, ev, h.src || 'boss:zone'));
   if (run.status !== 'RUNNING') return;
   let finalDown = false;

@@ -1,8 +1,8 @@
 // Boss (M2-02): Lang Vương (mini-boss giữa run) và Ma Ảnh Yêu Vương (boss cuối). Máy trạng thái:
 //   move (đuổi, đếm GAP) -> windup (gồng, có cảnh báo) -> [dash ×n] -> recover (sơ hở, nhận thêm sát thương) -> move
 // Chiêu chỉ bắt đầu từ 'move'; boss chết thì không còn gì chạy (run.js dọn vùng/đạn). Chỉ dùng io.rng (seed của run).
-import { BOSS, RUN, HUB_MONSTER as HM, FEATURES } from '../core/config.js';
-import { selectBossSkill } from '../systems/tactics.js';
+import { BOSS, RUN, HUB_MONSTER as HM, TACTICS as TC } from '../core/config.js';
+import { selectBossSkill, keepEscape } from '../systems/tactics.js';
 
 export const bossDef = m => BOSS[m.bossKind];
 
@@ -37,6 +37,15 @@ export function bossAI(m, player, dx, dy, d, dt, io) {
     if (m.stT <= 0) aimDash(m, player, B);
     return true;
   }
+  if (m.st === 'blink') {          // M10-03 (bật cờ): giải kẹt có báo trước — vòng tím ở điểm hiện ra, hết giờ mới dịch chuyển
+    m.vx = m.vy = 0; m.stT -= dt;
+    if (m.stT <= 0) {
+      io.ev.push({ type: 'pulse', x: m.x, y: m.y, r: 30, color: '#d9a8ff' }, { type: 'pulse', x: m.blinkX, y: m.blinkY, r: 30, color: '#d9a8ff' });
+      m.x = m.lastX = m.blinkX; m.y = m.lastY = m.blinkY;
+      m.st = 'move'; m.atkCd = Math.max(m.atkCd || 0, TC.BLINK_GRACE);
+    }
+    return true;
+  }
   if (m.st === 'recover') {
     m.vx = m.vy = 0; m.stT -= dt;
     if (m.stT <= 0) { m.st = 'move'; m.gapT = B.GAP * (m.enraged ? B.ENRAGE_GAP : phase2 ? B.PHASE2_GAP : 1); }
@@ -46,10 +55,11 @@ export function bossAI(m, player, dx, dy, d, dt, io) {
   // move: đuổi; cắn khi sát; hết GAP thì ra chiêu
   m.vx = dx / d * m.speed; m.vy = dy / d * m.speed;
   if (d < HM.ATTACK_RANGE + (m.reach || 6)) { m.vx = m.vy = 0; if (m.atkCd <= 0) { m.atkCd = HM.ATTACK_CD; io.onAttack(m, m.dmg); } }
-  unstick(m, d, dt, io, player);
+  if (unstick(m, d, dt, io, player)) return true;
   m.gapT -= dt;
   if (m.gapT > 0) return true;
   const pat = io.tactics ? selectBossSkill(m, B, d, io, player, phase2) : pickPattern(m, B, d);   // M10-02: chọn theo tình huống khi bật cờ
+  if (!pat) { m.gapT = 0.4; return true; }   // M10-03: chưa có chiêu hợp lệ -> đuổi tiếp, xét lại sau
   m.pat = pat;
   if (io.log) io.log(m.bossKind, pat);   // M10: telemetry chiêu boss (cả AI cũ và mới)
   if (pat === 'dash') { m.dashLeft = B.DASH.COUNT; aimDash(m, player, B); }
@@ -58,11 +68,12 @@ export function bossAI(m, player, dx, dy, d, dt, io) {
     const P = B.REMIX.PRISON;
     windup(m, P.WINDUP);
     m.burstN = P.BURST_N; m.burstA0 = io.rng() * Math.PI * 2 / m.burstN;
-    const a0 = io.rng() * Math.PI * 2;
+    const a0 = io.rng() * Math.PI * 2, zs = [];
     for (let i = 0; i < P.N; i++) {
       const a = a0 + i * Math.PI * 2 / P.N;
-      addHazard(io, B, { x: player.x + Math.cos(a) * P.RING, y: player.y + Math.sin(a) * P.RING, r: P.R, t: P.WINDUP, dmg: m.dmg * P.DMG, owner: m, src: 'boss:prison' });
+      zs.push({ x: player.x + Math.cos(a) * P.RING, y: player.y + Math.sin(a) * P.RING, r: P.R, t: P.WINDUP, dmg: m.dmg * P.DMG, owner: m, src: 'boss:prison' });
     }
+    placeZones(io, B, player, zs, P.WINDUP);
   }
   else if (pat === 'slam') {
     windup(m, B.SLAM.WINDUP);
@@ -72,11 +83,12 @@ export function bossAI(m, player, dx, dy, d, dt, io) {
     m.burstN = phase2 ? B.BURST.N2 : B.BURST.N; m.burstA0 = io.rng() * Math.PI * 2 / m.burstN;
   } else if (pat === 'zones') {
     windup(m, B.ZONES.WINDUP);
-    const n = phase2 ? B.ZONES.N2 : B.ZONES.N;
+    const n = phase2 ? B.ZONES.N2 : B.ZONES.N, zs = [];
     for (let i = 0; i < n; i++) {
       const a = io.rng() * Math.PI * 2, r = i === 0 ? 0 : B.ZONES.SPREAD * (0.5 + io.rng() * 0.6);
-      addHazard(io, B, { x: player.x + Math.cos(a) * r, y: player.y + Math.sin(a) * r, r: B.ZONES.R, t: B.ZONES.WINDUP, dmg: m.dmg * B.ZONES.DMG, owner: m, src: 'boss:zone' });
+      zs.push({ x: player.x + Math.cos(a) * r, y: player.y + Math.sin(a) * r, r: B.ZONES.R, t: B.ZONES.WINDUP, dmg: m.dmg * B.ZONES.DMG, owner: m, src: 'boss:zone' });
     }
+    placeZones(io, B, player, zs, B.ZONES.WINDUP);
   }
   return true;
 }
@@ -114,12 +126,17 @@ function release(m, player, B, io, phase2) {
     for (let i = 0; i < m.burstN; i++) {
       if (io.shots.length >= RUN.MAX_ENEMY_SHOTS) break;
       const a = m.burstA0 + i * Math.PI * 2 / m.burstN;
-      io.shots.push({ x: m.x, y: m.y - 10, vx: Math.cos(a) * B.BURST.SPEED, vy: Math.sin(a) * B.BURST.SPEED, life: B.BURST.LIFE, dmg: m.dmg * B.BURST.DMG, kind: 'dark' });
+      io.shots.push({ x: m.x, y: m.y - 10, vx: Math.cos(a) * B.BURST.SPEED, vy: Math.sin(a) * B.BURST.SPEED, life: B.BURST.LIFE, dmg: m.dmg * B.BURST.DMG, kind: 'dark', src: m.pat === 'prison' ? 'boss:prisonShot' : 'boss:burst' });
     }
   }
   // slam / zones: vùng tự nổ trong run.js (updateHazards) đúng lúc hết gồng
   toRecover(m, B, io);
   return true;
+}
+
+// M10-03 (bật cờ): vùng mới phải chừa lối thoát (tính cả vùng đang có); tắt cờ = đặt hết như cũ
+function placeZones(io, B, player, zs, time) {
+  for (const h of io.tactics ? keepEscape(io.map, player, io.hazards, zs, time) : zs) addHazard(io, B, h);
 }
 
 function addHazard(io, B, h) {
@@ -131,20 +148,26 @@ function addHazard(io, B, h) {
 function unstick(m, d, dt, io, player) {
   const moved = Math.hypot(m.x - m.lastX, m.y - m.lastY);
   m.lastX = m.x; m.lastY = m.y;
-  if (d < 30 || moved > 0.5 * dt * m.speed) { m.stuckT = 0; return; }
+  if (d < 30 || moved > 0.5 * dt * m.speed) { m.stuckT = 0; return false; }
   m.stuckT += dt;
-  if (m.stuckT < BOSS.STUCK_TIME) return;
+  if (m.stuckT < BOSS.STUCK_TIME) return false;
   m.stuckT = 0;
   for (let i = 0; i < 24; i++) {
     const a = io.rng() * Math.PI * 2, r = BOSS.TELEPORT_R;
     const x = player.x + Math.cos(a) * r, y = player.y + Math.sin(a) * r;
     if (io.map.canStand(x, y)) {
+      if (io.tactics) {   // M10-03: báo trước điểm hiện ra (vẽ trong render), chưa dịch chuyển ngay
+        m.st = 'blink'; m.stT = m.stMax = TC.BLINK_WARN; m.blinkX = x; m.blinkY = y; m.vx = m.vy = 0;
+        io.ev.push({ type: 'pulse', x: m.x, y: m.y, r: 24, color: '#d9a8ff' });
+        return true;
+      }
       io.ev.push({ type: 'pulse', x: m.x, y: m.y, r: 30, color: '#d9a8ff' });
       m.x = x; m.y = y; m.lastX = x; m.lastY = y;
       io.ev.push({ type: 'pulse', x, y, r: 30, color: '#d9a8ff' });
-      return;
+      return false;
     }
   }
+  return false;
 }
 
 // Vùng nguy hiểm có cảnh báo: đếm ngược, hết giờ thì nổ một lần

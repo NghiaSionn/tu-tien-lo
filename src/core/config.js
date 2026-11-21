@@ -13,6 +13,7 @@ export const FEATURES = {
   sectHub: true,        // M8: sảnh chờ tông môn (đi tới từng khu thay hàng nút). BẬT mặc định từ 14/11 (người phát triển); false hoặc ?sect=0 = động phủ cũ y hệt
   bossRemix: true,      // M7-13 [GIẢ THUYẾT H7]: mỗi boss thêm 1 chiêu phối từ cảnh báo có sẵn, chỉ từ độ khó BOSS.REMIX_MIN_DIFF. false = như cũ
   lore: true,           // M7-14 [GIẢ THUYẾT H8]: Bia Truyền Thừa (phím L) — mẩu truyện mở theo mốc. false = ẩn nút, không báo
+  aiDebug: false,       // M10-03: lớp debug AI (trạng thái, ý định, điểm khóa, ngân sách đe dọa). Chỉ dev: ?aidebug=1
   enemyTactics: false,  // M10-02: bộ chọn chiêu theo tình huống + ngân sách đe dọa (TACTICS). OFF = AI M9 y nguyên; bật mặc định sau GATE M10-A khi người phát triển duyệt. Thử: ?tactics=1
   rooms: false,         // (17/11) người phát triển quay về đấu trường sinh tồn kiểu Pokémon Survival — giữ code để bật lại. M9-B: bí cảnh nhiều phòng kiểu Soul Knight (sơ đồ ngẫu nhiên theo seed, khóa cửa tới khi dọn phòng, minimap). false = đấu trường sinh tồn cũ
   runVariants: true,    // M7-10 [GIẢ THUYẾT H5]: mỗi lượt bốc ngẫu nhiên (theo seed) một biến thể bí cảnh, báo luật ở màn chuẩn bị. false = luôn Bình thường  // M7-09 [GIẢ THUYẾT H4]: thẻ công pháp mới ghép được tiến hóa với công pháp đang có nặng ×RUN.SYNERGY_MULT. Tắt tới khi playtest    // M7-07 [GIẢ THUYẾT H2]: màn kết quả hiện tối đa 2 mục tiêu meta + nút Tọa thiền/Đột phá/Vào bí cảnh mới. false = như cũ
@@ -182,6 +183,17 @@ export const TACTICS = {
   MAX_SUMMONED: 8,                    // sói do Lang Vương gọi còn sống tối đa (không hú thêm)
   SLAM_RANGE_MULT: 1.6,               // Chấn Địa hợp lệ khi người chơi trong TRIGGER × hệ số
   SKILL_CD: { FINAL: { slam: 6, prison: 9 }, MINI: { howl: 8 } },   // giây (theo tuổi boss): hồi chiêu riêng, chống spam
+  // M10-03: chống chồng đòn bất công
+  BUDGET_DURING_HEAVY: 1,             // khi boss đang gồng chiêu nặng hoặc người chơi đang đứng trong vùng cảnh báo: quái thường chỉ 1 đòn đặc biệt trên màn
+  ESCAPE: { SPEED_MUL: 0.6, DIRS: 12, MARGIN: 4 },   // vùng mới phải chừa lối thoát: điểm an toàn trong tầm đi bộ (tốc độ × thời gian gồng × hệ số)
+  BLINK_WARN: 0.8, BLINK_GRACE: 0.6,  // boss giải kẹt: báo trước điểm hiện ra bấy nhiêu giây; hiện ra xong chưa cắn ngay trong GRACE giây
+};
+
+// M10-03: tên chiêu cho thống kê nguồn sát thương (run.dmgBy) — khóa = nguồn ghi trong run.js
+export const SKILL_NAMES = {
+  chaser: 'Dã Lang cắn', charger: 'Hỏa Hồ cắn', 'charger:dash': 'Hỏa Hồ lao', ranged: 'Huyền Băng Thú cắn', 'ranged:shot': 'Băng tiễn',
+  elite: 'Ma Ảnh cắn', 'elite:slam': 'Ma Ảnh đập đất', miniboss: 'Lang Vương cắn', 'miniboss:dash': 'Lang Vương lao',
+  boss: 'Yêu Vương cắn', 'boss:slam': 'Chấn Địa', 'boss:zone': 'Hắc Diễm', 'boss:prison': 'Ma Ảnh Lao Tù', 'boss:burst': 'Hắc Diễm Đạn', 'boss:prisonShot': 'Đạn Lao Tù',
 };
 
 // ---------- Boss (M2-02) [THỬ NGHIỆM] ----------

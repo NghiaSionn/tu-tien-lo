@@ -1,0 +1,160 @@
+{
+ "realm": 0,
+ "seeds": 10,
+ "builds": {
+  "kiem_loi": {
+   "win": 9,
+   "lose": 1,
+   "timeout": 0,
+   "mini": 10,
+   "seeds": "WWWWWWWLWW",
+   "deathT": [
+    389
+   ],
+   "winT": [
+    410,
+    422,
+    421,
+    418,
+    401,
+    457,
+    416,
+    421,
+    477
+   ]
+  },
+  "phi_kiem_hoa": {
+   "win": 5,
+   "lose": 5,
+   "timeout": 0,
+   "mini": 10,
+   "seeds": "WLLLWWLWWL",
+   "deathT": [
+    397,
+    370,
+    425,
+    313,
+    293
+   ],
+   "winT": [
+    452,
+    434,
+    414,
+    416,
+    400
+   ]
+  },
+  "hoa_phong": {
+   "win": 2,
+   "lose": 8,
+   "timeout": 0,
+   "mini": 9,
+   "seeds": "LLLLLLLWWL",
+   "deathT": [
+    292,
+    350,
+    406,
+    319,
+    248,
+    370,
+    367,
+    336
+   ],
+   "winT": [
+    434,
+    408
+   ]
+  },
+  "loi_the": {
+   "win": 6,
+   "lose": 4,
+   "timeout": 0,
+   "mini": 10,
+   "seeds": "LWWWWLWWLL",
+   "deathT": [
+    373,
+    519,
+    398,
+    508
+   ],
+   "winT": [
+    459,
+    513,
+    505,
+    496,
+    444,
+    495
+   ]
+  },
+  "bang_han": {
+   "win": 9,
+   "lose": 1,
+   "timeout": 0,
+   "mini": 9,
+   "seeds": "WWWWWWLWWW",
+   "deathT": [
+    61
+   ],
+   "winT": [
+    421,
+    424,
+    440,
+    402,
+    416,
+    416,
+    413,
+    426,
+    428
+   ]
+  },
+  "linh_phong": {
+   "win": 3,
+   "lose": 7,
+   "timeout": 0,
+   "mini": 8,
+   "seeds": "LLLWLWWLLL",
+   "deathT": [
+    336,
+    318,
+    283,
+    74,
+    370,
+    375,
+    82
+   ],
+   "winT": [
+    464,
+    454,
+    461
+   ]
+  }
+ },
+ "deathBy": {
+  "boss": 3,
+  "ranged:shot": 6,
+  "chaser": 12,
+  "miniboss:dash": 3,
+  "elite": 2
+ },
+ "total": {
+  "runs": 60,
+  "win": 34,
+  "lose": 26,
+  "timeout": 0
+ },
+ "logicMsPerTick": 0.0967,
+ "dmgShare": {
+  "chaser": 25.6,
+  "ranged:shot": 20.1,
+  "boss": 8.7,
+  "elite": 8.5,
+  "miniboss:dash": 8.3,
+  "charger": 6,
+  "miniboss": 5.5,
+  "boss:burst": 4,
+  "charger:dash": 3.9,
+  "elite:slam": 3.6,
+  "boss:zone": 3.3,
+  "boss:slam": 2.6
+ }
+}

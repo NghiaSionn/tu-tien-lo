@@ -18,10 +18,10 @@ export function archetypeAI(m, player, dx, dy, d, dt, io) {
     if (m.arch === 'charger') { m.st = 'dash'; m.stT = A.DASH_TIME; m.dashHit = false; }
     else if (m.arch === 'ranged') {
       if (io.shots && io.shots.length < RUN.MAX_ENEMY_SHOTS)
-        io.shots.push({ x: m.x, y: m.y - 6, vx: m.dirX * A.SHOT_SPEED, vy: m.dirY * A.SHOT_SPEED, life: A.SHOT_LIFE, dmg: m.dmg * A.SHOT_DMG });
+        io.shots.push({ x: m.x, y: m.y - 6, vx: m.dirX * A.SHOT_SPEED, vy: m.dirY * A.SHOT_SPEED, life: A.SHOT_LIFE, dmg: m.dmg * A.SHOT_DMG, src: 'ranged:shot' });
       m.st = 'move'; m.skCd = A.CD;
     } else if (m.arch === 'elite') {
-      if (Math.hypot(player.x - m.x, player.y - m.y) < A.SLAM_R) io.onAttack(m, m.dmg * A.SLAM_DMG);
+      if (Math.hypot(player.x - m.x, player.y - m.y) < A.SLAM_R) io.onAttack(m, m.dmg * A.SLAM_DMG, 'elite:slam');
       io.ev && io.ev.push({ type: 'boom', x: m.x, y: m.y - 2, r: A.SLAM_R, color: '#c070ff' }, { type: 'shake', t: 0.1 });
       m.st = 'recover'; m.stT = A.RECOVER;
     }
@@ -78,7 +78,7 @@ export function updateEnemyShots(scene, player, dt, onHit) {
     s.x += s.vx * dt; s.y += s.vy * dt; s.life -= dt;
     let gone = s.life <= 0 || scene.map.blocksShot(s.x, s.y + 6);
     if (!gone && !player.dead && Math.hypot(player.x - s.x, (player.y - 7) - s.y) < R) {
-      onHit(s.dmg); gone = true;
+      onHit(s.dmg, s); gone = true;
       if (shots[i] !== s) return;            // trúng đòn chí mạng -> run kết thúc đã dọn mảng đạn
     }
     if (gone) shots.splice(i, 1);
