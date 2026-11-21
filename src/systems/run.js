@@ -3,6 +3,8 @@ import { RUN, PLAYER, BOSS, DIFFICULTY, FEATURES } from '../core/config.js';
 import { mulberry32 } from '../core/rng.js';
 import { makeArenaMap, makeRoomsMap } from '../world/map.js';
 import { createRoomState, updateRoomDirector } from './roomdirector.js';
+import { threatScan } from './tactics.js';
+import { TACTICS } from '../core/config.js';
 import { power, atk, maxHp } from '../progression/realm.js';
 import { addRunXp } from '../progression/runxp.js';
 import { updateMonsters, reapMonsters } from '../entities/monsters.js';
@@ -25,7 +27,8 @@ export function createRun({ seed, startSkill, realmLevel, difficulty = 0, unlock
     passives: {}, evolutions: [], kills: 0, damageTaken: 0, dmgBy: {}, dir: createDirector(), outcome: null,
     rerolls: FEATURES.draftReroll ? RUN.REROLLS : 0, rerollsUsed: 0,   // M7-09
     variant: variantOf(variant) === variantOf('thuong') && variant !== 'thuong' ? 'thuong' : variant,   // M7-10 (id lạ -> Bình thường)
-    rewards: [],                 // M2-02 reward hook: { kind: 'MINI' | 'FINAL', t } — M2-03 trao thưởng một lần
+    rewards: [], skillsUsed: {},   // M10-02: đếm chiêu boss đã dùng (telemetry)
+                    // M2-02 reward hook: { kind: 'MINI' | 'FINAL', t } — M2-03 trao thưởng một lần
     realmLevel, baseMaxHp: maxHp(realmLevel), hp: 0, maxHp: 0,
   };
   if (vmod(run, 'eliteFirst', null) != null) run.dir.eliteT = vmod(run, 'eliteFirst');
@@ -88,8 +91,11 @@ export function updateRun(run, player, dt, ev, realmPowerOverride) {
   updateZones(ctx, dt);
   const onAttack = (m, dmg) => hurtRunPlayer(run, player, dmg, ev, (m.arch || 'chaser') + (m.st === 'move' ? '' : ':' + m.st));
   const pw = realmPowerOverride ?? power(run.realmLevel);
-  const io = { map: sc.map, shots: sc.enemyShots, hazards: sc.hazards, ev, onAttack, rng: run.rng,
-    summon: (m, n, r) => summonAround(run, player, m.x, m.y, n, r, pw) };
+  const tactics = run.tactics ?? FEATURES.enemyTactics;   // M10-02: cờ theo lượt (test/sim đặt run.tactics), mặc định theo FEATURES
+  const io = { map: sc.map, shots: sc.enemyShots, hazards: sc.hazards, ev, onAttack, rng: run.rng, scene: sc,
+    summon: (m, n, r) => summonAround(run, player, m.x, m.y, n, r, pw),
+    tactics, retry: TACTICS.RETRY, threat: tactics ? threatScan(sc, player, run.diff || 0) : null,
+    log: (kind, id) => { const k = kind + ':' + id; run.skillsUsed[k] = (run.skillsUsed[k] || 0) + 1; } };
   updateMonsters(sc, player, dt, ev, { safe: null, onAttack, ai: (m, pl, dx, dy, d, t) => archetypeAI(m, pl, dx, dy, d, t, io) });
   updateEnemyShots(sc, player, dt, dmg => hurtRunPlayer(run, player, dmg, ev, 'shot'));
   updateHazards(sc, player, dt, ev, (dmg, h) => hurtRunPlayer(run, player, dmg, ev, h.src || 'boss:zone'));

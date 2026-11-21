@@ -1,7 +1,8 @@
 // Boss (M2-02): Lang Vương (mini-boss giữa run) và Ma Ảnh Yêu Vương (boss cuối). Máy trạng thái:
 //   move (đuổi, đếm GAP) -> windup (gồng, có cảnh báo) -> [dash ×n] -> recover (sơ hở, nhận thêm sát thương) -> move
 // Chiêu chỉ bắt đầu từ 'move'; boss chết thì không còn gì chạy (run.js dọn vùng/đạn). Chỉ dùng io.rng (seed của run).
-import { BOSS, RUN, HUB_MONSTER as HM } from '../core/config.js';
+import { BOSS, RUN, HUB_MONSTER as HM, FEATURES } from '../core/config.js';
+import { selectBossSkill } from '../systems/tactics.js';
 
 export const bossDef = m => BOSS[m.bossKind];
 
@@ -48,8 +49,9 @@ export function bossAI(m, player, dx, dy, d, dt, io) {
   unstick(m, d, dt, io, player);
   m.gapT -= dt;
   if (m.gapT > 0) return true;
-  const pat = pickPattern(m, B, d);
+  const pat = io.tactics ? selectBossSkill(m, B, d, io, player, phase2) : pickPattern(m, B, d);   // M10-02: chọn theo tình huống khi bật cờ
   m.pat = pat;
+  if (io.log) io.log(m.bossKind, pat);   // M10: telemetry chiêu boss (cả AI cũ và mới)
   if (pat === 'dash') { m.dashLeft = B.DASH.COUNT; aimDash(m, player, B); }
   else if (pat === 'howl' || pat === 'howlDash') windup(m, B.HOWL.WINDUP);
   else if (pat === 'prison') {   // M7-13 Ma Ảnh Lao Tù: vòng vùng nổ quanh người chơi + đạn thưa khi nổ

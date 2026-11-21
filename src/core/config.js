@@ -13,6 +13,7 @@ export const FEATURES = {
   sectHub: true,        // M8: sảnh chờ tông môn (đi tới từng khu thay hàng nút). BẬT mặc định từ 14/11 (người phát triển); false hoặc ?sect=0 = động phủ cũ y hệt
   bossRemix: true,      // M7-13 [GIẢ THUYẾT H7]: mỗi boss thêm 1 chiêu phối từ cảnh báo có sẵn, chỉ từ độ khó BOSS.REMIX_MIN_DIFF. false = như cũ
   lore: true,           // M7-14 [GIẢ THUYẾT H8]: Bia Truyền Thừa (phím L) — mẩu truyện mở theo mốc. false = ẩn nút, không báo
+  enemyTactics: false,  // M10-02: bộ chọn chiêu theo tình huống + ngân sách đe dọa (TACTICS). OFF = AI M9 y nguyên; bật mặc định sau GATE M10-A khi người phát triển duyệt. Thử: ?tactics=1
   rooms: false,         // (17/11) người phát triển quay về đấu trường sinh tồn kiểu Pokémon Survival — giữ code để bật lại. M9-B: bí cảnh nhiều phòng kiểu Soul Knight (sơ đồ ngẫu nhiên theo seed, khóa cửa tới khi dọn phòng, minimap). false = đấu trường sinh tồn cũ
   runVariants: true,    // M7-10 [GIẢ THUYẾT H5]: mỗi lượt bốc ngẫu nhiên (theo seed) một biến thể bí cảnh, báo luật ở màn chuẩn bị. false = luôn Bình thường  // M7-09 [GIẢ THUYẾT H4]: thẻ công pháp mới ghép được tiến hóa với công pháp đang có nặng ×RUN.SYNERGY_MULT. Tắt tới khi playtest    // M7-07 [GIẢ THUYẾT H2]: màn kết quả hiện tối đa 2 mục tiêu meta + nút Tọa thiền/Đột phá/Vào bí cảnh mới. false = như cũ
 };
@@ -169,6 +170,18 @@ export const ARCH = {
   // tinh anh: trâu, đập đất vùng tròn sau khi gồng (vòng cảnh báo lớn dần)
   elite:   { tier: 3, cost: 8, hp: 10,  dmg: 1.5, speed: 0.9,  xp: 12,
     TRIGGER: 50, WINDUP: 1.0, SLAM_R: 46, SLAM_DMG: 2.2, RECOVER: 0.5, CD: 4.5 },
+};
+
+// ---------- M10-02: AI chiến thuật [THỬ NGHIỆM] (chỉ khi FEATURES.enemyTactics) ----------
+export const TACTICS = {
+  THINK: [0.15, 0.3],                 // giây: nhịp đánh giá so le giữa các con (không đánh giá mỗi khung)
+  BUDGET: { NORMAL: 2, NORMAL_HIGH: 3, BOSS_HEAVY: 1 },   // trong khung nhìn: tối đa đòn đặc biệt quái thường đang gồng/lao (độ khó Huyền+ dùng NORMAL_HIGH), chiêu boss nặng
+  RETRY: 0.35,                        // giây: hết ngân sách -> quái thử gồng lại sau bấy nhiêu
+  HEAVY: { slam: 1, zones: 1, prison: 1, burst: 1, howlDash: 1 },   // chiêu boss tính là "nặng"
+  MAX_REPEAT: 2,                      // boss không dùng một chiêu quá 2 lần liên tiếp
+  MAX_SUMMONED: 8,                    // sói do Lang Vương gọi còn sống tối đa (không hú thêm)
+  SLAM_RANGE_MULT: 1.6,               // Chấn Địa hợp lệ khi người chơi trong TRIGGER × hệ số
+  SKILL_CD: { FINAL: { slam: 6, prison: 9 }, MINI: { howl: 8 } },   // giây (theo tuổi boss): hồi chiêu riêng, chống spam
 };
 
 // ---------- Boss (M2-02) [THỬ NGHIỆM] ----------

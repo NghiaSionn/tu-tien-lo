@@ -123,6 +123,7 @@ function dodge(run, p) {
 export function simulate(buildName, L, seed, maxTime = 720) {
   const b = BUILDS[buildName];
   const run = createRun({ variant: process.env.VARIANT || 'thuong', unlocked: b.unlock || [], seed, startSkill: b.start, realmLevel: L, difficulty: +(process.env.DIFF || 0), mode: ROOMS_MODE ? 'rooms' : 'arena' });
+  if (process.env.TACTICS !== undefined) run.tactics = process.env.TACTICS === '1';   // M10-02: TACTICS=1 bật AI chiến thuật, TACTICS=0 ép tắt
   const p = { x: run.scene.map.cx, y: run.scene.map.cy, fx: 1, fy: 0, inv: 0, dead: false };
   const ev = [], dt = 1 / 30;
   const evoAt = {};
@@ -168,7 +169,7 @@ export function simulate(buildName, L, seed, maxTime = 720) {
   const top = Object.entries(run.dmgBy).sort((a, c) => c[1] - a[1])[0];
   return { build: buildName, L, seed, outcome: run.outcome, time: Math.round(run.time), level: run.level, kills: run.kills, evo: evoAt,
     skills: run.skills.map(s => (s.evolved || s.id) + ':' + s.level).join(' '), dmgBy: run.dmgBy, topDmg: top ? top[0] : '-',
-    bossAt: Object.fromEntries(run.rewards.map(x => [x.kind, x.t])), reward: computeRunReward(run, { realmLevel: L, firstClear: false }) };
+    bossAt: Object.fromEntries(run.rewards.map(x => [x.kind, x.t])), skillsUsed: run.skillsUsed, reward: computeRunReward(run, { realmLevel: L, firstClear: false }) };
 }
 
 const med = a => { if (!a.length) return '-'; const s = [...a].sort((x, y) => x - y); return s[Math.floor(s.length / 2)]; };

@@ -3,6 +3,7 @@
 // Không dùng Math.random: chạy lại cùng seed cho cùng kết quả.
 import { RUN, ARCH, HUB_MONSTER as HM } from '../core/config.js';
 import { bossAI } from './bosses.js';
+import { claimSpecial, thinkTick } from '../systems/tactics.js';
 
 // Trả về true nếu đã tự xử lý vận tốc/tấn công (updateMonsters bỏ qua AI đuổi mặc định).
 // io: { map, onAttack(m, dmg), shots }
@@ -38,17 +39,22 @@ export function archetypeAI(m, player, dx, dy, d, dt, io) {
     return true;
   }
   // st === 'move'
-  const sees = d < 260 && io.map.lineOfSight(m.x, m.y - 6, player.x, player.y - 6);
-  if (m.arch === 'charger' && m.skCd <= 0 && d < A.TRIGGER && d > 24 && sees) return startWindup(m, dx / d, dy / d, A.WINDUP);
-  if (m.arch === 'elite' && m.skCd <= 0 && d < A.TRIGGER) return startWindup(m, 0, 0, A.WINDUP);
+  // M10-02 (bật cờ): chỉ xét ra chiêu theo nhịp so le + phải còn ngân sách đe dọa trên màn; hết thì thử lại sau TACTICS.RETRY
+  const tac = io.tactics, think = !tac || thinkTick(m, dt, io.rng);
+  const may = () => !tac || claimSpecial(io, m, player) || ((m.skCd = io.retry), false);
+  const sees = think && d < 260 && io.map.lineOfSight(m.x, m.y - 6, player.x, player.y - 6);
+  if (m.arch === 'charger' && m.skCd <= 0 && d < A.TRIGGER && d > 24 && sees && may()) return startWindup(m, dx / d, dy / d, A.WINDUP);
+  if (m.arch === 'elite' && think && m.skCd <= 0 && d < A.TRIGGER && may()) return startWindup(m, 0, 0, A.WINDUP);
   if (m.arch === 'ranged') {
     const onScreen = Math.abs(dx) < A.ONSCREEN_X && Math.abs(dy) < A.ONSCREEN_Y;
-    if (m.skCd <= 0 && d < A.FIRE_RANGE && sees && onScreen) {
+    if (m.skCd <= 0 && d < A.FIRE_RANGE && sees && onScreen && may()) {
       const ax = player.x - m.x, ay = (player.y - 6) - (m.y - 6), l = Math.hypot(ax, ay) || 1;
       return startWindup(m, ax / l, ay / l, A.WINDUP);
     }
     let ux = dx / d, uy = dy / d;
-    if (!sees || !onScreen || d > A.KEEP_MAX) { m.vx = ux * m.speed; m.vy = uy * m.speed; }
+    if (think) m.seesP = sees;   // (bật cờ) giữ kết quả nhìn thấy giữa các nhịp suy nghĩ
+    const seen = tac ? m.seesP : sees;
+    if (!seen || !onScreen || d > A.KEEP_MAX) { m.vx = ux * m.speed; m.vy = uy * m.speed; }
     else if (d < A.KEEP_MIN) { m.vx = -ux * m.speed; m.vy = -uy * m.speed; }
     else { const s = m.ph > 3 ? 1 : -1; m.vx = -uy * s * m.speed * 0.5; m.vy = ux * s * m.speed * 0.5; }
     return true;
