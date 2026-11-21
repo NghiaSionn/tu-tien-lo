@@ -1,0 +1,159 @@
+{
+ "realm": 0,
+ "seeds": 10,
+ "builds": {
+  "kiem_loi": {
+   "win": 7,
+   "lose": 3,
+   "timeout": 0,
+   "mini": 8,
+   "seeds": "WLWWWWWLLW",
+   "deathT": [
+    69,
+    403,
+    93
+   ],
+   "winT": [
+    448,
+    415,
+    583,
+    425,
+    435,
+    411,
+    437
+   ]
+  },
+  "phi_kiem_hoa": {
+   "win": 5,
+   "lose": 5,
+   "timeout": 0,
+   "mini": 10,
+   "seeds": "LWLWWLWLLW",
+   "deathT": [
+    366,
+    392,
+    431,
+    280,
+    372
+   ],
+   "winT": [
+    548,
+    427,
+    433,
+    408,
+    414
+   ]
+  },
+  "hoa_phong": {
+   "win": 1,
+   "lose": 9,
+   "timeout": 0,
+   "mini": 10,
+   "seeds": "LLLWLLLLLL",
+   "deathT": [
+    421,
+    316,
+    288,
+    295,
+    293,
+    311,
+    414,
+    430,
+    366
+   ],
+   "winT": [
+    426
+   ]
+  },
+  "loi_the": {
+   "win": 7,
+   "lose": 2,
+   "timeout": 1,
+   "mini": 10,
+   "seeds": "TLWWLWWWWW",
+   "deathT": [
+    472,
+    418
+   ],
+   "winT": [
+    479,
+    503,
+    486,
+    516,
+    464,
+    466,
+    482
+   ]
+  },
+  "bang_han": {
+   "win": 8,
+   "lose": 2,
+   "timeout": 0,
+   "mini": 8,
+   "seeds": "WLWWWWLWWW",
+   "deathT": [
+    262,
+    62
+   ],
+   "winT": [
+    434,
+    429,
+    449,
+    449,
+    414,
+    414,
+    402,
+    427
+   ]
+  },
+  "linh_phong": {
+   "win": 3,
+   "lose": 7,
+   "timeout": 0,
+   "mini": 8,
+   "seeds": "LLLLWLWLLW",
+   "deathT": [
+    371,
+    351,
+    305,
+    367,
+    297,
+    70,
+    75
+   ],
+   "winT": [
+    446,
+    508,
+    443
+   ]
+  }
+ },
+ "deathBy": {
+  "chaser": 12,
+  "boss:slam": 2,
+  "shot": 6,
+  "boss": 2,
+  "miniboss:dash": 5,
+  "charger": 1
+ },
+ "total": {
+  "runs": 60,
+  "win": 31,
+  "lose": 28,
+  "timeout": 1
+ },
+ "logicMsPerTick": 0.0821,
+ "dmgShare": {
+  "chaser": 28.5,
+  "shot": 21,
+  "miniboss:dash": 8.8,
+  "boss:slam": 7.6,
+  "elite": 7.3,
+  "boss": 7,
+  "charger:dash": 6.2,
+  "miniboss": 5.3,
+  "boss:zone": 3.9,
+  "charger": 3,
+  "elite:windup": 1.4
+ }
+}

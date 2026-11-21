@@ -463,6 +463,13 @@ Hướng do ChatGPT đề xuất 17/11, người phát triển duyệt "Làm gam
 
 ---
 
+## M10 — YÊU THÚ DỊ BIẾN & BOSS CHIẾN THUẬT (kế hoạch ChatGPT, `docs/TASKS_M10_ENEMY_AI_TU_TIEN_LO.md`; hai boss đều 2 pha)
+
+- [x] M10-01 Audit/đo baseline (22/11, checkpoint `c63ab01`, không đổi gameplay): `docs/playtest/M10_01_BASELINE.md`. 219/219 test. Sim (`tools/m10_baseline.mjs`): cảnh giới 0 thắng 31/60 (52 %), cảnh giới 9 28/36 (78 %); chết nhiều nhất do Dã Lang cắn, băng tiễn, Lang Vương lao. Browser: p95 6–8 ms tới 87 quái, có khung giật đơn lẻ 160–250 ms. Ảnh 7 kỹ năng cũ `docs/playtest/M10_01_ky_nang_cu.png`. Phát hiện: chưa có ngân sách đe dọa, cảnh báo khó đọc khi đông, Yêu Vương spam đập đất khi đứng sát, chọn chiêu boss xoay vòng cố định, dịch chuyển giải kẹt không cảnh báo.
+- [ ] M10-02 Tactical selector + feature flags — **chờ người phát triển duyệt**.
+
+---
+
 ## M6 — LATER / KHÔNG ĐƯỢC TỰ LÀM (P3)
 
 - [ ] `M6-01` Thêm bí cảnh/biome/boss sau khi build loop được playtest tốt.
