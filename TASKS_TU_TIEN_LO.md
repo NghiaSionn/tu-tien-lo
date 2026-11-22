@@ -476,7 +476,8 @@ Hướng do ChatGPT đề xuất 17/11, người phát triển duyệt "Làm gam
 - [x] M10-08 Director phối bầy có vai trò (22/11): 3 đội hình (packFlank / chargerRanged / eliteFodder, `SQUADS`) xoay vòng 38 s, vừa ngân sách cost, ngoài khung nhìn, nghỉ khi có boss; specialist cap + giới thiệu dần (`SPECIALISTS`); quái thường chỉ được gồng đòn mới nếu người chơi còn lối né 0,5 s (`TACTICS.NEW_ESCAPE_T`). 271/271 test (7 mới; 5.065 lần bắt đầu gồng đều còn lối né). Perf cùng stress: p95 +9,3 % (`tools/m10_perf.mjs`). Sim: Phàm L0 34/60, L9 33/36; Linh L9 9/36; cờ TẮT trùng từng seed. Báo cáo `docs/playtest/M10_08_DIRECTOR.md`.
 - [x] GATE M10-B — người phát triển duyệt 22/11 ("Duyệt, làm M10-09"). Đánh giá "phân biệt loài bằng hành vi" bằng người thật vẫn NOT VERIFIED.
 - [x] M10-09 Lang Vương 2 pha / 5 chiêu (22/11): cờ mới `FEATURES.bossPatternsV2` (mặc định TẮT, `?boss2=1`, `BOSS_V2.MINI`). Thêm Liệt Trảo (quạt khóa hướng) và Vồ Đầu Đàn (dấu đáp dự đoán ≤ 60 px là vùng nổ, có kiểm lối né), chuyển pha 55 % đúng 1 lần + choáng, P2 mở Vồ/Hú Rồi Lao, giới hạn đàn ≤ 8. 278/278 test (7 mới). Sim: Phàm L0 33/60 (hạ Lang Vương 54), L9 32/36, Linh L9 11/36. Video trận đấu NOT VERIFIED. Báo cáo `docs/playtest/M10_09_LANG_VUONG.md`.
-- [ ] M10-10 Ma Ảnh Yêu Vương 2 pha / 7 chiêu — **chờ người phát triển duyệt**.
+- [x] M10-10 Ma Ảnh Yêu Vương 2 pha / 7 chiêu (22/11): chung cờ `bossPatternsV2` (`BOSS_V2.FINAL`), giữ ngưỡng pha cũ 50 %, đúng 1 lần chuyển pha + choáng, cuồng nộ chỉ là trạng thái P2 (không P3); thêm Ảnh Độn (báo điểm hiện, sơ hở), Ma Quang Hoành Tảo (quét nửa vòng, bắt đầu lệch người chơi), Thập Tự Hắc Liệt (2 dải vuông góc, kiểm lối thoát, không chồng Lao Tù); vùng nổ dạng dải dùng chung (`hazardDist`). 286/286 test (8 mới). Sim: Phàm L0 29/60, L9 30/36, Linh L9 10/36. Perf p95 +18,1 % (sát ngưỡng 20 %). Video NOT VERIFIED. Báo cáo `docs/playtest/M10_10_YEU_VUONG.md`.
+- [ ] M10-11 VFX/SFX/UI boss — **chờ người phát triển duyệt**.
 
 ---
 

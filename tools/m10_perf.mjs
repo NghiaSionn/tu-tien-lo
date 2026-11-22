@@ -1,4 +1,4 @@
-// M10-08 / GATE M10-B: đo thời gian xử lý gameplay (logic, không vẽ) mỗi tick — AI cũ (tắt cờ) và AI mới (tactics + skillsV2)
+// M10-08 / GATE M10-B: đo thời gian xử lý gameplay (logic, không vẽ) mỗi tick — AI cũ (tắt cờ) và AI mới (tactics + skillsV2 + bossV2)
 // trên CÙNG kịch bản stress: cùng seed, người chơi bất tử đi vòng cố định tới sau Yêu Vương, chạy xen kẽ nhiều lần để giảm nhiễu.
 // Dùng: node tools/m10_perf.mjs [lặp=3] [seeds=4]
 import { createRun, updateRun } from '../src/systems/run.js';
@@ -6,7 +6,7 @@ import { createRun, updateRun } from '../src/systems/run.js';
 const REPS = +(process.argv[2] || 3), SEEDS = +(process.argv[3] || 4), DT = 1 / 30, SEC = 400;
 
 function one(seed, on) {
-  const r = createRun({ seed, startSkill: 'sword_qi', realmLevel: 0 }); r.tactics = on; r.skillsV2 = on;
+  const r = createRun({ seed, startSkill: 'sword_qi', realmLevel: 0 }); r.tactics = on; r.skillsV2 = on; r.bossV2 = on;   // M10-10: gồm cả boss 2 pha
   const p = { x: r.scene.map.cx, y: r.scene.map.cy, inv: 1, dead: false, fx: 1, fy: 0 };
   const ms = [];
   let mons = 0;

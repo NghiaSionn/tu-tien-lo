@@ -180,11 +180,11 @@ export const TACTICS = {
   THINK: [0.15, 0.3],                 // giây: nhịp đánh giá so le giữa các con (không đánh giá mỗi khung)
   BUDGET: { NORMAL: 2, NORMAL_HIGH: 3, BOSS_HEAVY: 1 },   // trong khung nhìn: tối đa đòn đặc biệt quái thường đang gồng/lao (độ khó Huyền+ dùng NORMAL_HIGH), chiêu boss nặng
   RETRY: 0.35,                        // giây: hết ngân sách -> quái thử gồng lại sau bấy nhiêu
-  HEAVY: { slam: 1, zones: 1, prison: 1, burst: 1, howlDash: 1, leap: 1 },   // chiêu boss tính là "nặng"
+  HEAVY: { slam: 1, zones: 1, prison: 1, burst: 1, howlDash: 1, leap: 1, sweep: 1, cross: 1 },   // chiêu boss tính là "nặng"
   MAX_REPEAT: 2,                      // boss không dùng một chiêu quá 2 lần liên tiếp
   MAX_SUMMONED: 8,                    // sói do Lang Vương gọi còn sống tối đa (không hú thêm)
   SLAM_RANGE_MULT: 1.6,               // Chấn Địa hợp lệ khi người chơi trong TRIGGER × hệ số
-  SKILL_CD: { FINAL: { slam: 6, prison: 9 }, MINI: { howl: 8, claw: 3, leap: 6 } },   // giây (theo tuổi boss): hồi chiêu riêng, chống spam
+  SKILL_CD: { FINAL: { slam: 6, prison: 9, shadow: 8, sweep: 7, cross: 7 }, MINI: { howl: 8, claw: 3, leap: 6 } },   // giây (theo tuổi boss): hồi chiêu riêng, chống spam
   // M10-03: chống chồng đòn bất công
   BUDGET_DURING_HEAVY: 1,             // khi boss đang gồng chiêu nặng hoặc người chơi đang đứng trong vùng cảnh báo: quái thường chỉ 1 đòn đặc biệt trên màn
   ESCAPE: { SPEED_MUL: 0.6, DIRS: 12, MARGIN: 4 },
@@ -270,13 +270,28 @@ export const BOSS_V2 = {
     // Vồ Đầu Đàn: dấu đáp (vùng tròn R) ở vị trí người chơi + vận tốc × LEAD (dự đoán tối đa MAX_LEAD px), gồng WINDUP, bay AIR giây
     LEAP: { MIN_D: 55, MAX_D: 230, LEAD: 0.55, MAX_LEAD: 60, R: 34, WINDUP: 1.0, AIR: 0.35, SYNC: 0.07, DMG: 1.8 },
   },
+  // ---------- M10-10: Ma Ảnh Yêu Vương 2 pha / 7 chiêu (ĐÚNG 2 pha; cuồng nộ cũ chỉ là trạng thái trong P2) ----------
+  // PHASE2 null = giữ ngưỡng hiện có BOSS.FINAL.PHASE2 (không đổi ngưỡng khi chưa duyệt).
+  // P1: Hắc Ám Đạn Trận (burst), Hắc Diễm Truy Sát (zones), Chấn Địa (slam), Lao Tù (prison: chỉ remix, sau PRISON_AFTER giây làm quen).
+  // P2: thêm Ảnh Độn (shadow), Ma Quang Hoành Tảo (sweep), Thập Tự Hắc Liệt (cross).
+  FINAL: {
+    PHASE2: null, STAGGER: 1.2, P2_GAP: 0.8, P2_TEXT: 'Ma Ảnh Yêu Vương hiện chân thân — coi chừng tia quét và thập tự!',
+    PRISON_AFTER: 25, MAX_HAZARDS: 14,
+    // Ảnh Độn: vòng tím báo điểm hiện ra WARN giây (boss đứng yên), cách người chơi MIN_R..MAX_R; hiện ra xong sơ hở, chưa cắn trong GRACE
+    SHADOW: { MIN_R: 95, MAX_R: 140, WARN: 0.9, GRACE: 0.8, TRIES: 16 },
+    // Ma Quang Hoành Tảo: tia dài L quét nửa vòng (ARC) trong TIME giây sau WINDUP; bắt đầu lệch SAFE_START rad khỏi người chơi.
+    // Né: ra khỏi tầm L hoặc sang nửa vòng không bị quét.
+    SWEEP: { WINDUP: 1.1, TIME: 1.4, ARC: 3.1416, L: 180, W: 9, SAFE_START: 1.0, DMG: 1.8 },
+    // Thập Tự Hắc Liệt: hai dải nổ vuông góc (dài 2×LEN, nửa bề rộng W) giao tại vị trí người chơi lúc khóa; 4 góc chéo an toàn
+    CROSS: { WINDUP: 1.4, LEN: 130, W: 14, DMG: 1.8 },
+  },
 };
 
 // M10-03: tên chiêu cho thống kê nguồn sát thương (run.dmgBy) — khóa = nguồn ghi trong run.js
 export const SKILL_NAMES = {
   chaser: 'Dã Lang cắn', charger: 'Hỏa Hồ cắn', 'charger:dash': 'Hỏa Hồ lao', ranged: 'Huyền Băng Thú cắn', 'ranged:shot': 'Băng tiễn',
   elite: 'Ma Ảnh cắn', 'elite:slam': 'Ma Ảnh đập đất', miniboss: 'Lang Vương cắn', 'miniboss:dash': 'Lang Vương lao',
-  boss: 'Yêu Vương cắn', 'boss:slam': 'Chấn Địa', 'boss:zone': 'Hắc Diễm', 'boss:prison': 'Ma Ảnh Lao Tù', 'boss:burst': 'Hắc Diễm Đạn', 'boss:prisonShot': 'Đạn Lao Tù', 'chaser:pounce': 'Dã Lang chồm', 'charger:trail': 'Hỏa Vĩ', 'ranged:fan': 'Tam Băng Tiễn', 'elite:claw': 'Hắc Trảo', 'miniboss:claw': 'Liệt Trảo', 'miniboss:leap': 'Vồ Đầu Đàn',
+  boss: 'Yêu Vương cắn', 'boss:slam': 'Chấn Địa', 'boss:zone': 'Hắc Diễm', 'boss:prison': 'Ma Ảnh Lao Tù', 'boss:burst': 'Hắc Diễm Đạn', 'boss:prisonShot': 'Đạn Lao Tù', 'chaser:pounce': 'Dã Lang chồm', 'charger:trail': 'Hỏa Vĩ', 'ranged:fan': 'Tam Băng Tiễn', 'elite:claw': 'Hắc Trảo', 'miniboss:claw': 'Liệt Trảo', 'miniboss:leap': 'Vồ Đầu Đàn', 'boss:sweep': 'Ma Quang Hoành Tảo', 'boss:cross': 'Thập Tự Hắc Liệt',
 };
 
 // ---------- Boss (M2-02) [THỬ NGHIỆM] ----------

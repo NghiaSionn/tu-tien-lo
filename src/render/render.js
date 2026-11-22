@@ -818,7 +818,8 @@ function drawMonster(ctx, m, time, vis) {
 // Cảnh báo đòn (dưới chân quái, vẽ đúng hình học của vùng/đường trúng). Không nhấp nháy mạnh; phần sáng lấp dần = sắp đánh.
 // Lớp trên (sau cây/sprite): chỉ viền cảnh báo, mờ hơn — để tán cây không che mất vùng nguy hiểm (M2-04, chơi thử)
 function drawTelegraphsTop(ctx, scene) {
-  for (const h of scene.hazards || []) { ctx.globalAlpha = 0.5; pxRing(ctx, h.x, h.y, h.r, Math.max(40, Math.round(h.r * 1.8)), 0, '#ff4a3a', 1, 1); }
+  for (const h of scene.hazards || []) { ctx.globalAlpha = 0.5; if (h.x0 !== undefined) stripOutline(ctx, h, '#ff4a3a', 1); else pxRing(ctx, h.x, h.y, h.r, Math.max(40, Math.round(h.r * 1.8)), 0, '#ff4a3a', 1, 1); }
+  for (const m of scene.monsters) if (!m.dead && m.boss && m.pat === 'sweep' && (m.st === 'windup' || m.st === 'sweep')) { ctx.globalAlpha = 0.6; sweepOutline(ctx, m, '#ff4a3a', 1, 0); }   // M10-10
   for (const m of scene.monsters) {
     if (m.dead || m.st !== 'windup') continue;
     let L = 0;
@@ -884,6 +885,13 @@ function drawTelegraphs(ctx, scene) {
   // vùng nguy hiểm của boss (đập đất, hắc diễm): vòng đỏ đúng bán kính trúng + lấp tím dần tới lúc nổ
   for (const h of scene.hazards || []) {
     const prog = 1 - Math.max(0, h.t) / (h.max || 1);
+    if (h.x0 !== undefined) {   // M10-10 Thập Tự Hắc Liệt: dải chữ nhật, lấp tím từ giữa ra theo bề rộng
+      const ux = h.x1 - h.x0, uy = h.y1 - h.y0, L = Math.hypot(ux, uy) || 1, nx = -uy / L, ny = ux / L, w = h.r * prog;
+      ctx.globalAlpha = 0.22; ctx.fillStyle = '#c070ff'; ctx.beginPath();
+      ctx.moveTo(h.x0 + nx * w, h.y0 + ny * w); ctx.lineTo(h.x1 + nx * w, h.y1 + ny * w); ctx.lineTo(h.x1 - nx * w, h.y1 - ny * w); ctx.lineTo(h.x0 - nx * w, h.y0 - ny * w); ctx.closePath(); ctx.fill();
+      ctx.globalAlpha = 0.9; stripOutline(ctx, h, TG_DARK, 3, -1); stripOutline(ctx, h, '#ff4a3a', 2, 0);
+      ctx.globalAlpha = 1; continue;
+    }
     ctx.globalAlpha = 0.22; ctx.fillStyle = '#c070ff';
     ctx.beginPath(); ctx.arc(h.x, h.y, h.r * prog, 0, 6.283); ctx.fill();
     ctx.globalAlpha = 0.9; tgRing(ctx, h.x, h.y, h.r, Math.max(40, Math.round(h.r * 1.8)), '#ff4a3a', 2, 1);
@@ -891,6 +899,7 @@ function drawTelegraphs(ctx, scene) {
   }
   for (const m of scene.monsters) {
     if (!m.dead && m.st === 'blink') { drawBlinkWarn(ctx, m); continue; }
+    if (!m.dead && m.boss && m.st === 'sweep') { drawSweepBeam(ctx, m); continue; }   // M10-10
     if (m.dead || (m.st !== 'windup' && m.st !== 'rest')) continue;
     if (m.boss) { drawBossTelegraph(ctx, m); continue; }
     if (m.st !== 'windup') continue;
@@ -965,8 +974,46 @@ function drawAIDebug(ctx, scene, camX, camY, p) {
   ctx.globalAlpha = 1; txt(ctx, line, camX + VIEW.W / 2, camY + 40, '#ffe066', 8);   // trên cùng giữa: không đè thanh máu boss
 }
 
+// M10-10: tia Ma Quang đang quét — vùng đã quét mờ, tia sáng dày W
+function drawSweepBeam(ctx, m) {
+  const S = BOSS_V2.FINAL.SWEEP, a = m.swA0 + m.swDir * S.ARC * (m.swK || 0), c = Math.cos(a), s = Math.sin(a);
+  ctx.globalAlpha = 0.6; sweepOutline(ctx, m, '#ff4a3a', 1, 0);
+  ctx.globalAlpha = 0.45; pxLine(ctx, m.x, m.y - 10, m.x + c * S.L, m.y - 10 + s * S.L, '#7a2cff', Math.round(S.W * 1.4));
+  ctx.globalAlpha = 0.95; pxLine(ctx, m.x, m.y - 10, m.x + c * S.L, m.y - 10 + s * S.L, '#f4d8ff', 3);
+  ctx.globalAlpha = 1;
+}
+
+// M10-10: viền dải nổ (2 cạnh dài + 2 đầu)
+function stripOutline(ctx, h, col, size, off = 0) {
+  const ux = h.x1 - h.x0, uy = h.y1 - h.y0, L = Math.hypot(ux, uy) || 1, nx = -uy / L * h.r, ny = ux / L * h.r;
+  pxLine(ctx, h.x0 + nx + off, h.y0 + ny + off, h.x1 + nx + off, h.y1 + ny + off, col, size);
+  pxLine(ctx, h.x0 - nx + off, h.y0 - ny + off, h.x1 - nx + off, h.y1 - ny + off, col, size);
+  pxLine(ctx, h.x0 + nx + off, h.y0 + ny + off, h.x0 - nx + off, h.y0 - ny + off, col, size);
+  pxLine(ctx, h.x1 + nx + off, h.y1 + ny + off, h.x1 - nx + off, h.y1 - ny + off, col, size);
+}
+// M10-10: viền nửa vòng Ma Quang Hoành Tảo (cung + 2 bán kính đầu/cuối)
+function sweepOutline(ctx, m, col, size, off = 0) {
+  const S = BOSS_V2.FINAL.SWEEP, a0 = m.swA0, a1 = m.swA0 + m.swDir * S.ARC, n = 60;
+  ctx.fillStyle = col;
+  for (let i = 0; i <= n; i++) { const a = a0 + (a1 - a0) * i / n; ctx.fillRect(Math.round(m.x + Math.cos(a) * S.L) + off, Math.round(m.y + Math.sin(a) * S.L) + off, size, size); }
+  for (const a of [a0, a1]) pxLine(ctx, m.x + off, m.y + off, m.x + Math.cos(a) * S.L + off, m.y + Math.sin(a) * S.L + off, col, size);
+}
+
 function drawBossTelegraph(ctx, m) {
   const B = BOSS[m.bossKind], prog = m.st === 'rest' ? 0 : 1 - Math.max(0, m.stT) / (m.stMax || 1);
+  if (m.pat === 'sweep') {   // M10-10 Ma Quang Hoành Tảo: nửa vòng sẽ bị quét + mũi tên chiều quét + vạch tia xuất phát
+    const S = BOSS_V2.FINAL.SWEEP;
+    ctx.globalAlpha = 0.14; ctx.fillStyle = '#c070ff';
+    ctx.beginPath(); ctx.moveTo(m.x, m.y); ctx.arc(m.x, m.y, S.L * prog, Math.min(m.swA0, m.swA0 + m.swDir * S.ARC), Math.max(m.swA0, m.swA0 + m.swDir * S.ARC)); ctx.closePath(); ctx.fill();
+    ctx.globalAlpha = 0.9; sweepOutline(ctx, m, TG_DARK, 3, -1); sweepOutline(ctx, m, '#ff4a3a', 1, 0);
+    const am = m.swA0 + m.swDir * 0.35, ar = S.L * 0.6;   // mũi tên nhỏ trên cung cho biết chiều quét
+    ctx.fillStyle = '#ffd978'; ctx.globalAlpha = 0.95;
+    for (let i = 0; i < 6; i++) { const a = m.swA0 + m.swDir * 0.35 * i / 6; ctx.fillRect(Math.round(m.x + Math.cos(a) * ar), Math.round(m.y + Math.sin(a) * ar), 2, 2); }
+    const tx = m.x + Math.cos(am) * ar, ty = m.y + Math.sin(am) * ar, bx = -Math.sin(am) * m.swDir, by = Math.cos(am) * m.swDir;
+    pxLine(ctx, tx, ty, tx - bx * 6 + Math.cos(am) * 4, ty - by * 6 + Math.sin(am) * 4, '#ffd978', 2); pxLine(ctx, tx, ty, tx - bx * 6 - Math.cos(am) * 4, ty - by * 6 - Math.sin(am) * 4, '#ffd978', 2);
+    pxLine(ctx, m.x, m.y - 10, m.x + Math.cos(m.swA0) * S.L, m.y - 10 + Math.sin(m.swA0) * S.L, '#f4d8ff', 1);
+    ctx.globalAlpha = 1; return;
+  }
   if (m.pat === 'claw' && m.st === 'windup') {   // M10-09 Liệt Trảo: quạt lấp tím dần + viền đỏ viền tối, sau lưng trống
     const C = BOSS_V2.MINI.CLAW, a0 = Math.atan2(m.dirY, m.dirX);
     ctx.globalAlpha = 0.25; ctx.fillStyle = '#c070ff';

@@ -99,7 +99,12 @@ function dodge(run, p) {
     if (d < 2) { dx = -p.fy || 1; dy = p.fx; d = Math.hypot(dx, dy) || 1; }   // đứng ngay tâm: chạy ngang hướng đang đi
     vx += dx / d * w; vy += dy / d * w;
   };
-  for (const h of run.scene.hazards) if (Math.hypot(p.x - h.x, p.y - h.y) < h.r + 12) away(h.x, h.y, 4);
+  for (const h of run.scene.hazards) {   // M10-10: dải thập tự -> né khỏi điểm gần nhất trên dải
+    if (h.x0 === undefined) { if (Math.hypot(p.x - h.x, p.y - h.y) < h.r + 12) away(h.x, h.y, 4); continue; }
+    const [d, cx, cy] = segDist(p.x, p.y, h.x0, h.y0, h.x1, h.y1);
+    if (d < h.r + 12) away(cx, cy, 4);
+  }
+  for (const m of run.scene.monsters) if (!m.dead && m.boss && m.pat === 'sweep' && (m.st === 'windup' || m.st === 'sweep') && Math.hypot(p.x - m.x, p.y - m.y) < BOSS_V2.FINAL.SWEEP.L + 16) away(m.x, m.y, 4);   // M10-10: ra khỏi tầm tia
   for (const f of run.scene.fireTrails || []) if (Math.hypot(p.x - f.x, p.y - f.y) < f.r + 10) away(f.x, f.y, 3);   // M10-05: tránh vệt lửa (đang nạp hay đang cháy)
   for (const m of run.scene.monsters) {
     if (m.st !== 'windup' && m.st !== 'dash' && m.st !== 'rest') continue;

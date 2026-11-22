@@ -4,6 +4,13 @@
 import { TACTICS as TC, BOSS, PLAYER, ARCH, WOLF_PACK as WP, ICE_FAN as IF, ELITE_V2 as EV, BOSS_V2 } from '../core/config.js';
 import { inCameraView } from './director.js';
 
+// M10-10: khoảng cách từ điểm tới lõi vùng nổ (tròn: tâm; dải: đoạn x0,y0–x1,y1). Trúng khi < h.r
+export function hazardDist(h, x, y) {
+  if (h.x0 === undefined) return Math.hypot(x - h.x, y - h.y);
+  const vx = h.x1 - h.x0, vy = h.y1 - h.y0, l2 = vx * vx + vy * vy || 1, k = Math.max(0, Math.min(1, ((x - h.x0) * vx + (y - h.y0) * vy) / l2));
+  return Math.hypot(x - h.x0 - vx * k, y - h.y0 - vy * k);
+}
+
 // ---------- ngân sách đe dọa (đầu mỗi tick, run.js gọi) ----------
 // Đếm đòn đặc biệt của quái thường đang gồng/lao trong khung nhìn + chiêu boss nặng đang gồng.
 export function threatScan(scene, player, diff = 0) {
@@ -15,7 +22,7 @@ export function threatScan(scene, player, diff = 0) {
     else normal++;
   }
   // M10-03: boss đang gồng chiêu nặng, hoặc người chơi đang đứng trong vùng sắp nổ -> quái thường chỉ được thêm ít đòn (không dồn vào lúc đang phải né)
-  const onHazard = scene.hazards.some(h => Math.hypot(player.x - h.x, player.y - h.y) < h.r + PLAYER.HITBOX);
+  const onHazard = scene.hazards.some(h => hazardDist(h, player.x, player.y) < h.r + PLAYER.HITBOX);
   let normalCap = diff >= 2 ? TC.BUDGET.NORMAL_HIGH : TC.BUDGET.NORMAL;
   if (bossHeavy > 0 || onHazard) normalCap = Math.min(normalCap, TC.BUDGET_DURING_HEAVY);
   return { normal, bossHeavy, normalCap, onHazard, hazards: scene.hazards.length, shots: scene.enemyShots.length, dangers: dangerShapes(scene, player) };
@@ -41,7 +48,7 @@ export const seg = (m, dx, dy, L, w) => ({ x0: m.x, y0: m.y, x1: m.x + dx * L, y
 export const fanSegs = (m, dx, dy, fan) => (fan ? [0, -IF.SPREAD, IF.SPREAD] : [0]).map(a => { const c = Math.cos(a), s = Math.sin(a); return seg(m, dx * c - dy * s, dx * s + dy * c, 250, ARCH.ranged.SHOT_R + PLAYER.HITBOX); });
 export function dangerShapes(scene, player) {
   const out = [], near = (x, y) => Math.abs(x - player.x) < 320 && Math.abs(y - player.y) < 320;
-  for (const h of scene.hazards) if (near(h.x, h.y)) out.push({ x: h.x, y: h.y, r: h.r + PLAYER.HITBOX });
+  for (const h of scene.hazards) if (near(h.x, h.y)) out.push(h.x0 !== undefined ? { x0: h.x0, y0: h.y0, x1: h.x1, y1: h.y1, w: h.r + PLAYER.HITBOX } : { x: h.x, y: h.y, r: h.r + PLAYER.HITBOX });
   for (const f of scene.fireTrails || []) if (near(f.x, f.y)) out.push({ x: f.x, y: f.y, r: f.r + PLAYER.HITBOX });
   for (const m of scene.monsters) {
     if (m.dead || (m.st !== 'windup' && m.st !== 'dash') || !near(m.x, m.y)) continue;
@@ -80,6 +87,8 @@ export function thinkTick(m, dt, rng) {
 // valid(ctx): có dùng được không; w(ctx): trọng số theo tình huống. ctx: { m, B, d, phase2, remix, io, player }
 // M10-03: chiêu bắn đạn từ thân boss chỉ khi boss trong khung nhìn (không bắn từ ngoài màn)
 const ONCAM = c => !c.io.map || !c.player || inCameraView(c.io.map, c.player, c.m.x, c.m.y, 0);
+const PRISON_ON = c => c.io.hazards.some(h => h.src === 'boss:prison');   // M10-10: Lao Tù và Thập Tự không chồng nhau; đạn tỏa không ra khi Lao Tù đang chờ nổ
+const CROSS_ON = c => c.io.hazards.some(h => h.src === 'boss:cross');
 const SUMMONED = ctx => ctx.io.scene ? ctx.io.scene.monsters.filter(o => o.summoned && !o.dead).length : 0;
 export const BOSS_SKILLS = {
   MINI: [
@@ -94,6 +103,16 @@ export const BOSS_SKILLS = {
     { id: 'claw', valid: c => c.d < BOSS_V2.MINI.CLAW.TRIGGER, w: () => 3.5 },
     { id: 'howlDash', valid: c => c.phase2 && c.remix && SUMMONED(c) + BOSS.MINI.HOWL.N <= TC.MAX_SUMMONED, w: () => 1.2 },
     { id: 'leap', valid: c => c.phase2 && c.d > BOSS_V2.MINI.LEAP.MIN_D && c.d < BOSS_V2.MINI.LEAP.MAX_D, w: () => 2.5 },
+  ],
+  // M10-10 (bossPatternsV2): Yêu Vương 7 chiêu; P1 burst/zones/slam/prison(remix, sau làm quen), P2 thêm shadow/sweep/cross
+  FINAL_V2: [
+    { id: 'burst', valid: c => ONCAM(c) && !PRISON_ON(c), w: c => c.d > 80 ? 2.2 : 1 },
+    { id: 'zones', valid: c => c.io.hazards.length + (c.phase2 ? BOSS.FINAL.ZONES.N2 : BOSS.FINAL.ZONES.N) <= BOSS_V2.FINAL.MAX_HAZARDS, w: c => c.d > 120 ? 2 : 1.2 },
+    { id: 'slam', valid: c => c.d < BOSS.FINAL.SLAM.TRIGGER * TC.SLAM_RANGE_MULT, w: c => c.d < BOSS.FINAL.SLAM.TRIGGER ? 3.5 : 1 },
+    { id: 'prison', valid: c => c.remix && ONCAM(c) && (c.phase2 || (c.m.age || 0) >= BOSS_V2.FINAL.PRISON_AFTER) && !CROSS_ON(c) && c.io.hazards.length + BOSS.FINAL.REMIX.PRISON.N <= BOSS_V2.FINAL.MAX_HAZARDS, w: c => c.phase2 ? 1.6 : 0.7 },
+    { id: 'shadow', valid: c => c.phase2 && (c.d > 150 || c.d < 40), w: c => c.d > 150 ? 2 : 1.2 },
+    { id: 'sweep', valid: c => c.phase2 && ONCAM(c) && c.d < BOSS_V2.FINAL.SWEEP.L - 20, w: c => c.d < 120 ? 2.4 : 1.4 },
+    { id: 'cross', valid: c => c.phase2 && !PRISON_ON(c) && !CROSS_ON(c) && c.io.hazards.length + 2 <= BOSS_V2.FINAL.MAX_HAZARDS, w: c => c.d > 70 ? 2.2 : 1.2 },
   ],
   FINAL: [
     { id: 'burst', valid: c => ONCAM(c), w: c => c.d > 80 ? 2.5 : 1.2 },
@@ -126,7 +145,7 @@ export function selectBossSkill(m, B, d, io, player, phase2) {
 // Có điểm đứng được, ngoài mọi vùng (cũ + mới), trong tầm đi bộ trước khi vùng nổ không? Xét cả đứng yên.
 export function hasEscape(map, player, zones, time) {
   const reach = PLAYER.SPEED * time * TC.ESCAPE.SPEED_MUL, M = PLAYER.HITBOX + TC.ESCAPE.MARGIN;
-  const safe = (x, y) => zones.every(h => Math.hypot(x - h.x, y - h.y) >= h.r + M);
+  const safe = (x, y) => zones.every(h => hazardDist(h, x, y) >= h.r + M);
   if (safe(player.x, player.y)) return true;
   for (const f of [0.5, 1]) for (let i = 0; i < TC.ESCAPE.DIRS; i++) {
     const a = i * Math.PI * 2 / TC.ESCAPE.DIRS, x = player.x + Math.cos(a) * reach * f, y = player.y + Math.sin(a) * reach * f;
