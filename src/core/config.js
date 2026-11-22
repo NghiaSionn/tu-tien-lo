@@ -186,7 +186,8 @@ export const TACTICS = {
   SKILL_CD: { FINAL: { slam: 6, prison: 9 }, MINI: { howl: 8 } },   // giây (theo tuổi boss): hồi chiêu riêng, chống spam
   // M10-03: chống chồng đòn bất công
   BUDGET_DURING_HEAVY: 1,             // khi boss đang gồng chiêu nặng hoặc người chơi đang đứng trong vùng cảnh báo: quái thường chỉ 1 đòn đặc biệt trên màn
-  ESCAPE: { SPEED_MUL: 0.6, DIRS: 12, MARGIN: 4 },   // vùng mới phải chừa lối thoát: điểm an toàn trong tầm đi bộ (tốc độ × thời gian gồng × hệ số)
+  ESCAPE: { SPEED_MUL: 0.6, DIRS: 12, MARGIN: 4 },
+  NEW_ESCAPE_T: 0.5,                  // M10-08: quái thường chỉ được gồng đòn mới nếu người chơi vẫn còn điểm an toàn trong tầm đi bộ bấy nhiêu giây (16 hướng × 2 tầm)   // vùng mới phải chừa lối thoát: điểm an toàn trong tầm đi bộ (tốc độ × thời gian gồng × hệ số)
   BLINK_WARN: 0.8, BLINK_GRACE: 0.6,  // boss giải kẹt: báo trước điểm hiện ra bấy nhiêu giây; hiện ra xong chưa cắn ngay trong GRACE giây
 };
 
@@ -236,6 +237,25 @@ export const ICE_FAN = {
 export const ELITE_V2 = {
   BLINK: { MIN_D: 95, MAX_D: 240, LAND_R: 58, MIN_PLAYER: 44, WARN: 0.7, RECOVER: 0.55, BITE_GRACE: 0.8, CD: 7, TRIES: 12 },
   CLAW: { MIN_DIFF: 1, TRIGGER: 46, R: 54, ARC: 2.1, WINDUP: 0.75, DMG: 1.8, RECOVER: 0.6, CD: 5 },   // ARC rad (~120°) tổng; độ khó Linh trở lên
+};
+
+// ---------- M10-08: Director phối bầy có vai trò [THỬ NGHIỆM] (chỉ khi FEATURES.enemySkillsV2, chế độ đấu trường) ----------
+// Đội hình: cứ EVERY giây (từ FIRST) sinh một đội theo vòng ORDER (chỉ mẫu đã tới mốc `from`), cùng một hướng, ngoài khung nhìn.
+// Đội phải vừa ngân sách cost (budgetAt − cost đang sống); chưa vừa thì giữ chỗ: quái lẻ tạm dừng tới khi đội ra. Có boss thì nghỉ.
+export const SQUADS = {
+  FIRST: 60, EVERY: 38, LEAD: 6, R: 300, BACK: 45, SPREAD: 0.3,   // LEAD: giây trước giờ ra đội đã tạm dừng quái lẻ để dành ngân sách
+  ORDER: ['packFlank', 'chargerRanged', 'eliteFodder'],
+  TEMPLATES: {
+    packFlank:     { from: 40,  units: [['chaser', 4]],                 text: 'Một bầy Dã Lang săn theo đàn!' },
+    chargerRanged: { from: 95,  units: [['charger', 2], ['ranged', 2]], text: 'Hỏa Hồ xông lên, Huyền Băng Thú yểm trợ phía sau!' },
+    eliteFodder:   { from: 130, units: [['elite', 1], ['chaser', 4]],   text: 'Ma Ảnh dẫn bầy Dã Lang!' },
+  },
+};
+// specialist: chỉ một số con mỗi loài được dùng kỹ năng mới (M10-04…07), và chỉ từ mốc INTRO (giới thiệu dần).
+// Gán lúc sinh: còn chỗ (số con "đặc biệt" đang sống < CAP) và đã tới INTRO thì m.spec = true, không thì false (con thường).
+export const SPECIALISTS = {
+  CAP: { chaser: 6, charger: 4, ranged: 3, elite: 2 },
+  INTRO: { chaser: 40, charger: 100, ranged: 150, elite: 130 },   // giây: chồm / Hỏa Vĩ / Tam Băng Tiễn / Ảnh Bộ+Hắc Trảo
 };
 
 // M10-03: tên chiêu cho thống kê nguồn sát thương (run.dmgBy) — khóa = nguồn ghi trong run.js

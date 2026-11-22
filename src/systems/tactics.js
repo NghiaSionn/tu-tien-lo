@@ -1,7 +1,7 @@
 // M10-02: bộ chọn hành vi theo tình huống (tactical selector) + ngân sách đe dọa dùng chung.
 // Chỉ chạy khi FEATURES.enemyTactics bật; tắt = AI M9 y nguyên (xoay vòng ORDER, quái gồng tự do).
 // Tất định: chỉ dùng io.rng (= run.rng). Không pathfinding riêng từng con, quyết định theo nhịp so le.
-import { TACTICS as TC, BOSS, PLAYER } from '../core/config.js';
+import { TACTICS as TC, BOSS, PLAYER, ARCH, WOLF_PACK as WP, ICE_FAN as IF, ELITE_V2 as EV } from '../core/config.js';
 import { inCameraView } from './director.js';
 
 // ---------- ngân sách đe dọa (đầu mỗi tick, run.js gọi) ----------
@@ -18,15 +18,52 @@ export function threatScan(scene, player, diff = 0) {
   const onHazard = scene.hazards.some(h => Math.hypot(player.x - h.x, player.y - h.y) < h.r + PLAYER.HITBOX);
   let normalCap = diff >= 2 ? TC.BUDGET.NORMAL_HIGH : TC.BUDGET.NORMAL;
   if (bossHeavy > 0 || onHazard) normalCap = Math.min(normalCap, TC.BUDGET_DURING_HEAVY);
-  return { normal, bossHeavy, normalCap, onHazard, hazards: scene.hazards.length, shots: scene.enemyShots.length };
+  return { normal, bossHeavy, normalCap, onHazard, hazards: scene.hazards.length, shots: scene.enemyShots.length, dangers: dangerShapes(scene, player) };
 }
 
 // Quái thường được phép bắt đầu gồng đòn đặc biệt không (còn ngân sách trên màn). Nếu được, giữ chỗ ngay.
-export function claimSpecial(io, m, player) {
+// extra: hình nguy hiểm đòn mới sẽ thêm (M10-08) — không được bịt kín mọi lối né của người chơi.
+export function claimSpecial(io, m, player, extra = []) {
   const t = io.threat; if (!t) return true;
-  if (!inCameraView(io.map, player, m.x, m.y, 0)) return true;   // ngoài màn không tính (không bắn từ ngoài màn đã có luật riêng)
-  if (t.normal >= t.normalCap) return false;
-  t.normal++; return true;
+  const inView = inCameraView(io.map, player, m.x, m.y, 0);   // ngân sách chỉ tính trong màn (không bắn từ ngoài màn đã có luật riêng)
+  if (inView && t.normal >= t.normalCap) return false;
+  if (extra.length && t.dangers && !safeWith(io.map, player, t.dangers, extra)) return false;
+  if (t.dangers) for (const s of extra) t.dangers.push(s);
+  if (inView) t.normal++;
+  return true;
+}
+
+// ---------- M10-08: hình nguy hiểm đang hiện cảnh báo (đúng hình học trúng đòn) ----------
+// đoạn {x0,y0,x1,y1,w} hoặc tròn {x,y,r}. Chỉ lấy trong tầm 320 px quanh người chơi.
+const segD = (px, py, s) => { const vx = s.x1 - s.x0, vy = s.y1 - s.y0, l2 = vx * vx + vy * vy || 1, k = Math.max(0, Math.min(1, ((px - s.x0) * vx + (py - s.y0) * vy) / l2)); return Math.hypot(px - s.x0 - vx * k, py - s.y0 - vy * k); };
+const hits = (s, x, y) => s.r !== undefined ? Math.hypot(x - s.x, y - s.y) < s.r : segD(x, y, s) < s.w;
+export const seg = (m, dx, dy, L, w) => ({ x0: m.x, y0: m.y, x1: m.x + dx * L, y1: m.y + dy * L, w });
+export const fanSegs = (m, dx, dy, fan) => (fan ? [0, -IF.SPREAD, IF.SPREAD] : [0]).map(a => { const c = Math.cos(a), s = Math.sin(a); return seg(m, dx * c - dy * s, dx * s + dy * c, 250, ARCH.ranged.SHOT_R + PLAYER.HITBOX); });
+export function dangerShapes(scene, player) {
+  const out = [], near = (x, y) => Math.abs(x - player.x) < 320 && Math.abs(y - player.y) < 320;
+  for (const h of scene.hazards) if (near(h.x, h.y)) out.push({ x: h.x, y: h.y, r: h.r + PLAYER.HITBOX });
+  for (const f of scene.fireTrails || []) if (near(f.x, f.y)) out.push({ x: f.x, y: f.y, r: f.r + PLAYER.HITBOX });
+  for (const m of scene.monsters) {
+    if (m.dead || (m.st !== 'windup' && m.st !== 'dash') || !near(m.x, m.y)) continue;
+    const dash = (sp, time, w) => out.push(seg(m, m.dirX, m.dirY, m.st === 'dash' ? Math.min(sp * time, sp * Math.max(0, m.stT)) : sp * time, w));
+    if (m.arch === 'charger') dash(ARCH.charger.DASH_SPEED, ARCH.charger.DASH_TIME, ARCH.charger.HIT_R + PLAYER.HITBOX);
+    else if (m.arch === 'chaser') dash(WP.POUNCE.SPEED, WP.POUNCE.TIME, WP.POUNCE.HIT_R + PLAYER.HITBOX);
+    else if (m.boss && m.pat === 'dash') dash(BOSS.MINI.DASH.SPEED, BOSS.MINI.DASH.TIME, BOSS.MINI.DASH.HIT_R);
+    else if (m.arch === 'ranged' && m.st === 'windup') out.push(...fanSegs(m, m.dirX, m.dirY, m.fan));
+    else if (m.arch === 'elite' && m.st === 'windup') out.push({ x: m.x, y: m.y, r: (m.sk === 'claw' ? EV.CLAW.R : ARCH.elite.SLAM_R) + PLAYER.HITBOX });
+  }
+  return out;
+}
+// Còn điểm an toàn (đứng được, ngoài mọi hình) trong tầm đi bộ NEW_ESCAPE_T giây không, sau khi thêm `extra`
+export function safeWith(map, player, dangers, extra) {
+  const all = dangers.concat(extra), bad = (x, y) => all.some(s => hits(s, x, y));
+  if (!bad(player.x, player.y)) return true;
+  const reach = PLAYER.SPEED * TC.NEW_ESCAPE_T;
+  for (const f of [0.5, 1]) for (let i = 0; i < 16; i++) {
+    const a = i / 16 * Math.PI * 2, x = player.x + Math.cos(a) * reach * f, y = player.y + Math.sin(a) * reach * f;
+    if ((!map.canStand || map.canStand(x, y)) && !bad(x, y)) return true;
+  }
+  return false;
 }
 
 // Nhịp suy nghĩ so le: true khi tới lượt con này đánh giá chiến thuật

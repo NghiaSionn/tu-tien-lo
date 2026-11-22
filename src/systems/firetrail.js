@@ -5,6 +5,7 @@ import { FOX_TRAIL as F, PLAYER } from '../core/config.js';
 
 // Gọi mỗi tick khi Hỏa Hồ đang lao (st 'dash'). m.trailT / m.trailN đặt lại khi bắt đầu lao.
 export function dropTrail(scene, m, player, dt) {
+  if (m.spec === false) return;   // M10-08: chỉ Hỏa Hồ specialist để lại Hỏa Vĩ
   const trails = scene.fireTrails || (scene.fireTrails = []);
   m.trailT = (m.trailT ?? 0) - dt;
   if (m.trailT > 0) return;

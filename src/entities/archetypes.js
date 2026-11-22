@@ -3,7 +3,7 @@
 // Không dùng Math.random: chạy lại cùng seed cho cùng kết quả.
 import { RUN, ARCH, HUB_MONSTER as HM, WOLF_PACK as WP, ICE_FAN as IF, ELITE_V2 as EV, PLAYER } from '../core/config.js';
 import { bossAI } from './bosses.js';
-import { claimSpecial, thinkTick } from '../systems/tactics.js';
+import { claimSpecial, thinkTick, seg, fanSegs } from '../systems/tactics.js';
 import { inCameraView } from '../systems/director.js';
 import { dropTrail } from '../systems/firetrail.js';
 
@@ -66,28 +66,28 @@ export function archetypeAI(m, player, dx, dy, d, dt, io) {
   // st === 'move'
   // M10-02 (bật cờ): chỉ xét ra chiêu theo nhịp so le + phải còn ngân sách đe dọa trên màn; hết thì thử lại sau TACTICS.RETRY
   const tac = io.tactics, think = !tac || thinkTick(m, dt, io.rng);
-  const may = () => !tac || claimSpecial(io, m, player) || ((m.skCd = io.retry), false);
+  const may = (extra) => !tac || claimSpecial(io, m, player, extra) || ((m.skCd = io.retry), false);   // M10-08: extra = hình đòn sắp gồng (kiểm lối thoát)
   const sees = think && d < 260 && io.map.lineOfSight(m.x, m.y - 6, player.x, player.y - 6);
-  if (m.arch === 'charger' && m.skCd <= 0 && d < A.TRIGGER && d > 24 && sees && may()) return startWindup(m, dx / d, dy / d, A.WINDUP);
-  if (m.arch === 'elite' && io.skillsV2) {   // M10-07: Hắc Trảo / Ảnh Bộ
+  if (m.arch === 'charger' && m.skCd <= 0 && d < A.TRIGGER && d > 24 && sees && may([seg(m, dx / d, dy / d, A.DASH_SPEED * A.DASH_TIME, A.HIT_R + PLAYER.HITBOX)])) return startWindup(m, dx / d, dy / d, A.WINDUP);
+  if (m.arch === 'elite' && io.skillsV2 && m.spec !== false) {   // M10-07: Hắc Trảo / Ảnh Bộ (M10-08: chỉ specialist)
     m.clawCd = (m.clawCd ?? 0) - dt; m.blinkCd = (m.blinkCd ?? EV.BLINK.CD * 0.4) - dt;
     const C = EV.CLAW, B = EV.BLINK;
-    if (think && (io.diff || 0) >= C.MIN_DIFF && m.clawCd <= 0 && m.skCd <= 0 && d < C.TRIGGER && m.lastSk !== 'claw' && may()) {
+    if (think && (io.diff || 0) >= C.MIN_DIFF && m.clawCd <= 0 && m.skCd <= 0 && d < C.TRIGGER && m.lastSk !== 'claw' && may([{ x: m.x, y: m.y, r: C.R + PLAYER.HITBOX }])) {
       m.sk = m.lastSk = 'claw'; return startWindup(m, dx / d, dy / d, C.WINDUP);
     }
-    if (think && m.blinkCd <= 0 && d > B.MIN_D && d < B.MAX_D && sees && may()) {
+    if (think && m.blinkCd <= 0 && d > B.MIN_D && d < B.MAX_D && sees && may([])) {
       const spot = blinkSpot(m, player, io);
       if (spot) { m.blinkCd = B.CD; m.st = 'blink'; m.stT = m.stMax = B.WARN; m.blinkX = spot[0]; m.blinkY = spot[1]; m.vx = m.vy = 0; return true; }
     }
   }
-  if (m.arch === 'elite' && think && m.skCd <= 0 && d < A.TRIGGER && may()) { m.sk = 'slam'; m.lastSk = 'slam'; return startWindup(m, 0, 0, A.WINDUP); }
+  if (m.arch === 'elite' && think && m.skCd <= 0 && d < A.TRIGGER && may([{ x: m.x, y: m.y, r: A.SLAM_R + PLAYER.HITBOX }])) { m.sk = 'slam'; m.lastSk = 'slam'; return startWindup(m, 0, 0, A.WINDUP); }
   if (m.arch === 'ranged') {
     const onScreen = Math.abs(dx) < A.ONSCREEN_X && Math.abs(dy) < A.ONSCREEN_Y;
     if (io.skillsV2) m.fanCd = (m.fanCd ?? IF.CD * 0.5) - dt;
-    if (m.skCd <= 0 && d < A.FIRE_RANGE && sees && onScreen && may()) {
+    if (m.skCd <= 0 && d < A.FIRE_RANGE && sees && onScreen) {
       const ax = player.x - m.x, ay = (player.y - 6) - (m.y - 6), l = Math.hypot(ax, ay) || 1;
-      m.fan = !!io.skillsV2 && d >= IF.MIN_D && m.fanCd <= 0 && fanSlots(io, player) > 0;   // M10-06
-      return startWindup(m, ax / l, ay / l, m.fan ? IF.WINDUP : A.WINDUP);
+      const fan = !!io.skillsV2 && m.spec !== false && d >= IF.MIN_D && m.fanCd <= 0 && fanSlots(io, player) > 0;   // M10-06
+      if (may(fanSegs(m, ax / l, ay / l, fan))) { m.fan = fan; return startWindup(m, ax / l, ay / l, fan ? IF.WINDUP : A.WINDUP); }
     }
     let ux = dx / d, uy = dy / d;
     if (think) m.seesP = sees;   // (bật cờ) giữ kết quả nhìn thấy giữa các nhịp suy nghĩ
@@ -141,7 +141,7 @@ function wolfAI(m, player, dx, dy, d, dt, io) {
   // đã tới sườn: chồm nếu hết hồi chiêu, đúng tầm, thấy người chơi, đàn chưa có con nào đang chồm, còn ngân sách trên màn
   const busy = io.scene && io.scene.packBusy;
   if (m.skCd <= 0 && d < P.TRIGGER && d > P.MIN && !(busy && busy.has(m.packId))
-      && io.map.lineOfSight(m.x, m.y - 6, player.x, player.y - 6) && (!io.threat || claimSpecial(io, m, player))) {
+      && io.map.lineOfSight(m.x, m.y - 6, player.x, player.y - 6) && (!io.threat || claimSpecial(io, m, player, [seg(m, dx / d, dy / d, P.SPEED * P.TIME, P.HIT_R + PLAYER.HITBOX)]))) {
     if (busy) busy.add(m.packId);
     return startWindup(m, dx / d, dy / d, P.WINDUP);
   }

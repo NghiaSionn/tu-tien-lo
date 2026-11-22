@@ -80,7 +80,7 @@ test('Ảnh Bộ không bao giờ hiện ra trên nước/ô không đứng đư
   for (const seed of [3, 7, 11, 19, 23]) {
     const r = createRun({ seed, startSkill: 'sword_qi', realmLevel: 0 }); r.skillsV2 = true; r.scene.monsters.length = 0;
     const map = r.scene.map, p = { x: map.cx, y: map.cy, inv: 1, dead: false };
-    for (let k = 0; k < 6; k++) { const a = k / 6 * 6.283, m = makeRunEnemy(r, 'elite', p.x + Math.cos(a) * 160, p.y + Math.sin(a) * 160, 1); m.blinkCd = 0; }
+    for (let k = 0; k < 6; k++) { const a = k / 6 * 6.283, m = makeRunEnemy(r, 'elite', p.x + Math.cos(a) * 160, p.y + Math.sin(a) * 160, 1); m.blinkCd = 0; m.spec = true; }
     for (let i = 0; i < 30 * 30; i++) {
       const a = i / 120; p.x = map.cx + Math.cos(a) * 150; p.y = map.cy + Math.sin(a) * 110; p.inv = 1;
       const st = new Map(r.scene.monsters.map(m => [m, m.st]));
@@ -136,7 +136,7 @@ test('độ khó Linh: Ma Ảnh dùng đủ 3 kỹ năng (đập đất, Ảnh B
   for (const seed of [31, 32, 33]) {
     const r = createRun({ seed, startSkill: 'sword_qi', realmLevel: 0, difficulty: 1 }); r.skillsV2 = true; r.tactics = true; r.scene.monsters.length = 0;
     const map = r.scene.map, p = { x: map.cx, y: map.cy, inv: 0, dead: false };
-    for (let k = 0; k < 3; k++) { const a = k / 3 * 6.283; makeRunEnemy(r, 'elite', p.x + Math.cos(a) * 150, p.y + Math.sin(a) * 150, 1); }
+    for (let k = 0; k < 3; k++) { const a = k / 3 * 6.283; makeRunEnemy(r, 'elite', p.x + Math.cos(a) * 150, p.y + Math.sin(a) * 150, 1).spec = true; }
     for (let i = 0; i < 30 * 40 && r.status === 'RUNNING'; i++) {
       const a = i / 150; p.x = map.cx + Math.cos(a) * 70; p.y = map.cy + Math.sin(a) * 50; p.inv = 0;
       const st = new Map(r.scene.monsters.map(m => [m, m.st + (m.sk || '')]));

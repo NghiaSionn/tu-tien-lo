@@ -1,0 +1,160 @@
+{
+ "realm": 0,
+ "seeds": 10,
+ "builds": {
+  "kiem_loi": {
+   "win": 10,
+   "lose": 0,
+   "timeout": 0,
+   "mini": 10,
+   "seeds": "WWWWWWWWWW",
+   "deathT": [],
+   "winT": [
+    414,
+    420,
+    425,
+    424,
+    411,
+    431,
+    428,
+    436,
+    406,
+    423
+   ]
+  },
+  "phi_kiem_hoa": {
+   "win": 5,
+   "lose": 5,
+   "timeout": 0,
+   "mini": 10,
+   "seeds": "WLWWLLLLWW",
+   "deathT": [
+    405,
+    426,
+    401,
+    398,
+    369
+   ],
+   "winT": [
+    402,
+    398,
+    427,
+    480,
+    405
+   ]
+  },
+  "hoa_phong": {
+   "win": 4,
+   "lose": 6,
+   "timeout": 0,
+   "mini": 9,
+   "seeds": "WWLLLLWLLW",
+   "deathT": [
+    300,
+    324,
+    404,
+    415,
+    257,
+    388
+   ],
+   "winT": [
+    415,
+    440,
+    484,
+    433
+   ]
+  },
+  "loi_the": {
+   "win": 7,
+   "lose": 3,
+   "timeout": 0,
+   "mini": 10,
+   "seeds": "WWLWWWWWLL",
+   "deathT": [
+    516,
+    532,
+    386
+   ],
+   "winT": [
+    494,
+    492,
+    501,
+    476,
+    489,
+    410,
+    440
+   ]
+  },
+  "bang_han": {
+   "win": 7,
+   "lose": 3,
+   "timeout": 0,
+   "mini": 9,
+   "seeds": "LWWWWLLWWW",
+   "deathT": [
+    400,
+    410,
+    62
+   ],
+   "winT": [
+    434,
+    427,
+    412,
+    415,
+    457,
+    420,
+    435
+   ]
+  },
+  "linh_phong": {
+   "win": 1,
+   "lose": 9,
+   "timeout": 0,
+   "mini": 5,
+   "seeds": "LLLLLLWLLL",
+   "deathT": [
+    308,
+    140,
+    306,
+    336,
+    76,
+    282,
+    336,
+    76,
+    236
+   ],
+   "winT": [
+    433
+   ]
+  }
+ },
+ "deathBy": {
+  "chaser": 18,
+  "ranged:shot": 7,
+  "elite": 1
+ },
+ "total": {
+  "runs": 60,
+  "win": 34,
+  "lose": 26,
+  "timeout": 0
+ },
+ "logicMsPerTick": 0.1075,
+ "dmgShare": {
+  "chaser": 30.7,
+  "ranged:shot": 17.8,
+  "miniboss:dash": 7.6,
+  "elite": 6.2,
+  "charger": 6,
+  "boss": 5.7,
+  "ranged:fan": 5.5,
+  "boss:zone": 5.1,
+  "miniboss": 4.1,
+  "boss:burst": 3.6,
+  "charger:dash": 3.6,
+  "charger:trail": 1.8,
+  "boss:slam": 0.9,
+  "chaser:pounce": 0.8,
+  "elite:slam": 0.6
+ }
+}

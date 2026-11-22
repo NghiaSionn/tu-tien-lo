@@ -107,7 +107,7 @@ test('nhiều Huyền Băng Thú: tối đa MAX_ACTIVE con gồng quạt trong k
   for (const seed of [11, 12]) {
     const r = createRun({ seed, startSkill: 'sword_qi', realmLevel: 0 }); r.skillsV2 = true; r.scene.monsters.length = 0;
     const map = r.scene.map, p = { x: map.cx, y: map.cy, inv: 1, dead: false };
-    for (let k = 0; k < 16; k++) { const a = k / 16 * 6.283; const m = makeRunEnemy(r, 'ranged', p.x + Math.cos(a) * 150, p.y + Math.sin(a) * 110, 1); m.skCd = 0; m.fanCd = 0; }
+    for (let k = 0; k < 16; k++) { const a = k / 16 * 6.283; const m = makeRunEnemy(r, 'ranged', p.x + Math.cos(a) * 150, p.y + Math.sin(a) * 110, 1); m.skCd = 0; m.fanCd = 0; m.spec = true; }   // M10-08: thử cơ chế quạt, bỏ qua trần specialist
     let fans = 0;
     for (let i = 0; i < 30 * 30; i++) {
       p.inv = 1; const before = r.scene.monsters.map(m => m.fan && m.st === 'windup');

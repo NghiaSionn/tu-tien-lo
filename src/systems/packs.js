@@ -51,8 +51,9 @@ function assignRoles(mem, id, player) {
   const press = mem[0];
   if (!busySt(press) && press.st !== 'recover') press.role = 'press';
   // giữ con flank cũ nếu vẫn trong đàn và chưa quá giờ; không thì chọn con rảnh kế tiếp
-  let fl = mem.find(m => m !== press && m.role === 'flank' && (m.flankT || 0) < WP.FLANK_MAX && m.st === 'move');
-  if (!fl) fl = mem.find(m => m !== press && m.st === 'move');
+  // M10-08: chỉ sói specialist (m.spec !== false) được vòng sườn + chồm
+  let fl = mem.find(m => m !== press && m.spec !== false && m.role === 'flank' && (m.flankT || 0) < WP.FLANK_MAX && m.st === 'move');
+  if (!fl) fl = mem.find(m => m !== press && m.spec !== false && m.st === 'move');
   for (const m of mem) {
     if (m === press || busySt(m) || m.st === 'recover') continue;
     if (m === fl) {

@@ -73,7 +73,7 @@ test('đốm lửa vô hại trong thời gian cảnh báo, chỉ cháy sau ARM;
 test('trần toàn màn: nhiều Hỏa Hồ cùng lao không vượt FOX_TRAIL.MAX; kết thúc lượt dọn hết lửa', () => {
   const r = createRun({ seed: 9, startSkill: 'sword_qi', realmLevel: 0 }); r.skillsV2 = true;
   const p = { x: r.scene.map.cx, y: r.scene.map.cy, inv: 1, dead: false };
-  for (let k = 0; k < 14; k++) { const a = k / 14 * 6.283; const m = makeRunEnemy(r, 'charger', p.x + Math.cos(a) * 90, p.y + Math.sin(a) * 90, 1); m.skCd = 0; }
+  for (let k = 0; k < 14; k++) { const a = k / 14 * 6.283; const m = makeRunEnemy(r, 'charger', p.x + Math.cos(a) * 90, p.y + Math.sin(a) * 90, 1); m.skCd = 0; m.spec = true; }   // M10-08: bỏ qua trần specialist
   let peak = 0;
   for (let i = 0; i < 30 * 20; i++) {
     const a = i / 70; p.x = r.scene.map.cx + Math.cos(a) * 60; p.y = r.scene.map.cy + Math.sin(a) * 40; p.inv = 1;
