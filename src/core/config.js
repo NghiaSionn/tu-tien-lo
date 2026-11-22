@@ -230,11 +230,19 @@ export const ICE_FAN = {
   MAX_ACTIVE: 1,     // con đang gồng quạt trong khung nhìn
 };
 
+// ---------- M10-07: Ma Ảnh tinh anh — Ảnh Bộ + Hắc Trảo [THỬ NGHIỆM] (chỉ khi FEATURES.enemySkillsV2) ----------
+// Ảnh Bộ: người chơi ở xa -> vòng tím báo điểm đích WARN giây (Ma Ảnh đứng yên), rồi hiện ra cách người chơi LAND_R px (không sát, ô đứng được),
+// sau đó sơ hở RECOVER giây và chưa cắn ngay. Hắc Trảo (từ độ khó MIN_DIFF): gồng khóa hướng, quét cung ARC trước mặt bán kính R.
+export const ELITE_V2 = {
+  BLINK: { MIN_D: 95, MAX_D: 240, LAND_R: 58, MIN_PLAYER: 44, WARN: 0.7, RECOVER: 0.55, BITE_GRACE: 0.8, CD: 7, TRIES: 12 },
+  CLAW: { MIN_DIFF: 1, TRIGGER: 46, R: 54, ARC: 2.1, WINDUP: 0.75, DMG: 1.8, RECOVER: 0.6, CD: 5 },   // ARC rad (~120°) tổng; độ khó Linh trở lên
+};
+
 // M10-03: tên chiêu cho thống kê nguồn sát thương (run.dmgBy) — khóa = nguồn ghi trong run.js
 export const SKILL_NAMES = {
   chaser: 'Dã Lang cắn', charger: 'Hỏa Hồ cắn', 'charger:dash': 'Hỏa Hồ lao', ranged: 'Huyền Băng Thú cắn', 'ranged:shot': 'Băng tiễn',
   elite: 'Ma Ảnh cắn', 'elite:slam': 'Ma Ảnh đập đất', miniboss: 'Lang Vương cắn', 'miniboss:dash': 'Lang Vương lao',
-  boss: 'Yêu Vương cắn', 'boss:slam': 'Chấn Địa', 'boss:zone': 'Hắc Diễm', 'boss:prison': 'Ma Ảnh Lao Tù', 'boss:burst': 'Hắc Diễm Đạn', 'boss:prisonShot': 'Đạn Lao Tù', 'chaser:pounce': 'Dã Lang chồm', 'charger:trail': 'Hỏa Vĩ', 'ranged:fan': 'Tam Băng Tiễn',
+  boss: 'Yêu Vương cắn', 'boss:slam': 'Chấn Địa', 'boss:zone': 'Hắc Diễm', 'boss:prison': 'Ma Ảnh Lao Tù', 'boss:burst': 'Hắc Diễm Đạn', 'boss:prisonShot': 'Đạn Lao Tù', 'chaser:pounce': 'Dã Lang chồm', 'charger:trail': 'Hỏa Vĩ', 'ranged:fan': 'Tam Băng Tiễn', 'elite:claw': 'Hắc Trảo',
 };
 
 // ---------- Boss (M2-02) [THỬ NGHIỆM] ----------

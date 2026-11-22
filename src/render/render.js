@@ -1,5 +1,5 @@
 // Vẽ một khung: bản đồ, vật thể sắp theo y, yêu thú, người chơi, công pháp, hiệu ứng beanfx và hạt sáng.
-import { VIEW, TILE as T, HUB, FEATURES, ARCH, BOSS, WOLF_PACK, FOX_TRAIL, ICE_FAN, TRIBULATION, SHRINE, BASIC_ATTACK } from '../core/config.js';
+import { VIEW, TILE as T, HUB, FEATURES, ARCH, BOSS, WOLF_PACK, FOX_TRAIL, ICE_FAN, ELITE_V2, TRIBULATION, SHRINE, BASIC_ATTACK } from '../core/config.js';
 import { GRASS, WATER, STONE, TREE, ROCK, BUILDING, FENCE, DIRT, CLIFF, CLOUD, FALL } from '../world/map.js';
 import { SPR, TIERS, BOSS_WHITE, BOSS_SPR, grassTiles, waterTiles, waterBank, stoneTile, treeSprs, rockSpr, hash } from './sprites.js';
 import { createFx } from '../../lib/beanfx.js';
@@ -825,6 +825,7 @@ function drawTelegraphsTop(ctx, scene) {
     if (m.arch === 'charger') L = ARCH.charger.DASH_SPEED * ARCH.charger.DASH_TIME;
     else if (m.arch === 'chaser') L = WOLF_PACK.POUNCE.SPEED * WOLF_PACK.POUNCE.TIME;   // M10-04: sói chồm
     else if (m.boss && m.pat === 'dash') L = BOSS.MINI.DASH.SPEED * BOSS.MINI.DASH.TIME;
+    else if (m.arch === 'elite' && m.sk === 'claw') { ctx.globalAlpha = 0.5; clawOutline(ctx, m, '#ff4a3a', 1); }   // M10-07
     else if (m.arch === 'elite') { ctx.globalAlpha = 0.5; pxRing(ctx, m.x, m.y, ARCH.elite.SLAM_R, 60, 0, '#ff4a3a', 1, 1); }
     else if (m.boss && m.pat === 'howlDash') {   // M7-13: hú rồi lao — viền lớp trên để thân boss ×2 / tán cây không che
       const prog = 1 - Math.max(0, m.stT) / (m.stMax || 1);
@@ -838,6 +839,14 @@ function drawTelegraphsTop(ctx, scene) {
   for (const f of scene.fireTrails || []) { ctx.globalAlpha = 0.4 * Math.min(1, (f.life - f.t) / FOX_TRAIL.FADE); pxRing(ctx, f.x, f.y, f.r, 24, 0, '#ff4a3a', 1, 0.6); }   // M10-05: viền vệt lửa không bị tán cây che
   for (const m of scene.monsters) if (!m.dead && m.st === 'blink') { ctx.globalAlpha = 0.8; pxRing(ctx, m.blinkX, m.blinkY, 22, 60, 0, '#d9a8ff', 1, 0.6); }
   ctx.globalAlpha = 1;
+}
+
+// M10-07: viền hình quạt Hắc Trảo (cung + hai cạnh) theo hướng đã khóa
+function clawOutline(ctx, m, col, size, off = 0) {
+  const C = ELITE_V2.CLAW, a0 = Math.atan2(m.dirY, m.dirX), n = 36;
+  ctx.fillStyle = col;
+  for (let i = 0; i <= n; i++) { const a = a0 - C.ARC / 2 + C.ARC * i / n; ctx.fillRect(Math.round(m.x + Math.cos(a) * C.R) + off, Math.round(m.y + Math.sin(a) * C.R) + off, size, size); }
+  for (const s of [-1, 1]) { const a = a0 + s * C.ARC / 2; pxLine(ctx, m.x + off, m.y + off, m.x + Math.cos(a) * C.R + off, m.y + Math.sin(a) * C.R + off, col, size); }
 }
 
 // M10-06: các hướng bắn của Huyền Băng Thú đang gồng (1 hoặc 3 tia)
@@ -897,6 +906,11 @@ function drawTelegraphs(ctx, scene) {
         ctx.globalAlpha = 0.95; pxLine(ctx, x0, y0, x0 + dx * L * prog, y0 + dy * L * prog, '#e8fbff', 1);
       }
       ctx.fillStyle = '#e8fbff'; const g = 1 + Math.round(prog * 2); ctx.fillRect(Math.round(x0) - g, Math.round(y0) - g, g * 2, g * 2);
+    } else if (m.arch === 'elite' && m.sk === 'claw') {   // M10-07: Hắc Trảo — hình quạt trước mặt, lấp tím dần, viền đỏ viền tối
+      const C = ELITE_V2.CLAW, a0 = Math.atan2(m.dirY, m.dirX);
+      ctx.globalAlpha = 0.25; ctx.fillStyle = '#c070ff';
+      ctx.beginPath(); ctx.moveTo(m.x, m.y); ctx.arc(m.x, m.y, C.R * prog, a0 - C.ARC / 2, a0 + C.ARC / 2); ctx.closePath(); ctx.fill();
+      ctx.globalAlpha = 0.9; clawOutline(ctx, m, TG_DARK, 3, -1); clawOutline(ctx, m, '#ff4a3a', 1);
     } else if (m.arch === 'elite') {
       ctx.globalAlpha = 0.25; ctx.fillStyle = '#c070ff';
       ctx.beginPath(); ctx.arc(m.x, m.y, A.SLAM_R * prog, 0, 6.283); ctx.fill();
@@ -923,6 +937,7 @@ function drawAIDebug(ctx, scene, camX, camY, p) {
     if (m.st !== 'windup' && m.st !== 'dash' && m.st !== 'rest') return null;
     const A = m.boss ? BOSS[m.bossKind].DASH : ARCH[m.arch];
     if ((m.arch === 'charger' || (m.boss && m.pat === 'dash')) && A) { const L = (A.DASH_SPEED || A.SPEED) * (A.DASH_TIME || A.TIME); return [m.x + m.dirX * L, m.y + m.dirY * L]; }
+    if (m.arch === 'elite' && m.sk === 'claw') return [m.x + m.dirX * ELITE_V2.CLAW.R, m.y + m.dirY * ELITE_V2.CLAW.R];
     if (m.arch === 'ranged') { const R = ARCH.ranged; return [m.x + m.dirX * R.SHOT_SPEED * R.SHOT_LIFE * 0.6, m.y + m.dirY * R.SHOT_SPEED * R.SHOT_LIFE * 0.6]; }
     return null;
   };

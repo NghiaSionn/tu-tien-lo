@@ -472,7 +472,8 @@ Hướng do ChatGPT đề xuất 17/11, người phát triển duyệt "Làm gam
 - [x] M10-04 Dã Lang săn theo đàn (22/11): cờ mới `FEATURES.enemySkillsV2` (mặc định TẮT, `?skills2=1`), `src/systems/packs.js` gom đàn + phân vai áp sát/vòng sườn, chồm có gồng 0,6 s khóa hướng, ≤ 1 con chồm mỗi đàn, hồ chắn thì đi như sói thường. 245/245 test (7 mới). Sim (tactics+skills2): L0 27/60, L9 29/36; cờ TẮT trùng từng seed M10-01. Tru Bầy chưa làm. Báo cáo `docs/playtest/M10_04_DA_LANG.md`.
 - [x] M10-05 Hỏa Hồ — Hỏa Vĩ (22/11): vệt lửa sau cú lao (`src/systems/firetrail.js`, `FOX_TRAIL`), cảnh báo 0,4 s, không sinh trong 29 px quanh người chơi, trần 7/cú lao và 36/màn, dính tối đa 1 lần/0,6 s, hết 2,4 s xóa sạch; chung cờ `enemySkillsV2`. Bot sim nay né chồm + lửa (số M10-04 27/60 là do bot chưa né chồm). 250/250 test (5 mới). Sim: L0 35/60, L9 28/36; cờ TẮT trùng từng seed. Giả Động Tác chưa làm. Báo cáo `docs/playtest/M10_05_HOA_HO.md`.
 - [x] M10-06 Huyền Băng Thú — Tam Băng Tiễn (22/11): quạt 3 tiễn ±19° khi người chơi ≥ 120 px, gồng 0,85 s vẽ đủ 3 đường, hồi chiêu 6 s/con, tối đa 1 con gồng quạt trong khung nhìn, cây/đá chặn, không vượt trần đạn; chung cờ `enemySkillsV2` (`ICE_FAN`). 257/257 test (7 mới). Sim: L0 31/60, L9 26/36; cờ TẮT trùng từng seed. Băng Ấn chưa làm. Báo cáo `docs/playtest/M10_06_HUYEN_BANG.md`.
-- [ ] M10-07 Ma Ảnh tinh anh đột kích — **chờ người phát triển duyệt**.
+- [x] M10-07 Ma Ảnh tinh anh — Ảnh Bộ + Hắc Trảo (22/11): Ảnh Bộ báo đích 0,7 s, hiện ra ô đứng được ≥ 44 px khỏi người chơi, sơ hở 0,55 s, không đánh trong 1,35 s, hồi 7 s; Hắc Trảo (từ độ khó Linh) quạt 120° r54 gồng 0,75 s khóa hướng, luân phiên với đập đất; chung cờ `enemySkillsV2` (`ELITE_V2`). 264/264 test (7 mới). Sim: Phàm L0 30/60, L9 25/36; Linh L9 8/36 (tắt cờ 13/36); cờ TẮT trùng từng seed. Báo cáo `docs/playtest/M10_07_MA_ANH.md`.
+- [ ] M10-08 Director phối bầy có vai trò (sau đó GATE M10-B) — **chờ người phát triển duyệt**.
 
 ---
 

@@ -1,7 +1,7 @@
 // Hành vi kiểu quái trong bí cảnh (M2-01). Mọi đòn nguy hiểm đều có pha gồng (st = 'windup') để renderer vẽ cảnh báo
 // trước khi đánh; hướng/vùng đòn khóa lúc bắt đầu gồng nên người chơi né được bằng cách rời khỏi đường/vùng đó.
 // Không dùng Math.random: chạy lại cùng seed cho cùng kết quả.
-import { RUN, ARCH, HUB_MONSTER as HM, WOLF_PACK as WP, ICE_FAN as IF } from '../core/config.js';
+import { RUN, ARCH, HUB_MONSTER as HM, WOLF_PACK as WP, ICE_FAN as IF, ELITE_V2 as EV, PLAYER } from '../core/config.js';
 import { bossAI } from './bosses.js';
 import { claimSpecial, thinkTick } from '../systems/tactics.js';
 import { inCameraView } from '../systems/director.js';
@@ -30,10 +30,14 @@ export function archetypeAI(m, player, dx, dy, d, dt, io) {
       } else if (io.shots && io.shots.length < RUN.MAX_ENEMY_SHOTS)
         io.shots.push({ x: m.x, y: m.y - 6, vx: m.dirX * A.SHOT_SPEED, vy: m.dirY * A.SHOT_SPEED, life: A.SHOT_LIFE, dmg: m.dmg * A.SHOT_DMG, src: 'ranged:shot' });
       m.st = 'move'; m.skCd = A.CD;
+    } else if (m.arch === 'elite' && m.sk === 'claw') {   // M10-07: Hắc Trảo — cung trước mặt theo hướng đã khóa
+      if (inClaw(m, player)) io.onAttack(m, m.dmg * EV.CLAW.DMG, 'elite:claw');
+      io.ev && io.ev.push({ type: 'shake', t: 0.08 });
+      m.sk = null; m.clawCd = EV.CLAW.CD; m.st = 'recover'; m.stT = EV.CLAW.RECOVER;
     } else if (m.arch === 'elite') {
       if (Math.hypot(player.x - m.x, player.y - m.y) < A.SLAM_R) io.onAttack(m, m.dmg * A.SLAM_DMG, 'elite:slam');
       io.ev && io.ev.push({ type: 'boom', x: m.x, y: m.y - 2, r: A.SLAM_R, color: '#c070ff' }, { type: 'shake', t: 0.1 });
-      m.st = 'recover'; m.stT = A.RECOVER;
+      m.sk = null; m.st = 'recover'; m.stT = A.RECOVER;
     }
     return true;
   }
@@ -44,9 +48,19 @@ export function archetypeAI(m, player, dx, dy, d, dt, io) {
     if (m.stT <= 0) { m.st = 'recover'; m.stT = A.RECOVER; }
     return true;
   }
+  if (m.st === 'blink') {   // M10-07: Ảnh Bộ — đứng yên trong lúc vòng tím báo điểm đích, hết giờ mới hiện ra
+    m.vx = m.vy = 0; m.stT -= dt;
+    if (m.stT <= 0) {
+      io.ev && io.ev.push({ type: 'pulse', x: m.x, y: m.y, r: 22, color: '#d9a8ff' }, { type: 'pulse', x: m.blinkX, y: m.blinkY, r: 22, color: '#d9a8ff' });
+      m.x = m.blinkX; m.y = m.blinkY;
+      m.st = 'recover'; m.stT = EV.BLINK.RECOVER; m.blinkRec = true;
+      m.atkCd = Math.max(m.atkCd || 0, EV.BLINK.RECOVER + EV.BLINK.BITE_GRACE);
+    }
+    return true;
+  }
   if (m.st === 'recover') {
     m.vx = m.vy = 0; m.stT -= dt;
-    if (m.stT <= 0) { m.st = 'move'; m.skCd = A.CD; }
+    if (m.stT <= 0) { m.st = 'move'; m.skCd = m.blinkRec ? Math.max(m.skCd, EV.BLINK.BITE_GRACE) : A.CD; m.blinkRec = false; }
     return true;
   }
   // st === 'move'
@@ -55,7 +69,18 @@ export function archetypeAI(m, player, dx, dy, d, dt, io) {
   const may = () => !tac || claimSpecial(io, m, player) || ((m.skCd = io.retry), false);
   const sees = think && d < 260 && io.map.lineOfSight(m.x, m.y - 6, player.x, player.y - 6);
   if (m.arch === 'charger' && m.skCd <= 0 && d < A.TRIGGER && d > 24 && sees && may()) return startWindup(m, dx / d, dy / d, A.WINDUP);
-  if (m.arch === 'elite' && think && m.skCd <= 0 && d < A.TRIGGER && may()) return startWindup(m, 0, 0, A.WINDUP);
+  if (m.arch === 'elite' && io.skillsV2) {   // M10-07: Hắc Trảo / Ảnh Bộ
+    m.clawCd = (m.clawCd ?? 0) - dt; m.blinkCd = (m.blinkCd ?? EV.BLINK.CD * 0.4) - dt;
+    const C = EV.CLAW, B = EV.BLINK;
+    if (think && (io.diff || 0) >= C.MIN_DIFF && m.clawCd <= 0 && m.skCd <= 0 && d < C.TRIGGER && m.lastSk !== 'claw' && may()) {
+      m.sk = m.lastSk = 'claw'; return startWindup(m, dx / d, dy / d, C.WINDUP);
+    }
+    if (think && m.blinkCd <= 0 && d > B.MIN_D && d < B.MAX_D && sees && may()) {
+      const spot = blinkSpot(m, player, io);
+      if (spot) { m.blinkCd = B.CD; m.st = 'blink'; m.stT = m.stMax = B.WARN; m.blinkX = spot[0]; m.blinkY = spot[1]; m.vx = m.vy = 0; return true; }
+    }
+  }
+  if (m.arch === 'elite' && think && m.skCd <= 0 && d < A.TRIGGER && may()) { m.sk = 'slam'; m.lastSk = 'slam'; return startWindup(m, 0, 0, A.WINDUP); }
   if (m.arch === 'ranged') {
     const onScreen = Math.abs(dx) < A.ONSCREEN_X && Math.abs(dy) < A.ONSCREEN_Y;
     if (io.skillsV2) m.fanCd = (m.fanCd ?? IF.CD * 0.5) - dt;
@@ -121,6 +146,26 @@ function wolfAI(m, player, dx, dy, d, dt, io) {
     return startWindup(m, dx / d, dy / d, P.WINDUP);
   }
   return false;
+}
+
+// M10-07: điểm hiện ra của Ảnh Bộ — quanh người chơi, lệch ngang so với hướng Ma Ảnh tới; ô đứng được, không sát người chơi
+function blinkSpot(m, player, io) {
+  const B = EV.BLINK, base = Math.atan2(m.y - player.y, m.x - player.x);
+  for (let i = 0; i < B.TRIES; i++) {
+    const a = base + (io.rng() < 0.5 ? -1 : 1) * (Math.PI / 2 + (io.rng() - 0.5) * 1.2);
+    const x = player.x + Math.cos(a) * B.LAND_R, y = player.y + Math.sin(a) * B.LAND_R;
+    if (Math.hypot(x - player.x, y - player.y) < B.MIN_PLAYER) continue;
+    if (!(io.map.monStand ? io.map.monStand(x, y) : io.map.canStand(x, y))) continue;
+    return [x, y];
+  }
+  return null;
+}
+// M10-07: người chơi có trong cung Hắc Trảo (bán kính R, nửa góc ARC/2 quanh hướng đã khóa)
+export function inClaw(m, player) {
+  const C = EV.CLAW, dx = player.x - m.x, dy = player.y - m.y, d = Math.hypot(dx, dy);
+  if (d > C.R + PLAYER.HITBOX) return false;
+  if (d < 6) return true;
+  return (dx * m.dirX + dy * m.dirY) / d >= Math.cos(C.ARC / 2);
 }
 
 // M10-06: còn chỗ cho thêm một con gồng Tam Băng Tiễn trong khung nhìn không
