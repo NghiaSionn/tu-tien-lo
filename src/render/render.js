@@ -1,5 +1,5 @@
 // Vẽ một khung: bản đồ, vật thể sắp theo y, yêu thú, người chơi, công pháp, hiệu ứng beanfx và hạt sáng.
-import { VIEW, TILE as T, HUB, FEATURES, ARCH, BOSS, WOLF_PACK, FOX_TRAIL, TRIBULATION, SHRINE, BASIC_ATTACK } from '../core/config.js';
+import { VIEW, TILE as T, HUB, FEATURES, ARCH, BOSS, WOLF_PACK, FOX_TRAIL, ICE_FAN, TRIBULATION, SHRINE, BASIC_ATTACK } from '../core/config.js';
 import { GRASS, WATER, STONE, TREE, ROCK, BUILDING, FENCE, DIRT, CLIFF, CLOUD, FALL } from '../world/map.js';
 import { SPR, TIERS, BOSS_WHITE, BOSS_SPR, grassTiles, waterTiles, waterBank, stoneTile, treeSprs, rockSpr, hash } from './sprites.js';
 import { createFx } from '../../lib/beanfx.js';
@@ -832,12 +832,18 @@ function drawTelegraphsTop(ctx, scene) {
       ctx.globalAlpha = 0.85; pxRing(ctx, m.x, m.y - 10, ry, Math.round(ry * 6), 0, '#ffd978', 1, 1);
       ctx.globalAlpha = 0.85; pxRing(ctx, m.x, m.y - 10, 52, 320, 0, '#ff4a3a', 1, 1);
     }
-    else if (m.arch === 'ranged') { const A = ARCH.ranged, R = A.SHOT_SPEED * A.SHOT_LIFE * 0.6; ctx.globalAlpha = 0.5; pxLine(ctx, m.x, m.y - 6, m.x + m.dirX * R, m.y - 6 + m.dirY * R, '#ff4a3a', 1); }   // M10-03: đường bắn cũng không bị tán cây che
+    else if (m.arch === 'ranged') { const A = ARCH.ranged, R = A.SHOT_SPEED * A.SHOT_LIFE * 0.6; ctx.globalAlpha = 0.5; for (const [dx, dy] of fanDirs(m)) pxLine(ctx, m.x, m.y - 6, m.x + dx * R, m.y - 6 + dy * R, '#ff4a3a', 1); }   // M10-03: đường bắn cũng không bị tán cây che
     if (L) { ctx.globalAlpha = 0.5; pxLine(ctx, m.x, m.y - 3, m.x + m.dirX * L, m.y - 3 + m.dirY * L, '#ff4a3a', 1); }
   }
   for (const f of scene.fireTrails || []) { ctx.globalAlpha = 0.4 * Math.min(1, (f.life - f.t) / FOX_TRAIL.FADE); pxRing(ctx, f.x, f.y, f.r, 24, 0, '#ff4a3a', 1, 0.6); }   // M10-05: viền vệt lửa không bị tán cây che
   for (const m of scene.monsters) if (!m.dead && m.st === 'blink') { ctx.globalAlpha = 0.8; pxRing(ctx, m.blinkX, m.blinkY, 22, 60, 0, '#d9a8ff', 1, 0.6); }
   ctx.globalAlpha = 1;
+}
+
+// M10-06: các hướng bắn của Huyền Băng Thú đang gồng (1 hoặc 3 tia)
+function fanDirs(m) {
+  if (!m.fan) return [[m.dirX, m.dirY]];
+  return [0, -ICE_FAN.SPREAD, ICE_FAN.SPREAD].map(a => { const c = Math.cos(a), s = Math.sin(a); return [m.dirX * c - m.dirY * s, m.dirX * s + m.dirY * c]; });
 }
 
 // M10-05: Hỏa Vĩ — đốm đang "nạp" = vòng đỏ viền tối + lấp cam dần (vô hại); đang cháy = đốm cam/vàng lập lòe + viền đỏ; cuối đời mờ dần
@@ -886,8 +892,10 @@ function drawTelegraphs(ctx, scene) {
       ctx.fillStyle = '#ff4a3a'; ctx.fillRect(Math.round(x0 + m.dirX * L) - 2, Math.round(y0 + m.dirY * L) - 2, 4, 4);
     } else if (m.arch === 'ranged') {
       const L = A.SHOT_SPEED * A.SHOT_LIFE * 0.6, x0 = m.x, y0 = m.y - 6;
-      ctx.globalAlpha = 0.75; tgLine(ctx, x0, y0, x0 + m.dirX * L, y0 + m.dirY * L, '#ff4a3a', 1);   // M10-03: đỏ như mọi đòn quái (xanh dễ lẫn với Băng của người chơi), đầu băng sáng lấp dần
-      ctx.globalAlpha = 0.95; pxLine(ctx, x0, y0, x0 + m.dirX * L * prog, y0 + m.dirY * L * prog, '#e8fbff', 1);
+      for (const [dx, dy] of fanDirs(m)) {   // M10-06: Tam Băng Tiễn vẽ đủ 3 hướng; khe giữa các đường là chỗ né
+        ctx.globalAlpha = 0.75; tgLine(ctx, x0, y0, x0 + dx * L, y0 + dy * L, '#ff4a3a', 1);   // M10-03: đỏ như mọi đòn quái (xanh dễ lẫn với Băng của người chơi), đầu băng sáng lấp dần
+        ctx.globalAlpha = 0.95; pxLine(ctx, x0, y0, x0 + dx * L * prog, y0 + dy * L * prog, '#e8fbff', 1);
+      }
       ctx.fillStyle = '#e8fbff'; const g = 1 + Math.round(prog * 2); ctx.fillRect(Math.round(x0) - g, Math.round(y0) - g, g * 2, g * 2);
     } else if (m.arch === 'elite') {
       ctx.globalAlpha = 0.25; ctx.fillStyle = '#c070ff';

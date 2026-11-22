@@ -218,11 +218,23 @@ export const FOX_TRAIL = {
   FADE: 0.35,         // giây cuối mờ dần (chỉ để vẽ)
 };
 
+// ---------- M10-06: Huyền Băng Thú — Tam Băng Tiễn [THỬ NGHIỆM] (chỉ khi FEATURES.enemySkillsV2) ----------
+// Khi người chơi đủ xa (≥ MIN_D), gồng lâu hơn rồi bắn quạt 3 tiễn (giữa nhắm người chơi, hai bên lệch ±SPREAD) — đi ngang vào khe là né được.
+// Mỗi con có hồi chiêu riêng; trên màn tối đa MAX_ACTIVE con cùng gồng quạt (không phải mọi con đều bắn 3 tia cùng lúc).
+export const ICE_FAN = {
+  MIN_D: 120,        // px: gần hơn thì bắn 1 tiễn như cũ
+  SPREAD: 0.33,      // rad (~19°): ở 150 px hai tiễn cạnh nhau cách ~51 px, khe trống ~39 px
+  WINDUP: 0.85,      // giây gồng (tiễn đơn 0,6)
+  CD: 6,             // giây hồi chiêu quạt mỗi con (vẫn bắn tiễn đơn trong lúc chờ)
+  DMG: 0.85,         // × SHOT_DMG mỗi tiễn
+  MAX_ACTIVE: 1,     // con đang gồng quạt trong khung nhìn
+};
+
 // M10-03: tên chiêu cho thống kê nguồn sát thương (run.dmgBy) — khóa = nguồn ghi trong run.js
 export const SKILL_NAMES = {
   chaser: 'Dã Lang cắn', charger: 'Hỏa Hồ cắn', 'charger:dash': 'Hỏa Hồ lao', ranged: 'Huyền Băng Thú cắn', 'ranged:shot': 'Băng tiễn',
   elite: 'Ma Ảnh cắn', 'elite:slam': 'Ma Ảnh đập đất', miniboss: 'Lang Vương cắn', 'miniboss:dash': 'Lang Vương lao',
-  boss: 'Yêu Vương cắn', 'boss:slam': 'Chấn Địa', 'boss:zone': 'Hắc Diễm', 'boss:prison': 'Ma Ảnh Lao Tù', 'boss:burst': 'Hắc Diễm Đạn', 'boss:prisonShot': 'Đạn Lao Tù', 'chaser:pounce': 'Dã Lang chồm', 'charger:trail': 'Hỏa Vĩ',
+  boss: 'Yêu Vương cắn', 'boss:slam': 'Chấn Địa', 'boss:zone': 'Hắc Diễm', 'boss:prison': 'Ma Ảnh Lao Tù', 'boss:burst': 'Hắc Diễm Đạn', 'boss:prisonShot': 'Đạn Lao Tù', 'chaser:pounce': 'Dã Lang chồm', 'charger:trail': 'Hỏa Vĩ', 'ranged:fan': 'Tam Băng Tiễn',
 };
 
 // ---------- Boss (M2-02) [THỬ NGHIỆM] ----------

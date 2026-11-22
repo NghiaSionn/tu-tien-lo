@@ -1,9 +1,10 @@
 // Hành vi kiểu quái trong bí cảnh (M2-01). Mọi đòn nguy hiểm đều có pha gồng (st = 'windup') để renderer vẽ cảnh báo
 // trước khi đánh; hướng/vùng đòn khóa lúc bắt đầu gồng nên người chơi né được bằng cách rời khỏi đường/vùng đó.
 // Không dùng Math.random: chạy lại cùng seed cho cùng kết quả.
-import { RUN, ARCH, HUB_MONSTER as HM, WOLF_PACK as WP } from '../core/config.js';
+import { RUN, ARCH, HUB_MONSTER as HM, WOLF_PACK as WP, ICE_FAN as IF } from '../core/config.js';
 import { bossAI } from './bosses.js';
 import { claimSpecial, thinkTick } from '../systems/tactics.js';
+import { inCameraView } from '../systems/director.js';
 import { dropTrail } from '../systems/firetrail.js';
 
 // Trả về true nếu đã tự xử lý vận tốc/tấn công (updateMonsters bỏ qua AI đuổi mặc định).
@@ -19,7 +20,14 @@ export function archetypeAI(m, player, dx, dy, d, dt, io) {
     if (m.stT > 0) return true;
     if (m.arch === 'charger') { m.st = 'dash'; m.stT = A.DASH_TIME; m.dashHit = false; m.trailT = 0; m.trailN = 0; }
     else if (m.arch === 'ranged') {
-      if (io.shots && io.shots.length < RUN.MAX_ENEMY_SHOTS)
+      if (m.fan) {   // M10-06: Tam Băng Tiễn — giữa + hai bên lệch ±SPREAD, theo hướng đã khóa lúc bắt đầu gồng
+        for (const a of [0, -IF.SPREAD, IF.SPREAD]) {
+          if (!io.shots || io.shots.length >= RUN.MAX_ENEMY_SHOTS) break;
+          const c = Math.cos(a), s = Math.sin(a), vx = m.dirX * c - m.dirY * s, vy = m.dirX * s + m.dirY * c;
+          io.shots.push({ x: m.x, y: m.y - 6, vx: vx * A.SHOT_SPEED, vy: vy * A.SHOT_SPEED, life: A.SHOT_LIFE, dmg: m.dmg * A.SHOT_DMG * IF.DMG, src: 'ranged:fan' });
+        }
+        m.fan = false; m.fanCd = IF.CD;
+      } else if (io.shots && io.shots.length < RUN.MAX_ENEMY_SHOTS)
         io.shots.push({ x: m.x, y: m.y - 6, vx: m.dirX * A.SHOT_SPEED, vy: m.dirY * A.SHOT_SPEED, life: A.SHOT_LIFE, dmg: m.dmg * A.SHOT_DMG, src: 'ranged:shot' });
       m.st = 'move'; m.skCd = A.CD;
     } else if (m.arch === 'elite') {
@@ -50,9 +58,11 @@ export function archetypeAI(m, player, dx, dy, d, dt, io) {
   if (m.arch === 'elite' && think && m.skCd <= 0 && d < A.TRIGGER && may()) return startWindup(m, 0, 0, A.WINDUP);
   if (m.arch === 'ranged') {
     const onScreen = Math.abs(dx) < A.ONSCREEN_X && Math.abs(dy) < A.ONSCREEN_Y;
+    if (io.skillsV2) m.fanCd = (m.fanCd ?? IF.CD * 0.5) - dt;
     if (m.skCd <= 0 && d < A.FIRE_RANGE && sees && onScreen && may()) {
       const ax = player.x - m.x, ay = (player.y - 6) - (m.y - 6), l = Math.hypot(ax, ay) || 1;
-      return startWindup(m, ax / l, ay / l, A.WINDUP);
+      m.fan = !!io.skillsV2 && d >= IF.MIN_D && m.fanCd <= 0 && fanSlots(io, player) > 0;   // M10-06
+      return startWindup(m, ax / l, ay / l, m.fan ? IF.WINDUP : A.WINDUP);
     }
     let ux = dx / d, uy = dy / d;
     if (think) m.seesP = sees;   // (bật cờ) giữ kết quả nhìn thấy giữa các nhịp suy nghĩ
@@ -111,6 +121,13 @@ function wolfAI(m, player, dx, dy, d, dt, io) {
     return startWindup(m, dx / d, dy / d, P.WINDUP);
   }
   return false;
+}
+
+// M10-06: còn chỗ cho thêm một con gồng Tam Băng Tiễn trong khung nhìn không
+function fanSlots(io, player) {
+  let n = 0;
+  for (const o of io.scene ? io.scene.monsters : []) if (o.fan && o.st === 'windup' && !o.dead && inCameraView(io.map, player, o.x, o.y, 0)) n++;
+  return IF.MAX_ACTIVE - n;
 }
 
 function startWindup(m, dx, dy, time) {

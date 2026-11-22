@@ -16,7 +16,7 @@ import { createRun, updateRun, refreshMaxHp } from '../src/systems/run.js';
 import { drawCards, applyCard, rerollDraft } from '../src/progression/draft.js';
 import { runStats } from '../src/systems/combat.js';
 import { moveEntity } from '../src/entities/monsters.js';
-import { PLAYER, ARCH, BOSS, FEATURES, WOLF_PACK } from '../src/core/config.js';
+import { PLAYER, ARCH, BOSS, FEATURES, WOLF_PACK, ICE_FAN } from '../src/core/config.js';
 if (process.env.SYNERGY) FEATURES.draftSynergy = true;
 const REROLL = !!process.env.REROLL;
 import { computeRunReward } from '../src/progression/rewards.js';
@@ -109,8 +109,9 @@ function dodge(run, p) {
     else if (m.boss && m.pat === 'dash') L = BOSS.MINI.DASH.SPEED * BOSS.MINI.DASH.TIME;
     else if (m.arch === 'ranged' && m.st === 'windup') L = 200;
     else if (m.arch === 'elite' && m.st === 'windup' && Math.hypot(p.x - m.x, p.y - m.y) < ARCH.elite.SLAM_R + 12) away(m.x, m.y, 4);
-    if (L) {
-      const [d, cx, cy] = segDist(p.x, p.y, m.x, m.y, m.x + m.dirX * L, m.y + m.dirY * L);
+    if (L) for (const a of m.fan ? [0, -ICE_FAN.SPREAD, ICE_FAN.SPREAD] : [0]) {   // M10-06: quạt 3 tia -> né từng đường
+      const c = Math.cos(a), s = Math.sin(a), ux = m.dirX * c - m.dirY * s, uy = m.dirX * s + m.dirY * c;
+      const [d, cx, cy] = segDist(p.x, p.y, m.x, m.y, m.x + ux * L, m.y + uy * L);
       if (d < 20) away(cx, cy, 4);
     }
   }
