@@ -3,6 +3,7 @@ import { RUN, PLAYER, BOSS, DIFFICULTY, FEATURES } from '../core/config.js';
 import { mulberry32 } from '../core/rng.js';
 import { makeArenaMap, makeRoomsMap } from '../world/map.js';
 import { createRoomState, updateRoomDirector } from './roomdirector.js';
+import { updatePacks } from './packs.js';
 import { threatScan } from './tactics.js';
 import { TACTICS } from '../core/config.js';
 import { power, atk, maxHp } from '../progression/realm.js';
@@ -92,7 +93,9 @@ export function updateRun(run, player, dt, ev, realmPowerOverride) {
   const onAttack = (m, dmg, src) => hurtRunPlayer(run, player, dmg, ev, src || (m.arch || 'chaser') + (m.st === 'move' ? '' : ':' + m.st));   // M10-03: nguồn = tên chiêu (SKILL_NAMES)
   const pw = realmPowerOverride ?? power(run.realmLevel);
   const tactics = run.tactics ?? FEATURES.enemyTactics;   // M10-02: cờ theo lượt (test/sim đặt run.tactics), mặc định theo FEATURES
-  const io = { map: sc.map, shots: sc.enemyShots, hazards: sc.hazards, ev, onAttack, rng: run.rng, scene: sc,
+  const skillsV2 = run.skillsV2 ?? FEATURES.enemySkillsV2;   // M10-B: kỹ năng mới quái thường
+  if (skillsV2) updatePacks(sc, player, run, dt);
+  const io = { map: sc.map, skillsV2, shots: sc.enemyShots, hazards: sc.hazards, ev, onAttack, rng: run.rng, scene: sc,
     summon: (m, n, r) => summonAround(run, player, m.x, m.y, n, r, pw),
     tactics, retry: TACTICS.RETRY, threat: tactics ? threatScan(sc, player, run.diff || 0) : null,
     log: (kind, id) => { const k = kind + ':' + id; run.skillsUsed[k] = (run.skillsUsed[k] || 0) + 1; } };

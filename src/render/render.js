@@ -1,5 +1,5 @@
 // Vẽ một khung: bản đồ, vật thể sắp theo y, yêu thú, người chơi, công pháp, hiệu ứng beanfx và hạt sáng.
-import { VIEW, TILE as T, HUB, FEATURES, ARCH, BOSS, TRIBULATION, SHRINE, BASIC_ATTACK } from '../core/config.js';
+import { VIEW, TILE as T, HUB, FEATURES, ARCH, BOSS, WOLF_PACK, TRIBULATION, SHRINE, BASIC_ATTACK } from '../core/config.js';
 import { GRASS, WATER, STONE, TREE, ROCK, BUILDING, FENCE, DIRT, CLIFF, CLOUD, FALL } from '../world/map.js';
 import { SPR, TIERS, BOSS_WHITE, BOSS_SPR, grassTiles, waterTiles, waterBank, stoneTile, treeSprs, rockSpr, hash } from './sprites.js';
 import { createFx } from '../../lib/beanfx.js';
@@ -823,6 +823,7 @@ function drawTelegraphsTop(ctx, scene) {
     if (m.dead || m.st !== 'windup') continue;
     let L = 0;
     if (m.arch === 'charger') L = ARCH.charger.DASH_SPEED * ARCH.charger.DASH_TIME;
+    else if (m.arch === 'chaser') L = WOLF_PACK.POUNCE.SPEED * WOLF_PACK.POUNCE.TIME;   // M10-04: sói chồm
     else if (m.boss && m.pat === 'dash') L = BOSS.MINI.DASH.SPEED * BOSS.MINI.DASH.TIME;
     else if (m.arch === 'elite') { ctx.globalAlpha = 0.5; pxRing(ctx, m.x, m.y, ARCH.elite.SLAM_R, 60, 0, '#ff4a3a', 1, 1); }
     else if (m.boss && m.pat === 'howlDash') {   // M7-13: hú rồi lao — viền lớp trên để thân boss ×2 / tán cây không che
@@ -853,8 +854,8 @@ function drawTelegraphs(ctx, scene) {
     if (m.boss) { drawBossTelegraph(ctx, m); continue; }
     if (m.st !== 'windup') continue;
     const A = ARCH[m.arch], prog = 1 - Math.max(0, m.stT) / (m.stMax || 1);
-    if (m.arch === 'charger') {
-      const L = A.DASH_SPEED * A.DASH_TIME, x0 = m.x, y0 = m.y - 3;
+    if (m.arch === 'charger' || m.arch === 'chaser') {   // M10-04: sói chồm dùng chung kiểu cảnh báo đường lao (ngắn hơn)
+      const L = m.arch === 'chaser' ? WOLF_PACK.POUNCE.SPEED * WOLF_PACK.POUNCE.TIME : A.DASH_SPEED * A.DASH_TIME, x0 = m.x, y0 = m.y - 3;
       ctx.globalAlpha = 0.7; tgLine(ctx, x0, y0, x0 + m.dirX * L, y0 + m.dirY * L, '#ff4a3a', 2);
       ctx.globalAlpha = 0.9; pxLine(ctx, x0, y0, x0 + m.dirX * L * prog, y0 + m.dirY * L * prog, '#ffb070', 1);
       ctx.fillStyle = '#ff4a3a'; ctx.fillRect(Math.round(x0 + m.dirX * L) - 2, Math.round(y0 + m.dirY * L) - 2, 4, 4);
@@ -882,9 +883,10 @@ function drawBlinkWarn(ctx, m) {
 }
 
 // M10-03: lớp debug AI (?aidebug=1): trạng thái/chiêu trên đầu, đường tới điểm khóa, vùng còn bao lâu nổ, ngân sách đe dọa
-function drawAIDebug(ctx, scene, camX, camY) {
+function drawAIDebug(ctx, scene, camX, camY, p) {
   const lock = m => {
     if (m.st === 'blink') return [m.blinkX, m.blinkY];
+    if (m.arch === 'chaser' && (m.st === 'windup' || m.st === 'dash')) { const P = WOLF_PACK.POUNCE; return [m.x + m.dirX * P.SPEED * P.TIME, m.y + m.dirY * P.SPEED * P.TIME]; }
     if (m.st !== 'windup' && m.st !== 'dash' && m.st !== 'rest') return null;
     const A = m.boss ? BOSS[m.bossKind].DASH : ARCH[m.arch];
     if ((m.arch === 'charger' || (m.boss && m.pat === 'dash')) && A) { const L = (A.DASH_SPEED || A.SPEED) * (A.DASH_TIME || A.TIME); return [m.x + m.dirX * L, m.y + m.dirY * L]; }
@@ -894,10 +896,16 @@ function drawAIDebug(ctx, scene, camX, camY) {
   for (const m of scene.monsters) {
     if (m.dead || m.x < camX - 20 || m.x > camX + VIEW.W + 20 || m.y < camY - 20 || m.y > camY + VIEW.H + 40) continue;
     const busy = m.st && m.st !== 'move';
-    if (!busy && !m.boss) continue;
+    if (!busy && !m.boss && !m.role) continue;
+    if (m.role === 'flank' && m.st === 'move' && p) {   // M10-04: điểm sườn con sói đang vòng tới (chấm xanh)
+      const fx = p.x + Math.cos(m.flankA) * WOLF_PACK.FLANK_R, fy = p.y + Math.sin(m.flankA) * WOLF_PACK.FLANK_R;
+      ctx.globalAlpha = 0.8; ctx.fillStyle = '#7fe3ff';
+      for (let i = 1; i < 8; i += 2) ctx.fillRect(Math.round(m.x + (fx - m.x) * i / 8), Math.round(m.y + (fy - m.y) * i / 8), 2, 2);
+      ctx.fillRect(Math.round(fx) - 2, Math.round(fy) - 2, 5, 5);
+    }
     const L = lock(m);
     if (L) { ctx.globalAlpha = 0.9; pxLine(ctx, m.x, m.y, L[0], L[1], '#ffffff', 1); ctx.fillStyle = '#ffffff'; ctx.fillRect(Math.round(L[0]) - 2, Math.round(L[1]) - 2, 5, 5); }
-    const tag = m.st + (m.boss && m.pat ? ':' + m.pat : '') + (m.stT > 0 && busy ? ' ' + m.stT.toFixed(1) : '');
+    const tag = (m.role && m.arch === 'chaser' ? m.role + '#' + m.packId + ' ' : '') + m.st + (m.boss && m.pat ? ':' + m.pat : '') + (m.stT > 0 && busy ? ' ' + m.stT.toFixed(1) : '');
     ctx.globalAlpha = 1; txt(ctx, tag, Math.round(m.x), Math.round(m.y - (m.boss ? 44 : 20)), busy ? '#ffe066' : '#c8f0ff', 7);
   }
   for (const h of scene.hazards || []) txt(ctx, Math.max(0, h.t).toFixed(1), Math.round(h.x), Math.round(h.y + 3), '#ffb0b0', 7);
@@ -1584,7 +1592,7 @@ export function render(ctx, g) {
   mark('objects');
   if (g.run) drawSkillsOver(ctx, g.run, p, time, vis);
   if (scene.kind !== 'hub') drawTelegraphsTop(ctx, scene);
-  if (FEATURES.aiDebug && scene.kind === 'run') drawAIDebug(ctx, scene, camX, camY);
+  if (FEATURES.aiDebug && scene.kind === 'run') drawAIDebug(ctx, scene, camX, camY, p);
   else if (g.trib && g.trib.interactive) drawTribulation(ctx, g.trib, time, true);
   if (scene.enemyShots) drawEnemyShots(ctx, scene.enemyShots, vis);
   mark('skillsTop');

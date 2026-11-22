@@ -976,6 +976,7 @@ function perfFrame(work, gap) {
 // M5-04: cảnh stress (?stress=1): trong bí cảnh giữ 100 quái + 200 đạn + 300 hạt để đo (không dùng khi chơi)
 const STRESS = new URLSearchParams(location.search).get('stress') === '1';
 if (/[?&]tactics=1/.test(location.search)) FEATURES.enemyTactics = true;   // M10-02: thử AI chiến thuật trong trình duyệt
+if (/[?&]skills2=1/.test(location.search)) FEATURES.enemySkillsV2 = true;   // M10-B: kỹ năng mới quái thường (M10-04 sói theo đàn)
 if (/[?&]aidebug=1/.test(location.search)) FEATURES.aiDebug = true;   // M10-03: lớp debug AI (dev)
 function stressTopUp() {
   if (!STRESS || !run || view !== 'RUN') return;

@@ -124,6 +124,7 @@ export function simulate(buildName, L, seed, maxTime = 720) {
   const b = BUILDS[buildName];
   const run = createRun({ variant: process.env.VARIANT || 'thuong', unlocked: b.unlock || [], seed, startSkill: b.start, realmLevel: L, difficulty: +(process.env.DIFF || 0), mode: ROOMS_MODE ? 'rooms' : 'arena' });
   if (process.env.TACTICS !== undefined) run.tactics = process.env.TACTICS === '1';   // M10-02: TACTICS=1 bật AI chiến thuật, TACTICS=0 ép tắt
+  if (process.env.SKILLS2 !== undefined) run.skillsV2 = process.env.SKILLS2 === '1';   // M10-B: SKILLS2=1 bật kỹ năng mới quái thường (M10-04…)
   const p = { x: run.scene.map.cx, y: run.scene.map.cy, fx: 1, fy: 0, inv: 0, dead: false };
   const ev = [], dt = 1 / 30;
   const evoAt = {};

@@ -1,0 +1,161 @@
+{
+ "realm": 0,
+ "seeds": 10,
+ "builds": {
+  "kiem_loi": {
+   "win": 8,
+   "lose": 2,
+   "timeout": 0,
+   "mini": 8,
+   "seeds": "LWWWWWWWLW",
+   "deathT": [
+    73,
+    72
+   ],
+   "winT": [
+    466,
+    418,
+    395,
+    402,
+    419,
+    420,
+    429,
+    441
+   ]
+  },
+  "phi_kiem_hoa": {
+   "win": 3,
+   "lose": 7,
+   "timeout": 0,
+   "mini": 10,
+   "seeds": "LLLLWLWLLW",
+   "deathT": [
+    364,
+    381,
+    302,
+    390,
+    365,
+    379,
+    356
+   ],
+   "winT": [
+    411,
+    434,
+    411
+   ]
+  },
+  "hoa_phong": {
+   "win": 2,
+   "lose": 8,
+   "timeout": 0,
+   "mini": 10,
+   "seeds": "LLLLWLLLLW",
+   "deathT": [
+    362,
+    402,
+    495,
+    401,
+    375,
+    302,
+    463,
+    330
+   ],
+   "winT": [
+    415,
+    441
+   ]
+  },
+  "loi_the": {
+   "win": 6,
+   "lose": 4,
+   "timeout": 0,
+   "mini": 10,
+   "seeds": "LWWLWWLWLW",
+   "deathT": [
+    392,
+    481,
+    465,
+    413
+   ],
+   "winT": [
+    562,
+    519,
+    460,
+    455,
+    490,
+    566
+   ]
+  },
+  "bang_han": {
+   "win": 7,
+   "lose": 3,
+   "timeout": 0,
+   "mini": 8,
+   "seeds": "WLWWWWLLWW",
+   "deathT": [
+    94,
+    82,
+    299
+   ],
+   "winT": [
+    430,
+    425,
+    436,
+    426,
+    413,
+    430,
+    415
+   ]
+  },
+  "linh_phong": {
+   "win": 1,
+   "lose": 9,
+   "timeout": 0,
+   "mini": 8,
+   "seeds": "LWLLLLLLLL",
+   "deathT": [
+    386,
+    74,
+    426,
+    305,
+    292,
+    372,
+    118,
+    369,
+    279
+   ],
+   "winT": [
+    454
+   ]
+  }
+ },
+ "deathBy": {
+  "chaser": 17,
+  "ranged:shot": 10,
+  "boss": 2,
+  "charger": 2,
+  "miniboss:dash": 2
+ },
+ "total": {
+  "runs": 60,
+  "win": 27,
+  "lose": 33,
+  "timeout": 0
+ },
+ "logicMsPerTick": 0.0808,
+ "dmgShare": {
+  "chaser": 23.6,
+  "ranged:shot": 20.6,
+  "miniboss:dash": 9,
+  "elite": 8.7,
+  "boss": 7.8,
+  "charger": 6.5,
+  "miniboss": 5.4,
+  "charger:dash": 4.6,
+  "chaser:pounce": 4.3,
+  "boss:zone": 3.5,
+  "boss:slam": 2.7,
+  "elite:slam": 2.5,
+  "boss:burst": 0.9
+ }
+}

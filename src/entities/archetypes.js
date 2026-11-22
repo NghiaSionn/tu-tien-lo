@@ -1,7 +1,7 @@
 // Hành vi kiểu quái trong bí cảnh (M2-01). Mọi đòn nguy hiểm đều có pha gồng (st = 'windup') để renderer vẽ cảnh báo
 // trước khi đánh; hướng/vùng đòn khóa lúc bắt đầu gồng nên người chơi né được bằng cách rời khỏi đường/vùng đó.
 // Không dùng Math.random: chạy lại cùng seed cho cùng kết quả.
-import { RUN, ARCH, HUB_MONSTER as HM } from '../core/config.js';
+import { RUN, ARCH, HUB_MONSTER as HM, WOLF_PACK as WP } from '../core/config.js';
 import { bossAI } from './bosses.js';
 import { claimSpecial, thinkTick } from '../systems/tactics.js';
 
@@ -10,7 +10,8 @@ import { claimSpecial, thinkTick } from '../systems/tactics.js';
 export function archetypeAI(m, player, dx, dy, d, dt, io) {
   if (m.boss) return bossAI(m, player, dx, dy, d, dt, io);
   const A = ARCH[m.arch];
-  if (!A || m.arch === 'chaser') return false;
+  if (m.arch === 'chaser') return io.skillsV2 ? wolfAI(m, player, dx, dy, d, dt, io) : false;   // M10-04: sói theo đàn chỉ khi bật cờ
+  if (!A) return false;
   m.skCd -= dt;
   if (m.st === 'windup') {
     m.vx = m.vy = 0; m.stT -= dt;
@@ -63,6 +64,51 @@ export function archetypeAI(m, player, dx, dy, d, dt, io) {
   m.vx = dx / d * m.speed; m.vy = dy / d * m.speed;
   if (d < HM.ATTACK_RANGE) { m.vx = m.vy = 0; if (m.atkCd <= 0) { m.atkCd = HM.ATTACK_CD; io.onAttack(m, m.dmg); } }
   return true;
+}
+
+// M10-04: Dã Lang. Vai trò do packs.js gán. flank: chạy tới điểm sườn rồi chồm (gồng khóa hướng -> lao ngắn).
+// Mọi vai trò khác / không làm gì đặc biệt -> trả false để updateMonsters đuổi + cắn như cũ (kể cả vòng hồ theo bản đồ hướng).
+function wolfAI(m, player, dx, dy, d, dt, io) {
+  const P = WP.POUNCE;
+  m.skCd -= dt;
+  if (m.st === 'windup') {
+    m.vx = m.vy = 0; m.stT -= dt;
+    if (m.stT <= 0) { m.st = 'dash'; m.stT = P.TIME; m.dashHit = false; }
+    return true;
+  }
+  if (m.st === 'dash') {
+    m.vx = m.dirX * P.SPEED; m.vy = m.dirY * P.SPEED; m.stT -= dt;
+    if (!m.dashHit && d < P.HIT_R) { m.dashHit = true; io.onAttack(m, m.dmg * P.DMG, 'chaser:pounce'); }
+    if (m.stT <= 0) { m.st = 'recover'; m.stT = P.RECOVER; }
+    return true;
+  }
+  if (m.st === 'recover') {
+    m.vx = m.vy = 0; m.stT -= dt;
+    if (m.stT <= 0) { m.st = 'move'; m.skCd = P.CD; m.role = 'press'; }
+    return true;
+  }
+  if (m.role !== 'flank') return false;
+  m.flankT = (m.flankT || 0) + dt;
+  if (m.flankT > WP.FLANK_MAX) { m.role = 'press'; return false; }
+  // còn lệch góc nhiều -> đi vòng quanh người chơi (giữ khoảng cách, khép dần) thay vì cắt thẳng vào giữa
+  const am = Math.atan2(m.y - player.y, m.x - player.x), da = Math.atan2(Math.sin(m.flankA - am), Math.cos(m.flankA - am));
+  const orbit = Math.abs(da) > WP.ORBIT_DA;
+  const ang = orbit ? am + Math.sign(da) * WP.ORBIT_STEP : m.flankA, rad = orbit ? Math.max(WP.FLANK_R + 10, d * WP.ORBIT_SHRINK) : WP.FLANK_R;
+  const tx = player.x + Math.cos(ang) * rad, ty = player.y + Math.sin(ang) * rad;
+  const ex = tx - m.x, ey = ty - m.y, td = Math.hypot(ex, ey);
+  if (orbit || td > WP.FLANK_ARRIVE) {
+    if (io.map.waterBetween && io.map.waterBetween(m.x, m.y, tx, ty)) return false;   // hồ chắn điểm sườn: đi như sói thường (vòng hồ)
+    m.vx = ex / td * m.speed * WP.FLANK_SPEED; m.vy = ey / td * m.speed * WP.FLANK_SPEED;
+    return true;
+  }
+  // đã tới sườn: chồm nếu hết hồi chiêu, đúng tầm, thấy người chơi, đàn chưa có con nào đang chồm, còn ngân sách trên màn
+  const busy = io.scene && io.scene.packBusy;
+  if (m.skCd <= 0 && d < P.TRIGGER && d > P.MIN && !(busy && busy.has(m.packId))
+      && io.map.lineOfSight(m.x, m.y - 6, player.x, player.y - 6) && (!io.threat || claimSpecial(io, m, player))) {
+    if (busy) busy.add(m.packId);
+    return startWindup(m, dx / d, dy / d, P.WINDUP);
+  }
+  return false;
 }
 
 function startWindup(m, dx, dy, time) {

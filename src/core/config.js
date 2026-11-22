@@ -14,6 +14,7 @@ export const FEATURES = {
   bossRemix: true,      // M7-13 [GIẢ THUYẾT H7]: mỗi boss thêm 1 chiêu phối từ cảnh báo có sẵn, chỉ từ độ khó BOSS.REMIX_MIN_DIFF. false = như cũ
   lore: true,           // M7-14 [GIẢ THUYẾT H8]: Bia Truyền Thừa (phím L) — mẩu truyện mở theo mốc. false = ẩn nút, không báo
   aiDebug: false,       // M10-03: lớp debug AI (trạng thái, ý định, điểm khóa, ngân sách đe dọa). Chỉ dev: ?aidebug=1
+  enemySkillsV2: false, // M10-B: kỹ năng mới của quái thường (M10-04 Dã Lang săn theo đàn…). OFF = hành vi cũ. Thử: ?skills2=1 (nên kèm ?tactics=1)
   enemyTactics: false,  // M10-02: bộ chọn chiêu theo tình huống + ngân sách đe dọa (TACTICS). OFF = AI M9 y nguyên; bật mặc định sau GATE M10-A khi người phát triển duyệt. Thử: ?tactics=1
   rooms: false,         // (17/11) người phát triển quay về đấu trường sinh tồn kiểu Pokémon Survival — giữ code để bật lại. M9-B: bí cảnh nhiều phòng kiểu Soul Knight (sơ đồ ngẫu nhiên theo seed, khóa cửa tới khi dọn phòng, minimap). false = đấu trường sinh tồn cũ
   runVariants: true,    // M7-10 [GIẢ THUYẾT H5]: mỗi lượt bốc ngẫu nhiên (theo seed) một biến thể bí cảnh, báo luật ở màn chuẩn bị. false = luôn Bình thường  // M7-09 [GIẢ THUYẾT H4]: thẻ công pháp mới ghép được tiến hóa với công pháp đang có nặng ×RUN.SYNERGY_MULT. Tắt tới khi playtest    // M7-07 [GIẢ THUYẾT H2]: màn kết quả hiện tối đa 2 mục tiêu meta + nút Tọa thiền/Đột phá/Vào bí cảnh mới. false = như cũ
@@ -189,11 +190,24 @@ export const TACTICS = {
   BLINK_WARN: 0.8, BLINK_GRACE: 0.6,  // boss giải kẹt: báo trước điểm hiện ra bấy nhiêu giây; hiện ra xong chưa cắn ngay trong GRACE giây
 };
 
+// ---------- M10-04: Dã Lang săn theo đàn [THỬ NGHIỆM] (chỉ khi FEATURES.enemySkillsV2) ----------
+// Mỗi THINK giây, sói trong ENGAGE_R quanh người chơi gom thành đàn (≤ PACK_MAX, cách nhau ≤ PACK_R). Trong đàn ≥ 2 con:
+// con gần nhất áp sát (press), một con vòng sang bên (flank, hướng lệch ~90°) — chỉ con flank được chồm, mỗi đàn tối đa 1 con chồm cùng lúc.
+export const WOLF_PACK = {
+  THINK: 0.5, ENGAGE_R: 170, PACK_R: 80, PACK_MAX: 4, MIN_PACK: 2,
+  FLANK_R: 55,          // px: điểm vòng sườn cách người chơi
+  FLANK_MAX: 4,         // giây: vòng quá lâu chưa tới -> thôi, quay về áp sát
+  FLANK_SPEED: 1.25,    // hệ số tốc độ khi vòng sườn
+  ORBIT_DA: 0.5, ORBIT_STEP: 0.6, ORBIT_SHRINK: 0.92,   // còn lệch > ORBIT_DA rad: nhắm điểm lệch thêm ORBIT_STEP rad trên vòng bán kính d×SHRINK (đi vòng, khép dần)
+  FLANK_ARRIVE: 22,     // px: coi như đã tới điểm sườn
+  POUNCE: { TRIGGER: 80, MIN: 26, WINDUP: 0.6, SPEED: 210, TIME: 0.32, DMG: 1.4, HIT_R: 10, RECOVER: 0.6, CD: 3.5 },   // chồm: gồng khóa hướng -> lao ngắn ~67 px
+};
+
 // M10-03: tên chiêu cho thống kê nguồn sát thương (run.dmgBy) — khóa = nguồn ghi trong run.js
 export const SKILL_NAMES = {
   chaser: 'Dã Lang cắn', charger: 'Hỏa Hồ cắn', 'charger:dash': 'Hỏa Hồ lao', ranged: 'Huyền Băng Thú cắn', 'ranged:shot': 'Băng tiễn',
   elite: 'Ma Ảnh cắn', 'elite:slam': 'Ma Ảnh đập đất', miniboss: 'Lang Vương cắn', 'miniboss:dash': 'Lang Vương lao',
-  boss: 'Yêu Vương cắn', 'boss:slam': 'Chấn Địa', 'boss:zone': 'Hắc Diễm', 'boss:prison': 'Ma Ảnh Lao Tù', 'boss:burst': 'Hắc Diễm Đạn', 'boss:prisonShot': 'Đạn Lao Tù',
+  boss: 'Yêu Vương cắn', 'boss:slam': 'Chấn Địa', 'boss:zone': 'Hắc Diễm', 'boss:prison': 'Ma Ảnh Lao Tù', 'boss:burst': 'Hắc Diễm Đạn', 'boss:prisonShot': 'Đạn Lao Tù', 'chaser:pounce': 'Dã Lang chồm',
 };
 
 // ---------- Boss (M2-02) [THỬ NGHIỆM] ----------
