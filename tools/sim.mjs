@@ -16,7 +16,7 @@ import { createRun, updateRun, refreshMaxHp } from '../src/systems/run.js';
 import { drawCards, applyCard, rerollDraft } from '../src/progression/draft.js';
 import { runStats } from '../src/systems/combat.js';
 import { moveEntity } from '../src/entities/monsters.js';
-import { PLAYER, ARCH, BOSS, FEATURES, WOLF_PACK, ICE_FAN, ELITE_V2 } from '../src/core/config.js';
+import { PLAYER, ARCH, BOSS, FEATURES, WOLF_PACK, ICE_FAN, ELITE_V2, BOSS_V2 } from '../src/core/config.js';
 if (process.env.SYNERGY) FEATURES.draftSynergy = true;
 const REROLL = !!process.env.REROLL;
 import { computeRunReward } from '../src/progression/rewards.js';
@@ -108,6 +108,7 @@ function dodge(run, p) {
     else if (m.arch === 'chaser') L = WOLF_PACK.POUNCE.SPEED * WOLF_PACK.POUNCE.TIME;   // M10-04: sói chồm
     else if (m.boss && m.pat === 'dash') L = BOSS.MINI.DASH.SPEED * BOSS.MINI.DASH.TIME;
     else if (m.arch === 'ranged' && m.st === 'windup') L = 200;
+    else if (m.boss && m.pat === 'claw' && m.st === 'windup' && Math.hypot(p.x - m.x, p.y - m.y) < BOSS_V2.MINI.CLAW.R + 14) away(m.x, m.y, 4);   // M10-09: lùi khỏi quạt
     else if (m.arch === 'elite' && m.st === 'windup' && Math.hypot(p.x - m.x, p.y - m.y) < (m.sk === 'claw' ? ELITE_V2.CLAW.R : ARCH.elite.SLAM_R) + 12) away(m.x, m.y, 4);   // M10-07: Hắc Trảo né bằng lùi khỏi bán kính
     if (L) for (const a of m.fan ? [0, -ICE_FAN.SPREAD, ICE_FAN.SPREAD] : [0]) {   // M10-06: quạt 3 tia -> né từng đường
       const c = Math.cos(a), s = Math.sin(a), ux = m.dirX * c - m.dirY * s, uy = m.dirX * s + m.dirY * c;
@@ -127,7 +128,8 @@ export function simulate(buildName, L, seed, maxTime = 720) {
   const b = BUILDS[buildName];
   const run = createRun({ variant: process.env.VARIANT || 'thuong', unlocked: b.unlock || [], seed, startSkill: b.start, realmLevel: L, difficulty: +(process.env.DIFF || 0), mode: ROOMS_MODE ? 'rooms' : 'arena' });
   if (process.env.TACTICS !== undefined) run.tactics = process.env.TACTICS === '1';   // M10-02: TACTICS=1 bật AI chiến thuật, TACTICS=0 ép tắt
-  if (process.env.SKILLS2 !== undefined) run.skillsV2 = process.env.SKILLS2 === '1';   // M10-B: SKILLS2=1 bật kỹ năng mới quái thường (M10-04…)
+  if (process.env.SKILLS2 !== undefined) run.skillsV2 = process.env.SKILLS2 === '1';
+  if (process.env.BOSS2 !== undefined) run.bossV2 = process.env.BOSS2 === '1';   // M10-C: BOSS2=1 bật boss 2 pha nhiều chiêu   // M10-B: SKILLS2=1 bật kỹ năng mới quái thường (M10-04…)
   const p = { x: run.scene.map.cx, y: run.scene.map.cy, fx: 1, fy: 0, inv: 0, dead: false };
   const ev = [], dt = 1 / 30;
   const evoAt = {};

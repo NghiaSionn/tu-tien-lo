@@ -15,6 +15,7 @@ export const FEATURES = {
   lore: true,           // M7-14 [GIẢ THUYẾT H8]: Bia Truyền Thừa (phím L) — mẩu truyện mở theo mốc. false = ẩn nút, không báo
   aiDebug: false,       // M10-03: lớp debug AI (trạng thái, ý định, điểm khóa, ngân sách đe dọa). Chỉ dev: ?aidebug=1
   enemySkillsV2: false, // M10-B: kỹ năng mới của quái thường (M10-04 Dã Lang săn theo đàn…). OFF = hành vi cũ. Thử: ?skills2=1 (nên kèm ?tactics=1)
+  bossPatternsV2: false, // M10-C: boss 2 pha / nhiều chiêu (M10-09 Lang Vương…). OFF = boss M9/M10-02. Thử: ?boss2=1 (kèm ?tactics=1)
   enemyTactics: false,  // M10-02: bộ chọn chiêu theo tình huống + ngân sách đe dọa (TACTICS). OFF = AI M9 y nguyên; bật mặc định sau GATE M10-A khi người phát triển duyệt. Thử: ?tactics=1
   rooms: false,         // (17/11) người phát triển quay về đấu trường sinh tồn kiểu Pokémon Survival — giữ code để bật lại. M9-B: bí cảnh nhiều phòng kiểu Soul Knight (sơ đồ ngẫu nhiên theo seed, khóa cửa tới khi dọn phòng, minimap). false = đấu trường sinh tồn cũ
   runVariants: true,    // M7-10 [GIẢ THUYẾT H5]: mỗi lượt bốc ngẫu nhiên (theo seed) một biến thể bí cảnh, báo luật ở màn chuẩn bị. false = luôn Bình thường  // M7-09 [GIẢ THUYẾT H4]: thẻ công pháp mới ghép được tiến hóa với công pháp đang có nặng ×RUN.SYNERGY_MULT. Tắt tới khi playtest    // M7-07 [GIẢ THUYẾT H2]: màn kết quả hiện tối đa 2 mục tiêu meta + nút Tọa thiền/Đột phá/Vào bí cảnh mới. false = như cũ
@@ -179,11 +180,11 @@ export const TACTICS = {
   THINK: [0.15, 0.3],                 // giây: nhịp đánh giá so le giữa các con (không đánh giá mỗi khung)
   BUDGET: { NORMAL: 2, NORMAL_HIGH: 3, BOSS_HEAVY: 1 },   // trong khung nhìn: tối đa đòn đặc biệt quái thường đang gồng/lao (độ khó Huyền+ dùng NORMAL_HIGH), chiêu boss nặng
   RETRY: 0.35,                        // giây: hết ngân sách -> quái thử gồng lại sau bấy nhiêu
-  HEAVY: { slam: 1, zones: 1, prison: 1, burst: 1, howlDash: 1 },   // chiêu boss tính là "nặng"
+  HEAVY: { slam: 1, zones: 1, prison: 1, burst: 1, howlDash: 1, leap: 1 },   // chiêu boss tính là "nặng"
   MAX_REPEAT: 2,                      // boss không dùng một chiêu quá 2 lần liên tiếp
   MAX_SUMMONED: 8,                    // sói do Lang Vương gọi còn sống tối đa (không hú thêm)
   SLAM_RANGE_MULT: 1.6,               // Chấn Địa hợp lệ khi người chơi trong TRIGGER × hệ số
-  SKILL_CD: { FINAL: { slam: 6, prison: 9 }, MINI: { howl: 8 } },   // giây (theo tuổi boss): hồi chiêu riêng, chống spam
+  SKILL_CD: { FINAL: { slam: 6, prison: 9 }, MINI: { howl: 8, claw: 3, leap: 6 } },   // giây (theo tuổi boss): hồi chiêu riêng, chống spam
   // M10-03: chống chồng đòn bất công
   BUDGET_DURING_HEAVY: 1,             // khi boss đang gồng chiêu nặng hoặc người chơi đang đứng trong vùng cảnh báo: quái thường chỉ 1 đòn đặc biệt trên màn
   ESCAPE: { SPEED_MUL: 0.6, DIRS: 12, MARGIN: 4 },
@@ -258,11 +259,24 @@ export const SPECIALISTS = {
   INTRO: { chaser: 40, charger: 100, ranged: 150, elite: 130 },   // giây: chồm / Hỏa Vĩ / Tam Băng Tiễn / Ảnh Bộ+Hắc Trảo
 };
 
+// ---------- M10-09: Lang Vương 2 pha / 5 chiêu [THỬ NGHIỆM] (chỉ khi FEATURES.bossPatternsV2) ----------
+// P1 (máu > PHASE2): Tam Liên Lao, Lang Hú, Liệt Trảo. Chuyển pha đúng 1 lần: thông báo + choáng STAGGER giây (sơ hở).
+// P2: thêm Vồ Đầu Đàn và Hú Rồi Lao (chiêu phối, độ khó Linh+), nghỉ giữa chiêu ngắn hơn (GAP × P2_GAP).
+export const BOSS_V2 = {
+  MINI: {
+    PHASE2: 0.55, STAGGER: 1.0, P2_GAP: 0.75, P2_TEXT: 'Lang Vương nổi giận — coi chừng cú vồ!',
+    // Liệt Trảo Hình Quạt: gồng khóa hướng, quét cung ARC (rad) bán kính R trước mặt; sau lưng boss an toàn
+    CLAW: { TRIGGER: 85, R: 72, ARC: 2.2, WINDUP: 0.8, DMG: 1.6 },
+    // Vồ Đầu Đàn: dấu đáp (vùng tròn R) ở vị trí người chơi + vận tốc × LEAD (dự đoán tối đa MAX_LEAD px), gồng WINDUP, bay AIR giây
+    LEAP: { MIN_D: 55, MAX_D: 230, LEAD: 0.55, MAX_LEAD: 60, R: 34, WINDUP: 1.0, AIR: 0.35, SYNC: 0.07, DMG: 1.8 },
+  },
+};
+
 // M10-03: tên chiêu cho thống kê nguồn sát thương (run.dmgBy) — khóa = nguồn ghi trong run.js
 export const SKILL_NAMES = {
   chaser: 'Dã Lang cắn', charger: 'Hỏa Hồ cắn', 'charger:dash': 'Hỏa Hồ lao', ranged: 'Huyền Băng Thú cắn', 'ranged:shot': 'Băng tiễn',
   elite: 'Ma Ảnh cắn', 'elite:slam': 'Ma Ảnh đập đất', miniboss: 'Lang Vương cắn', 'miniboss:dash': 'Lang Vương lao',
-  boss: 'Yêu Vương cắn', 'boss:slam': 'Chấn Địa', 'boss:zone': 'Hắc Diễm', 'boss:prison': 'Ma Ảnh Lao Tù', 'boss:burst': 'Hắc Diễm Đạn', 'boss:prisonShot': 'Đạn Lao Tù', 'chaser:pounce': 'Dã Lang chồm', 'charger:trail': 'Hỏa Vĩ', 'ranged:fan': 'Tam Băng Tiễn', 'elite:claw': 'Hắc Trảo',
+  boss: 'Yêu Vương cắn', 'boss:slam': 'Chấn Địa', 'boss:zone': 'Hắc Diễm', 'boss:prison': 'Ma Ảnh Lao Tù', 'boss:burst': 'Hắc Diễm Đạn', 'boss:prisonShot': 'Đạn Lao Tù', 'chaser:pounce': 'Dã Lang chồm', 'charger:trail': 'Hỏa Vĩ', 'ranged:fan': 'Tam Băng Tiễn', 'elite:claw': 'Hắc Trảo', 'miniboss:claw': 'Liệt Trảo', 'miniboss:leap': 'Vồ Đầu Đàn',
 };
 
 // ---------- Boss (M2-02) [THỬ NGHIỆM] ----------

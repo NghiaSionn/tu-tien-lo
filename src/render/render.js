@@ -1,5 +1,5 @@
 // Vẽ một khung: bản đồ, vật thể sắp theo y, yêu thú, người chơi, công pháp, hiệu ứng beanfx và hạt sáng.
-import { VIEW, TILE as T, HUB, FEATURES, ARCH, BOSS, WOLF_PACK, FOX_TRAIL, ICE_FAN, ELITE_V2, TRIBULATION, SHRINE, BASIC_ATTACK } from '../core/config.js';
+import { VIEW, TILE as T, HUB, FEATURES, ARCH, BOSS, WOLF_PACK, FOX_TRAIL, ICE_FAN, ELITE_V2, BOSS_V2, TRIBULATION, SHRINE, BASIC_ATTACK } from '../core/config.js';
 import { GRASS, WATER, STONE, TREE, ROCK, BUILDING, FENCE, DIRT, CLIFF, CLOUD, FALL } from '../world/map.js';
 import { SPR, TIERS, BOSS_WHITE, BOSS_SPR, grassTiles, waterTiles, waterBank, stoneTile, treeSprs, rockSpr, hash } from './sprites.js';
 import { createFx } from '../../lib/beanfx.js';
@@ -826,6 +826,7 @@ function drawTelegraphsTop(ctx, scene) {
     else if (m.arch === 'chaser') L = WOLF_PACK.POUNCE.SPEED * WOLF_PACK.POUNCE.TIME;   // M10-04: sói chồm
     else if (m.boss && m.pat === 'dash') L = BOSS.MINI.DASH.SPEED * BOSS.MINI.DASH.TIME;
     else if (m.arch === 'elite' && m.sk === 'claw') { ctx.globalAlpha = 0.5; clawOutline(ctx, m, '#ff4a3a', 1); }   // M10-07
+    else if (m.boss && m.pat === 'claw') { ctx.globalAlpha = 0.6; clawOutline(ctx, m, '#ff4a3a', 1, 0, BOSS_V2.MINI.CLAW); }   // M10-09: thân boss ×2 hay che quạt
     else if (m.arch === 'elite') { ctx.globalAlpha = 0.5; pxRing(ctx, m.x, m.y, ARCH.elite.SLAM_R, 60, 0, '#ff4a3a', 1, 1); }
     else if (m.boss && m.pat === 'howlDash') {   // M7-13: hú rồi lao — viền lớp trên để thân boss ×2 / tán cây không che
       const prog = 1 - Math.max(0, m.stT) / (m.stMax || 1);
@@ -842,8 +843,8 @@ function drawTelegraphsTop(ctx, scene) {
 }
 
 // M10-07: viền hình quạt Hắc Trảo (cung + hai cạnh) theo hướng đã khóa
-function clawOutline(ctx, m, col, size, off = 0) {
-  const C = ELITE_V2.CLAW, a0 = Math.atan2(m.dirY, m.dirX), n = 36;
+function clawOutline(ctx, m, col, size, off = 0, C = ELITE_V2.CLAW) {   // C: { R, ARC } (M10-09: dùng chung cho Liệt Trảo của Lang Vương)
+  const a0 = Math.atan2(m.dirY, m.dirX), n = 36;
   ctx.fillStyle = col;
   for (let i = 0; i <= n; i++) { const a = a0 - C.ARC / 2 + C.ARC * i / n; ctx.fillRect(Math.round(m.x + Math.cos(a) * C.R) + off, Math.round(m.y + Math.sin(a) * C.R) + off, size, size); }
   for (const s of [-1, 1]) { const a = a0 + s * C.ARC / 2; pxLine(ctx, m.x + off, m.y + off, m.x + Math.cos(a) * C.R + off, m.y + Math.sin(a) * C.R + off, col, size); }
@@ -938,6 +939,8 @@ function drawAIDebug(ctx, scene, camX, camY, p) {
     const A = m.boss ? BOSS[m.bossKind].DASH : ARCH[m.arch];
     if ((m.arch === 'charger' || (m.boss && m.pat === 'dash')) && A) { const L = (A.DASH_SPEED || A.SPEED) * (A.DASH_TIME || A.TIME); return [m.x + m.dirX * L, m.y + m.dirY * L]; }
     if (m.arch === 'elite' && m.sk === 'claw') return [m.x + m.dirX * ELITE_V2.CLAW.R, m.y + m.dirY * ELITE_V2.CLAW.R];
+    if (m.boss && m.pat === 'claw') return [m.x + m.dirX * BOSS_V2.MINI.CLAW.R, m.y + m.dirY * BOSS_V2.MINI.CLAW.R];   // M10-09
+    if (m.boss && m.pat === 'leap' && m.leapX !== undefined) return [m.leapX, m.leapY];
     if (m.arch === 'ranged') { const R = ARCH.ranged; return [m.x + m.dirX * R.SHOT_SPEED * R.SHOT_LIFE * 0.6, m.y + m.dirY * R.SHOT_SPEED * R.SHOT_LIFE * 0.6]; }
     return null;
   };
@@ -964,6 +967,18 @@ function drawAIDebug(ctx, scene, camX, camY, p) {
 
 function drawBossTelegraph(ctx, m) {
   const B = BOSS[m.bossKind], prog = m.st === 'rest' ? 0 : 1 - Math.max(0, m.stT) / (m.stMax || 1);
+  if (m.pat === 'claw' && m.st === 'windup') {   // M10-09 Liệt Trảo: quạt lấp tím dần + viền đỏ viền tối, sau lưng trống
+    const C = BOSS_V2.MINI.CLAW, a0 = Math.atan2(m.dirY, m.dirX);
+    ctx.globalAlpha = 0.25; ctx.fillStyle = '#c070ff';
+    ctx.beginPath(); ctx.moveTo(m.x, m.y); ctx.arc(m.x, m.y, C.R * prog, a0 - C.ARC / 2, a0 + C.ARC / 2); ctx.closePath(); ctx.fill();
+    ctx.globalAlpha = 0.9; clawOutline(ctx, m, TG_DARK, 3, -1, C); clawOutline(ctx, m, '#ff4a3a', 1, 0, C);
+    ctx.globalAlpha = 1; return;
+  }
+  if (m.pat === 'leap' && m.st === 'windup' && m.leapX !== undefined) {   // M10-09 Vồ Đầu Đàn: đường chấm tới dấu đáp (vòng đáp vẽ như vùng nổ)
+    ctx.fillStyle = '#ffd978'; ctx.globalAlpha = 0.85;
+    for (let i = 1; i < 12; i += 2) ctx.fillRect(Math.round(m.x + (m.leapX - m.x) * i / 12), Math.round(m.y + (m.leapY - m.y) * i / 12) - 1, 2, 2);
+    ctx.globalAlpha = 1; return;
+  }
   if (m.pat === 'dash') {
     const L = B.DASH.SPEED * B.DASH.TIME, x0 = m.x, y0 = m.y - 4;
     ctx.globalAlpha = 0.7; tgLine(ctx, x0, y0, x0 + m.dirX * L, y0 + m.dirY * L, '#ff4a3a', 3);

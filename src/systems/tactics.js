@@ -1,7 +1,7 @@
 // M10-02: bộ chọn hành vi theo tình huống (tactical selector) + ngân sách đe dọa dùng chung.
 // Chỉ chạy khi FEATURES.enemyTactics bật; tắt = AI M9 y nguyên (xoay vòng ORDER, quái gồng tự do).
 // Tất định: chỉ dùng io.rng (= run.rng). Không pathfinding riêng từng con, quyết định theo nhịp so le.
-import { TACTICS as TC, BOSS, PLAYER, ARCH, WOLF_PACK as WP, ICE_FAN as IF, ELITE_V2 as EV } from '../core/config.js';
+import { TACTICS as TC, BOSS, PLAYER, ARCH, WOLF_PACK as WP, ICE_FAN as IF, ELITE_V2 as EV, BOSS_V2 } from '../core/config.js';
 import { inCameraView } from './director.js';
 
 // ---------- ngân sách đe dọa (đầu mỗi tick, run.js gọi) ----------
@@ -51,6 +51,7 @@ export function dangerShapes(scene, player) {
     else if (m.boss && m.pat === 'dash') dash(BOSS.MINI.DASH.SPEED, BOSS.MINI.DASH.TIME, BOSS.MINI.DASH.HIT_R);
     else if (m.arch === 'ranged' && m.st === 'windup') out.push(...fanSegs(m, m.dirX, m.dirY, m.fan));
     else if (m.arch === 'elite' && m.st === 'windup') out.push({ x: m.x, y: m.y, r: (m.sk === 'claw' ? EV.CLAW.R : ARCH.elite.SLAM_R) + PLAYER.HITBOX });
+    else if (m.boss && m.pat === 'claw' && m.st === 'windup') out.push({ x: m.x, y: m.y, r: BOSS_V2.MINI.CLAW.R + PLAYER.HITBOX });   // M10-09
   }
   return out;
 }
@@ -86,6 +87,14 @@ export const BOSS_SKILLS = {
     { id: 'howl', valid: c => SUMMONED(c) < TC.MAX_SUMMONED, w: c => c.d < 90 ? 0.8 : 1.6 },
     { id: 'howlDash', valid: c => c.remix && SUMMONED(c) < TC.MAX_SUMMONED, w: c => c.d > 90 ? 2 : 1 },
   ],
+  // M10-09 (bossPatternsV2): Lang Vương 5 chiêu, chọn theo tầm + số sói đàn + pha
+  MINI_V2: [
+    { id: 'dash', valid: () => true, w: c => c.d > 90 ? 3 : 1.2 },
+    { id: 'howl', valid: c => SUMMONED(c) + BOSS.MINI.HOWL.N <= TC.MAX_SUMMONED, w: c => SUMMONED(c) < 3 ? 2.2 : 0.6 },   // đàn gọi ra không vượt MAX_SUMMONED
+    { id: 'claw', valid: c => c.d < BOSS_V2.MINI.CLAW.TRIGGER, w: () => 3.5 },
+    { id: 'howlDash', valid: c => c.phase2 && c.remix && SUMMONED(c) + BOSS.MINI.HOWL.N <= TC.MAX_SUMMONED, w: () => 1.2 },
+    { id: 'leap', valid: c => c.phase2 && c.d > BOSS_V2.MINI.LEAP.MIN_D && c.d < BOSS_V2.MINI.LEAP.MAX_D, w: () => 2.5 },
+  ],
   FINAL: [
     { id: 'burst', valid: c => ONCAM(c), w: c => c.d > 80 ? 2.5 : 1.2 },
     { id: 'zones', valid: c => c.io.hazards.length + (c.phase2 ? BOSS.FINAL.ZONES.N2 : BOSS.FINAL.ZONES.N) <= (BOSS.FINAL.MAX_HAZARDS || 12), w: c => c.d > 120 ? 2.2 : 1.4 },
@@ -96,7 +105,7 @@ export const BOSS_SKILLS = {
 
 // Chọn chiêu: lọc hợp lệ + hết hồi chiêu + chống lặp (không quá TC.MAX_REPEAT lần liên tiếp), bốc theo trọng số.
 export function selectBossSkill(m, B, d, io, player, phase2) {
-  const list = BOSS_SKILLS[m.bossKind]; if (!list) return null;
+  const list = (io.bossV2 && BOSS_SKILLS[m.bossKind + '_V2']) || BOSS_SKILLS[m.bossKind]; if (!list) return null;
   m.skillCd = m.skillCd || {}; m.skillHist = m.skillHist || [];
   const ctx = { m, B, d, phase2, remix: !!m.remix, io, player };
   const now = m.age || 0;

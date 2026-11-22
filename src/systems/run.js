@@ -97,7 +97,8 @@ export function updateRun(run, player, dt, ev, realmPowerOverride) {
   const tactics = run.tactics ?? FEATURES.enemyTactics;   // M10-02: cờ theo lượt (test/sim đặt run.tactics), mặc định theo FEATURES
   const skillsV2 = run.skillsV2 ?? FEATURES.enemySkillsV2;   // M10-B: kỹ năng mới quái thường
   if (skillsV2) updatePacks(sc, player, run, dt);
-  const io = { map: sc.map, skillsV2, diff: run.diff || 0, shots: sc.enemyShots, hazards: sc.hazards, ev, onAttack, rng: run.rng, scene: sc,
+  const bossV2 = run.bossV2 ?? FEATURES.bossPatternsV2;   // M10-C
+  const io = { map: sc.map, skillsV2, bossV2, diff: run.diff || 0, shots: sc.enemyShots, hazards: sc.hazards, ev, onAttack, rng: run.rng, scene: sc,
     summon: (m, n, r) => summonAround(run, player, m.x, m.y, n, r, pw),
     tactics, retry: TACTICS.RETRY, threat: tactics ? threatScan(sc, player, run.diff || 0) : null,
     log: (kind, id) => { const k = kind + ':' + id; run.skillsUsed[k] = (run.skillsUsed[k] || 0) + 1; } };

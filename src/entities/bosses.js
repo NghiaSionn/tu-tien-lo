@@ -1,7 +1,7 @@
 // Boss (M2-02): Lang Vương (mini-boss giữa run) và Ma Ảnh Yêu Vương (boss cuối). Máy trạng thái:
 //   move (đuổi, đếm GAP) -> windup (gồng, có cảnh báo) -> [dash ×n] -> recover (sơ hở, nhận thêm sát thương) -> move
 // Chiêu chỉ bắt đầu từ 'move'; boss chết thì không còn gì chạy (run.js dọn vùng/đạn). Chỉ dùng io.rng (seed của run).
-import { BOSS, RUN, HUB_MONSTER as HM, TACTICS as TC } from '../core/config.js';
+import { BOSS, RUN, HUB_MONSTER as HM, TACTICS as TC, BOSS_V2, PLAYER } from '../core/config.js';
 import { selectBossSkill, keepEscape } from '../systems/tactics.js';
 
 export const bossDef = m => BOSS[m.bossKind];
@@ -15,7 +15,18 @@ export function bossAI(m, player, dx, dy, d, dt, io) {
     m.enraged = true; m.dmg = Math.round(m.dmg * B.ENRAGE_DMG);
     io.ev.push({ type: 'announce', x: m.x, y: m.y, text: `${B.name} cuồng nộ!`, color: '#ff5a5a' });
   }
-  const phase2 = m.bossKind === 'FINAL' && m.hp <= m.max * B.PHASE2;
+  const V = io.bossV2 ? BOSS_V2[m.bossKind] : null;   // M10-09: bộ chiêu 2 pha mới (null = boss cũ)
+  const phase2 = V ? m.hp <= m.max * V.PHASE2 : (m.bossKind === 'FINAL' && m.hp <= m.max * B.PHASE2);
+  if (V) {   // ước lượng vận tốc người chơi (cho Vồ Đầu Đàn dự đoán), làm mượt
+    if (m.ppx !== undefined && dt > 0) { m.pvx = (m.pvx || 0) * 0.8 + (player.x - m.ppx) / dt * 0.2; m.pvy = (m.pvy || 0) * 0.8 + (player.y - m.ppy) / dt * 0.2; }
+    m.ppx = player.x; m.ppy = player.y;
+    // chuyển P1 -> P2 đúng một lần, chỉ giữa hai chiêu (không cắt đòn đang ra): thông báo + choáng (sơ hở)
+    if (phase2 && !m.p2 && (m.st === 'move' || m.st === 'recover')) {
+      m.p2 = true; m.st = 'recover'; m.stT = V.STAGGER; m.vuln = V.STAGGER; m.vx = m.vy = 0;
+      io.ev.push({ type: 'announce', x: m.x, y: m.y, text: V.P2_TEXT, color: '#ff8a5a' }, { type: 'shake', t: 0.2 });
+      return true;
+    }
+  }
 
   if (m.st === 'windup') {
     m.vx = m.vy = 0; m.stT -= dt;
@@ -30,6 +41,13 @@ export function bossAI(m, player, dx, dy, d, dt, io) {
       if (m.dashLeft > 0) { m.st = 'rest'; m.stT = B.DASH.REST; }
       else toRecover(m, B, io);
     }
+    return true;
+  }
+  if (m.st === 'leap') {          // M10-09 Vồ Đầu Đàn: bay theo đường thẳng tới dấu đáp (vùng nổ tự gây sát thương đúng lúc đáp)
+    m.vx = m.vy = 0; m.stT -= dt;
+    const k = Math.min(1, 1 - Math.max(0, m.stT) / V_AIR(m));
+    m.x = m.lx0 + (m.leapX - m.lx0) * k; m.y = m.ly0 + (m.leapY - m.ly0) * k;
+    if (m.stT <= 0) { m.x = m.lastX = m.leapX; m.y = m.lastY = m.leapY; toRecover(m, B, io); }
     return true;
   }
   if (m.st === 'rest') {           // nghỉ ngắn giữa các lần lao: gồng lại, nhắm lại
@@ -48,7 +66,7 @@ export function bossAI(m, player, dx, dy, d, dt, io) {
   }
   if (m.st === 'recover') {
     m.vx = m.vy = 0; m.stT -= dt;
-    if (m.stT <= 0) { m.st = 'move'; m.gapT = B.GAP * (m.enraged ? B.ENRAGE_GAP : phase2 ? B.PHASE2_GAP : 1); }
+    if (m.stT <= 0) { m.st = 'move'; m.gapT = B.GAP * (m.enraged ? B.ENRAGE_GAP : phase2 ? ((V && V.P2_GAP) || B.PHASE2_GAP || 1) : 1); }
     return true;
   }
 
@@ -58,11 +76,16 @@ export function bossAI(m, player, dx, dy, d, dt, io) {
   if (unstick(m, d, dt, io, player)) return true;
   m.gapT -= dt;
   if (m.gapT > 0) return true;
-  const pat = io.tactics ? selectBossSkill(m, B, d, io, player, phase2) : pickPattern(m, B, d);   // M10-02: chọn theo tình huống khi bật cờ
+  let pat = (io.tactics || V) ? selectBossSkill(m, B, d, io, player, phase2) : pickPattern(m, B, d);   // M10-02: chọn theo tình huống khi bật cờ (M10-09: luôn dùng selector cho bộ chiêu mới)
+  if (pat === 'leap' && !startLeap(m, player, io, B, V)) pat = 'dash';   // không có dấu đáp hợp lệ / hết lối né -> lao thường
   if (!pat) { m.gapT = 0.4; return true; }   // M10-03: chưa có chiêu hợp lệ -> đuổi tiếp, xét lại sau
   m.pat = pat;
   if (io.log) io.log(m.bossKind, pat);   // M10: telemetry chiêu boss (cả AI cũ và mới)
   if (pat === 'dash') { m.dashLeft = B.DASH.COUNT; aimDash(m, player, B); }
+  else if (pat === 'claw') {   // M10-09 Liệt Trảo: khóa hướng lúc bắt đầu gồng
+    const l = Math.hypot(dx, dy) || 1; m.dirX = dx / l; m.dirY = dy / l; windup(m, V.CLAW.WINDUP);
+  }
+  else if (pat === 'leap') { /* startLeap đã đặt dấu đáp + gồng */ }
   else if (pat === 'howl' || pat === 'howlDash') windup(m, B.HOWL.WINDUP);
   else if (pat === 'prison') {   // M7-13 Ma Ảnh Lao Tù: vòng vùng nổ quanh người chơi + đạn thưa khi nổ
     const P = B.REMIX.PRISON;
@@ -113,6 +136,13 @@ function toRecover(m, B, io) {
 
 function release(m, player, B, io, phase2) {
   if (m.pat === 'dash') { m.st = 'dash'; m.stT = B.DASH.TIME; return true; }
+  if (m.pat === 'claw') {   // M10-09: quét cung theo hướng đã khóa
+    const C = BOSS_V2.MINI.CLAW, dx = player.x - m.x, dy = player.y - m.y, d = Math.hypot(dx, dy);
+    if (d < C.R + PLAYER.HITBOX && (d < 8 || (dx * m.dirX + dy * m.dirY) / d >= Math.cos(C.ARC / 2))) io.onAttack(m, m.dmg * C.DMG, 'miniboss:claw');
+    io.ev.push({ type: 'shake', t: 0.12 });
+    toRecover(m, B, io); return true;
+  }
+  if (m.pat === 'leap') { m.st = 'leap'; m.stT = BOSS_V2.MINI.LEAP.AIR; m.lx0 = m.x; m.ly0 = m.y; return true; }
   if (m.pat === 'howlDash') {   // M7-13: hú xong -> chuỗi lao (mỗi cú vẫn gồng + cảnh báo đường lao)
     io.summon(m, B.HOWL.N, B.HOWL.R);
     io.ev.push({ type: 'pulse', x: m.x, y: m.y, r: 60, color: '#ffd978' });
@@ -137,6 +167,25 @@ function release(m, player, B, io, phase2) {
 // M10-03 (bật cờ): vùng mới phải chừa lối thoát (tính cả vùng đang có); tắt cờ = đặt hết như cũ
 function placeZones(io, B, player, zs, time) {
   for (const h of io.tactics ? keepEscape(io.map, player, io.hazards, zs, time) : zs) addHazard(io, B, h);
+}
+
+const V_AIR = () => BOSS_V2.MINI.LEAP.AIR;
+// M10-09 Vồ Đầu Đàn: dấu đáp ở vị trí dự đoán (giới hạn MAX_LEAD), phải đứng được và còn lối né; vùng nổ = sát thương lúc đáp
+function startLeap(m, player, io, B, V) {
+  const L = V.LEAP;
+  let lx = (m.pvx || 0) * L.LEAD, ly = (m.pvy || 0) * L.LEAD;
+  const ll = Math.hypot(lx, ly); if (ll > L.MAX_LEAD) { lx *= L.MAX_LEAD / ll; ly *= L.MAX_LEAD / ll; }
+  for (const k of [1, 0.5, 0]) {
+    const x = player.x + lx * k, y = player.y + ly * k;
+    if (!(io.map.monStand ? io.map.monStand(x, y) : io.map.canStand(x, y))) continue;
+    const before = io.hazards.length;
+    const T = L.WINDUP + L.AIR + L.SYNC;   // nổ đúng lúc boss chạm đất (boss bắt đầu bay chậm 1 tick sau khi hết gồng)
+    placeZones(io, B, player, [{ x, y, r: L.R, t: T, dmg: m.dmg * L.DMG, owner: m, src: 'miniboss:leap' }], T);
+    if (io.hazards.length === before) return false;   // bị bỏ vì bịt lối né / đầy vùng
+    m.leapX = x; m.leapY = y; windup(m, L.WINDUP);
+    return true;
+  }
+  return false;
 }
 
 function addHazard(io, B, h) {
