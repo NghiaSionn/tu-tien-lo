@@ -4,6 +4,7 @@ import { mulberry32 } from '../core/rng.js';
 import { makeArenaMap, makeRoomsMap } from '../world/map.js';
 import { createRoomState, updateRoomDirector } from './roomdirector.js';
 import { updatePacks } from './packs.js';
+import { updateFireTrails } from './firetrail.js';
 import { threatScan } from './tactics.js';
 import { TACTICS } from '../core/config.js';
 import { power, atk, maxHp } from '../progression/realm.js';
@@ -33,7 +34,7 @@ export function createRun({ seed, startSkill, realmLevel, difficulty = 0, unlock
     realmLevel, baseMaxHp: maxHp(realmLevel), hp: 0, maxHp: 0,
   };
   if (vmod(run, 'eliteFirst', null) != null) run.dir.eliteT = vmod(run, 'eliteFirst');
-  run.scene = { kind: 'run', map, monsters: [], projectiles: [], zones: [], orbs: [], enemyShots: [], hazards: [] };
+  run.scene = { kind: 'run', map, monsters: [], projectiles: [], zones: [], orbs: [], enemyShots: [], hazards: [], fireTrails: [] };
   run.mode = mode === 'rooms' ? 'rooms' : 'arena';
   if (run.mode === 'rooms') { run.rooms = createRoomState(map.rooms); run.tEff = 0; }
   refreshMaxHp(run, true);
@@ -75,6 +76,7 @@ export function endRun(run, outcome) {
   run.scene.projectiles.length = 0;
   run.scene.enemyShots.length = 0;
   run.scene.hazards.length = 0;
+  if (run.scene.fireTrails) run.scene.fireTrails.length = 0;
   return true;
 }
 
@@ -103,6 +105,7 @@ export function updateRun(run, player, dt, ev, realmPowerOverride) {
   updateMonsters(sc, player, dt, ev, { safe: null, onAttack, ai: (m, pl, dx, dy, d, t) => archetypeAI(m, pl, dx, dy, d, t, io) });
   updateEnemyShots(sc, player, dt, (dmg, s) => hurtRunPlayer(run, player, dmg, ev, (s && s.src) || 'ranged:shot'));
   updateHazards(sc, player, dt, ev, (dmg, h) => hurtRunPlayer(run, player, dmg, ev, h.src || 'boss:zone'));
+  if (run.status === 'RUNNING') updateFireTrails(sc, player, dt, run, dmg => hurtRunPlayer(run, player, dmg, ev, 'charger:trail'));   // M10-05
   if (run.status !== 'RUNNING') return;
   let finalDown = false;
   reapMonsters(sc, m => {

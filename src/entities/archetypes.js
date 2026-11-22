@@ -4,6 +4,7 @@
 import { RUN, ARCH, HUB_MONSTER as HM, WOLF_PACK as WP } from '../core/config.js';
 import { bossAI } from './bosses.js';
 import { claimSpecial, thinkTick } from '../systems/tactics.js';
+import { dropTrail } from '../systems/firetrail.js';
 
 // Trả về true nếu đã tự xử lý vận tốc/tấn công (updateMonsters bỏ qua AI đuổi mặc định).
 // io: { map, onAttack(m, dmg), shots }
@@ -16,7 +17,7 @@ export function archetypeAI(m, player, dx, dy, d, dt, io) {
   if (m.st === 'windup') {
     m.vx = m.vy = 0; m.stT -= dt;
     if (m.stT > 0) return true;
-    if (m.arch === 'charger') { m.st = 'dash'; m.stT = A.DASH_TIME; m.dashHit = false; }
+    if (m.arch === 'charger') { m.st = 'dash'; m.stT = A.DASH_TIME; m.dashHit = false; m.trailT = 0; m.trailN = 0; }
     else if (m.arch === 'ranged') {
       if (io.shots && io.shots.length < RUN.MAX_ENEMY_SHOTS)
         io.shots.push({ x: m.x, y: m.y - 6, vx: m.dirX * A.SHOT_SPEED, vy: m.dirY * A.SHOT_SPEED, life: A.SHOT_LIFE, dmg: m.dmg * A.SHOT_DMG, src: 'ranged:shot' });
@@ -31,6 +32,7 @@ export function archetypeAI(m, player, dx, dy, d, dt, io) {
   if (m.st === 'dash') {
     m.vx = m.dirX * A.DASH_SPEED; m.vy = m.dirY * A.DASH_SPEED; m.stT -= dt;
     if (!m.dashHit && d < A.HIT_R) { m.dashHit = true; io.onAttack(m, m.dmg * A.DASH_DMG); }
+    if (io.skillsV2 && m.arch === 'charger' && io.scene) dropTrail(io.scene, m, player, dt);   // M10-05: Hỏa Vĩ
     if (m.stT <= 0) { m.st = 'recover'; m.stT = A.RECOVER; }
     return true;
   }

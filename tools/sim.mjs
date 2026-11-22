@@ -16,7 +16,7 @@ import { createRun, updateRun, refreshMaxHp } from '../src/systems/run.js';
 import { drawCards, applyCard, rerollDraft } from '../src/progression/draft.js';
 import { runStats } from '../src/systems/combat.js';
 import { moveEntity } from '../src/entities/monsters.js';
-import { PLAYER, ARCH, BOSS, FEATURES } from '../src/core/config.js';
+import { PLAYER, ARCH, BOSS, FEATURES, WOLF_PACK } from '../src/core/config.js';
 if (process.env.SYNERGY) FEATURES.draftSynergy = true;
 const REROLL = !!process.env.REROLL;
 import { computeRunReward } from '../src/progression/rewards.js';
@@ -100,10 +100,12 @@ function dodge(run, p) {
     vx += dx / d * w; vy += dy / d * w;
   };
   for (const h of run.scene.hazards) if (Math.hypot(p.x - h.x, p.y - h.y) < h.r + 12) away(h.x, h.y, 4);
+  for (const f of run.scene.fireTrails || []) if (Math.hypot(p.x - f.x, p.y - f.y) < f.r + 10) away(f.x, f.y, 3);   // M10-05: tránh vệt lửa (đang nạp hay đang cháy)
   for (const m of run.scene.monsters) {
     if (m.st !== 'windup' && m.st !== 'dash' && m.st !== 'rest') continue;
     let L = 0;
     if (m.arch === 'charger') L = ARCH.charger.DASH_SPEED * ARCH.charger.DASH_TIME;
+    else if (m.arch === 'chaser') L = WOLF_PACK.POUNCE.SPEED * WOLF_PACK.POUNCE.TIME;   // M10-04: sói chồm
     else if (m.boss && m.pat === 'dash') L = BOSS.MINI.DASH.SPEED * BOSS.MINI.DASH.TIME;
     else if (m.arch === 'ranged' && m.st === 'windup') L = 200;
     else if (m.arch === 'elite' && m.st === 'windup' && Math.hypot(p.x - m.x, p.y - m.y) < ARCH.elite.SLAM_R + 12) away(m.x, m.y, 4);

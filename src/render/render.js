@@ -1,5 +1,5 @@
 // Vẽ một khung: bản đồ, vật thể sắp theo y, yêu thú, người chơi, công pháp, hiệu ứng beanfx và hạt sáng.
-import { VIEW, TILE as T, HUB, FEATURES, ARCH, BOSS, WOLF_PACK, TRIBULATION, SHRINE, BASIC_ATTACK } from '../core/config.js';
+import { VIEW, TILE as T, HUB, FEATURES, ARCH, BOSS, WOLF_PACK, FOX_TRAIL, TRIBULATION, SHRINE, BASIC_ATTACK } from '../core/config.js';
 import { GRASS, WATER, STONE, TREE, ROCK, BUILDING, FENCE, DIRT, CLIFF, CLOUD, FALL } from '../world/map.js';
 import { SPR, TIERS, BOSS_WHITE, BOSS_SPR, grassTiles, waterTiles, waterBank, stoneTile, treeSprs, rockSpr, hash } from './sprites.js';
 import { createFx } from '../../lib/beanfx.js';
@@ -835,11 +835,36 @@ function drawTelegraphsTop(ctx, scene) {
     else if (m.arch === 'ranged') { const A = ARCH.ranged, R = A.SHOT_SPEED * A.SHOT_LIFE * 0.6; ctx.globalAlpha = 0.5; pxLine(ctx, m.x, m.y - 6, m.x + m.dirX * R, m.y - 6 + m.dirY * R, '#ff4a3a', 1); }   // M10-03: đường bắn cũng không bị tán cây che
     if (L) { ctx.globalAlpha = 0.5; pxLine(ctx, m.x, m.y - 3, m.x + m.dirX * L, m.y - 3 + m.dirY * L, '#ff4a3a', 1); }
   }
+  for (const f of scene.fireTrails || []) { ctx.globalAlpha = 0.4 * Math.min(1, (f.life - f.t) / FOX_TRAIL.FADE); pxRing(ctx, f.x, f.y, f.r, 24, 0, '#ff4a3a', 1, 0.6); }   // M10-05: viền vệt lửa không bị tán cây che
   for (const m of scene.monsters) if (!m.dead && m.st === 'blink') { ctx.globalAlpha = 0.8; pxRing(ctx, m.blinkX, m.blinkY, 22, 60, 0, '#d9a8ff', 1, 0.6); }
   ctx.globalAlpha = 1;
 }
 
+// M10-05: Hỏa Vĩ — đốm đang "nạp" = vòng đỏ viền tối + lấp cam dần (vô hại); đang cháy = đốm cam/vàng lập lòe + viền đỏ; cuối đời mờ dần
+function drawFireTrails(ctx, scene) {
+  for (const f of scene.fireTrails || []) {
+    const fade = Math.min(1, (f.life - f.t) / FOX_TRAIL.FADE), rx = f.r, ry = Math.round(f.r * 0.6);
+    if (f.t < f.arm) {
+      const prog = f.t / f.arm;
+      ctx.globalAlpha = 0.25; ctx.fillStyle = '#ff8a3a'; ctx.beginPath(); ctx.ellipse(f.x, f.y, rx * prog, ry * prog, 0, 0, 6.283); ctx.fill();
+      ctx.globalAlpha = 0.9; tgRing(ctx, f.x, f.y, rx, 28, '#ff4a3a', 1, 0.6);
+    } else {
+      ctx.globalAlpha = 0.4 * fade; ctx.fillStyle = '#ff6a1a'; ctx.beginPath(); ctx.ellipse(f.x, f.y, rx, ry, 0, 0, 6.283); ctx.fill();
+      ctx.globalAlpha = 0.55 * fade; ctx.fillStyle = '#ffc860'; ctx.beginPath(); ctx.ellipse(f.x, f.y, rx * 0.5, ry * 0.5, 0, 0, 6.283); ctx.fill();
+      const fr = Math.floor(f.t * 12);   // lửa lập lòe: vị trí theo đốm + khung, tất định
+      for (let k = 0; k < 5; k++) {
+        const h = (Math.imul((Math.round(f.x) * 73856093) ^ (Math.round(f.y) * 19349663) ^ ((fr + k * 7) * 83492791), 2654435761) >>> 0);
+        const px = Math.round(f.x + ((h & 15) - 7.5) * rx / 8), py = Math.round(f.y + (((h >> 4) & 7) - 3.5) * ry / 4);
+        ctx.globalAlpha = 0.9 * fade; ctx.fillStyle = (h >> 8) & 1 ? '#fff0a0' : '#ff9a3a'; ctx.fillRect(px, py - 2 - ((h >> 9) & 3), 1, 2 + ((h >> 11) & 1));
+      }
+      ctx.globalAlpha = 0.85 * fade; tgRing(ctx, f.x, f.y, rx, 28, '#ff4a3a', 1, 0.6);
+    }
+  }
+  ctx.globalAlpha = 1;
+}
+
 function drawTelegraphs(ctx, scene) {
+  drawFireTrails(ctx, scene);
   // vùng nguy hiểm của boss (đập đất, hắc diễm): vòng đỏ đúng bán kính trúng + lấp tím dần tới lúc nổ
   for (const h of scene.hazards || []) {
     const prog = 1 - Math.max(0, h.t) / (h.max || 1);
@@ -910,7 +935,7 @@ function drawAIDebug(ctx, scene, camX, camY, p) {
   }
   for (const h of scene.hazards || []) txt(ctx, Math.max(0, h.t).toFixed(1), Math.round(h.x), Math.round(h.y + 3), '#ffb0b0', 7);
   const t = scene.aiThreat;
-  const line = t ? `AI chiến thuật · đòn ${t.normal}/${t.normalCap} · boss nặng ${t.bossHeavy} · vùng ${scene.hazards.length} · đạn ${scene.enemyShots.length}${t.onHazard ? ' · ĐỨNG TRONG VÙNG' : ''}` : `AI M9 (tắt chiến thuật) · vùng ${(scene.hazards || []).length} · đạn ${(scene.enemyShots || []).length}`;
+  const line = t ? `AI chiến thuật · đòn ${t.normal}/${t.normalCap} · boss nặng ${t.bossHeavy} · vùng ${scene.hazards.length} · đạn ${scene.enemyShots.length} · lửa ${(scene.fireTrails || []).length}${t.onHazard ? ' · ĐỨNG TRONG VÙNG' : ''}` : `AI M9 (tắt chiến thuật) · vùng ${(scene.hazards || []).length} · đạn ${(scene.enemyShots || []).length}`;
   ctx.globalAlpha = 1; txt(ctx, line, camX + VIEW.W / 2, camY + 40, '#ffe066', 8);   // trên cùng giữa: không đè thanh máu boss
 }
 

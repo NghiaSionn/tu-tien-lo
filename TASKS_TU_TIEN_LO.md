@@ -470,7 +470,8 @@ Hướng do ChatGPT đề xuất 17/11, người phát triển duyệt "Làm gam
 - [x] M10-03 Telegraph & chống chồng đòn bất công (22/11): cảnh báo đỏ viền tối (băng tiễn đổi xanh→đỏ), vùng boss luôn chừa lối thoát, quái thường chỉ 1 đòn khi boss gồng chiêu nặng/người chơi trong vùng, boss không bắn từ ngoài màn, giải kẹt báo trước 0,8 s, nguồn sát thương có tên chiêu (`SKILL_NAMES`), lớp debug `?aidebug=1`. 238/238 test (13 mới). Sim cờ TẮT trùng từng seed M10-01; BẬT: L0 34/60, L9 30/36. Báo cáo `docs/playtest/M10_03_TELEGRAPH.md`.
 - [x] GATE M10-A — người phát triển duyệt 22/11 ("Duyệt, làm M10-04"). Cờ `enemyTactics` vẫn TẮT mặc định.
 - [x] M10-04 Dã Lang săn theo đàn (22/11): cờ mới `FEATURES.enemySkillsV2` (mặc định TẮT, `?skills2=1`), `src/systems/packs.js` gom đàn + phân vai áp sát/vòng sườn, chồm có gồng 0,6 s khóa hướng, ≤ 1 con chồm mỗi đàn, hồ chắn thì đi như sói thường. 245/245 test (7 mới). Sim (tactics+skills2): L0 27/60, L9 29/36; cờ TẮT trùng từng seed M10-01. Tru Bầy chưa làm. Báo cáo `docs/playtest/M10_04_DA_LANG.md`.
-- [ ] M10-05 Hỏa Hồ truy kích có vùng cản — **chờ người phát triển duyệt**.
+- [x] M10-05 Hỏa Hồ — Hỏa Vĩ (22/11): vệt lửa sau cú lao (`src/systems/firetrail.js`, `FOX_TRAIL`), cảnh báo 0,4 s, không sinh trong 29 px quanh người chơi, trần 7/cú lao và 36/màn, dính tối đa 1 lần/0,6 s, hết 2,4 s xóa sạch; chung cờ `enemySkillsV2`. Bot sim nay né chồm + lửa (số M10-04 27/60 là do bot chưa né chồm). 250/250 test (5 mới). Sim: L0 35/60, L9 28/36; cờ TẮT trùng từng seed. Giả Động Tác chưa làm. Báo cáo `docs/playtest/M10_05_HOA_HO.md`.
+- [ ] M10-06 Huyền Băng Thú bắn và khống chế — **chờ người phát triển duyệt**.
 
 ---
 

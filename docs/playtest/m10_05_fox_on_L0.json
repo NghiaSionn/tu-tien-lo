@@ -1,0 +1,163 @@
+{
+ "realm": 0,
+ "seeds": 10,
+ "builds": {
+  "kiem_loi": {
+   "win": 10,
+   "lose": 0,
+   "timeout": 0,
+   "mini": 10,
+   "seeds": "WWWWWWWWWW",
+   "deathT": [],
+   "winT": [
+    418,
+    420,
+    411,
+    395,
+    410,
+    460,
+    428,
+    414,
+    410,
+    432
+   ]
+  },
+  "phi_kiem_hoa": {
+   "win": 5,
+   "lose": 5,
+   "timeout": 0,
+   "mini": 10,
+   "seeds": "WWLLLLWWLW",
+   "deathT": [
+    379,
+    295,
+    376,
+    337,
+    295
+   ],
+   "winT": [
+    389,
+    442,
+    392,
+    399,
+    409
+   ]
+  },
+  "hoa_phong": {
+   "win": 3,
+   "lose": 7,
+   "timeout": 0,
+   "mini": 10,
+   "seeds": "LWLWWLLLLL",
+   "deathT": [
+    332,
+    290,
+    368,
+    369,
+    326,
+    411,
+    366
+   ],
+   "winT": [
+    470,
+    450,
+    416
+   ]
+  },
+  "loi_the": {
+   "win": 8,
+   "lose": 2,
+   "timeout": 0,
+   "mini": 10,
+   "seeds": "LWWWWWWWWL",
+   "deathT": [
+    437,
+    379
+   ],
+   "winT": [
+    502,
+    516,
+    479,
+    511,
+    483,
+    472,
+    462,
+    450
+   ]
+  },
+  "bang_han": {
+   "win": 8,
+   "lose": 2,
+   "timeout": 0,
+   "mini": 9,
+   "seeds": "WWWWLLWWWW",
+   "deathT": [
+    98,
+    406
+   ],
+   "winT": [
+    416,
+    439,
+    425,
+    410,
+    419,
+    473,
+    441,
+    411
+   ]
+  },
+  "linh_phong": {
+   "win": 1,
+   "lose": 9,
+   "timeout": 0,
+   "mini": 10,
+   "seeds": "LLLLLLWLLL",
+   "deathT": [
+    330,
+    370,
+    311,
+    348,
+    293,
+    290,
+    296,
+    393,
+    276
+   ],
+   "winT": [
+    474
+   ]
+  }
+ },
+ "deathBy": {
+  "boss": 1,
+  "miniboss": 2,
+  "ranged:shot": 5,
+  "miniboss:dash": 3,
+  "elite:slam": 1,
+  "chaser": 12,
+  "elite": 1
+ },
+ "total": {
+  "runs": 60,
+  "win": 35,
+  "lose": 25,
+  "timeout": 0
+ },
+ "logicMsPerTick": 0.1115,
+ "dmgShare": {
+  "chaser": 25.4,
+  "ranged:shot": 22.6,
+  "miniboss:dash": 8.2,
+  "charger": 7,
+  "elite": 6.4,
+  "boss": 6.1,
+  "miniboss": 5.3,
+  "charger:dash": 4.2,
+  "elite:slam": 3.4,
+  "boss:zone": 3.4,
+  "charger:trail": 3.1,
+  "boss:burst": 2.5,
+  "chaser:pounce": 1.6,
+  "boss:slam": 0.8
+ }
+}

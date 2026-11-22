@@ -203,11 +203,26 @@ export const WOLF_PACK = {
   POUNCE: { TRIGGER: 80, MIN: 26, WINDUP: 0.6, SPEED: 210, TIME: 0.32, DMG: 1.4, HIT_R: 10, RECOVER: 0.6, CD: 3.5 },   // chồm: gồng khóa hướng -> lao ngắn ~67 px
 };
 
+// ---------- M10-05: Hỏa Hồ — Hỏa Vĩ [THỬ NGHIỆM] (chỉ khi FEATURES.enemySkillsV2) ----------
+// Trong cú lao, Hỏa Hồ rải các đốm lửa dọc đường. Mỗi đốm: ARM giây đầu chỉ là vòng cảnh báo (vô hại) -> cháy tới hết LIFE.
+// Không đặt đốm trong SAFE_R quanh người chơi (không sinh dưới chân); người chơi dính lửa tối đa 1 lần mỗi TICK giây.
+export const FOX_TRAIL = {
+  EVERY: 0.07,        // giây giữa hai đốm trong cú lao (~16 px)
+  R: 9,               // px bán kính đốm
+  ARM: 0.4,           // giây cảnh báo trước khi đốm bắt đầu cháy
+  LIFE: 2.4,          // giây tồn tại (kể cả ARM); hết là xóa sạch
+  DMG: 0.35,          // × sát thương Hỏa Hồ, mỗi lần dính
+  TICK: 0.6,          // giây: dính lửa nhiều đốm cùng lúc vẫn chỉ tính 1 lần mỗi TICK
+  SAFE_R: 20,         // px: không đặt đốm gần người chơi hơn khoảng này (tính lúc đặt)
+  MAX_PER_FOX: 7, MAX: 36,   // trần số đốm mỗi cú lao / toàn màn
+  FADE: 0.35,         // giây cuối mờ dần (chỉ để vẽ)
+};
+
 // M10-03: tên chiêu cho thống kê nguồn sát thương (run.dmgBy) — khóa = nguồn ghi trong run.js
 export const SKILL_NAMES = {
   chaser: 'Dã Lang cắn', charger: 'Hỏa Hồ cắn', 'charger:dash': 'Hỏa Hồ lao', ranged: 'Huyền Băng Thú cắn', 'ranged:shot': 'Băng tiễn',
   elite: 'Ma Ảnh cắn', 'elite:slam': 'Ma Ảnh đập đất', miniboss: 'Lang Vương cắn', 'miniboss:dash': 'Lang Vương lao',
-  boss: 'Yêu Vương cắn', 'boss:slam': 'Chấn Địa', 'boss:zone': 'Hắc Diễm', 'boss:prison': 'Ma Ảnh Lao Tù', 'boss:burst': 'Hắc Diễm Đạn', 'boss:prisonShot': 'Đạn Lao Tù', 'chaser:pounce': 'Dã Lang chồm',
+  boss: 'Yêu Vương cắn', 'boss:slam': 'Chấn Địa', 'boss:zone': 'Hắc Diễm', 'boss:prison': 'Ma Ảnh Lao Tù', 'boss:burst': 'Hắc Diễm Đạn', 'boss:prisonShot': 'Đạn Lao Tù', 'chaser:pounce': 'Dã Lang chồm', 'charger:trail': 'Hỏa Vĩ',
 };
 
 // ---------- Boss (M2-02) [THỬ NGHIỆM] ----------
