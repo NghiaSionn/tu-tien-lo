@@ -487,6 +487,12 @@ Hướng do ChatGPT đề xuất 17/11, người phát triển duyệt "Làm gam
 
 ---
 
+## VIỆC LƯU LẠI ĐỂ LÀM SAU (người phát triển dặn 23/11)
+
+- [ ] H-1 Ma Quang Hoành Tảo (Yêu Vương P2): (a) đưa tia quét vào "hình nguy hiểm" chống chồng đòn M10-08 (công bằng, không làm dễ); (b) chỉ chỉnh sát thương/tầm/thời gian sau khi có playtest người thật (F-4) — bot A/B: đòn kết liễu số 1 ở L0 (5/20) nhưng bot né kém (không biết vòng ra sau boss).
+
+---
+
 ## CUỐI CÙNG — KIỂM THỬ TAY / NGƯỜI THẬT (người phát triển quyết 23/11: dồn xuống cuối, làm hết phần code trước)
 
 Các việc cần người chơi thật, thiết bị thật hoặc quay phim. Không chặn các task code ở trên; làm theo thứ tự khi phần code đã xong.
