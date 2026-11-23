@@ -128,6 +128,7 @@ def main():
     ap.add_argument('--bg', default='ff00ff'); ap.add_argument('--tol', type=int, default=150)
     ap.add_argument('--fringe', type=int, default=2, help='số lượt bóc viền lem màu nền (quầng sáng dày cần nhiều hơn)')
     ap.add_argument('--preview', default='')
+    ap.add_argument('--align', default='feet', choices=['feet', 'body'], help='căn ngang theo chân (mặc định) hoặc theo thân+đầu (chu kỳ đi bộ: chân thay đổi liên tục, thân phải đứng yên)')
     a = ap.parse_args()
     bg = tuple(int(a.bg[i:i + 2], 16) for i in (0, 2, 4))
     names = Path(a.names).read_text(encoding='utf-8').split()
@@ -186,7 +187,7 @@ def main():
         ys, xs = np.nonzero(f[..., 3])
         bottom = ys.max()
         h = bottom - ys.min() + 1
-        low = ys >= bottom - int(h * 0.4)
+        low = ys >= bottom - int(h * 0.4) if a.align == 'feet' else ys <= bottom - int(h * 0.45)   # body: nửa trên (thân, bờm, đầu)
         cx = int(np.median(xs[low]))
         info[n] = (cx, bottom)
     info = {n: (int(cx), int(b)) for n, (cx, b) in info.items()}

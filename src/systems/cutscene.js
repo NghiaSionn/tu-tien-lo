@@ -51,10 +51,12 @@ function cliffActor(c, t) {
   const tipX = C.TIP_X, y = C.LEDGE_Y;
   if (t < T.EMERGE || t >= T.ARENA) return null;
   if (t < T.WALK) return { x: C.START_X, y: C.START_Y, frame: 'i0', flip: false, show: ease(seg(t, T.EMERGE, T.WALK)), step: -1 };
-  if (t < T.LOOK) {   // bước chậm đều: mỗi khung đi bộ giữ 1/WALK_FPS giây
-    const k = seg(t, T.WALK, T.LOOK), wt = t - T.WALK;
-    return { x: lerp(C.START_X, tipX, k), y: lerp(C.START_Y, y, k), frame: 'walk' + (Math.floor(wt * S.WALK_FPS) % 4), flip: false, show: 1,
-      step: (wt * S.WALK_FPS / 2) % 1 };   // 0..1 mỗi bước chân (2 khung), 0 = chân vừa chạm đất
+  if (t < T.LOOK) {   // bước đi KHỚP sải chân: mỗi bước (nửa vòng) tiến đúng STRIDE/2; ngay sau khi chân đặt xuống hơi chững (dồn trọng lượng)
+    const Wk = S.WALK, f = (t - T.WALK) * Wk.FPS, half = Wk.FRAMES / 2;
+    const n = Math.floor(f / half), p = (f % half) / half;                          // bước thứ n, pha 0..1 trong bước (0 = chân vừa chạm đất)
+    const steps = Math.min(Wk.CYCLES * 2, n + p - 0.1 * Math.sin(2 * Math.PI * p));
+    const k = steps / (Wk.CYCLES * 2);
+    return { x: C.START_X + steps * Wk.STRIDE / 2 / 640, y: lerp(C.START_Y, y, k), frame: 'w' + (Math.floor(f) % Wk.FRAMES), flip: false, show: 1, step: p };
   }
   if (t < T.INHALE) {  // nhìn quanh: quay lại sau lưng rồi nhìn ra vực
     const k = seg(t, T.LOOK, T.INHALE);

@@ -306,18 +306,30 @@ export const BOSS_ARENA = { CLEAR_FIELD: true, NO_SPAWN: true };
 // FADE1..CLIFF: đấu trường ngửa lên trời + tối dần · CLIFF..PAN: cảnh vách sáng dần, camera hạ từ trời xuống mặt vách
 // EMERGE..WALK: sói hiện ra từ bóng tối · WALK..LOOK: bước chậm tới mỏm đá · LOOK/INHALE/HOWL/CROUCH/LEAP
 // FADE2..ARENA: phóng lên, tối dần · ARENA..LAND: đấu trường sáng dần, camera từ trên cao hạ theo cú rơi · NAME · OUT: về người chơi
-const LV_T = { FADE1: 0.7, CLIFF: 1.2, PAN: 3.2, EMERGE: 2.6, WALK: 3.4, LOOK: 8.9, INHALE: 9.8, HOWL: 10.1, CROUCH: 11.4, LEAP: 11.8, FADE2: 12.2, ARENA: 12.7, LAND: 13.4, NAME: 13.5, OUT: 14.7 };
-const LV_WALK_FPS = 3.5;   // khung đi bộ/giây: chậm, nặng (khi đánh nhau chạy nhanh hơn nhiều)
-const lvSteps = [];        // mỗi bước chân chạm đất: tiếng dậm + rung nhẹ
-for (let at = LV_T.WALK + 2 / LV_WALK_FPS * 0.5; at < LV_T.LOOK - 0.1; at += 2 / LV_WALK_FPS) lvSteps.push([+at.toFixed(3), { type: 'sfx', name: 'thud' }], [+at.toFixed(3), { type: 'shake', t: 0.07 }]);
+// Bước đi (24/11): sheet 8 khung ChatGPT vẽ (sprites/boss_walk). Quãng đường KHỚP sải chân: mỗi vòng 8 khung tiến đúng STRIDE px,
+// chân chạm đất ở khung 0 và 4 (tiếng dậm + bụi + rung đúng lúc đó) -> không trượt chân. Thời gian đi = CYCLES vòng.
+const LV_WALK = { FRAMES: 8, FPS: 6.5, STRIDE: 46, CYCLES: 5, CONTACT: [0, 4] };
+const LV_WALK_SEC = LV_WALK.CYCLES * LV_WALK.FRAMES / LV_WALK.FPS;
+const LV_T = (() => {
+  const T = { FADE1: 0.7, CLIFF: 1.2, PAN: 3.2, EMERGE: 2.6, WALK: 3.4 };
+  T.LOOK = +(T.WALK + LV_WALK_SEC).toFixed(3);
+  const d = T.LOOK - 8.9;   // các mốc sau đi bộ giữ nguyên khoảng cách như bản 8,9 giây
+  for (const [k, v] of Object.entries({ INHALE: 9.8, HOWL: 10.1, CROUCH: 11.4, LEAP: 11.8, FADE2: 12.2, ARENA: 12.7, LAND: 13.4, NAME: 13.5, OUT: 14.7 })) T[k] = +(v + d).toFixed(3);
+  return T;
+})();
+const lvSteps = [];        // mỗi bàn chân chạm đất: tiếng dậm + rung nhẹ
+for (let c = 0; c < LV_WALK.CYCLES; c++) for (const f of LV_WALK.CONTACT) {
+  const at = +(LV_T.WALK + (c * LV_WALK.FRAMES + f) / LV_WALK.FPS + 0.02).toFixed(3);
+  lvSteps.push([at, { type: 'sfx', name: 'thud' }], [at, { type: 'shake', t: 0.07 }]);
+}
 export const CUTSCENE = {
   MINI: {
-    TITLE: 'LANG VƯƠNG', SUB: 'Chúa tể bầy sói', HIGH: 170, DUR: 15.3, T: LV_T, WALK_FPS: LV_WALK_FPS,
+    TITLE: 'LANG VƯƠNG', SUB: 'Chúa tể bầy sói', HIGH: 170, DUR: +(LV_T.OUT + 0.6).toFixed(3), T: LV_T, WALK: LV_WALK,
     FADE_IN: 0.6,   // giây sáng dần sau màn đen
     SKY: 140,       // px trời phía trên ảnh vách khi camera ngửa lên
     TILT: 220,      // px camera đấu trường trượt lên/xuống khi "ngửa lên trời" / "hạ từ trời xuống"
     // vị trí trên ảnh nền vách (tỉ lệ 0..1 của màn 640×360): chỗ sói hiện ra (cạnh gốc cây) -> mỏm đá; mặt đá chếch lên dần về phía mỏm
-    CLIFF: { BG: 'cutscene_vach_da', START_X: 0.12, START_Y: 0.55, TIP_X: 0.69, LEDGE_Y: 0.5 },
+    CLIFF: { BG: 'cutscene_vach_da', START_X: +(0.69 - LV_WALK.CYCLES * LV_WALK.STRIDE / 640).toFixed(4), START_Y: 0.53, TIP_X: 0.69, LEDGE_Y: 0.5 },
     EVENTS: [...lvSteps, [LV_T.HOWL + 0.02, { type: 'sfx', name: 'howl' }], [LV_T.HOWL + 0.02, { type: 'shake', t: 0.6 }],
       [LV_T.LAND, { type: 'sfx', name: 'land' }], [LV_T.LAND, { type: 'shake', t: 0.4 }], [LV_T.LAND, { type: 'land' }]],
   },

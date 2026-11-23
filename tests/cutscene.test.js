@@ -18,7 +18,7 @@ test('dòng thời gian Lang Vương: ngửa trời + tối dần -> vách sáng
   let t = 0, prev = s, sawBlack = 0;
   while (!c.done) {
     stepCutscene(c, DT); t += DT; s = cutsceneState(c);
-    const f = s.cliff && s.cliff.frame.replace(/walk\d/, 'walk');
+    const f = s.cliff && s.cliff.frame.replace(/^w\d$/, 'walk');
     if (f && frames[frames.length - 1] !== f) frames.push(f);
     if (s.alt >= 0 && poses[poses.length - 1] !== s.pose) poses.push(s.pose);
     assert.ok(Math.abs(s.fade - prev.fade) < 0.1, 'màn đen chuyển cảnh không giật');
@@ -38,12 +38,23 @@ test('dòng thời gian Lang Vương: ngửa trời + tối dần -> vách sáng
   assert.ok(Math.abs(s.focusX - 300) < 1 && Math.abs(s.focusY - 380) < 1, 'camera về người chơi'); assert.ok(s.letter < 0.01 && s.name < 0.01 && s.fade < 0.01);
 });
 
-test('sói bước chậm có uy: tốc độ trên vách thấp, tiếng dậm đều nhịp (mỗi bước cách nhau ≥ 0,5 giây)', () => {
-  const S = CUTSCENE.MINI, T = S.T, C = S.CLIFF;
-  const speed = (C.TIP_X - C.START_X) * 640 / (T.LOOK - T.WALK);
-  assert.ok(speed <= 80, `đi quá nhanh: ${speed.toFixed(0)} px/giây`);
+test('sói bước chậm có uy và KHÔNG trượt chân: mỗi bước tiến đúng nửa sải, tiếng dậm đúng khung chân chạm đất', () => {
+  const S = CUTSCENE.MINI, T = S.T, C = S.CLIFF, Wk = S.WALK;
+  const speed = Wk.STRIDE * Wk.FPS / Wk.FRAMES;
+  assert.ok(speed <= 45, `đi quá nhanh: ${speed.toFixed(0)} px/giây`);
+  const c = createCutscene('MINI', { x: 0, y: 0 }, { x: 0, y: 0 });
+  const xAt = sec => { c.t = sec; return cutsceneState(c).cliff; };
+  const stepSec = Wk.FRAMES / 2 / Wk.FPS;
+  for (let n = 0; n < Wk.CYCLES * 2; n++) {   // ở mỗi lúc chân chạm đất: đúng n nửa sải, khung đúng khung chạm đất
+    const a = xAt(T.WALK + n * stepSec + 1e-6);
+    assert.ok(Math.abs((a.x - C.START_X) * 640 - n * Wk.STRIDE / 2) < 0.5, `bước ${n} lệch sải`);
+    assert.ok(Wk.CONTACT.includes(+a.frame.slice(1)), `bước ${n} không phải khung chạm đất: ${a.frame}`);
+  }
+  let prev = -1;
+  for (let t = T.WALK; t < T.LOOK; t += 0.01) { const x = xAt(t).x; assert.ok(x >= prev - 1e-9, 'không lùi'); prev = x; }
+  assert.ok(Math.abs(xAt(T.LOOK - 1e-6).x - C.TIP_X) < 0.002, 'tới đúng mỏm đá');
   const steps = S.EVENTS.filter(([, e]) => e.name === 'thud').map(([at]) => at);
-  assert.ok(steps.length >= 6);
+  assert.equal(steps.length, Wk.CYCLES * Wk.CONTACT.length);
   for (let i = 1; i < steps.length; i++) assert.ok(steps[i] - steps[i - 1] >= 0.5 - 1e-9);
   assert.ok(steps.every(at => at > T.WALK && at < T.LOOK), 'chỉ dậm lúc đang bước');
 });

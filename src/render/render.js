@@ -1268,7 +1268,7 @@ function drawCliffScene(ctx, c, vis, time) {
   const a = c.cliff;
   if (a && a.show > 0) {
     const x = Math.round(a.x * W), y = Math.round(a.y * H), K = BOSS.DRAW_SCALE;
-    const sh = a.frame[0] === 'i' ? vis.bossIntro : vis.bosses, name = `${c.kind}_${a.frame}`;
+    const sh = a.frame[0] === 'i' ? vis.bossIntro : a.frame[0] === 'w' ? vis.bossWalk : vis.bosses, name = `${c.kind}_${a.frame}`;
     ctx.globalAlpha = 0.4 * a.show; ctx.fillStyle = '#000'; ctx.beginPath(); ctx.ellipse(x, y, 30, 6, 0, 0, 6.283); ctx.fill();
     // hiện ra từ bóng tối: bóng đen sáng dần thành sói (canvas filter; trình duyệt không hỗ trợ thì chỉ mờ dần)
     ctx.globalAlpha = Math.sqrt(a.show); if (a.show < 1) ctx.filter = `brightness(${(0.12 + 0.88 * a.show).toFixed(2)})`;

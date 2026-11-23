@@ -1,0 +1,49 @@
+{
+ "frameSize": [
+  48,
+  31
+ ],
+ "pivot": [
+  29,
+  30
+ ],
+ "image": "boss_walk.png",
+ "frames": {
+  "MINI_w0": [
+   0,
+   0
+  ],
+  "MINI_w1": [
+   48,
+   0
+  ],
+  "MINI_w2": [
+   96,
+   0
+  ],
+  "MINI_w3": [
+   144,
+   0
+  ],
+  "MINI_w4": [
+   192,
+   0
+  ],
+  "MINI_w5": [
+   240,
+   0
+  ],
+  "MINI_w6": [
+   288,
+   0
+  ],
+  "MINI_w7": [
+   336,
+   0
+  ]
+ },
+ "source": "docs/concept/lang_vuong_buoc_di_chatgpt.png",
+ "tool": "tools/sprite_clean.py",
+ "scale": 6.0,
+ "colors": 32
+}
