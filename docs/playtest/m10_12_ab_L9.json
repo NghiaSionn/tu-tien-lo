@@ -1,0 +1,115 @@
+{
+ "seeds": 6,
+ "realm": 9,
+ "difficulty": 0,
+ "cu": {
+  "runs": 36,
+  "win": 28,
+  "lose": 8,
+  "deathCause": {
+   "chaser": 2,
+   "charger": 1,
+   "boss:slam": 2,
+   "boss:burst": 1,
+   "ranged:shot": 1,
+   "boss:zone": 1
+  },
+  "hitsPerRun": {
+   "chaser": 5.72,
+   "ranged:shot": 3.03,
+   "miniboss": 0.47,
+   "boss:slam": 0.61,
+   "boss": 1,
+   "elite": 0.83,
+   "boss:zone": 0.33,
+   "miniboss:dash": 0.56,
+   "boss:burst": 0.17,
+   "charger": 0.42,
+   "charger:dash": 0.56,
+   "elite:slam": 0.11
+  },
+  "threatPeakMean": 6.42,
+  "threatPeakMax": 10,
+  "peakMonsters": 48,
+  "peakShots": 20,
+  "bossMini": {
+   "met": 35,
+   "killed": 35,
+   "durMed": 35.7,
+   "durMean": 41.6342857142857,
+   "p2Reached": 0
+  },
+  "bossFinal": {
+   "met": 34,
+   "killed": 28,
+   "durMed": 72.5,
+   "durMean": 78.04285714285716,
+   "p2Reached": 0
+  },
+  "logicMsPerTick": 0.0845,
+  "seeds": {
+   "kiem_loi": "WLWWWW",
+   "phi_kiem_hoa": "WWWWWW",
+   "hoa_phong": "WWLLLW",
+   "loi_the": "WWWWLW",
+   "bang_han": "WWWWWW",
+   "linh_phong": "LLWWWL"
+  }
+ },
+ "moi": {
+  "runs": 36,
+  "win": 30,
+  "lose": 6,
+  "deathCause": {
+   "boss:sweep": 2,
+   "chaser": 2,
+   "ranged:shot": 2
+  },
+  "hitsPerRun": {
+   "chaser": 5.64,
+   "boss:burst": 0.22,
+   "charger": 0.64,
+   "ranged:shot": 1.97,
+   "miniboss": 0.53,
+   "elite": 0.42,
+   "charger:trail": 1.31,
+   "charger:dash": 0.25,
+   "boss:sweep": 0.5,
+   "boss": 0.81,
+   "ranged:fan": 0.64,
+   "miniboss:dash": 0.42,
+   "chaser:pounce": 0.03,
+   "miniboss:claw": 0.08,
+   "boss:slam": 0.03,
+   "boss:zone": 0.08,
+   "elite:slam": 0.06
+  },
+  "threatPeakMean": 3.5,
+  "threatPeakMax": 4,
+  "peakMonsters": 38,
+  "peakShots": 23,
+  "bossMini": {
+   "met": 35,
+   "killed": 35,
+   "durMed": 29,
+   "durMean": 34.87142857142857,
+   "p2Reached": 35
+  },
+  "bossFinal": {
+   "met": 34,
+   "killed": 30,
+   "durMed": 65.4,
+   "durMean": 74.83333333333334,
+   "p2Reached": 33
+  },
+  "logicMsPerTick": 0.0834,
+  "seeds": {
+   "kiem_loi": "WWWWWW",
+   "phi_kiem_hoa": "WWWWWW",
+   "hoa_phong": "WLLWWW",
+   "loi_the": "WWWWWW",
+   "bang_han": "WWWWWW",
+   "linh_phong": "LLLWWL"
+  }
+ }
+}

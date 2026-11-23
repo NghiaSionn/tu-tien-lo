@@ -17,6 +17,8 @@ export const EVENTS = {
   reroll: ['level', 'time', 'left'],   // M7-09
   meta_action: ['action', 'ok', 'realm'],
   session_end: ['duration', 'runsInSession'],
+  // M10-12: số liệu chiến đấu một lượt (chỉ nguồn đòn / thời gian trong lượt / cờ tính năng; không định danh)
+  combat_run: ['outcome', 'runTime', 'startSkill', 'difficulty', 'realm', 'deathCause', 'hitsBy', 'dmgBy', 'threatPeak', 'peakMonsters', 'peakShots', 'boss', 'flags', 'workP50', 'workP95', 'frameP50', 'frameP95'],
 };
 const CSV_COLS = ['v', 'build', 'tid', 'session', 'day', 't', 'plat', 'type', 'runId', 'seed',
   ...[...new Set(Object.values(EVENTS).flat())].filter(k => !['sessionNo', 'day'].includes(k))];
@@ -86,7 +88,7 @@ export function createPlaytestLog({ storage, build = 'dev', platform = 'desktop'
         if (runsInSession === 2) push('second_run_start', { runInSession: 2 }, run);
         return true;
       }
-      if (type === 'run_end' || type === 'first_card' || type === 'miniboss_result') {
+      if (type === 'run_end' || type === 'first_card' || type === 'miniboss_result' || type === 'combat_run') {
         const key = `${type}:${run ? run.id : ''}`;                 // mỗi run chỉ một lần
         if (once.has(key)) return false;
         once.add(key);
@@ -104,7 +106,7 @@ export function createPlaytestLog({ storage, build = 'dev', platform = 'desktop'
     },
     exportCSV() {
       const q = v => v === undefined || v === null ? '' : /[",\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v);
-      return [CSV_COLS.join(','), ...st.events.map(e => CSV_COLS.map(c => q(Array.isArray(e[c]) ? e[c].join('|') : e[c])).join(','))].join('\n');
+      return [CSV_COLS.join(','), ...st.events.map(e => CSV_COLS.map(c => q(Array.isArray(e[c]) ? e[c].join('|') : e[c] && typeof e[c] === 'object' ? JSON.stringify(e[c]) : e[c])).join(','))].join('\n');
     },
   };
   return api;

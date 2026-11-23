@@ -1,0 +1,127 @@
+{
+ "seeds": 6,
+ "realm": 0,
+ "difficulty": 0,
+ "cu": {
+  "runs": 36,
+  "win": 18,
+  "lose": 17,
+  "deathCause": {
+   "chaser": 5,
+   "boss:zone": 1,
+   "boss:slam": 3,
+   "boss:burst": 1,
+   "charger:dash": 2,
+   "elite": 2,
+   "ranged:shot": 1,
+   "miniboss": 1,
+   "elite:slam": 1
+  },
+  "hitsPerRun": {
+   "chaser": 8.25,
+   "miniboss:dash": 1.17,
+   "miniboss": 0.83,
+   "ranged:shot": 3.47,
+   "charger:dash": 1.06,
+   "boss:zone": 0.42,
+   "boss": 0.72,
+   "boss:burst": 0.28,
+   "elite:slam": 0.17,
+   "elite": 1,
+   "charger": 0.78,
+   "boss:slam": 0.42
+  },
+  "threatPeakMean": 6.78,
+  "threatPeakMax": 15,
+  "peakMonsters": 55,
+  "peakShots": 35,
+  "bossMini": {
+   "met": 35,
+   "killed": 34,
+   "durMed": 40.4,
+   "durMean": 43.06470588235295,
+   "p2Reached": 0
+  },
+  "bossFinal": {
+   "met": 27,
+   "killed": 18,
+   "durMed": 85.6,
+   "durMean": 97.07222222222222,
+   "p2Reached": 0
+  },
+  "logicMsPerTick": 0.0811,
+  "seeds": {
+   "kiem_loi": "WLWWWW",
+   "phi_kiem_hoa": "LWLWWL",
+   "hoa_phong": "LLLWLL",
+   "loi_the": "TLWWLW",
+   "bang_han": "WLWWWW",
+   "linh_phong": "LLLLWL"
+  }
+ },
+ "moi": {
+  "runs": 36,
+  "win": 16,
+  "lose": 20,
+  "deathCause": {
+   "miniboss:dash": 1,
+   "chaser:pounce": 1,
+   "ranged:shot": 2,
+   "elite": 2,
+   "boss:sweep": 5,
+   "chaser": 4,
+   "boss:cross": 1,
+   "boss": 1,
+   "boss:zone": 1,
+   "charger": 1,
+   "miniboss": 1
+  },
+  "hitsPerRun": {
+   "chaser": 8.58,
+   "boss:sweep": 0.69,
+   "miniboss:dash": 0.33,
+   "ranged:shot": 2.17,
+   "charger:dash": 0.61,
+   "miniboss": 0.67,
+   "miniboss:claw": 0.36,
+   "ranged:fan": 0.75,
+   "boss": 0.78,
+   "charger": 1.11,
+   "chaser:pounce": 0.08,
+   "charger:trail": 1.03,
+   "boss:burst": 0.14,
+   "elite": 0.67,
+   "boss:cross": 0.06,
+   "elite:slam": 0.03,
+   "boss:zone": 0.17,
+   "boss:slam": 0.08
+  },
+  "threatPeakMean": 3.39,
+  "threatPeakMax": 4,
+  "peakMonsters": 45,
+  "peakShots": 24,
+  "bossMini": {
+   "met": 34,
+   "killed": 32,
+   "durMed": 42.4,
+   "durMean": 45.462500000000006,
+   "p2Reached": 34
+  },
+  "bossFinal": {
+   "met": 27,
+   "killed": 16,
+   "durMed": 66.6,
+   "durMean": 79.25625000000001,
+   "p2Reached": 24
+  },
+  "logicMsPerTick": 0.0894,
+  "seeds": {
+   "kiem_loi": "WWWLWW",
+   "phi_kiem_hoa": "WLWWLW",
+   "hoa_phong": "LLLLLL",
+   "loi_the": "WLLLWW",
+   "bang_han": "LWLWWW",
+   "linh_phong": "LLLLLL"
+  }
+ }
+}

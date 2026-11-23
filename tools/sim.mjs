@@ -17,6 +17,7 @@ import { drawCards, applyCard, rerollDraft } from '../src/progression/draft.js';
 import { runStats } from '../src/systems/combat.js';
 import { moveEntity } from '../src/entities/monsters.js';
 import { PLAYER, ARCH, BOSS, FEATURES, WOLF_PACK, ICE_FAN, ELITE_V2, BOSS_V2 } from '../src/core/config.js';
+import { teleSummary } from '../src/systems/telemetry.js';   // M10-12
 if (process.env.SYNERGY) FEATURES.draftSynergy = true;
 const REROLL = !!process.env.REROLL;
 import { computeRunReward } from '../src/progression/rewards.js';
@@ -180,7 +181,7 @@ export function simulate(buildName, L, seed, maxTime = 720) {
   const top = Object.entries(run.dmgBy).sort((a, c) => c[1] - a[1])[0];
   return { build: buildName, L, seed, outcome: run.outcome, time: Math.round(run.time), level: run.level, kills: run.kills, evo: evoAt,
     skills: run.skills.map(s => (s.evolved || s.id) + ':' + s.level).join(' '), dmgBy: run.dmgBy, topDmg: top ? top[0] : '-',
-    bossAt: Object.fromEntries(run.rewards.map(x => [x.kind, x.t])), skillsUsed: run.skillsUsed, reward: computeRunReward(run, { realmLevel: L, firstClear: false }) };
+    bossAt: Object.fromEntries(run.rewards.map(x => [x.kind, x.t])), skillsUsed: run.skillsUsed, tele: teleSummary(run, { tactics: run.tactics, skillsV2: run.skillsV2, bossV2: run.bossV2 }), reward: computeRunReward(run, { realmLevel: L, firstClear: false }) };
 }
 
 const med = a => { if (!a.length) return '-'; const s = [...a].sort((x, y) => x - y); return s[Math.floor(s.length / 2)]; };

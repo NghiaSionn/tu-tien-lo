@@ -4,6 +4,7 @@ import { mulberry32 } from '../core/rng.js';
 import { makeArenaMap, makeRoomsMap } from '../world/map.js';
 import { createRoomState, updateRoomDirector } from './roomdirector.js';
 import { updatePacks } from './packs.js';
+import { createTele, teleHit, teleTick } from './telemetry.js';
 import { updateFireTrails } from './firetrail.js';
 import { threatScan } from './tactics.js';
 import { TACTICS } from '../core/config.js';
@@ -26,7 +27,7 @@ export function createRun({ seed, startSkill, realmLevel, difficulty = 0, unlock
     unlocked: [...unlocked], gear,                                     // M4: công pháp đã mở (pool thẻ), chỉ số trang bị
     id: ++runCounter, uid: `${Date.now().toString(36)}-${seed}-${runCounter}`, seed, eliteKills: 0, rng: mulberry32(seed), status: 'RUNNING', time: 0,
     level: 1, xp: 0, pendingDrafts: 0, skills: [{ id: startSkill, level: 1, evolved: null, st: {} }],
-    passives: {}, evolutions: [], kills: 0, damageTaken: 0, dmgBy: {}, dir: createDirector(), outcome: null,
+    passives: {}, evolutions: [], kills: 0, damageTaken: 0, dmgBy: {}, tele: createTele(), dir: createDirector(), outcome: null,
     rerolls: FEATURES.draftReroll ? RUN.REROLLS : 0, rerollsUsed: 0,   // M7-09
     variant: variantOf(variant) === variantOf('thuong') && variant !== 'thuong' ? 'thuong' : variant,   // M7-10 (id lạ -> Bình thường)
     rewards: [], skillsUsed: {},   // M10-02: đếm chiêu boss đã dùng (telemetry)
@@ -64,6 +65,7 @@ export function hurtRunPlayer(run, player, dmg, ev, src = 'other') {
   const taken = left * (run.gear ? 1 + run.gear.dmgTaken : 1);   // M4-01: Sát Khí Giới
   run.hp -= taken; run.damageTaken += taken;
   run.dmgBy[src] = (run.dmgBy[src] || 0) + taken;     // thống kê nguồn sát thương (cân bằng/debug)
+  teleHit(run.tele, src);   // M10-12
   ev.push({ type: 'text', x: player.x, y: player.y - 20, text: '-' + Math.round(taken), color: '#ff8f8a' }, { type: 'shake', t: 0.12 }, { type: 'sfx', name: 'hurt' });
   if (run.hp <= 0) { run.hp = 0; endRun(run, 'LOSE'); }
   return left;
@@ -133,6 +135,7 @@ export function updateRun(run, player, dt, ev, realmPowerOverride) {
     if (d < RUN.PICKUP) { addRunXp(run, o.v * ctx.stats.xp * vmod(run, 'xp')); sc.orbs.splice(i, 1); ev.push({ type: 'sfx', name: 'pickup' }); continue; }
     if (d < mag) { const sp = RUN.ORB_SPEED * dt * (1.5 - d / mag); o.x += dx / d * sp; o.y += dy / d * sp; }
   }
+  teleTick(run, player);   // M10-12: số liệu chiến đấu (rẻ, tất định)
   if (finalDown) { endRun(run, 'WIN'); return; }
   if (run.time >= RUN.TIME_LIMIT) endRun(run, 'TIMEOUT');
 }

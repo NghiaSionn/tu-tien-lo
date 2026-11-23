@@ -30,6 +30,7 @@ import * as Audio from './audio/sfx.js';
 import { makeRunEnemy } from './systems/director.js';
 import { setupTouch } from './ui/touch.js';
 import { createPlaytestLog } from './systems/playtest.js';
+import { teleFrame, teleSummary } from './systems/telemetry.js';
 import { BUILD } from './core/config.js';
 import { metaGoals, previewAfterClaim } from './progression/goals.js';
 import { newDiscoveries } from './progression/codex.js';
@@ -742,6 +743,8 @@ function finishRun() {
   if (r.dir.mini === 'ALIVE') PT.log('miniboss_result', { result: r.outcome === 'LOSE' ? 'died' : 'abandoned', time: Math.round(r.time) }, r);
   const cause = r.outcome === 'LOSE' ? Object.entries(r.dmgBy).sort((a, b) => b[1] - a[1])[0]?.[0] : undefined;
   const maxed = r.skills.filter(s => s.evolved || s.level >= SKILL_DEFS[s.id].maxLevel).length;   // độ hoàn thiện build
+  // M10-12: số liệu chiến đấu (chỉ khi người chơi bật ghi playtest; lưu trên máy, không gửi mạng)
+  PT.log('combat_run', teleSummary(r, { tactics: r.tactics ?? FEATURES.enemyTactics, skillsV2: r.skillsV2 ?? FEATURES.enemySkillsV2, bossV2: r.bossV2 ?? FEATURES.bossPatternsV2 }), r);
   PT.log('run_end', { outcome: r.outcome, time: Math.round(r.time), level: r.level, kills: r.kills, cause, evolutions: [...r.evolutions], difficulty: r.diff, variant: r.variant, rerolls: r.rerollsUsed || 0, maxed, skills: r.skills.length }, r);
   Audio.play(r.outcome === 'WIN' ? 'win' : 'lose');
   const extra = FEATURES.resultGoals ? { goals: metaGoals(previewAfterClaim(meta)), onNext: a => claimAndReturn(a) } : null;
@@ -964,6 +967,7 @@ let last = performance.now(), hudT = 0;
 const PERF = { on: new URLSearchParams(location.search).has('perf'), work: [], gap: [], el: null };
 function perfFrame(work, gap) {
   PERF.work.push(work); PERF.gap.push(gap);
+  if (PT.enabled && view === 'RUN' && run && run.status === 'RUNNING') teleFrame(run.tele, work, gap);   // M10-12: thời gian khung trong lượt (opt-in)
   if (PERF.work.length > 240) { PERF.work.shift(); PERF.gap.shift(); }
   if (!PERF.on) { if (PERF.el) PERF.el.hidden = true; return; }
   if (!PERF.el) { PERF.el = document.createElement('div'); PERF.el.id = 'perf'; document.getElementById('game').parentNode.appendChild(PERF.el); }
