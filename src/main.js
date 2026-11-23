@@ -13,7 +13,7 @@ import { TRIBULATION } from './core/config.js';
 import { createRun, updateRun, endRun, refreshMaxHp } from './systems/run.js';
 import { runStats } from './systems/combat.js';
 import { spawnHubMonster, updateMonsters, reapMonsters, damageMonster, moveEntity, makeMonster } from './entities/monsters.js';
-import { loadSave, writeSave, commitMigration, exportSave, importSave, defaultMeta, KEYS, pickFurther, parseWrapped, localSavedAt } from './persistence/save.js';
+import { loadSave, writeSave, commitMigration, exportSave, importSave, defaultMeta, KEYS, pickFurther, parseWrapped, localSavedAt, listBackups, restoreBackup } from './persistence/save.js';
 import { cloudConfigured, initCloud, signInGoogle, signInEmail, signUpEmail, resetPassword, signOutCloud, pullSave, pushSave, errText } from './persistence/cloud.js';
 import { loadFx, createFx } from '../lib/beanfx.js';
 import { loadPixelfx } from './render/pixelfx.js';
@@ -235,6 +235,7 @@ if (loaded.source === 'v1') {
   startNotes.push(ok ? ['Đã chuyển save cũ sang định dạng mới (bản cũ vẫn được giữ).', 'good'] : ['Không xác minh được save mới; bản cũ vẫn giữ nguyên.', 'bad']);
 }
 if (loaded.recovered) startNotes.push(['Save hiện tại bị hỏng, đã khôi phục bản trước đó.', 'bad']);
+if (loaded.future) startNotes.push(['Save trên máy do bản game mới hơn ghi — đã cất nguyên vẹn ở ô dự phòng riêng. Tải lại trang (Ctrl+F5) để cập nhật game.', 'bad']);   // M9-C
 // M3-02: save cũ đã ở đại cảnh giới cao vẫn nhận đủ mở khóa
 grantUnlocks(meta);
 // M4-02: save cũ đã thắng/đạt cảnh giới nhận thành tựu tương ứng (idempotent)
@@ -261,10 +262,15 @@ const PT = createPlaytestLog({
 PT.sessionStart({ realm: meta.realmLevel, runs: meta.stats.runs });
 addEventListener('pagehide', () => PT.sessionEnd());
 const metaAct = (action, ok = true) => PT.log('meta_action', { action, ok: !!ok, realm: meta.realmLevel });
+let saveFailAt = -1e9;
 function save() {
   if (view !== 'HUB' && run) meta.hubPos = { ...hubPosBeforeRun };
   else meta.hubPos = { x: p.x, y: p.y };
-  writeSave(storage, meta);
+  try { writeSave(storage, meta); }
+  catch (e) {   // M9-C: bộ nhớ trình duyệt đầy / bị chặn -> không làm treo game, báo (tối đa 1 lần/phút), gợi ý xuất save
+    if (performance.now() - saveFailAt > 60000) { saveFailAt = performance.now(); UI.log('Không lưu được vào trình duyệt (bộ nhớ đầy hoặc bị chặn). Hãy Xuất save trong Cài đặt để giữ tiến độ.', 'bad'); }
+    console.warn('[save]', e); return;
+  }
   if (ACCT.user) ACCT.dirty = true;
 }
 // ---------- M9: tài khoản + lưu trên mây (tùy chọn; chưa đăng nhập = chơi khách như cũ) ----------
@@ -843,6 +849,17 @@ function openSettings() {
       `Cảnh giới: ${levelName(meta.realmLevel)} · Số lượt bí cảnh: ${meta.stats.runs} · Thắng: ${meta.stats.wins} · Trụ lâu nhất: ${Math.floor(meta.stats.bestTime / 60)}:${String(meta.stats.bestTime % 60).padStart(2, '0')}`,
       '1. Điểm vui nhất?', '2. Điểm khó hiểu nhất?', '3. Muốn mở khóa gì tiếp?',
     ].join('\n'),
+    // M9-C: khôi phục từ ô dự phòng
+    backups: () => listBackups(storage, saveCtx).map(b => ({ ...b, name: b.ok ? levelName(b.realm) : '' })),
+    onRestore: key => {
+      const r = restoreBackup(storage, key, saveCtx);
+      if (!r.ok) { alert('Không khôi phục được: ' + r.error); return; }
+      if (!confirm(`Khôi phục: ${levelName(r.meta.realmLevel)}, ${r.meta.stats.runs} lượt bí cảnh, ${r.meta.linhThach} linh thạch.\nTiến độ hiện tại sẽ được thay (vẫn còn trong ô "Bản lưu liền trước").`)) return;
+      save();
+      meta = r.meta; p.x = meta.hubPos.x; p.y = meta.hubPos.y; readyNotified = C.isFull(meta); applySettings();
+      save(); UI.closeModal(); view = 'HUB';
+      UI.log('Đã khôi phục bản dự phòng.', 'good');
+    },
     onImport: text => {
       const r = importSave(text, saveCtx);
       if (!r.ok) { alert('Không nhập được: ' + r.error); return; }

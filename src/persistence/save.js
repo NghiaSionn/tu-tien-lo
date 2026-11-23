@@ -7,6 +7,9 @@
 //   tutien_save_v2_bak      bản v2 tốt liền trước (xoay vòng mỗi lần lưu)
 //   tutien_save_v2_corrupt  bản v2 hỏng gần nhất, giữ lại để cứu dữ liệu
 //   tutien_save_v2_cloud_bak bản v2 trên máy trước khi bị bản lưu trên mây (tiến xa hơn) thay — giữ lại để cứu
+//   tutien_save_v2_daily    M9-C: bản lưu cuối của NGÀY TRƯỚC (xoay khi sang ngày mới) — cứu khi lỡ mất tiến độ cả buổi
+//   tutien_save_v2_future   M9-C: bản do phiên bản game MỚI HƠN ghi (mở nhầm bản cũ / cache) — giữ nguyên để không bị ghi đè mất
+// M9-C: mỗi bản v2 có `sum` (băm FNV-1a của meta) — sai lệch = coi như hỏng (bản cũ chưa có sum vẫn đọc bình thường).
 import { REALM, ITEMS, REWARD } from '../core/config.js';
 import { defaultTutorial, sanitizeTutorial } from '../progression/tutorial.js';
 import { defaultLore, sanitizeLore } from '../progression/lore.js';
@@ -20,6 +23,7 @@ export const KEYS = {
   V1: 'tutien_save_v1', V1_BACKUP: 'tutien_save_v1_backup',
   V2: 'tutien_save_v2', V2_BAK: 'tutien_save_v2_bak', V2_CORRUPT: 'tutien_save_v2_corrupt',
   CLOUD_BAK: 'tutien_save_v2_cloud_bak',   // M9 (đăng nhập): bản trên máy bị bản mây thay — giữ lại để cứu
+  V2_DAILY: 'tutien_save_v2_daily', V2_FUTURE: 'tutien_save_v2_future',   // M9-C
 };
 export const VERSION = 2;
 const MAX_MONEY = 1e9, MAX_PILLS = 1e6;
@@ -121,7 +125,14 @@ export function migrateV1(v1, ctx, warnings = []) {
   }, ctx, warnings);
 }
 
-const wrap = meta => ({ version: VERSION, savedAt: Date.now(), meta });
+// M9-C: băm FNV-1a 32 bit (đủ để phát hiện hỏng/sửa tay, không phải chống gian lận)
+export function checksum(str) {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 0x01000193); }
+  return (h >>> 0).toString(16).padStart(8, '0');
+}
+const wrap = (meta, now = Date.now()) => { const m = JSON.stringify(meta); return { version: VERSION, savedAt: now, sum: checksum(m), meta: JSON.parse(m) }; };
+const sumOk = v => v.sum === undefined || v.sum === checksum(JSON.stringify(v.meta));
 
 function parse(raw) {
   if (raw == null) return { missing: true };
@@ -133,8 +144,10 @@ function readV2(storage, key, ctx, warnings) {
   if (p.missing) return null;
   if (p.error) { warnings.push(`${key}: ${p.error}`); return { bad: true }; }
   const v = p.value;
+  if (v && typeof v === 'object' && typeof v.version === 'number' && v.version > VERSION && v.meta) { warnings.push(`${key}: save từ phiên bản game mới hơn (v${v.version})`); return { future: true }; }
   if (!v || typeof v !== 'object' || v.version !== VERSION || !v.meta) { warnings.push(`${key}: sai định dạng/phiên bản`); return { bad: true }; }
-  return { meta: sanitizeMeta(v.meta, ctx, warnings) };
+  if (!sumOk(v)) { warnings.push(`${key}: sai mã kiểm tra (dữ liệu bị hỏng/sửa)`); return { bad: true }; }
+  return { meta: sanitizeMeta(v.meta, ctx, warnings), savedAt: +v.savedAt || 0 };
 }
 
 // Đọc save theo thứ tự v2 -> v2_bak -> v1 -> mới. Không xóa khóa nào.
@@ -142,6 +155,13 @@ export function loadSave(storage, ctx) {
   const warnings = [];
   const cur = readV2(storage, KEYS.V2, ctx, warnings);
   if (cur && cur.meta) return { meta: cur.meta, source: 'v2', warnings };
+  let future = false;
+  if (cur && cur.future) {   // M9-C: không đọc được nhưng KHÔNG phải hỏng -> cất nguyên văn trước khi bản này ghi đè
+    future = true;
+    try { if (storage.getItem(KEYS.V2_FUTURE) == null) storage.setItem(KEYS.V2_FUTURE, storage.getItem(KEYS.V2)); } catch (e) { warnings.push('không cất được bản mới hơn'); }
+    const bak = readV2(storage, KEYS.V2_BAK, ctx, warnings);
+    if (bak && bak.meta) return { meta: bak.meta, source: 'v2_bak', warnings, future };
+  }
   if (cur && cur.bad) {
     try { storage.setItem(KEYS.V2_CORRUPT, storage.getItem(KEYS.V2)); } catch (e) { warnings.push('không chép được bản hỏng'); }
     const bak = readV2(storage, KEYS.V2_BAK, ctx, warnings);
@@ -153,21 +173,55 @@ export function loadSave(storage, ctx) {
       warnings.push('tutien_save_v1 hỏng, giữ nguyên khóa và bắt đầu mới');
     } else {
       const meta = migrateV1(p1.value, ctx, warnings);
-      return { meta, source: 'v1', warnings, migrated: true, recovered: !!(cur && cur.bad) };
+      return { meta, source: 'v1', warnings, migrated: true, recovered: !!(cur && cur.bad), future };
     }
   }
-  return { meta: defaultMeta(ctx.hubSpawn), source: 'new', warnings, recovered: !!(cur && cur.bad) };
+  return { meta: defaultMeta(ctx.hubSpawn), source: 'new', warnings, recovered: !!(cur && cur.bad), future };
 }
 
 // Ghi v2. Lần đầu sau migrate: chép nguyên văn v1 sang v1_backup. Bản v2 cũ (nếu còn đọc được) xoay sang v2_bak.
-export function writeSave(storage, meta) {
-  const raw = JSON.stringify(wrap(meta));
-  const v1 = storage.getItem(KEYS.V1);
-  if (v1 != null && storage.getItem(KEYS.V1_BACKUP) == null) storage.setItem(KEYS.V1_BACKUP, v1);
-  const prev = storage.getItem(KEYS.V2);
-  if (prev != null && parse(prev).value?.version === VERSION) storage.setItem(KEYS.V2_BAK, prev);
+// M9-C: bản sao lưu là việc phụ — lỗi (bộ nhớ đầy) không được chặn việc ghi bản chính. Chỉ lỗi ghi bản chính mới ném ra.
+// Bản mới hơn (version > VERSION) đang nằm ở khóa chính thì cất sang V2_FUTURE trước khi ghi đè.
+const DAY = 86400000;
+export function writeSave(storage, meta, now = Date.now()) {
+  const raw = JSON.stringify(wrap(meta, now));
+  const soft = f => { try { f(); } catch (e) { /* sao lưu phụ thất bại: bỏ qua */ } };
+  soft(() => { const v1 = storage.getItem(KEYS.V1); if (v1 != null && storage.getItem(KEYS.V1_BACKUP) == null) storage.setItem(KEYS.V1_BACKUP, v1); });
+  const prev = storage.getItem(KEYS.V2), pv = parse(prev).value;
+  if (pv && typeof pv.version === 'number' && pv.version > VERSION) soft(() => { if (storage.getItem(KEYS.V2_FUTURE) == null) storage.setItem(KEYS.V2_FUTURE, prev); });
+  if (prev != null && pv?.version === VERSION && sumOk(pv)) {
+    soft(() => storage.setItem(KEYS.V2_BAK, prev));
+    // sang ngày mới (theo giờ lưu) -> bản cuối của ngày trước thành bản "ngày trước"
+    const dv = parse(storage.getItem(KEYS.V2_DAILY)).value;
+    if (Math.floor((+pv.savedAt || 0) / DAY) < Math.floor(now / DAY) && (!dv || Math.floor((+dv.savedAt || 0) / DAY) < Math.floor((+pv.savedAt || 0) / DAY))) soft(() => storage.setItem(KEYS.V2_DAILY, prev));
+  }
   storage.setItem(KEYS.V2, raw);
   return raw;
+}
+
+// M9-C: danh sách bản dự phòng đọc được (để người chơi tự chọn khôi phục). Không ghi gì.
+export const BACKUP_LABELS = [
+  [KEYS.V2_BAK, 'Bản lưu liền trước'], [KEYS.V2_DAILY, 'Bản cuối của ngày trước'], [KEYS.CLOUD_BAK, 'Bản trên máy trước khi tải từ mây'],
+  [KEYS.V2_CORRUPT, 'Bản từng bị hỏng (thử cứu)'], [KEYS.V1_BACKUP, 'Bản v0.1 gốc'], [KEYS.V1, 'Save v0.1'],
+];
+export function listBackups(storage, ctx) {
+  const out = [];
+  for (const [key, label] of BACKUP_LABELS) {
+    const raw = storage.getItem(key);
+    if (raw == null) continue;
+    const r = importSave(raw, ctx), v = parse(raw).value || {};
+    out.push({ key, label, ok: r.ok, error: r.ok ? undefined : r.error, savedAt: +v.savedAt || 0,
+      realm: r.ok ? r.meta.realmLevel : undefined, runs: r.ok ? r.meta.stats.runs : undefined, linhThach: r.ok ? r.meta.linhThach : undefined });
+  }
+  const f = storage.getItem(KEYS.V2_FUTURE);
+  if (f != null) out.push({ key: KEYS.V2_FUTURE, label: 'Bản từ phiên bản game mới hơn (cần cập nhật game để dùng)', ok: false, error: 'phiên bản mới hơn', savedAt: +(parse(f).value || {}).savedAt || 0 });
+  return out;
+}
+export function restoreBackup(storage, key, ctx) {
+  if (!BACKUP_LABELS.some(([k]) => k === key)) return { ok: false, error: 'không phải ô dự phòng' };
+  const raw = storage.getItem(key);
+  if (raw == null) return { ok: false, error: 'ô dự phòng trống' };
+  return importSave(raw, ctx);
 }
 
 // Migrate có xác minh: ghi v2 rồi đọc lại; chỉ coi là xong khi đọc lại khớp.
@@ -186,7 +240,11 @@ export function importSave(text, ctx) {
   const p = parse(text);
   if (p.error) return { ok: false, error: p.error };
   const v = p.value;
-  if (v && v.version === VERSION && v.meta) return { ok: true, meta: sanitizeMeta(v.meta, ctx, warnings), warnings };
+  if (v && typeof v.version === 'number' && v.version > VERSION) return { ok: false, error: 'save từ phiên bản game mới hơn — hãy tải lại trang để cập nhật game' };
+  if (v && v.version === VERSION && v.meta) {   // bản sửa tay / hỏng nhẹ: vẫn nhập được (đã làm sạch), chỉ cảnh báo
+    if (!sumOk(v)) warnings.push('mã kiểm tra không khớp — dữ liệu đã được làm sạch trước khi nhập');
+    return { ok: true, meta: sanitizeMeta(v.meta, ctx, warnings), warnings };
+  }
   if (v && 'L' in v && 'tuvi' in v) return { ok: true, meta: migrateV1(v, ctx, warnings), warnings };
   return { ok: false, error: 'không nhận ra định dạng save' };
 }
@@ -213,7 +271,7 @@ export function pickFurther(local, cloud) {
 // Đọc chuỗi save (định dạng wrap v2) -> { meta, savedAt } đã làm sạch, hoặc null nếu hỏng
 export function parseWrapped(raw, ctx) {
   const p = parse(raw); const v = p.value;
-  if (!v || v.version !== VERSION || !v.meta) return null;
+  if (!v || v.version !== VERSION || !v.meta || !sumOk(v)) return null;
   return { meta: sanitizeMeta(v.meta, ctx, []), savedAt: +v.savedAt || 0 };
 }
 export const localSavedAt = storage => { const v = parse(storage.getItem(KEYS.V2)).value; return v && +v.savedAt || 0; };

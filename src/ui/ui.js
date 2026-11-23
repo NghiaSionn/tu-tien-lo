@@ -286,6 +286,7 @@ export function showSettings(meta, h) {
     <h3>Dữ liệu</h3>
     <p class="sub">Tiến độ lưu trong trình duyệt này. Nên xuất bản sao trước khi xóa dữ liệu trình duyệt.</p>
     <div class="row"><button data-act="export">Xuất save (.json)</button><button data-act="import">Nhập save…</button><input type="file" id="importFile" accept="application/json,.json" hidden></div>
+    <details class="backups"><summary>Khôi phục bản dự phòng…</summary><div id="backupList" class="sub">Đang đọc…</div></details>
     <h3>Tài khoản</h3>
     <div id="acct"></div>
     <h3>Ghi playtest (tùy chọn)</h3>
@@ -306,6 +307,14 @@ export function showSettings(meta, h) {
   m.querySelector('#optMusic').addEventListener('change', e => h.onSetting('music', +e.target.value));
   m.querySelector('#optMute').addEventListener('change', e => h.onSetting('mute', e.target.checked));
   m.querySelector('[data-act=export]').addEventListener('click', h.onExport);
+  // M9-C: danh sách ô dự phòng (đọc khi mở), mỗi ô đọc được có nút khôi phục
+  const bl = m.querySelector('#backupList');
+  if (bl && h.backups) {
+    const day = t => t ? new Date(t).toLocaleString('vi-VN', { dateStyle: 'short', timeStyle: 'short' }) : '?';
+    const list = h.backups();
+    bl.innerHTML = list.length ? list.map(b => `<div class="row"><span>${b.label}: ${b.ok ? `${b.name} · ${b.runs} lượt · ${b.linhThach} linh thạch · ${day(b.savedAt)}` : `<i>${b.error}</i>`}</span>${b.ok ? `<button data-restore="${b.key}">Khôi phục</button>` : ''}</div>`).join('') : 'Chưa có bản dự phòng nào.';
+    bl.querySelectorAll('[data-restore]').forEach(btn => btn.addEventListener('click', () => h.onRestore(btn.dataset.restore)));
+  }
   const file = m.querySelector('#importFile');
   m.querySelector('[data-act=import]').addEventListener('click', () => file.click());
   file.addEventListener('change', async () => { const f = file.files[0]; if (f) h.onImport(await f.text()); });
