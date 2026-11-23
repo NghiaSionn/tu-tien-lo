@@ -131,7 +131,7 @@ test('Ma Quang Hoành Tảo: tia bắt đầu lệch khỏi người chơi; trú
 
 test('Ảnh Độn: báo điểm hiện ra WARN giây (không dịch chuyển sớm); hiện ra ở ô đứng được trong vòng MIN_R..MAX_R; sau đó sơ hở, chưa cắn ngay', () => {
   let n = 0;
-  for (const seed of [10, 11, 12]) {
+  for (const seed of [10, 11, 12, 17, 18, 19]) {
     let start = -1, from = null, landed = -1, dist = 0;
     const f = fight(seed, {
       sec: 90, hpAt: () => 0.35, vuln: true,

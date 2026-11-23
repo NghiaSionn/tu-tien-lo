@@ -67,7 +67,7 @@ test('chiêu không hợp lệ không được chọn (Lao Tù khi không remix,
 test('ngân sách đe dọa: trong khung nhìn không quá NORMAL đòn đặc biệt quái thường cùng gồng/lao; không vượt trần đạn/vùng', () => {
   for (const seed of [1, 2, 3]) {
     const r = newRun(seed, true), p = player(r);
-    r.time = 240;
+    r.time = 240; r.dir.mini = 'DEAD';   // (23/11) không cho boss ra: trận boss giờ dọn sân + ngừng sinh quái
     let maxSeen = 0;
     play(r, p, 90, (r, p) => {
       let n = 0;
@@ -83,7 +83,7 @@ test('ngân sách đe dọa: trong khung nhìn không quá NORMAL đòn đặc b
 
 test('TẮT: không có giới hạn (hành vi cũ) — kiểm chứng ngân sách thật sự có tác dụng khi BẬT', () => {
   const r = newRun(2, false), p = player(r);
-  r.time = 240; let maxSeen = 0;
+  r.time = 240; r.dir.mini = 'DEAD'; let maxSeen = 0;   // (23/11) không cho boss ra: trận boss giờ dọn sân + ngừng sinh quái
   play(r, p, 90, (r, p) => {
     let n = 0;
     for (const m of r.scene.monsters) if (!m.dead && !m.boss && (m.st === 'windup' || m.st === 'dash') && inCameraView(r.scene.map, p, m.x, m.y, 0)) n++;

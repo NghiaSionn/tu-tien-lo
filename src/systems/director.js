@@ -1,6 +1,6 @@
 // Director bí cảnh (M2-01): quyết định sinh quái gì, ở đâu, khi nào. Thuần logic, chỉ dùng run.rng -> cùng seed + cùng
 // input thì cùng kết quả. Thông số ở DIRECTOR / ARCH trong config.
-import { TILE as T, RUN, DIRECTOR as D, ARCH, BOSS, DIFFICULTY, VIEW, FEATURES, SQUADS as SQ, SPECIALISTS as SP } from '../core/config.js';
+import { TILE as T, RUN, DIRECTOR as D, ARCH, BOSS, DIFFICULTY, VIEW, FEATURES, SQUADS as SQ, SPECIALISTS as SP, BOSS_ARENA as BA } from '../core/config.js';
 import { makeMonster } from '../entities/monsters.js';
 import { initBoss } from '../entities/bosses.js';
 import { vmod } from './variants.js';
@@ -175,6 +175,18 @@ function trySquad(run, player, power, ev) {
   return false;
 }
 
+// Boss xuất hiện: mọi quái thường tan biến (đánh dấu cleared -> run.js không tính giết, không rơi kinh nghiệm), xóa đạn/lửa/vùng của quái thường
+export function clearField(run, ev) {
+  const sc = run.scene;
+  for (const m of sc.monsters) {
+    if (m.boss || m.dead) continue;
+    m.dead = true; m.cleared = true;
+    ev.push({ type: 'pulse', x: m.x, y: m.y - 6, r: 14, color: '#d9d2ff' });
+  }
+  sc.enemyShots.length = 0;
+  if (sc.fireTrails) sc.fireTrails.length = 0;
+}
+
 export function updateDirector(run, player, dt, ev, power) {
   const dir = run.dir, sc = run.scene, t = run.time;
   const ph = phaseAt(t);
@@ -182,10 +194,19 @@ export function updateDirector(run, player, dt, ev, power) {
     const key = kind === 'MINI' ? 'mini' : 'final';
     if (dir[key] === 'PENDING' && t >= BOSS[kind].AT && spawnBoss(run, player, kind, power)) {
       dir[key] = 'ALIVE';
+      if (BA.CLEAR_FIELD) clearField(run, ev);   // trận boss tập trung: dọn sạch quái thường (không rơi kinh nghiệm)
+      const b = aliveBoss(sc);
+      ev.push({ type: 'bossIntro', kind, x: b ? b.x : player.x, y: b ? b.y : player.y });   // main.js phát cutscene (logic đứng yên trong lúc xem)
       ev.push({ type: 'announce', x: player.x, y: player.y - 30, text: `${BOSS[kind].name} xuất hiện!`, color: '#ff5a5a' }, { type: 'shake', t: 0.25 }, { type: 'sfx', name: 'boss' });
     }
   }
   const boss = aliveBoss(sc);
+  if (boss && BA.NO_SPAWN) {   // đang đánh boss: không sinh quái thường; đợt sự kiện tới hạn trong lúc này bị bỏ
+    while (dir.waveIdx < D.WAVES.length && t >= D.WAVES[dir.waveIdx].t) dir.waveIdx++;
+    dir.spawnT = Math.max(dir.spawnT, 1);
+    if (t >= dir.eliteT) dir.eliteT = t + D.ELITE.EVERY * vmod(run, 'eliteEvery');
+    return;
+  }
   // M10-08: đội hình có vai trò (giữ chỗ ngân sách: tới giờ mà chưa vừa thì quái lẻ tạm dừng)
   const squadDue = (run.skillsV2 ?? FEATURES.enemySkillsV2) && !boss && t >= dir.squadT;
   if (squadDue && trySquad(run, player, power, ev)) dir.squadT = t + SQ.EVERY;

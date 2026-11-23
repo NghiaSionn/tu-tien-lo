@@ -294,6 +294,11 @@ export const BOSS_SKILL_LABELS = {
   shadow: ['Ảnh Độn', '#d9a8ff'], sweep: ['Ma Quang Hoành Tảo', '#f4d8ff'], cross: ['Thập Tự Hắc Liệt', '#ff8a6a'],
 };
 
+// (23/11, người phát triển yêu cầu) Trận boss tập trung: boss xuất hiện thì dọn sạch quái thường (tan biến, KHÔNG rơi kinh nghiệm),
+// trong lúc boss còn sống director không sinh quái thường (quái lẻ / đợt / đội hình / tinh anh) — quái chỉ đến từ chiêu gọi của boss.
+// Đợt sự kiện rơi vào lúc đang đánh boss thì bỏ (không dồn ra sau). Boss chết -> sinh lại bình thường.
+export const BOSS_ARENA = { CLEAR_FIELD: true, NO_SPAWN: true };
+
 // M10-03: tên chiêu cho thống kê nguồn sát thương (run.dmgBy) — khóa = nguồn ghi trong run.js
 export const SKILL_NAMES = {
   chaser: 'Dã Lang cắn', charger: 'Hỏa Hồ cắn', 'charger:dash': 'Hỏa Hồ lao', ranged: 'Huyền Băng Thú cắn', 'ranged:shot': 'Băng tiễn',

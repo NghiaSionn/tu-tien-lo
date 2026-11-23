@@ -112,6 +112,7 @@ export function updateRun(run, player, dt, ev, realmPowerOverride) {
   if (run.status !== 'RUNNING') return;
   let finalDown = false;
   reapMonsters(sc, m => {
+    if (m.cleared) return;   // bị dọn khi boss xuất hiện: không tính giết, không rơi kinh nghiệm
     run.kills++;
     if (m.elite) run.eliteKills++;
     if (m.boss) {
