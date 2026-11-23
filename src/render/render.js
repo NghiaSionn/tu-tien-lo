@@ -1833,7 +1833,7 @@ export function render(ctx, g) {
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   if (g.run && g.run.rooms && scene.kind === 'run') drawMinimap(ctx, g.run);   // M9-B
   if (g.cut) drawCutOverlay(ctx, g.cut); else drawBossBar(ctx, scene, camX, camY);
-  if (vis.banner) {
+  if (vis.banner && !g.cut) {   // cutscene: không chen dòng thông báo
     const b = vis.banner; ctx.globalAlpha = Math.min(1, b.life * 2);
     ctx.font = `bold 13px ${FONT}`; const bw = ctx.measureText(b.text).width;
     ctx.fillStyle = 'rgba(10,6,20,.6)'; ctx.fillRect(Math.round(W / 2 - bw / 2 - 10), 40, Math.round(bw + 20), 20);
