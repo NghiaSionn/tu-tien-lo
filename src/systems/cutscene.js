@@ -1,18 +1,21 @@
 // Cutscene xuất hiện boss (23/11, người phát triển yêu cầu). Thuần dòng thời gian: KHÔNG chạm logic trận —
 // main.js ngừng gọi updateRun trong lúc cutscene chạy (quái/đạn/đồng hồ đứng yên, người chơi không điều khiển, không ai trúng đòn).
 //
-// Kịch bản Lang Vương (người phát triển góp ý lần 2):
-//   1. "camera bay lên trời": cảnh vách đá trên cao (ảnh nền riêng) trượt từ trên xuống phủ màn hình.
-//   2. Trên vách: sói bước ra từ mép trái tới mỏm đá, nhìn quanh, lấy hơi, ngửa đầu hú, lấy đà, phóng khỏi vách.
-//   3. "camera hạ xuống": nền vách trượt lên, lộ đấu trường đúng chỗ đáp (chỗ trống nhất — director chọn); sói rơi từ trên cao xuống,
+// Kịch bản Lang Vương (góp ý lần 3, 24/11: chuyển cảnh phải mượt, sói bước chậm có uy lực):
+//   1. Đấu trường: camera ngửa dần lên trời (trượt dọc trục y) rồi tối dần (fade out).
+//   2. Cảnh vách đá sáng dần (fade in): mở ở bầu trời/trăng, camera hạ từ từ xuống mặt vách.
+//      Sói hiện ra từ bóng tối, bước CHẬM từng bước nặng (mỗi bước: tiếng dậm, bụi, rung nhẹ) tới mỏm đá,
+//      nhìn quanh, lấy hơi, ngửa đầu hú, lấy đà, phóng lên — camera ngửa theo, tối dần.
+//   3. Đấu trường sáng dần: camera từ trên cao hạ xuống điểm đáp (chỗ trống nhất — director chọn) đúng lúc sói rơi xuống,
 //      đáp đất (vòng chấn, bụi), hiện bảng tên, camera về người chơi.
-// state(c) trả về mọi thứ cần vẽ ở thời điểm c.t (render.js vẽ, không đổi trạng thái).
+// cutsceneState(c) trả về mọi thứ cần vẽ ở thời điểm c.t (render.js vẽ, không đổi trạng thái).
 import { CUTSCENE as CS } from '../core/config.js';
 
 const clamp01 = v => Math.max(0, Math.min(1, v));
 const ease = v => { v = clamp01(v); return v * v * (3 - 2 * v); };      // smoothstep
 const easeIn = v => { v = clamp01(v); return v * v * v; };              // rơi nhanh dần
 const lerp = (a, b, k) => a + (b - a) * k;
+const seg = (t, a, b) => clamp01((t - a) / (b - a));
 
 // boss: {x, y} điểm đáp (vị trí boss đã sinh); player: {x, y}; seen: đã xem lần nào chưa (cho bỏ qua)
 export function createCutscene(kind, boss, player, seen = false) {
@@ -31,57 +34,64 @@ export function stepCutscene(c, dt) {
   return out;
 }
 
-// Bỏ qua (chỉ khi đã từng xem): nhảy tới lúc hạ xuống đấu trường, bỏ các tiếng/rung trước đó, vẫn có cú đáp đất
+// Bỏ qua (chỉ khi đã từng xem): nhảy tới lúc tối dần trước khi về đấu trường, bỏ các tiếng/rung trước đó, vẫn có cú đáp đất
 export function skipCutscene(c) {
   if (!c || !c.skippable || c.done) return false;
   const T = c.S.T;
-  if (c.t < T.DESCEND) {
-    c.S.EVENTS.forEach(([at], i) => { if (at < T.DESCEND - 1e-6) c.fired.add(i); });
-    c.t = T.DESCEND;
+  if (c.t < T.FADE2) {
+    c.S.EVENTS.forEach(([at], i) => { if (at < T.FADE2 - 1e-6) c.fired.add(i); });
+    c.t = T.FADE2;
   }
   return true;
 }
 
-// Vị trí con sói trên vách (tọa độ màn hình W×H theo tỉ lệ 0..1 của config CLIFF) + tư thế
+// Con sói trên vách: vị trí (tỉ lệ 0..1 của màn hình), khung hình, độ hiện (0 = chìm trong bóng tối), pha bước chân
 function cliffActor(c, t) {
   const S = c.S, T = S.T, C = S.CLIFF;
   const tipX = C.TIP_X, y = C.LEDGE_Y;
-  if (t < T.WALK) return null;
-  if (t < T.LOOK) {   // bước ra: khung đi bộ (cùng sprite với khi đánh nhau) từ ngoài mép trái tới mỏm đá
-    const k = ease((t - T.WALK) / (T.LOOK - T.WALK));
-    return { x: lerp(C.START_X, tipX, k), y: lerp(C.START_Y ?? y, y, k), frame: 'walk' + (Math.floor(t * 8) % 4), flip: false };
+  if (t < T.EMERGE || t >= T.ARENA) return null;
+  if (t < T.WALK) return { x: C.START_X, y: C.START_Y, frame: 'i0', flip: false, show: ease(seg(t, T.EMERGE, T.WALK)), step: -1 };
+  if (t < T.LOOK) {   // bước chậm đều: mỗi khung đi bộ giữ 1/WALK_FPS giây
+    const k = seg(t, T.WALK, T.LOOK), wt = t - T.WALK;
+    return { x: lerp(C.START_X, tipX, k), y: lerp(C.START_Y, y, k), frame: 'walk' + (Math.floor(wt * S.WALK_FPS) % 4), flip: false, show: 1,
+      step: (wt * S.WALK_FPS / 2) % 1 };   // 0..1 mỗi bước chân (2 khung), 0 = chân vừa chạm đất
   }
-  if (t < T.INHALE) {  // nhìn quanh: quay trái rồi quay phải
-    const k = (t - T.LOOK) / (T.INHALE - T.LOOK);
-    return { x: tipX, y, frame: 'i0', flip: k > 0.25 && k < 0.6 };
+  if (t < T.INHALE) {  // nhìn quanh: quay lại sau lưng rồi nhìn ra vực
+    const k = seg(t, T.LOOK, T.INHALE);
+    return { x: tipX, y, frame: 'i0', flip: k > 0.3 && k < 0.65, show: 1, step: -1 };
   }
-  if (t < T.HOWL) return { x: tipX, y, frame: 'i1', flip: false };
-  if (t < T.CROUCH) return { x: tipX, y, frame: 'i2', flip: false };
-  if (t < T.LEAP) return { x: tipX, y, frame: 'i3', flip: false };
-  if (t < T.DESCEND) {  // phóng khỏi vách: vọt lên rồi lao xuống ra khỏi khung bên phải
-    const k = (t - T.LEAP) / (T.DESCEND - T.LEAP);
-    return { x: lerp(tipX, tipX + 0.38, k), y: y - 0.22 * Math.sin(Math.PI * Math.min(1, k * 1.3)) + 0.55 * easeIn(k), frame: 'i4', flip: false };
-  }
-  return null;
+  if (t < T.HOWL) return { x: tipX, y, frame: 'i1', flip: false, show: 1, step: -1 };
+  if (t < T.CROUCH) return { x: tipX, y, frame: 'i2', flip: false, show: 1, step: -1 };
+  if (t < T.LEAP) return { x: tipX, y, frame: 'i3', flip: false, show: 1, step: -1 };
+  // phóng lên cao, vượt khỏi khung phía trên (camera ngửa theo)
+  const k = seg(t, T.LEAP, T.ARENA);
+  return { x: lerp(tipX, tipX + 0.22, k), y: y - 0.9 * ease(k), frame: 'i4', flip: false, show: 1, step: -1 };
 }
 
 export function cutsceneState(c) {
   const S = c.S, T = S.T, t = c.t;
-  // nền vách đá: 0 = chưa phủ (đấu trường), 1 = phủ kín. Trượt từ trên xuống (UP) rồi trượt lên (DESCEND)
-  let bg = 0, bgY = -1;
-  if (t >= T.UP && t < T.DESCEND) { bg = ease((t - T.UP) / (T.WALK - T.UP)); bgY = bg - 1; }
-  else if (t >= T.DESCEND && t < T.FALL) { const k = ease((t - T.DESCEND) / (T.FALL - T.DESCEND)); bg = 1 - k; bgY = -k; }
-  // camera đấu trường: người chơi lúc đầu; sau khi hạ xuống nhìn điểm đáp; cuối cảnh về người chơi
-  const atLand = t >= T.DESCEND ? 1 : 0, kOut = ease((t - T.OUT) / (c.dur - T.OUT));
-  const fx = lerp(c.px, c.bx, atLand * (1 - kOut)), fy = lerp(c.py, c.by - 20, atLand * (1 - kOut));
+  // màn đen chuyển cảnh: tối dần -> sáng dần (2 lần)
+  const fade = t < T.CLIFF ? seg(t, T.FADE1, T.CLIFF) : t < T.FADE2 ? 1 - seg(t, T.CLIFF, T.CLIFF + S.FADE_IN)
+    : t < T.ARENA ? seg(t, T.FADE2, T.ARENA) : 1 - seg(t, T.ARENA, T.ARENA + S.FADE_IN);
+  // cảnh vách: sky = số px trời phía trên ảnh đang thấy (camera ngửa lên). Mở ở trời, hạ dần xuống; lúc sói phóng thì ngửa theo
+  const bg = t >= T.CLIFF && t < T.ARENA ? 1 : 0;
+  const sky = Math.round(S.SKY * (t < T.LEAP ? 1 - ease(seg(t, T.CLIFF, T.PAN)) : ease(seg(t, T.LEAP, T.ARENA))));
+  // camera đấu trường
+  const kOut = ease(seg(t, T.OUT, c.dur));
+  let fx = c.px, fy = c.py;
+  if (t < T.CLIFF) fy = c.py - S.TILT * ease(seg(t, 0, T.CLIFF));                              // ngửa lên trời
+  else if (t >= T.ARENA) {                                                                       // từ trên cao hạ xuống điểm đáp, cuối cảnh về người chơi
+    const down = ease(seg(t, T.ARENA, T.LAND));
+    fx = lerp(c.bx, c.px, kOut); fy = lerp(c.by - 20 - S.TILT * (1 - down), c.py, kOut);
+  }
   // cú rơi xuống đấu trường
   let alt = -1, pose = 4;
-  if (t >= T.FALL && t < T.LAND) { alt = S.HIGH * (1 - easeIn((t - T.FALL) / (T.LAND - T.FALL))); pose = 4; }
+  if (t >= T.ARENA && t < T.LAND) alt = S.HIGH * (1 - easeIn(seg(t, T.ARENA, T.LAND)));
   else if (t >= T.LAND) { alt = 0; pose = 5; }
-  const letter = ease(t / 0.35) * (1 - kOut);
-  const name = ease((t - T.NAME) / 0.35) * (1 - ease((t - T.OUT) / 0.4));
-  const howl = t >= T.HOWL && t < T.CROUCH ? (t - T.HOWL) / (T.CROUCH - T.HOWL) : -1;   // 0..1 trong lúc hú (vòng sóng âm trên vách)
-  const landK = t >= T.LAND ? (t - T.LAND) / 0.6 : -1;                                    // 0..1 sau khi đáp (bụi, vòng chấn)
-  return { kind: c.kind, faceLeft: c.px < c.bx, focusX: fx, focusY: fy, bg, bgY, cliff: cliffActor(c, t), cliffCfg: S.CLIFF,
+  const letter = ease(t / 0.5) * (1 - kOut);
+  const name = ease(seg(t, T.NAME, T.NAME + 0.35)) * (1 - ease(seg(t, T.OUT, T.OUT + 0.4)));
+  const howl = t >= T.HOWL && t < T.CROUCH ? seg(t, T.HOWL, T.CROUCH) : -1;   // 0..1 trong lúc hú (vòng sóng âm trên vách)
+  const landK = t >= T.LAND ? (t - T.LAND) / 0.6 : -1;                         // 0..1 sau khi đáp (bụi, vòng chấn)
+  return { kind: c.kind, faceLeft: c.px < c.bx, focusX: fx, focusY: fy, fade, bg, sky, cliff: cliffActor(c, t), cliffCfg: S.CLIFF,
     alt, pose, letter, name, howl, landK, bx: c.bx, by: c.by, skippable: c.skippable, title: S.TITLE, sub: S.SUB };
 }

@@ -302,17 +302,27 @@ export const BOSS_ARENA = { CLEAR_FIELD: true, NO_SPAWN: true };
 
 // Cutscene xuất hiện boss (23/11): mốc thời gian (giây) + sự kiện âm thanh/hiệu ứng. HIGH = độ cao (px) boss đứng trước khi nhảy xuống.
 // Lần đầu xem hết; từ lần thứ hai (meta.seenIntro) bấm Space/Enter/Esc/chạm để bỏ qua.
+// Mốc thời gian (giây) — xem kịch bản ở src/systems/cutscene.js.
+// FADE1..CLIFF: đấu trường ngửa lên trời + tối dần · CLIFF..PAN: cảnh vách sáng dần, camera hạ từ trời xuống mặt vách
+// EMERGE..WALK: sói hiện ra từ bóng tối · WALK..LOOK: bước chậm tới mỏm đá · LOOK/INHALE/HOWL/CROUCH/LEAP
+// FADE2..ARENA: phóng lên, tối dần · ARENA..LAND: đấu trường sáng dần, camera từ trên cao hạ theo cú rơi · NAME · OUT: về người chơi
+const LV_T = { FADE1: 0.7, CLIFF: 1.2, PAN: 3.2, EMERGE: 2.6, WALK: 3.4, LOOK: 8.9, INHALE: 9.8, HOWL: 10.1, CROUCH: 11.4, LEAP: 11.8, FADE2: 12.2, ARENA: 12.7, LAND: 13.4, NAME: 13.5, OUT: 14.7 };
+const LV_WALK_FPS = 3.5;   // khung đi bộ/giây: chậm, nặng (khi đánh nhau chạy nhanh hơn nhiều)
+const lvSteps = [];        // mỗi bước chân chạm đất: tiếng dậm + rung nhẹ
+for (let at = LV_T.WALK + 2 / LV_WALK_FPS * 0.5; at < LV_T.LOOK - 0.1; at += 2 / LV_WALK_FPS) lvSteps.push([+at.toFixed(3), { type: 'sfx', name: 'thud' }], [+at.toFixed(3), { type: 'shake', t: 0.07 }]);
 export const CUTSCENE = {
   MINI: {
-    TITLE: 'LANG VƯƠNG', SUB: 'Chúa tể bầy sói', HIGH: 150, DUR: 8.2,
-    // UP: nền vách bắt đầu trượt xuống · WALK: sói bước ra · LOOK: nhìn quanh · INHALE/HOWL/CROUCH/LEAP · DESCEND: nền trượt lên
-    // FALL..LAND: rơi xuống đấu trường · NAME: bảng tên · OUT: camera về người chơi
-    T: { UP: 0.35, WALK: 1.3, LOOK: 2.8, INHALE: 3.5, HOWL: 3.8, CROUCH: 4.9, LEAP: 5.2, DESCEND: 5.65, FALL: 6.1, LAND: 6.45, NAME: 6.55, OUT: 7.7 },
-    // vị trí trên ảnh nền vách (tỉ lệ 0..1 của màn 640×360): mặt gờ (chân sói) và mỏm đá
-    CLIFF: { BG: 'cutscene_vach_da', LEDGE_Y: 0.5, TIP_X: 0.69, START_X: -0.12, START_Y: 0.56 },   // mặt đá chếch lên dần về phía mỏm
-    EVENTS: [[3.82, { type: 'sfx', name: 'howl' }], [3.82, { type: 'shake', t: 0.6 }], [6.45, { type: 'sfx', name: 'land' }], [6.45, { type: 'shake', t: 0.4 }], [6.45, { type: 'land' }]],
+    TITLE: 'LANG VƯƠNG', SUB: 'Chúa tể bầy sói', HIGH: 170, DUR: 15.3, T: LV_T, WALK_FPS: LV_WALK_FPS,
+    FADE_IN: 0.6,   // giây sáng dần sau màn đen
+    SKY: 140,       // px trời phía trên ảnh vách khi camera ngửa lên
+    TILT: 220,      // px camera đấu trường trượt lên/xuống khi "ngửa lên trời" / "hạ từ trời xuống"
+    // vị trí trên ảnh nền vách (tỉ lệ 0..1 của màn 640×360): chỗ sói hiện ra (cạnh gốc cây) -> mỏm đá; mặt đá chếch lên dần về phía mỏm
+    CLIFF: { BG: 'cutscene_vach_da', START_X: 0.12, START_Y: 0.55, TIP_X: 0.69, LEDGE_Y: 0.5 },
+    EVENTS: [...lvSteps, [LV_T.HOWL + 0.02, { type: 'sfx', name: 'howl' }], [LV_T.HOWL + 0.02, { type: 'shake', t: 0.6 }],
+      [LV_T.LAND, { type: 'sfx', name: 'land' }], [LV_T.LAND, { type: 'shake', t: 0.4 }], [LV_T.LAND, { type: 'land' }]],
   },
 };
+
 
 // M10-03: tên chiêu cho thống kê nguồn sát thương (run.dmgBy) — khóa = nguồn ghi trong run.js
 export const SKILL_NAMES = {

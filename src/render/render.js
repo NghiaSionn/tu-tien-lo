@@ -1224,31 +1224,63 @@ function drawCutBoss(ctx, c, vis, time) {
   }
   ctx.globalAlpha = 1;
 }
-// Cảnh vách đá trên cao (màn hình): "camera bay lên" = nền trượt từ trên xuống phủ đấu trường, "hạ xuống" = trượt lên.
-// Ảnh nền ChatGPT vẽ (vis.cutBg[kind]); chưa có ảnh thì vẽ tạm trời đêm + vách đá. Sói: cùng sprite/cỡ với khi đánh nhau.
+// Cảnh vách đá trên cao (màn hình). Ảnh nền ChatGPT vẽ (vis.cutBg[kind]); chưa có ảnh thì vẽ tạm trời đêm + vách đá.
+// c.sky: số px trời phía trên ảnh đang thấy (camera ngửa lên) — vẽ dải trời nối tiếp màu mép trên ảnh + sao.
+// Sói: cùng sprite/cỡ với khi đánh nhau; hiện ra từ bóng tối (show), mỗi bước chân chạm đất tung bụi.
+const SKY_STARS = Array.from({ length: 40 }, (_, i) => [(i * 157) % 640, (i * 83) % 150, i % 3]);
+function skyTopColor(img) {   // màu trung bình 4 hàng trên cùng của ảnh nền (tính một lần)
+  if (img._top) return img._top;
+  const cv = document.createElement('canvas'); cv.width = 64; cv.height = 4; const g = cv.getContext('2d');
+  g.drawImage(img, 0, 0, img.width, Math.max(4, Math.round(img.height / 90)), 0, 0, 64, 4);
+  const d = g.getImageData(0, 0, 64, 4).data; let r = 0, gg = 0, b = 0;
+  for (let i = 0; i < d.length; i += 4) { r += d[i]; gg += d[i + 1]; b += d[i + 2]; }
+  const n = d.length / 4; return (img._top = `rgb(${Math.round(r / n)},${Math.round(gg / n)},${Math.round(b / n)})`);
+}
 function drawCliffScene(ctx, c, vis, time) {
   if (c.bg <= 0) return;
-  const C = c.cliffCfg, oy = Math.round(c.bgY * H), img = vis.cutBg && vis.cutBg[c.kind];
-  ctx.save(); ctx.translate(0, oy);
-  if (img) ctx.drawImage(img, 0, 0, W, H);
-  else {
+  const C = c.cliffCfg, img = vis.cutBg && vis.cutBg[c.kind];
+  const sx = vis.shake > 0 ? Math.round(rand(-3, 3)) : 0, sy = vis.shake > 0 ? Math.round(rand(-2, 2)) : 0;
+  ctx.save(); ctx.translate(sx, c.sky + sy);
+  // trời phía trên ảnh (chỉ thấy khi camera ngửa lên)
+  if (c.sky > 0) {
+    const top = img ? skyTopColor(img) : '#0c0a24', g = ctx.createLinearGradient(0, -c.sky, 0, 0);   // nối liền màu mép trên của ảnh
+    g.addColorStop(0, '#04041a'); g.addColorStop(1, top); ctx.fillStyle = g; ctx.fillRect(-4, -c.sky - 4, W + 8, c.sky + 6);
+    for (const [x, y, k] of SKY_STARS) { if (y > c.sky + 2) continue; ctx.globalAlpha = 0.5 + 0.5 * Math.sin(time * 2 + x); ctx.fillStyle = '#e8e4ff'; ctx.fillRect(x, -y, k ? 1 : 2, k ? 1 : 2); }
+    ctx.globalAlpha = 1;
+  }
+  if (img) {
+    ctx.drawImage(img, 0, 0, W, H);
+    if (c.sky > 0) {   // mép trên ảnh hòa vào dải trời (không lộ đường nối)
+      const top = skyTopColor(img), g2 = ctx.createLinearGradient(0, -2, 0, 48);
+      g2.addColorStop(0, top); g2.addColorStop(1, top.replace('rgb(', 'rgba(').replace(')', ',0)'));
+      ctx.fillStyle = g2; ctx.fillRect(-4, -2, W + 8, 50);
+    }
+  } else {
     const gr = ctx.createLinearGradient(0, 0, 0, H); gr.addColorStop(0, '#0c0a24'); gr.addColorStop(1, '#2a2350');
     ctx.fillStyle = gr; ctx.fillRect(0, 0, W, H);
     ctx.fillStyle = '#f2ecd0'; ctx.beginPath(); ctx.arc(W * 0.84, H * 0.18, 26, 0, 6.283); ctx.fill();
-    ctx.fillStyle = '#3c3a5a'; ctx.fillRect(0, H * 0.78, W, H * 0.22);
     const ly = H * C.LEDGE_Y, tx = W * (C.TIP_X + 0.06);
     ctx.fillStyle = '#4a4560'; ctx.beginPath(); ctx.moveTo(0, ly); ctx.lineTo(tx, ly); ctx.lineTo(tx - 20, ly + 30); ctx.lineTo(tx - 50, H); ctx.lineTo(0, H); ctx.fill();
-    ctx.fillStyle = '#5d8a4a'; ctx.fillRect(0, ly - 3, tx, 4);
   }
   // sương trôi dưới vực cho cảnh có chiều sâu
   for (let i = 0; i < 6; i++) { const x = ((i * 137 + time * 14) % (W + 160)) - 80; ctx.globalAlpha = 0.12; ctx.fillStyle = '#c8c0ff'; ctx.beginPath(); ctx.ellipse(x, H * 0.86 + (i % 3) * 10, 70, 9, 0, 0, 6.283); ctx.fill(); }
   ctx.globalAlpha = 1;
   const a = c.cliff;
-  if (a) {
+  if (a && a.show > 0) {
     const x = Math.round(a.x * W), y = Math.round(a.y * H), K = BOSS.DRAW_SCALE;
     const sh = a.frame[0] === 'i' ? vis.bossIntro : vis.bosses, name = `${c.kind}_${a.frame}`;
-    ctx.globalAlpha = 0.4; ctx.fillStyle = '#000'; ctx.beginPath(); ctx.ellipse(x, y, 30, 6, 0, 0, 6.283); ctx.fill(); ctx.globalAlpha = 1;
+    ctx.globalAlpha = 0.4 * a.show; ctx.fillStyle = '#000'; ctx.beginPath(); ctx.ellipse(x, y, 30, 6, 0, 0, 6.283); ctx.fill();
+    // hiện ra từ bóng tối: bóng đen sáng dần thành sói (canvas filter; trình duyệt không hỗ trợ thì chỉ mờ dần)
+    ctx.globalAlpha = Math.sqrt(a.show); if (a.show < 1) ctx.filter = `brightness(${(0.12 + 0.88 * a.show).toFixed(2)})`;
     if (sh && sh.meta.frames[name]) sheetFrame(ctx, sh, name, x, y, a.flip, sh.img, K);
+    ctx.filter = 'none';
+    // bước chân nặng: bụi tung hai bên chân vừa chạm đất
+    if (a.step >= 0 && a.step < 0.45) {
+      const k = a.step / 0.45;
+      for (let i = 0; i < 6; i++) { const d = 6 + k * 18, side = i < 3 ? -1 : 1; ctx.globalAlpha = 0.55 * (1 - k); ctx.fillStyle = '#b9b2cf';
+        ctx.fillRect(Math.round(x + side * (d + (i % 3) * 5)), Math.round(y - 2 - k * (6 + (i % 3) * 4)), 3, 3); }
+    }
+    ctx.globalAlpha = 1;
     if (c.howl >= 0) {   // tiếng hú: vòng sóng âm từ đầu sói lan ra bầu trời
       const hx = x + 22, hy = y - 52;
       for (let i = 0; i < 3; i++) { const k = (c.howl * 2.2 + i / 3) % 1, r = 12 + k * 150; ctx.globalAlpha = 0.85 * (1 - k); tgRing(ctx, hx, hy, r, Math.round(r * 2.2), '#fff6dc', 3, 1); }
@@ -1260,6 +1292,7 @@ function drawCliffScene(ctx, c, vis, time) {
 // màn hình: dải đen điện ảnh + bảng tên + nhắc bỏ qua
 function drawCutOverlay(ctx, c, vis, time) {
   drawCliffScene(ctx, c, vis, time);
+  if (c.fade > 0) { ctx.globalAlpha = c.fade; ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1; }   // màn đen chuyển cảnh
   const bh = Math.round(34 * c.letter);
   ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, bh); ctx.fillRect(0, H - bh, W, bh);
   if (c.name > 0) {
