@@ -85,12 +85,13 @@ async function loadSheet(name) {
   const tint = col => { const c = document.createElement('canvas'); c.width = img.width; c.height = img.height; const g = c.getContext('2d'); g.drawImage(img, 0, 0); g.globalCompositeOperation = 'source-in'; g.fillStyle = col; g.fillRect(0, 0, c.width, c.height); return c; };
   return { img, meta, white: tint('#ffffff'), glow: tint('#c070ff'), wind: tint('#7ff0c8') };   // wind: tàn ảnh Phong Ảnh Bộ
 }
-for (const [key, name] of [['pbLang', 'pb_lang'], ['pbYeu', 'pb_yeu'], ['hero', 'nhan_vat'], ['mobs', 'quai'], ['bosses', 'boss'], ['bossIntro', 'boss_intro'], ['bossWalk', 'boss_walk'], ['rung', 'rung'], ['congTrinh', 'cong_trinh'], ['icons', 'bieu_tuong'], ['tienHoa', 'tien_hoa'], ['bia', 'bia'], ['phim', 'phim'],
+for (const [key, name] of [['pbLang', 'pb_lang'], ['pbYeu', 'pb_yeu'], ['hero', 'nhan_vat'], ['mobs', 'quai'], ['bosses', 'boss'], ['bossIntro', 'boss_intro'], ['bossWalk', 'boss_walk'], ['bossIntroF', 'boss_intro_final'], ['rung', 'rung'], ['congTrinh', 'cong_trinh'], ['icons', 'bieu_tuong'], ['tienHoa', 'tien_hoa'], ['bia', 'bia'], ['phim', 'phim'],
   ...(FEATURES.sectHub || /[?&]sect=1/.test(location.search) ? [['tmCt', 'tm_cong_trinh'], ['tmDv', 'tm_do_vat'], ['tmCd', 'tm_cay_da'], ['tmTran', 'tm_tran'], ['tmThem', 'tm_them'], ['tmCh', 'tm_chuong'], ['tmNui', 'tm_nui']] : [])]) {
   try { vis[key] = await loadSheet(name); } catch (e) { console.warn('[sprite] dùng hình cũ:', name, e); }
 }
 // (23/11) nền cảnh vách đá của cutscene boss (ChatGPT vẽ); thiếu ảnh thì render vẽ nền tạm
-try { vis.cutBg = { MINI: await loadImg('sprites/cutscene_vach_da.png') }; } catch (e) { console.warn('[sprite] chưa có nền cutscene', e); }
+vis.cutBg = {};
+for (const [k, f] of [['MINI', 'cutscene_vach_da'], ['FINAL', 'cutscene_te_dan']]) try { vis.cutBg[k] = await loadImg('sprites/' + f + '.png'); } catch (e) { console.warn('[sprite] chưa có nền cutscene', f, e); }
 // công trình động phủ (cổng, tụ linh trận, Linh Mạch) + VFX tiến hóa M7-12: cắt sát nội dung từng khung
 function cropFrames(sheet) {
   const { img, meta } = sheet, [fw, fh] = meta.frameSize, out = {};
@@ -1013,7 +1014,7 @@ function updateCut(dt) {
   for (const e of stepCutscene(cut, dt)) {
     if (e.type === 'sfx') Audio.play(e.name);
     else if (e.type === 'shake') ev.push(e);
-    else if (e.type === 'land') ev.push({ type: 'boom', x: cut.bx, y: cut.by, r: 46, color: '#e8dcc8' }, { type: 'pulse', x: cut.bx, y: cut.by, r: 70, color: '#fff3d0' });
+    else if (e.type === 'land') { const fin = cut.kind === 'FINAL'; ev.push({ type: 'boom', x: cut.bx, y: cut.by, r: fin ? 60 : 46, color: fin ? '#c070ff' : '#e8dcc8' }, { type: 'pulse', x: cut.bx, y: cut.by, r: fin ? 90 : 70, color: fin ? '#f0c8ff' : '#fff3d0' }); }
   }
   if (cut.done) endCut();
 }

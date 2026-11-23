@@ -487,6 +487,14 @@ Hướng do ChatGPT đề xuất 17/11, người phát triển duyệt "Làm gam
 
 ---
 
+## BOSS TẬP TRUNG + CUTSCENE (người phát triển yêu cầu 23–24/11)
+
+- [x] Dọn sân khi boss xuất hiện (1a: không kinh nghiệm), không sinh quái thường khi boss sống; boss đáp chỗ trống nhất — test `tests/cutscene.test.js`
+- [x] Cutscene Lang Vương: vách đá + bước đi dựng xương khớp sải chân + hú + đáp — đã push 24/11
+- [x] Yêu Vương — Triệu Ma Ảnh (2b) — test `tests/boss_summon.test.js`
+- [x] Cutscene Yêu Vương: ma ấn → tế đàn trăng máu → lời thoại, gầm → vỡ kính → trồi lên — test `tests/cutscene.test.js`
+- [ ] Người thật xem/nghe thử (âm thanh mới, Safari) — gộp vào phần kiểm thử tay cuối
+
 ## VIỆC LƯU LẠI ĐỂ LÀM SAU (người phát triển dặn 23/11)
 
 - [ ] H-1 Ma Quang Hoành Tảo (Yêu Vương P2): (a) đưa tia quét vào "hình nguy hiểm" chống chồng đòn M10-08 (công bằng, không làm dễ); (b) chỉ chỉnh sát thương/tầm/thời gian sau khi có playtest người thật (F-4) — bot A/B: đòn kết liễu số 1 ở L0 (5/20) nhưng bot né kém (không biết vòng ra sau boss).

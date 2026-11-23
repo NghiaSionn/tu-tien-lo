@@ -37,10 +37,10 @@ export function stepCutscene(c, dt) {
 // Bỏ qua (chỉ khi đã từng xem): nhảy tới lúc tối dần trước khi về đấu trường, bỏ các tiếng/rung trước đó, vẫn có cú đáp đất
 export function skipCutscene(c) {
   if (!c || !c.skippable || c.done) return false;
-  const T = c.S.T;
-  if (c.t < T.FADE2) {
-    c.S.EVENTS.forEach(([at], i) => { if (at < T.FADE2 - 1e-6) c.fired.add(i); });
-    c.t = T.FADE2;
+  const to = c.S.T[c.S.SKIP || 'FADE2'];   // Lang Vương: tới lúc tối dần về đấu trường; Yêu Vương: tới lúc màn hình vỡ
+  if (c.t < to) {
+    c.S.EVENTS.forEach(([at], i) => { if (at < to - 1e-6) c.fired.add(i); });
+    c.t = to;
   }
   return true;
 }
@@ -71,6 +71,7 @@ function cliffActor(c, t) {
 }
 
 export function cutsceneState(c) {
+  if (c.S.STYLE === 'wraith') return wraithState(c);
   const S = c.S, T = S.T, t = c.t;
   // màn đen chuyển cảnh: tối dần -> sáng dần (2 lần)
   const fade = t < T.CLIFF ? seg(t, T.FADE1, T.CLIFF) : t < T.FADE2 ? 1 - seg(t, T.CLIFF, T.CLIFF + S.FADE_IN)
@@ -96,4 +97,40 @@ export function cutsceneState(c) {
   const landK = t >= T.LAND ? (t - T.LAND) / 0.6 : -1;                         // 0..1 sau khi đáp (bụi, vòng chấn)
   return { kind: c.kind, faceLeft: c.px < c.bx, focusX: fx, focusY: fy, fade, bg, sky, cliff: cliffActor(c, t), cliffCfg: S.CLIFF,
     alt, pose, letter, name, howl, landK, bx: c.bx, by: c.by, skippable: c.skippable, title: S.TITLE, sub: S.SUB };
+}
+
+// ---------- (24/11) Ma Ảnh Yêu Vương: "trời sập tối -> tế đàn ma giới -> vỡ kính -> trồi lên từ ma ấn" ----------
+//   1. Đấu trường: tối dần tím đen, gió cuốn về điểm xuất hiện, ma ấn hiện dần dưới đất; camera lướt tới ma ấn; tối hẳn.
+//   2. Tế đàn dưới trăng máu (ảnh nền riêng): camera hạ từ trời xuống; khói tụ thành hình -> mắt đỏ lóe -> hiện chân thân
+//      -> dang tay nói (chữ chạy) -> ngửa đầu gầm (sóng tà khí, rung mạnh).
+//   3. Màn hình nứt rồi vỡ vụn như kính, rơi xuống để lộ đấu trường; Yêu Vương trồi lên từ cột khói ở ma ấn, ma ấn nổ; bảng tên.
+function wraithState(c) {
+  const S = c.S, T = S.T, t = c.t;
+  const kOut = ease(seg(t, T.OUT, c.dur));
+  const fade = t < T.ALTAR ? seg(t, T.FADE1, T.ALTAR) : 1 - seg(t, T.ALTAR, T.ALTAR + S.FADE_IN);
+  const dark = t < T.ALTAR ? 0.62 * ease(seg(t, 0, 1.4)) : t >= T.SHATTER ? 0.62 * (1 - ease(seg(t, T.RISE + 0.6, T.OUT))) : 0;
+  const landAt = T.RISE + S.RISE_TIME;
+  const seal = t < T.ALTAR ? ease(seg(t, T.PAN, T.FADE1)) : t >= T.SHATTER ? 1 - seg(t, landAt, landAt + 0.5) : 0;
+  const toSeal = t < T.ALTAR ? ease(seg(t, T.PAN, T.FADE1)) : t >= T.SHATTER ? 1 - kOut : 0;
+  const fx = lerp(c.px, c.bx, toSeal), fy = lerp(c.py, c.by - 20, toSeal);
+  const bg = t >= T.ALTAR && t < T.SHATTER ? 1 : 0;
+  const sky = Math.round(S.SKY * (1 - ease(seg(t, T.ALTAR, T.SKYPAN))));
+  let actor = null;
+  if (t >= T.FORM && t < T.SHATTER) {
+    const pose = t < T.EYES ? 0 : t < T.REVEAL ? 1 : t < T.SPEAK ? 2 : t < T.ROAR ? 3 : 4;
+    actor = { pose, show: ease(seg(t, T.FORM, T.FORM + 0.9)), flash: t >= T.REVEAL ? 1 - seg(t, T.REVEAL, T.REVEAL + 0.45) : 0, bob: Math.sin(t * 2.2) * 2 };
+  }
+  const n = S.LINE.length;
+  const line = t >= T.SPEAK && t < T.ROAR + 0.3 ? S.LINE.slice(0, Math.floor(n * seg(t, T.SPEAK + 0.2, T.SPEAK + S.TYPE_TIME))) : '';
+  const roar = t >= T.ROAR && t < T.CRACK + 0.2 ? seg(t, T.ROAR, T.CRACK) : -1;
+  const crack = t >= T.CRACK && t < T.SHATTER ? seg(t, T.CRACK, T.SHATTER) : t >= T.SHATTER ? 1 : 0;
+  const shatter = t >= T.SHATTER && t < T.SHATTER + S.SHATTER_TIME ? seg(t, T.SHATTER, T.SHATTER + S.SHATTER_TIME) : -1;
+  const rise = t >= T.RISE ? ease(seg(t, T.RISE, landAt)) : -1;
+  const pillar = t >= T.RISE - 0.3 && t < landAt + 0.5 ? seg(t, T.RISE - 0.3, landAt + 0.5) : -1;
+  const landK = t >= landAt ? (t - landAt) / 0.6 : -1;
+  const letter = ease(t / 0.5) * (1 - kOut);
+  const name = ease(seg(t, T.NAME, T.NAME + 0.35)) * (1 - ease(seg(t, T.OUT, T.OUT + 0.4)));
+  return { style: 'wraith', kind: c.kind, focusX: fx, focusY: fy, fade, dark, seal, wind: t < T.ALTAR ? seg(t, 0.2, T.FADE1) : -1, bg, sky,
+    actor, line, roar, crack, shatter, rise, pillar, landK, letter, name, altarCfg: S.ALTAR, bx: c.bx, by: c.by,
+    skippable: c.skippable, title: S.TITLE, sub: S.SUB, titleCol: S.TITLE_COL, alt: -1, pose: 5, cliff: null, howl: -1 };
 }

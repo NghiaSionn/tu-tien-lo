@@ -96,3 +96,41 @@ test('boss xuất hiện: dọn sạch quái thường (không tính giết, kh�
   assert.equal(intros.length, 1); assert.equal(intros[0].kind, 'MINI');
   assert.deepEqual(atIntro, { dk: 0, dx: 0, dorbs: 0, left: 0, shots: 0 }, 'dọn sân: không tính giết, không kinh nghiệm/chiến ý, không còn quái thường/đạn');
 });
+
+// ---------- (24/11) Ma Ảnh Yêu Vương ----------
+test('Yêu Vương: đấu trường tối dần + ma ấn -> màn đen -> tế đàn (khói tụ, mắt lóe, hiện thân, nói, gầm) -> nứt, vỡ -> trồi lên, bảng tên, về người chơi', () => {
+  const S = CUTSCENE.FINAL, T = S.T;
+  const c = createCutscene('FINAL', { x: 500, y: 400 }, { x: 300, y: 380 });
+  let s = cutsceneState(c), prev = s;
+  assert.ok(s.style === 'wraith' && s.bg === 0 && s.actor === null && Math.abs(s.focusX - 300) < 1);
+  const poses = [], toAltar = [];
+  let fullLine = false;
+  while (!c.done) {
+    stepCutscene(c, DT); s = cutsceneState(c);
+    if (s.actor && poses[poses.length - 1] !== s.actor.pose) poses.push(s.actor.pose);
+    if (s.line === S.LINE) fullLine = true;
+    assert.ok(Math.abs(s.fade - prev.fade) < 0.1, 'màn đen không giật');
+    if (s.bg !== prev.bg) toAltar.push([s.bg, prev.fade, s.shatter]);
+    if (c.t < T.ALTAR) assert.ok(s.seal >= 0 && s.dark > 0 || c.t < 0.05);
+    if (c.t >= T.ROAR && c.t < T.CRACK) assert.ok(s.roar >= 0);
+    if (c.t >= T.RISE + S.RISE_TIME) assert.equal(s.rise, 1);
+    prev = s;
+  }
+  assert.deepEqual(poses, [0, 1, 2, 3, 4]);
+  assert.ok(fullLine, 'lời thoại chạy hết trước khi gầm');
+  assert.equal(toAltar.length, 2);
+  assert.ok(toAltar[0][0] === 1 && toAltar[0][1] > 0.97, 'vào tế đàn qua màn đen');
+  assert.ok(toAltar[1][0] === 0 && toAltar[1][2] >= 0, 'rời tế đàn bằng màn vỡ kính');
+  assert.ok(Math.abs(s.focusX - 300) < 1 && s.letter < 0.01 && s.name < 0.01 && s.dark < 0.01);
+});
+
+test('Yêu Vương: mỗi sự kiện phát đúng 1 lần; bỏ qua (lần 2) nhảy tới lúc nứt vỡ, không phát tiếng gầm, vẫn có cú nổ ma ấn', () => {
+  const a = createCutscene('FINAL', { x: 0, y: 0 }, { x: 0, y: 0 });
+  const ev = run(a, 30);
+  assert.equal(ev.length, CUTSCENE.FINAL.EVENTS.length);
+  const b = createCutscene('FINAL', { x: 0, y: 0 }, { x: 0, y: 0 }, true);
+  stepCutscene(b, 1); assert.equal(skipCutscene(b), true); assert.ok(Math.abs(b.t - CUTSCENE.FINAL.T.CRACK) < 1e-9);
+  const ev2 = run(b, 30);
+  assert.ok(!ev2.some(e => e.name === 'roar'));
+  assert.equal(ev2.filter(e => e.type === 'land').length, 1);
+});

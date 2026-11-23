@@ -1,0 +1,41 @@
+{
+ "frameSize": [
+  64,
+  55
+ ],
+ "pivot": [
+  28,
+  54
+ ],
+ "image": "boss_intro_final.png",
+ "frames": {
+  "FINAL_i0": [
+   0,
+   0
+  ],
+  "FINAL_i1": [
+   64,
+   0
+  ],
+  "FINAL_i2": [
+   128,
+   0
+  ],
+  "FINAL_i3": [
+   192,
+   0
+  ],
+  "FINAL_i4": [
+   256,
+   0
+  ],
+  "FINAL_i5": [
+   320,
+   0
+  ]
+ },
+ "source": "docs/concept/yeu_vuong_cutscene_chatgpt.png",
+ "tool": "tools/sprite_clean.py",
+ "scale": 8.2,
+ "colors": 40
+}

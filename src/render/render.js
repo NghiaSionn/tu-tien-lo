@@ -1220,6 +1220,7 @@ function drawTribHud(ctx, tr) {
 // chưa có thì tạm lấy khung có sẵn. Boss đứng trên mây yêu khí đen tím trên cao rồi nhảy xuống điểm đáp.
 const CUT_FALLBACK = ['walk0', 'walk1', 'atk', 'walk3', 'atk', 'atk'];
 function drawCutBoss(ctx, c, vis, time) {
+  if (c.style === 'wraith') return drawCutWraithWorld(ctx, c, vis, time);
   const K = BOSS.DRAW_SCALE, intro = vis.bossIntro, bs = vis.bosses;
   const name = intro && intro.meta.frames[`${c.kind}_i${c.pose}`] ? `${c.kind}_i${c.pose}` : `${c.kind}_${CUT_FALLBACK[c.pose]}`;
   const sh = intro && intro.meta.frames[name] ? intro : bs;
@@ -1304,8 +1305,136 @@ function drawCliffScene(ctx, c, vis, time) {
   }
   ctx.restore();
 }
+// ---------- (24/11) cutscene Ma Ảnh Yêu Vương ----------
+const sh01 = i => { const v = Math.sin(i * 127.1 + 311.7) * 43758.5453; return v - Math.floor(v); };   // số giả ngẫu nhiên cố định (không đổi trạng thái)
+// Đấu trường (tọa độ thế giới): gió cuốn về ma ấn, ma ấn, cột khói, Yêu Vương trồi lên, vòng nổ
+function drawCutWraithWorld(ctx, c, vis, time) {
+  const bx = Math.round(c.bx), by = Math.round(c.by);
+  if (c.wind >= 0) for (let i = 0; i < 40; i++) {   // gió tà khí cuốn xoáy vào ma ấn
+    const ph = (time * 0.7 + i / 40) % 1, a = i * 2.4 + ph * 1.6, r = 280 * (1 - ph);
+    ctx.globalAlpha = 0.6 * c.wind * ph; ctx.fillStyle = i % 3 ? '#4a1f66' : '#b070e0';
+    ctx.fillRect(Math.round(bx + Math.cos(a) * r), Math.round(by + Math.sin(a) * r * 0.6), 4, 1);
+  }
+  if (c.seal > 0) {   // ma ấn: vũng tối + hai vòng phù văn xoay ngược chiều
+    const R = 44 * c.seal;
+    ctx.globalAlpha = 0.45 * c.seal; ctx.fillStyle = '#12051f'; ctx.beginPath(); ctx.ellipse(bx, by, R, R * 0.45, 0, 0, 6.283); ctx.fill();
+    ctx.globalAlpha = 0.9 * c.seal; tgRing(ctx, bx, by, R, 40, '#c070ff', 2, 0.45);
+    ctx.globalAlpha = 0.7 * c.seal; tgRing(ctx, bx, by, R * 0.62, 28, '#ff6ad0', 1, 0.45);
+    ctx.fillStyle = '#f0c8ff';
+    for (let i = 0; i < 8; i++) { const a = i * 0.785 + time * 0.9; ctx.globalAlpha = c.seal; ctx.fillRect(Math.round(bx + Math.cos(a) * R * 0.82) - 1, Math.round(by + Math.sin(a) * R * 0.82 * 0.45) - 1, 3, 2); }
+    for (let i = 0; i < 6; i++) { const a = -i * 1.047 - time * 1.4; ctx.fillRect(Math.round(bx + Math.cos(a) * R * 0.4), Math.round(by + Math.sin(a) * R * 0.4 * 0.45), 2, 2); }
+  }
+  if (c.pillar >= 0) {   // cột khói tà khí phun lên từ ma ấn
+    const k = c.pillar, grow = Math.min(1, k * 3), fadeOut = 1 - Math.max(0, (k - 0.7) / 0.3);
+    for (let i = 0; i < 16; i++) {
+      const y = by - ((i * 11 + time * 70) % 176) * grow, w = (22 + 6 * Math.sin(time * 6 + i)) * (1 - (by - y) / 260);
+      ctx.globalAlpha = 0.55 * fadeOut; ctx.fillStyle = i % 2 ? '#2a1040' : '#6a2f96';
+      ctx.beginPath(); ctx.ellipse(bx + Math.sin(time * 3 + i) * 4, y, Math.max(4, w), 7, 0, 0, 6.283); ctx.fill();
+    }
+  }
+  if (c.rise >= 0) {   // trồi lên từ ma ấn (tư thế chỉ tay ra lệnh)
+    const sh = vis.bossIntroF, name = 'FINAL_i5', y = Math.round(by + (1 - c.rise) * 34);
+    ctx.globalAlpha = 0.45 * c.rise; ctx.fillStyle = '#000'; ctx.beginPath(); ctx.ellipse(bx, by, 30, 8, 0, 0, 6.283); ctx.fill();
+    ctx.globalAlpha = c.rise;
+    if (sh && sh.meta.frames[name]) sheetFrame(ctx, sh, name, bx, y, c.faceLeft, sh.img, BOSS.DRAW_SCALE);
+    else { const spr = BOSS_SPR.FINAL, w = spr.width * 3, h = spr.height * 3; ctx.drawImage(spr, bx - w / 2, y - h, w, h); }
+  }
+  if (c.landK >= 0 && c.landK < 1) {   // ma ấn nổ: vòng sóng tím + mảnh tà khí
+    const k = c.landK, r = 24 + k * 100;
+    ctx.globalAlpha = 0.85 * (1 - k); tgRing(ctx, bx, by, r, Math.round(r * 1.8), '#c070ff', 3, 0.45);
+    for (let i = 0; i < 12; i++) { const a = i / 12 * 6.283, d = 20 + k * 70; ctx.globalAlpha = 0.6 * (1 - k); ctx.fillStyle = '#e0a8ff'; ctx.fillRect(Math.round(bx + Math.cos(a) * d), Math.round(by + Math.sin(a) * d * 0.4 - k * 14), 3, 3); }
+  }
+  ctx.globalAlpha = 1;
+}
+// Cảnh tế đàn: vẽ vào bộ đệm (để lúc vỡ kính cắt mảnh từ chính khung hình cuối)
+let ALT_BUF = null;
+function drawAltarScene(c, vis, time) {
+  if (!ALT_BUF) { ALT_BUF = document.createElement('canvas'); ALT_BUF.width = W; ALT_BUF.height = H; }
+  const g = ALT_BUF.getContext('2d'), A = c.altarCfg, img = vis.cutBg && vis.cutBg.FINAL;
+  g.setTransform(1, 0, 0, 1, 0, 0); g.imageSmoothingEnabled = false; g.globalAlpha = 1; g.fillStyle = '#05020c'; g.fillRect(0, 0, W, H);
+  const sx = vis.shake > 0 ? Math.round(rand(-3, 3)) : 0, sy = vis.shake > 0 ? Math.round(rand(-3, 3)) : 0;
+  g.save(); g.translate(sx, c.sky + sy);
+  if (c.sky > 0) {   // trời phía trên ảnh khi camera ngửa lên (liền màu mép trên ảnh)
+    const top = img ? skyTopColor(img) : '#1a0820', gr = g.createLinearGradient(0, -c.sky, 0, 0);
+    gr.addColorStop(0, '#05020c'); gr.addColorStop(1, top); g.fillStyle = gr; g.fillRect(-4, -c.sky - 4, W + 8, c.sky + 6);
+  }
+  if (img) {
+    g.drawImage(img, 0, 0, W, H);
+    if (c.sky > 0) { const top = skyTopColor(img), g2 = g.createLinearGradient(0, -2, 0, 48); g2.addColorStop(0, top); g2.addColorStop(1, top.replace('rgb(', 'rgba(').replace(')', ',0)')); g.fillStyle = g2; g.fillRect(-4, -2, W + 8, 50); }
+  } else { g.fillStyle = '#2a1036'; g.fillRect(0, 0, W, H); g.fillStyle = '#b01828'; g.beginPath(); g.arc(W / 2, H * 0.22, 60, 0, 6.283); g.fill(); }
+  const a = c.actor;
+  if (a) {
+    const x = Math.round(A.X * W), y = Math.round(A.Y * H + a.bob), sh = vis.bossIntroF, name = 'FINAL_i' + a.pose, K = A.SCALE || BOSS.DRAW_SCALE;   // cảnh cận: phóng to hơn lúc đánh
+    // tà khí bốc lên quanh thân + ma ấn dưới chân sáng theo
+    g.globalAlpha = 0.35 * a.show; g.fillStyle = '#c070ff'; g.beginPath(); g.ellipse(x, Math.round(A.Y * H) + 2, 23 * K, 5 * K, 0, 0, 6.283); g.fill();
+    for (let i = 0; i < 14; i++) { const ph = (time * 0.5 + i / 14) % 1; g.globalAlpha = 0.7 * a.show * (1 - ph); g.fillStyle = i % 2 ? '#e0a8ff' : '#7a3aa8'; g.fillRect(Math.round(x + (sh01(i) - 0.5) * 45 * K), Math.round(y - ph * 60 * K), 2, 3); }
+    g.globalAlpha = Math.sqrt(a.show); if (a.show < 1) g.filter = 'brightness(' + (0.15 + 0.85 * a.show).toFixed(2) + ')';
+    if (sh && sh.meta.frames[name]) sheetFrame(g, sh, name, x, y, false, sh.img, K);
+    g.filter = 'none';
+    if (a.flash > 0 && sh && sh.meta.frames[name]) { g.globalAlpha = 0.8 * a.flash; sheetFrame(g, sh, name, x, y, false, sh.white, K); }
+    if (c.roar >= 0) {   // tiếng gầm: sóng tà khí đỏ tím lan ra từ đầu
+      for (let i = 0; i < 4; i++) { const k = (c.roar * 2.6 + i / 4) % 1, r = 14 + k * 260; g.globalAlpha = 0.85 * (1 - k); tgRing(g, x, y - 44 * K, r, Math.round(r * 2.4), i % 2 ? '#ff5a8a' : '#d070ff', 3, 0.8); }
+    }
+  }
+  g.restore(); g.globalAlpha = 1;
+  return ALT_BUF;
+}
+const CRACK_O = [W * 0.5, H * 0.4];
+const CRACKS = Array.from({ length: 12 }, (_, i) => {   // vết nứt: tia gấp khúc từ điểm vỡ
+  const pts = [[0, 0]]; let a = i / 12 * 6.283 + (sh01(i) - 0.5) * 0.4, x = 0, y = 0;
+  for (let j = 0; j < 5; j++) { a += (sh01(i * 7 + j) - 0.5) * 0.7; const l = 30 + sh01(i * 13 + j) * 50; x += Math.cos(a) * l; y += Math.sin(a) * l; pts.push([x, y]); }
+  return pts;
+});
+const SHARDS = (() => {   // mảnh kính: lưới 8×5 ô, mỗi ô 2 tam giác; bay ra từ điểm vỡ rồi rơi
+  const out = [], cw = W / 8, ch = H / 5;
+  for (let r = 0; r < 5; r++) for (let q = 0; q < 8; q++) {
+    const x0 = q * cw, y0 = r * ch, j = (r * 8 + q) * 2, flip = (q + r) % 2;
+    const tris = flip ? [[[x0, y0], [x0 + cw, y0], [x0, y0 + ch]], [[x0 + cw, y0], [x0 + cw, y0 + ch], [x0, y0 + ch]]]
+      : [[[x0, y0], [x0 + cw, y0], [x0 + cw, y0 + ch]], [[x0, y0], [x0 + cw, y0 + ch], [x0, y0 + ch]]];
+    tris.forEach((p, n) => {
+      const cx = (p[0][0] + p[1][0] + p[2][0]) / 3, cy = (p[0][1] + p[1][1] + p[2][1]) / 3, dx = cx - CRACK_O[0], dy = cy - CRACK_O[1], d = Math.hypot(dx, dy) || 1, sp = 60 + sh01(j + n) * 160;
+      out.push({ p, cx, cy, vx: dx / d * sp, vy: dy / d * sp - 80 - sh01(j + n + 5) * 80, rot: (sh01(j + n + 9) - 0.5) * 6, delay: d / 900 });
+    });
+  }
+  return out;
+})();
+function drawWraithScreen(ctx, c, vis, time) {
+  if (c.dark > 0) {   // trời sập tối: phủ tím đen + viền tối khép vào
+    ctx.globalAlpha = c.dark; ctx.fillStyle = '#0d0418'; ctx.fillRect(0, 0, W, H);
+    const v = ctx.createRadialGradient(W / 2, H / 2, H * 0.25, W / 2, H / 2, W * 0.62); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,0.85)');
+    ctx.globalAlpha = Math.min(1, c.dark * 1.4); ctx.fillStyle = v; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1;
+  }
+  if (c.bg > 0) {
+    ctx.drawImage(drawAltarScene(c, vis, time), 0, 0);
+    if (c.roar >= 0) { ctx.globalAlpha = 0.18 * (1 - (c.roar * 4) % 1); ctx.fillStyle = '#ff2a4a'; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1; }
+    if (c.crack > 0) {   // vết nứt lan ra
+      for (const pts of CRACKS) {
+        const n = Math.max(1, Math.ceil(c.crack * (pts.length - 1)));
+        for (const [col, wdt] of [['#000', 3], ['#fff', 1]]) {
+          ctx.strokeStyle = col; ctx.lineWidth = wdt; ctx.globalAlpha = 0.9; ctx.beginPath(); ctx.moveTo(CRACK_O[0], CRACK_O[1]);
+          for (let i = 1; i <= n; i++) ctx.lineTo(CRACK_O[0] + pts[i][0], CRACK_O[1] + pts[i][1]);
+          ctx.stroke();
+        }
+      }
+      ctx.globalAlpha = 1;
+    }
+  } else if (c.shatter >= 0 && ALT_BUF) {   // vỡ vụn: mảnh kính (cắt từ khung tế đàn cuối) văng ra rồi rơi, lộ đấu trường phía sau
+    const tt = c.shatter * 1.0;
+    for (const s of SHARDS) {
+      const k = Math.max(0, tt - s.delay); if (k <= 0) { ctx.save(); ctx.beginPath(); ctx.moveTo(...s.p[0]); ctx.lineTo(...s.p[1]); ctx.lineTo(...s.p[2]); ctx.closePath(); ctx.clip(); ctx.drawImage(ALT_BUF, 0, 0); ctx.restore(); continue; }
+      const dx = s.vx * k, dy = s.vy * k + 700 * k * k;
+      ctx.save(); ctx.globalAlpha = Math.max(0, 1 - k * 1.3);
+      ctx.translate(s.cx + dx, s.cy + dy); ctx.rotate(s.rot * k); ctx.translate(-s.cx, -s.cy);
+      ctx.beginPath(); ctx.moveTo(...s.p[0]); ctx.lineTo(...s.p[1]); ctx.lineTo(...s.p[2]); ctx.closePath(); ctx.clip();
+      ctx.drawImage(ALT_BUF, 0, 0); ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.stroke(); ctx.restore();
+    }
+    if (c.shatter < 0.25) { ctx.globalAlpha = 0.8 * (1 - c.shatter / 0.25); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1; }
+  }
+}
+
 // màn hình: dải đen điện ảnh + bảng tên + nhắc bỏ qua
 function drawCutOverlay(ctx, c, vis, time) {
+  if (c.style === 'wraith') drawWraithScreen(ctx, c, vis, time); else
   drawCliffScene(ctx, c, vis, time);
   if (c.fade > 0) { ctx.globalAlpha = c.fade; ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1; }   // màn đen chuyển cảnh
   const bh = Math.round(34 * c.letter);
@@ -1315,10 +1444,11 @@ function drawCutOverlay(ctx, c, vis, time) {
     ctx.globalAlpha = 0.6 * c.name; ctx.fillStyle = '#0b0614'; ctx.fillRect(0, y - 26, W, 44);
     ctx.globalAlpha = c.name; ctx.fillStyle = '#c9a24a';
     const w = Math.round(150 + 60 * c.name); ctx.fillRect(W / 2 - w, y - 26, w * 2, 1); ctx.fillRect(W / 2 - w, y + 17, w * 2, 1);
-    txt(ctx, c.title, W / 2, y, '#ffd978', 26);
+    txt(ctx, c.title, W / 2, y, c.titleCol || '#ffd978', 26);
     txt(ctx, c.sub, W / 2, y + 13, '#f4e6ff', 11);
     ctx.globalAlpha = 1;
   }
+  if (c.line) txt(ctx, c.line, W / 2, H - 13, '#f4d8ff', 12);   // (24/11) lời thoại Yêu Vương trong dải đen dưới
   if (c.skippable && c.letter > 0.6) { ctx.globalAlpha = 0.8; txt(ctx, 'Space · bỏ qua', W - 52, H - 12, '#cfc6e6', 9); ctx.globalAlpha = 1; }
 }
 

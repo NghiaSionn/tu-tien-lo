@@ -3,7 +3,7 @@
 // - Chống phát chồng vô hạn: trần MAX_VOICES tiếng cùng lúc + mỗi loại có khoảng nghỉ tối thiểu (GAP).
 // - Âm lượng hiệu ứng / nhạc / tắt tiếng lấy từ meta.settings (lưu qua tải lại).
 export const MAX_VOICES = 10;
-export const GAP = { thud: 0.2, howl: 1.5, land: 0.5, hit: 0.05, pickup: 0.06, card: 0.15, evolve: 0.5, boss: 1, warn: 0.25, bossWarn: 0.8, bossPhase: 2, med: 0.8, strike: 0.08, hurt: 0.12, win: 2, lose: 2, ui: 0.08 };
+export const GAP = { rumble: 1.5, eyes: 0.5, roar: 1.5, shatter: 0.5, thud: 0.2, howl: 1.5, land: 0.5, hit: 0.05, pickup: 0.06, card: 0.15, evolve: 0.5, boss: 1, warn: 0.25, bossWarn: 0.8, bossPhase: 2, med: 0.8, strike: 0.08, hurt: 0.12, win: 2, lose: 2, ui: 0.08 };
 
 let ac = null, master = null, sfxBus = null, musicBus = null, voices = 0, music = null;
 const last = {};
@@ -61,6 +61,11 @@ const RECIPES = {
   warn: () => tone('square', 300, 300, 0.09, 0.04),
   // cutscene boss: tiếng hú sói (vút lên rồi kéo dài, hai bè) / cú đáp đất (trống trầm + bụi)
   howl: () => { tone('sawtooth', 220, 520, 0.35, 0.06); tone('sawtooth', 520, 300, 1.1, 0.07, 0.3); tone('triangle', 660, 360, 1.2, 0.05, 0.32); tone('', 1200, 500, 0.9, 0.025, 0.3, true); },
+  // (24/11) cutscene Yêu Vương: tiếng ù trầm lúc trời sập tối / mắt lóe / gầm thét / màn hình vỡ kính
+  rumble: () => { tone('sine', 58, 38, 1.7, 0.12); tone('', 220, 60, 1.5, 0.03, 0, true); },
+  eyes: () => { tone('square', 880, 1320, 0.12, 0.035); tone('triangle', 1320, 640, 0.45, 0.04, 0.08); },
+  roar: () => { tone('sawtooth', 150, 62, 1.3, 0.09); tone('sawtooth', 220, 88, 1.2, 0.06, 0.05); tone('', 900, 180, 1.1, 0.05, 0, true); },
+  shatter: () => { tone('', 4200, 700, 0.55, 0.09, 0, true); tone('triangle', 2300, 1400, 0.3, 0.05); tone('triangle', 3200, 1900, 0.25, 0.04, 0.07); },
   thud: () => { tone('sine', 95, 42, 0.28, 0.13); tone('', 300, 80, 0.12, 0.035, 0, true); },   // bước chân nặng của boss (cutscene)
   land: () => { tone('sine', 120, 38, 0.55, 0.16); tone('', 700, 90, 0.5, 0.1, 0, true); },
   // M10-11: boss bắt đầu gồng chiêu (trầm, ngắn, khác tiếng quái thường) / boss chuyển pha (trống trầm + rít nhẹ)

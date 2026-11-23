@@ -13,7 +13,17 @@ Cập nhật: 2026-11-23 (xem mục **0. Trạng thái 23/11** ngay dưới bả
 | Rollback | `git checkout baseline-v0.1` (code v0.1 nguyên trạng) |
 
 
-## 0. Trạng thái 23/11
+## 0. Trạng thái 24/11
+
+**Mới 23–24/11 — trận boss tập trung + cutscene (người phát triển yêu cầu, quyết định 1a/2b/3):**
+
+- **Trận boss tập trung** (`BOSS_ARENA`): boss xuất hiện thì quái thường tan hết (không rơi kinh nghiệm), không sinh quái thường khi boss còn sống. Boss đáp ở chỗ trống nhất (`clearance` trong `director.js`).
+- **Cutscene** (`FEATURES.bossCutscene`, `src/systems/cutscene.js`, `CUTSCENE` trong config; lần 2 bỏ qua bằng Space, ghi `meta.seenIntro`):
+  - Lang Vương: camera ngửa trời + màn đen → vách đá dưới trăng (nền ChatGPT) → sói bước chậm (bước đi dựng xương `tools/wolf_walk_rig.py`, khớp sải chân) → hú → phóng xuống, đáp. Đã push 24/11.
+  - Ma Ảnh Yêu Vương: đấu trường tối dần + ma ấn → tế đàn trăng máu (nền + 6 tư thế ChatGPT) → khói tụ, mắt lóe, hiện thân, lời thoại, gầm → màn hình nứt vỡ như kính → trồi lên từ ma ấn. Ảnh: `docs/playtest/CUTSCENE_yeu_vuong.png`.
+- **Yêu Vương — Triệu Ma Ảnh** (quyết định 2b): gồng 1,2 s có ma ấn báo trước → ma ảnh trồi lên đúng chỗ, tự tan sau 20 s, không rơi kinh nghiệm, trần `TACTICS.MAX_SUMMONED`, chủ chết thì tan (`BOSS.FINAL.SUMMON`).
+- Chưa kiểm thử tay bởi người thật: âm thanh mới (dậm chân, rumble, roar, shatter), Safari (filter brightness).
+
 
 **Đã xong từ 17/11 đến 23/11** — mỗi mục có báo cáo trong `docs/playtest/`:
 

@@ -334,6 +334,21 @@ export const CUTSCENE = {
     EVENTS: [...lvSteps, [LV_T.HOWL + 0.02, { type: 'sfx', name: 'howl' }], [LV_T.HOWL + 0.02, { type: 'shake', t: 0.6 }],
       [LV_T.LAND, { type: 'sfx', name: 'land' }], [LV_T.LAND, { type: 'shake', t: 0.4 }], [LV_T.LAND, { type: 'land' }]],
   },
+  // (24/11) Ma Ảnh Yêu Vương — kịch bản ở src/systems/cutscene.js (wraithState). Ảnh nền + 6 tư thế ChatGPT vẽ.
+  // 0..ALTAR: đấu trường tối dần, ma ấn hiện, camera tới ma ấn (PAN..FADE1), tối hẳn · ALTAR..SKYPAN: tế đàn sáng dần, camera hạ từ trời
+  // FORM khói tụ · EYES mắt lóe · REVEAL hiện chân thân · SPEAK nói (chữ chạy TYPE_TIME giây) · ROAR gầm · CRACK nứt · SHATTER vỡ vụn
+  // RISE..RISE+RISE_TIME: trồi lên từ ma ấn ở đấu trường · NAME · OUT về người chơi. Bỏ qua (lần 2) nhảy tới CRACK.
+  FINAL: {
+    STYLE: 'wraith', TITLE: 'MA ẢNH YÊU VƯƠNG', SUB: 'Chúa tể Ma giới', TITLE_COL: '#ff9ad6', SKIP: 'CRACK', DUR: 14.2,
+    LINE: 'Kẻ nào dám xâm phạm lãnh địa của bản vương?', TYPE_TIME: 1.9,
+    T: { PAN: 0.3, FADE1: 1.9, ALTAR: 2.4, SKYPAN: 4.2, FORM: 3.2, EYES: 4.5, REVEAL: 5.4, SPEAK: 6.3, ROAR: 9.2, CRACK: 10.4, SHATTER: 10.8, RISE: 11.3, NAME: 12.4, OUT: 13.6 },
+    FADE_IN: 0.5, SKY: 120, SHATTER_TIME: 1.0, RISE_TIME: 0.9,
+    ALTAR: { BG: 'cutscene_te_dan', X: 0.5, Y: 0.62, SCALE: 3 },   // chân khói của Yêu Vương trên ma ấn giữa tế đàn (tỉ lệ màn 640×360); cảnh cận phóng ×3
+    EVENTS: [[0.1, { type: 'sfx', name: 'rumble' }], [0.1, { type: 'shake', t: 0.3 }], [4.5, { type: 'sfx', name: 'eyes' }],
+      [5.4, { type: 'sfx', name: 'bossPhase' }], [5.4, { type: 'shake', t: 0.3 }], [9.2, { type: 'sfx', name: 'roar' }], [9.2, { type: 'shake', t: 1.1 }],
+      [10.4, { type: 'sfx', name: 'shatter' }], [10.8, { type: 'shake', t: 0.35 }],
+      [12.2, { type: 'sfx', name: 'land' }], [12.2, { type: 'shake', t: 0.4 }], [12.2, { type: 'land' }]],
+  },
 };
 
 
