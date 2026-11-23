@@ -14,8 +14,9 @@ test('mọi chiêu của bộ boss mới đều có tên hiển thị + màu', (
     const L = BOSS_SKILL_LABELS[s.id];
     assert.ok(L && L[0] && /^#[0-9a-f]{6}$/i.test(L[1]), 'thiếu tên/màu: ' + s.id);
   }
-  // 7 chiêu boss cuối có 7 tên khác nhau (người xem phân biệt được bằng chữ)
-  assert.equal(new Set(BOSS_SKILLS.FINAL_V2.map(s => BOSS_SKILL_LABELS[s.id][0])).size, 7);
+  // mỗi chiêu boss cuối một tên riêng (người xem phân biệt được bằng chữ) — 24/11: thêm Triệu Ma Ảnh -> 8 chiêu
+  assert.equal(BOSS_SKILLS.FINAL_V2.length, 8);
+  assert.equal(new Set(BOSS_SKILLS.FINAL_V2.map(s => BOSS_SKILL_LABELS[s.id][0])).size, BOSS_SKILLS.FINAL_V2.length);
 });
 
 function fight(kind, on, sec = 40) {

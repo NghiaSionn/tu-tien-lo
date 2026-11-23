@@ -12,7 +12,7 @@ import { power, atk, maxHp } from '../progression/realm.js';
 import { addRunXp } from '../progression/runxp.js';
 import { updateMonsters, reapMonsters } from '../entities/monsters.js';
 import { archetypeAI, updateEnemyShots } from '../entities/archetypes.js';
-import { createDirector, updateDirector, summonAround } from './director.js';
+import { createDirector, updateDirector, summonAround, summonAt } from './director.js';
 import { updateHazards } from '../entities/bosses.js';
 import { placeShrine } from './shrine.js';
 import { variantOf, vmod } from './variants.js';
@@ -102,10 +102,14 @@ export function updateRun(run, player, dt, ev, realmPowerOverride) {
   const bossV2 = run.bossV2 ?? FEATURES.bossPatternsV2;   // M10-C
   const io = { map: sc.map, skillsV2, bossV2, diff: run.diff || 0, shots: sc.enemyShots, hazards: sc.hazards, ev, onAttack, rng: run.rng, scene: sc,
     summon: (m, n, r) => summonAround(run, player, m.x, m.y, n, r, pw),
+    summonAt: (pts, life) => summonAt(run, pts, pw, life),   // (24/11) Triệu Ma Ảnh
     tactics, retry: TACTICS.RETRY, threat: tactics ? threatScan(sc, player, run.diff || 0) : null,
     log: (kind, id) => { const k = kind + ':' + id; run.skillsUsed[k] = (run.skillsUsed[k] || 0) + 1; } };
   sc.aiThreat = io.threat;   // M10-03: cho lớp debug AI
   updateMonsters(sc, player, dt, ev, { safe: null, onAttack, ai: (m, pl, dx, dy, d, t) => archetypeAI(m, pl, dx, dy, d, t, io) });
+  for (const o of sc.monsters) if (o.life !== undefined && !o.dead && (o.life -= dt) <= 0) {   // (24/11) ma ảnh hết thời gian: tan biến, không tính giết
+    o.dead = o.cleared = true; ev.push({ type: 'pulse', x: o.x, y: o.y - 6, r: 18, color: '#c070ff' });
+  }
   updateEnemyShots(sc, player, dt, (dmg, s) => hurtRunPlayer(run, player, dmg, ev, (s && s.src) || 'ranged:shot'));
   updateHazards(sc, player, dt, ev, (dmg, h) => hurtRunPlayer(run, player, dmg, ev, h.src || 'boss:zone'));
   if (run.status === 'RUNNING') updateFireTrails(sc, player, dt, run, dmg => hurtRunPlayer(run, player, dmg, ev, 'charger:trail'));   // M10-05
@@ -120,6 +124,7 @@ export function updateRun(run, player, dt, ev, realmPowerOverride) {
       run.dir[m.bossKind === 'MINI' ? 'mini' : 'final'] = 'DEAD';
       run.rewards.push({ kind: m.bossKind, t: Math.round(run.time) });
       sc.hazards.length = 0;                               // boss chết: không còn vùng nào nổ sau đó
+      for (const o of sc.monsters) if (o.shade && !o.dead) { o.dead = o.cleared = true; ev.push({ type: 'pulse', x: o.x, y: o.y - 6, r: 18, color: '#c070ff' }); }   // (24/11) chủ chết: ma ảnh tan
       for (let i = sc.enemyShots.length - 1; i >= 0; i--) if (sc.enemyShots[i].kind === 'dark') sc.enemyShots.splice(i, 1);
       ev.push({ type: 'announce', x: m.x, y: m.y, text: `Đã hạ ${B.name}!`, color: '#ffd978' }, { type: 'boom', x: m.x, y: m.y, r: 50, color: '#ffd978' }, { type: 'shake', t: 0.3 });
       if (m.bossKind === 'FINAL') finalDown = true;

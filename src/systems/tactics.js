@@ -113,12 +113,14 @@ export const BOSS_SKILLS = {
     { id: 'shadow', valid: c => c.phase2 && (c.d > 150 || c.d < 40), w: c => c.d > 150 ? 2 : 1.2 },
     { id: 'sweep', valid: c => c.phase2 && ONCAM(c) && c.d < BOSS_V2.FINAL.SWEEP.L - 20, w: c => c.d < 120 ? 2.4 : 1.4 },
     { id: 'cross', valid: c => c.phase2 && !PRISON_ON(c) && !CROSS_ON(c) && c.io.hazards.length + 2 <= BOSS_V2.FINAL.MAX_HAZARDS, w: c => c.d > 70 ? 2.2 : 1.2 },
+    { id: 'summon', valid: c => SUMMONED(c) < TC.MAX_SUMMONED, w: c => SUMMONED(c) < 2 ? 1.8 : 0.5 },   // (24/11) Triệu Ma Ảnh
   ],
   FINAL: [
     { id: 'burst', valid: c => ONCAM(c), w: c => c.d > 80 ? 2.5 : 1.2 },
     { id: 'zones', valid: c => c.io.hazards.length + (c.phase2 ? BOSS.FINAL.ZONES.N2 : BOSS.FINAL.ZONES.N) <= (BOSS.FINAL.MAX_HAZARDS || 12), w: c => c.d > 120 ? 2.2 : 1.4 },
     { id: 'slam', valid: c => c.d < BOSS.FINAL.SLAM.TRIGGER * TC.SLAM_RANGE_MULT, w: c => c.d < BOSS.FINAL.SLAM.TRIGGER ? 4 : 1 },
     { id: 'prison', valid: c => c.remix && ONCAM(c) && c.io.hazards.length + BOSS.FINAL.REMIX.PRISON.N <= (BOSS.FINAL.MAX_HAZARDS || 12), w: c => c.phase2 ? 2 : 0.8 },
+    { id: 'summon', valid: c => SUMMONED(c) < TC.MAX_SUMMONED, w: c => SUMMONED(c) < 2 ? 1.8 : 0.5 },   // (24/11) Triệu Ma Ảnh
   ],
 };
 

@@ -68,6 +68,17 @@ export function makeBoss(run, kind, x, y, realmPower) {
   return m;
 }
 
+// (24/11) Triệu Ma Ảnh: ma ảnh trồi lên đúng các điểm đã báo; tự tan sau life giây (run.js), không rơi kinh nghiệm
+export function summonAt(run, pts, power, life) {
+  let made = 0;
+  for (const [x, y] of pts) {
+    if (run.scene.monsters.length >= RUN.SPAWN.MAX_ALIVE) break;
+    const e = makeRunEnemy(run, 'chaser', x, y, power);
+    e.summoned = true; e.shade = true; e.life = life; e.xp = 0; made++;
+  }
+  return made;
+}
+
 // Quái được boss gọi ra: quanh boss, đứng được, không sát người chơi
 export function summonAround(run, player, cx, cy, n, R, power) {
   let made = 0;

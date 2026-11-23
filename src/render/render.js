@@ -733,7 +733,12 @@ function drawMobSheet(ctx, sh, m, prefix, time, k = 1) {
   const name = prefix + '_' + mobState(m, time), flip = mobFlip(m);
   if (m.elite) for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) { ctx.globalAlpha = 0.8; sheetFrame(ctx, sh, name, m.x + dx, m.y + dy, flip, sh.glow); }
   ctx.globalAlpha = 1;
-  sheetFrame(ctx, sh, name, m.x, m.y, flip, sh.img, k);
+  if (m.shade) {   // (24/11) ma ảnh Yêu Vương gọi: viền tím, thân bóng tối; mờ dần 2 giây cuối trước khi tan
+    const fade = Math.min(1, (m.life ?? 9) / 2);
+    ctx.globalAlpha = 0.9 * fade; for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1]]) sheetFrame(ctx, sh, name, m.x + dx, m.y + dy, flip, sh.glow, k);
+    ctx.globalAlpha = 0.85 * fade; ctx.filter = 'brightness(0.35)'; sheetFrame(ctx, sh, name, m.x, m.y, flip, sh.img, k); ctx.filter = 'none';
+    ctx.globalAlpha = 0.35 * fade; sheetFrame(ctx, sh, name, m.x, m.y, flip, sh.glow, k); ctx.globalAlpha = 1;
+  } else sheetFrame(ctx, sh, name, m.x, m.y, flip, sh.img, k);
   if (m.hit > 0) { ctx.globalAlpha = 0.55; sheetFrame(ctx, sh, name, m.x, m.y, flip, sh.white, k); ctx.globalAlpha = 1; }
 }
 
@@ -1053,6 +1058,16 @@ function drawBossTelegraph(ctx, m) {
     ctx.globalAlpha = 0.7; tgLine(ctx, x0, y0, x0 + m.dirX * L, y0 + m.dirY * L, '#ff4a3a', 3);
     ctx.globalAlpha = 0.95; pxLine(ctx, x0, y0, x0 + m.dirX * L * prog, y0 + m.dirY * L * prog, '#ffd978', 1);
     ctx.fillStyle = '#ff4a3a'; ctx.fillRect(Math.round(x0 + m.dirX * L) - 3, Math.round(y0 + m.dirY * L) - 3, 6, 6);
+  } else if (m.pat === 'summon' && m.sumSpots) {   // (24/11) Triệu Ma Ảnh: ma ấn tím xoay ở từng chỗ sắp trồi lên + sợi tà khí từ boss lan tới
+    for (const [x, y] of m.sumSpots) {
+      const R = 13 + prog * 5;
+      ctx.globalAlpha = 0.25 + 0.3 * prog; ctx.fillStyle = '#2a0f3a'; ctx.beginPath(); ctx.ellipse(x, y, R, R * 0.45, 0, 0, 6.283); ctx.fill();   // vũng tà khí
+      ctx.globalAlpha = 0.55 + 0.4 * prog; tgRing(ctx, x, y, R, 24, '#c070ff', 2, 0.45);
+      if (prog > 0.6 && Math.floor(prog * 12) % 2) { ctx.globalAlpha = 0.8; tgRing(ctx, x, y, R * 0.55, 14, '#f0c8ff', 1, 0.45); }   // sắp trồi lên: nhấp nháy
+      ctx.globalAlpha = 0.9; ctx.fillStyle = '#f0c8ff';
+      for (let i = 0; i < 4; i++) { const a = i * 1.571 + prog * 4; ctx.fillRect(Math.round(x + Math.cos(a) * R) - 1, Math.round(y + Math.sin(a) * R * 0.45) - 1, 2, 2); }
+      ctx.globalAlpha = 0.35; pxLine(ctx, m.x, m.y - 10, m.x + (x - m.x) * prog, m.y - 10 + (y - m.y + 10) * prog, '#c070ff', 1);
+    }
   } else if (m.pat === 'howl' || m.pat === 'howlDash') {
     ctx.globalAlpha = 0.8; pxRing(ctx, m.x, m.y - 10, 16 + prog * 30, 36, 0, '#ffd978', 2, 1);
     if (m.pat === 'howlDash') { ctx.globalAlpha = 0.9; pxRing(ctx, m.x, m.y - 10, 50, 36, 0, '#ff4a3a', 1, 1); }   // vòng đỏ ngoài: sắp lao

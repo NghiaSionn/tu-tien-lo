@@ -122,6 +122,12 @@ export function bossAI(m, player, dx, dy, d, dt, io) {
     } else windup(m, C.WINDUP);
   }
   else if (pat === 'howl' || pat === 'howlDash') windup(m, B.HOWL.WINDUP);
+  else if (pat === 'summon') {   // (24/11) Triệu Ma Ảnh: chọn chỗ + ma ấn báo trước; đủ quân rồi / không có chỗ -> đổi sang đạn tỏa
+    const S = B.SUMMON, room = TC.MAX_SUMMONED - summonedCount(io);
+    const spots = room > 0 ? summonSpots(m, player, io, Math.min(room, phase2 ? S.N2 : S.N), S) : [];
+    if (spots.length) { m.sumSpots = spots; windup(m, S.WINDUP); io.ev.push({ type: 'pulse', x: m.x, y: m.y - 10, r: 40, color: '#c070ff' }); }
+    else { m.pat = 'burst'; windup(m, B.BURST.WINDUP); m.burstN = phase2 ? B.BURST.N2 : B.BURST.N; m.burstA0 = io.rng() * Math.PI * 2 / m.burstN; }
+  }
   else if (pat === 'prison') {   // M7-13 Ma Ảnh Lao Tù: vòng vùng nổ quanh người chơi + đạn thưa khi nổ
     const P = B.REMIX.PRISON;
     windup(m, P.WINDUP);
@@ -149,6 +155,19 @@ export function bossAI(m, player, dx, dy, d, dt, io) {
     placeZones(io, B, player, zs, B.ZONES.WINDUP);
   }
   return true;
+}
+
+// (24/11) Triệu Ma Ảnh: số quân đang được gọi; chỗ trồi lên quanh boss (đứng được, không sát người chơi, không chồng nhau)
+function summonedCount(io) { return io.scene ? io.scene.monsters.filter(o => o.summoned && !o.dead).length : 0; }
+function summonSpots(m, player, io, n, S) {
+  const out = [], a0 = io.rng() * Math.PI * 2;
+  for (let i = 0; i < n * 4 && out.length < n; i++) {
+    const a = a0 + i * Math.PI * 2 / n + (i >= n ? io.rng() : 0), r = S.R * (i >= n ? 0.6 + io.rng() * 0.6 : 1);
+    const x = m.x + Math.cos(a) * r, y = m.y + Math.sin(a) * r;
+    if (!io.map.canStand(x, y) || Math.hypot(x - player.x, y - player.y) < S.MIN_P || out.some(([ox, oy]) => Math.hypot(ox - x, oy - y) < 20)) continue;
+    out.push([x, y]);
+  }
+  return out;
 }
 
 function pickPattern(m, B, d) {
@@ -185,7 +204,11 @@ function release(m, player, B, io, phase2) {
     m.pat = 'dash'; m.dashLeft = B.REMIX.HOWL_DASH.COUNT; aimDash(m, player, B);
     return true;
   }
-  if (m.pat === 'howl') {
+  if (m.pat === 'summon') {   // (24/11) ma ảnh trồi lên đúng các ma ấn đã báo
+    if (io.summonAt) io.summonAt(m.sumSpots || [], B.SUMMON.LIFE);
+    for (const [x, y] of m.sumSpots || []) io.ev.push({ type: 'pulse', x, y, r: 26, color: '#c070ff' });
+    m.sumSpots = null;
+  } else if (m.pat === 'howl') {
     io.summon(m, B.HOWL.N, B.HOWL.R);
     io.ev.push({ type: 'pulse', x: m.x, y: m.y, r: 60, color: '#ffd978' });
   } else if (m.pat === 'burst' || m.pat === 'prison') {

@@ -185,7 +185,7 @@ export const TACTICS = {
   MAX_REPEAT: 2,                      // boss không dùng một chiêu quá 2 lần liên tiếp
   MAX_SUMMONED: 8,                    // sói do Lang Vương gọi còn sống tối đa (không hú thêm)
   SLAM_RANGE_MULT: 1.6,               // Chấn Địa hợp lệ khi người chơi trong TRIGGER × hệ số
-  SKILL_CD: { FINAL: { slam: 6, prison: 9, shadow: 8, sweep: 7, cross: 7 }, MINI: { howl: 8, claw: 3, leap: 6 } },   // giây (theo tuổi boss): hồi chiêu riêng, chống spam
+  SKILL_CD: { FINAL: { slam: 6, prison: 9, shadow: 8, sweep: 7, cross: 7, summon: 12 }, MINI: { howl: 8, claw: 3, leap: 6 } },   // giây (theo tuổi boss): hồi chiêu riêng, chống spam
   // M10-03: chống chồng đòn bất công
   BUDGET_DURING_HEAVY: 1,             // khi boss đang gồng chiêu nặng hoặc người chơi đang đứng trong vùng cảnh báo: quái thường chỉ 1 đòn đặc biệt trên màn
   ESCAPE: { SPEED_MUL: 0.6, DIRS: 12, MARGIN: 4 },
@@ -292,7 +292,7 @@ export const BOSS_V2 = {
 export const BOSS_SKILL_LABELS = {
   dash: ['Tam Liên Lao', '#ff8a6a'], howl: ['Lang Hú', '#ffd978'], howlDash: ['Hú Rồi Lao', '#ffd978'], claw: ['Liệt Trảo', '#ff8a6a'], leap: ['Vồ Đầu Đàn', '#ffb070'],
   burst: ['Hắc Ám Đạn Trận', '#e0a8ff'], zones: ['Hắc Diễm Truy Sát', '#e0a8ff'], slam: ['Chấn Địa', '#ff8a6a'], prison: ['Ma Ảnh Lao Tù', '#e0a8ff'],
-  shadow: ['Ảnh Độn', '#d9a8ff'], sweep: ['Ma Quang Hoành Tảo', '#f4d8ff'], cross: ['Thập Tự Hắc Liệt', '#ff8a6a'],
+  summon: ['Triệu Ma Ảnh', '#c070ff'], shadow: ['Ảnh Độn', '#d9a8ff'], sweep: ['Ma Quang Hoành Tảo', '#f4d8ff'], cross: ['Thập Tự Hắc Liệt', '#ff8a6a'],
 };
 
 // (23/11, người phát triển yêu cầu) Trận boss tập trung: boss xuất hiện thì dọn sạch quái thường (tan biến, KHÔNG rơi kinh nghiệm),
@@ -363,7 +363,10 @@ export const BOSS = {
   },
   FINAL: {
     AT: 360, name: 'Ma Ảnh Yêu Vương', tier: 3, hp: 70, dmg: 1.6, speed: 0.8, xp: 0, size: 3,
-    GAP: 1.3, RECOVER: 1.3, ORDER: ['burst', 'zones'],
+    GAP: 1.3, RECOVER: 1.3, ORDER: ['burst', 'zones', 'summon'],
+    // (24/11, quyết định 2b) Triệu Ma Ảnh: gồng WINDUP, ma ấn tím báo trước N chỗ quanh boss (cách R, không sát người chơi < MIN_P);
+    // hết gồng: ma ảnh (quái đuổi nhuộm tím) trồi lên, tự tan sau LIFE giây (không rơi kinh nghiệm). Tổng quân gọi ≤ TACTICS.MAX_SUMMONED.
+    SUMMON: { WINDUP: 1.2, N: 3, N2: 4, R: 64, MIN_P: 60, LIFE: 20 },
     SLAM: { WINDUP: 1.25, R: 48, DMG: 2.0, TRIGGER: 55 },   // M2-04: R64 gần như không chạy kịp khi boss áp sát
     BURST: { WINDUP: 0.85, N: 12, N2: 16, SPEED: 80, LIFE: 3, DMG: 1.2 },
     ZONES: { WINDUP: 1.4, N: 3, N2: 4, R: 26, SPREAD: 55, DMG: 1.6 },   // M2-04: chơi thử chết nhiều nhất vì chiêu này -> gồng lâu hơn, vùng nhỏ hơn
@@ -371,7 +374,7 @@ export const BOSS = {
     ENRAGE_AFTER: 150, ENRAGE_GAP: 0.5, ENRAGE_DMG: 1.5, MAX_HAZARDS: 12,
     // M7-13 "Ma Ảnh Lao Tù": N vùng nổ khép vòng bán kính RING quanh người chơi (giữa vòng an toàn), gồng WINDUP;
     // lúc nổ boss bắn BURST_N tia đạn thưa (cảnh báo tia như chiêu bắn). Không cộng dồn với zones cùng lúc.
-    REMIX: { ORDER: ['burst', 'prison', 'zones'], PRISON: { WINDUP: 1.5, N: 6, RING: 46, R: 24, DMG: 1.6, BURST_N: 8 } },
+    REMIX: { ORDER: ['burst', 'prison', 'zones', 'summon'], PRISON: { WINDUP: 1.5, N: 6, RING: 46, R: 24, DMG: 1.6, BURST_N: 8 } },
   },
 };
 
