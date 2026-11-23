@@ -2,15 +2,53 @@
 
 Game web pixel 2D top-down, tu tiên + roguelite, chơi một mình trong trình duyệt. Chưa có phần online.
 
-Cập nhật: 2026-11-13, sau M7-02 (sửa UI; audit M7-01 ở `docs/playtest/BASELINE_M7.md`). Bản trước của file này (v0.1) nằm trong git ở tag `baseline-v0.1`.
+Cập nhật: 2026-11-23 (xem mục **0. Trạng thái 23/11** ngay dưới bảng). Bản trước của file này (v0.1) nằm trong git ở tag `baseline-v0.1`.
 
 | | |
 |---|---|
 | Trạng thái | M0 xong (gate đạt). M1 xong, **gate M1 đạt**. **M2 xong** (GATE v0.2 đi trọn trong trình duyệt bằng autopilot phát phím). **M3 xong**, GATE v0.3a đóng ở mức logic. **M4 xong**, GATE v0.3b đóng ở mức logic. **M5 gần xong phần nhìn** (12/11): VFX beanfx cho mọi công pháp/tiến hóa/boss; sprite nhân vật, quái, boss, vật thể rừng, cổng, tụ linh trận, Linh Mạch và biểu tượng công pháp do ChatGPT vẽ + `tools/sprite_clean.py`; khung nhìn 640×360; âm thanh tổng hợp; mức đồ họa; joystick ảo — GATE v0.4 chưa đạt (p95 cảnh stress, máy thật, nghe thật). M3–M5 chưa xem trong trình duyệt |
-| Test tự động | `npm test`: 209/209 PASS (14/11, sau M8-02d) |
+| Test tự động | `npm test`: **313/313 PASS** (23/11, sau M8-12/14/16) |
 | Kiểm thử tay | `TEST_REPORT.md` |
 | Quyết định kỹ thuật | `docs/adr/0001…0007` (0005: beanfx chính; 0006: thưởng run nhận một lần; 0007: trang bị/thành tựu/Truyền Thừa Các) |
 | Rollback | `git checkout baseline-v0.1` (code v0.1 nguyên trạng) |
+
+
+## 0. Trạng thái 23/11
+
+**Đã xong từ 17/11 đến 23/11** — mỗi mục có báo cáo trong `docs/playtest/`:
+
+- **Bí cảnh:** chọn lại đấu trường sinh tồn (`FEATURES.rooms=false`). Quái đi xuyên cây/đá, vòng qua hồ, đẩy tách nhau khi đông.
+- **Đăng nhập + lưu mây Firebase** (tùy chọn, vẫn chơi khách được): `src/persistence/cloud.js`, màn đăng nhập `src/ui/login_boot.js`.
+- **M10 — AI quái và boss:** M10-01…12 xong; GATE A, B đã duyệt. **Ba cờ đều mặc định TẮT** (thử bằng `?tactics=1&skills2=1&boss2=1`; debug thêm `&aidebug=1`):
+
+  | Cờ | Phạm vi |
+  |---|---|
+  | `FEATURES.enemyTactics` | Selector, ngân sách đe dọa, lối thoát |
+  | `FEATURES.enemySkillsV2` | Dã Lang săn đàn, Hỏa Vĩ, Tam Băng Tiễn, Ma Ảnh Ảnh Bộ / Hắc Trảo, đội hình director |
+  | `FEATURES.bossPatternsV2` | Lang Vương 2 pha / 5 chiêu, Yêu Vương 2 pha / 7 chiêu, UI / âm boss |
+
+  Tắt cả ba = AI M9 y nguyên (sim trùng từng seed với baseline M10-01).
+- **M10-12 telemetry:** sự kiện `combat_run` trong nhật ký playtest opt-in (không gửi mạng). Công cụ A/B: `tools/m10_telemetry.mjs`, benchmark: `tools/m10_perf.mjs`.
+- **M9-C gia cố save:**
+  - mã kiểm tra `sum`;
+  - save của bản game mới hơn được cất vào `tutien_save_v2_future`;
+  - bản ngày trước `tutien_save_v2_daily`;
+  - chịu lỗi bộ nhớ đầy;
+  - Cài đặt → "Khôi phục bản dự phòng…".
+- **M9-D:** Tàng Kinh Các có **Tham Ngộ Công Pháp** (`MASTERY`, `meta.mastery`).
+- **M8-12 / 14 / 16:**
+  - ẩn thanh nút cũ trong sảnh cả trên cảm ứng;
+  - sửa màn đăng nhập bị cắt ở màn hình thấp;
+  - vùng chạm ≥ 44 px;
+  - test đổi sảnh / tải lại.
+
+**Còn lại:** toàn bộ phần kiểm thử tay / người thật đã dồn vào mục **CUỐI CÙNG (F-1…F-6)** của `TASKS_TU_TIEN_LO.md`:
+- video GATE M10-C;
+- điện thoại thật;
+- playtest người thật;
+- duyệt bật cờ AI mới.
+
+Việc code còn mở: M8-15 (art sảnh, vẽ bằng ChatGPT), tinh chỉnh Ma Quang Hoành Tảo (đòn kết liễu số 1 trong A/B bot).
 
 ---
 
