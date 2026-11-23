@@ -49,7 +49,7 @@ function cliffActor(c, t) {
   if (t < T.WALK) return null;
   if (t < T.LOOK) {   // bước ra: khung đi bộ (cùng sprite với khi đánh nhau) từ ngoài mép trái tới mỏm đá
     const k = ease((t - T.WALK) / (T.LOOK - T.WALK));
-    return { x: lerp(C.START_X, tipX, k), y, frame: 'walk' + (Math.floor(t * 8) % 4), flip: false };
+    return { x: lerp(C.START_X, tipX, k), y: lerp(C.START_Y ?? y, y, k), frame: 'walk' + (Math.floor(t * 8) % 4), flip: false };
   }
   if (t < T.INHALE) {  // nhìn quanh: quay trái rồi quay phải
     const k = (t - T.LOOK) / (T.INHALE - T.LOOK);

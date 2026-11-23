@@ -309,7 +309,7 @@ export const CUTSCENE = {
     // FALL..LAND: rơi xuống đấu trường · NAME: bảng tên · OUT: camera về người chơi
     T: { UP: 0.35, WALK: 1.3, LOOK: 2.8, INHALE: 3.5, HOWL: 3.8, CROUCH: 4.9, LEAP: 5.2, DESCEND: 5.65, FALL: 6.1, LAND: 6.45, NAME: 6.55, OUT: 7.7 },
     // vị trí trên ảnh nền vách (tỉ lệ 0..1 của màn 640×360): mặt gờ (chân sói) và mỏm đá
-    CLIFF: { BG: 'cutscene_vach_da', LEDGE_Y: 0.48, TIP_X: 0.7, START_X: -0.12 },
+    CLIFF: { BG: 'cutscene_vach_da', LEDGE_Y: 0.5, TIP_X: 0.69, START_X: -0.12, START_Y: 0.56 },   // mặt đá chếch lên dần về phía mỏm
     EVENTS: [[3.82, { type: 'sfx', name: 'howl' }], [3.82, { type: 'shake', t: 0.6 }], [6.45, { type: 'sfx', name: 'land' }], [6.45, { type: 'shake', t: 0.4 }], [6.45, { type: 'land' }]],
   },
 };
