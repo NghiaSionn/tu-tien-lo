@@ -197,7 +197,7 @@ export function updateDirector(run, player, dt, ev, power) {
       if (BA.CLEAR_FIELD) clearField(run, ev);   // trận boss tập trung: dọn sạch quái thường (không rơi kinh nghiệm)
       const b = aliveBoss(sc);
       ev.push({ type: 'bossIntro', kind, x: b ? b.x : player.x, y: b ? b.y : player.y });   // main.js phát cutscene (logic đứng yên trong lúc xem)
-      ev.push({ type: 'announce', x: player.x, y: player.y - 30, text: `${BOSS[kind].name} xuất hiện!`, color: '#ff5a5a' }, { type: 'shake', t: 0.25 }, { type: 'sfx', name: 'boss' });
+      if (!FEATURES.bossCutscene) ev.push({ type: 'announce', x: player.x, y: player.y - 30, text: `${BOSS[kind].name} xuất hiện!`, color: '#ff5a5a' }, { type: 'shake', t: 0.25 }, { type: 'sfx', name: 'boss' });   // có cutscene thì bảng tên thay dòng báo
     }
   }
   const boss = aliveBoss(sc);

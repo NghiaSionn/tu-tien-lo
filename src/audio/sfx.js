@@ -3,7 +3,7 @@
 // - Chống phát chồng vô hạn: trần MAX_VOICES tiếng cùng lúc + mỗi loại có khoảng nghỉ tối thiểu (GAP).
 // - Âm lượng hiệu ứng / nhạc / tắt tiếng lấy từ meta.settings (lưu qua tải lại).
 export const MAX_VOICES = 10;
-export const GAP = { hit: 0.05, pickup: 0.06, card: 0.15, evolve: 0.5, boss: 1, warn: 0.25, bossWarn: 0.8, bossPhase: 2, med: 0.8, strike: 0.08, hurt: 0.12, win: 2, lose: 2, ui: 0.08 };
+export const GAP = { howl: 1.5, land: 0.5, hit: 0.05, pickup: 0.06, card: 0.15, evolve: 0.5, boss: 1, warn: 0.25, bossWarn: 0.8, bossPhase: 2, med: 0.8, strike: 0.08, hurt: 0.12, win: 2, lose: 2, ui: 0.08 };
 
 let ac = null, master = null, sfxBus = null, musicBus = null, voices = 0, music = null;
 const last = {};
@@ -59,6 +59,9 @@ const RECIPES = {
   evolve: () => { for (let i = 0; i < 4; i++) tone('triangle', 440 * (1 + i * 0.25), 660 * (1 + i * 0.25), 0.3, 0.08, i * 0.08); },
   boss: () => { tone('sawtooth', 110, 55, 1.0, 0.12); tone('', 300, 80, 0.8, 0.08, 0, true); },
   warn: () => tone('square', 300, 300, 0.09, 0.04),
+  // cutscene boss: tiếng hú sói (vút lên rồi kéo dài, hai bè) / cú đáp đất (trống trầm + bụi)
+  howl: () => { tone('sawtooth', 220, 520, 0.35, 0.06); tone('sawtooth', 520, 300, 1.1, 0.07, 0.3); tone('triangle', 660, 360, 1.2, 0.05, 0.32); tone('', 1200, 500, 0.9, 0.025, 0.3, true); },
+  land: () => { tone('sine', 120, 38, 0.55, 0.16); tone('', 700, 90, 0.5, 0.1, 0, true); },
   // M10-11: boss bắt đầu gồng chiêu (trầm, ngắn, khác tiếng quái thường) / boss chuyển pha (trống trầm + rít nhẹ)
   bossWarn: () => { tone('triangle', 196, 147, 0.22, 0.07); tone('sine', 392, 294, 0.18, 0.03, 0.04); },
   bossPhase: () => { tone('sawtooth', 82, 41, 0.9, 0.1); tone('', 900, 200, 0.6, 0.06, 0.05, true); tone('triangle', 330, 165, 0.6, 0.05, 0.15); },

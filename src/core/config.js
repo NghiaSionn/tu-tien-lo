@@ -16,6 +16,7 @@ export const FEATURES = {
   aiDebug: false,       // M10-03: lớp debug AI (trạng thái, ý định, điểm khóa, ngân sách đe dọa). Chỉ dev: ?aidebug=1
   enemySkillsV2: false, // M10-B: kỹ năng mới của quái thường (M10-04 Dã Lang săn theo đàn…). OFF = hành vi cũ. Thử: ?skills2=1 (nên kèm ?tactics=1)
   bossPatternsV2: false, // M10-C: boss 2 pha / nhiều chiêu (M10-09 Lang Vương…). OFF = boss M9/M10-02. Thử: ?boss2=1 (kèm ?tactics=1)
+  bossCutscene: true,   // (23/11) cutscene xuất hiện boss (Lang Vương hú trên cao rồi nhảy đáp đất + bảng tên). false = boss hiện ra ngay như cũ
   enemyTactics: false,  // M10-02: bộ chọn chiêu theo tình huống + ngân sách đe dọa (TACTICS). OFF = AI M9 y nguyên; bật mặc định sau GATE M10-A khi người phát triển duyệt. Thử: ?tactics=1
   rooms: false,         // (17/11) người phát triển quay về đấu trường sinh tồn kiểu Pokémon Survival — giữ code để bật lại. M9-B: bí cảnh nhiều phòng kiểu Soul Knight (sơ đồ ngẫu nhiên theo seed, khóa cửa tới khi dọn phòng, minimap). false = đấu trường sinh tồn cũ
   runVariants: true,    // M7-10 [GIẢ THUYẾT H5]: mỗi lượt bốc ngẫu nhiên (theo seed) một biến thể bí cảnh, báo luật ở màn chuẩn bị. false = luôn Bình thường  // M7-09 [GIẢ THUYẾT H4]: thẻ công pháp mới ghép được tiến hóa với công pháp đang có nặng ×RUN.SYNERGY_MULT. Tắt tới khi playtest    // M7-07 [GIẢ THUYẾT H2]: màn kết quả hiện tối đa 2 mục tiêu meta + nút Tọa thiền/Đột phá/Vào bí cảnh mới. false = như cũ
@@ -298,6 +299,16 @@ export const BOSS_SKILL_LABELS = {
 // trong lúc boss còn sống director không sinh quái thường (quái lẻ / đợt / đội hình / tinh anh) — quái chỉ đến từ chiêu gọi của boss.
 // Đợt sự kiện rơi vào lúc đang đánh boss thì bỏ (không dồn ra sau). Boss chết -> sinh lại bình thường.
 export const BOSS_ARENA = { CLEAR_FIELD: true, NO_SPAWN: true };
+
+// Cutscene xuất hiện boss (23/11): mốc thời gian (giây) + sự kiện âm thanh/hiệu ứng. HIGH = độ cao (px) boss đứng trước khi nhảy xuống.
+// Lần đầu xem hết; từ lần thứ hai (meta.seenIntro) bấm Space/Enter/Esc/chạm để bỏ qua.
+export const CUTSCENE = {
+  MINI: {
+    TITLE: 'LANG VƯƠNG', SUB: 'Chúa tể bầy sói', HIGH: 110, DUR: 5.2,
+    T: { CAM_IN: 0.9, INHALE: 1.35, HOWL: 1.7, CROUCH: 2.75, LEAP: 3.05, LAND: 3.45, NAME: 3.55, OUT: 4.7 },
+    EVENTS: [[1.72, { type: 'sfx', name: 'howl' }], [1.72, { type: 'shake', t: 0.5 }], [3.45, { type: 'sfx', name: 'land' }], [3.45, { type: 'shake', t: 0.35 }], [3.45, { type: 'land' }]],
+  },
+};
 
 // M10-03: tên chiêu cho thống kê nguồn sát thương (run.dmgBy) — khóa = nguồn ghi trong run.js
 export const SKILL_NAMES = {

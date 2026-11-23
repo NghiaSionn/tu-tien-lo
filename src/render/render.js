@@ -790,7 +790,7 @@ function drawBoss(ctx, m, time, vis) {
 }
 
 function drawMonster(ctx, m, time, vis) {
-  if (m.boss) return drawBoss(ctx, m, time, vis);
+  if (m.boss) return m.introHide ? undefined : drawBoss(ctx, m, time, vis);   // (23/11) đang cutscene: vẽ bản cutscene thay
   const ms = vis && vis.mobs;
   if (ms) {
     const x = Math.round(m.x), y = Math.round(m.y), top = y - 26;
@@ -1200,6 +1200,62 @@ function drawTribHud(ctx, tr) {
 }
 
 // Thanh máu boss (màn hình, cạnh dưới): tên, máu, vạch pha 2
+// ---------- (23/11) cutscene xuất hiện boss ----------
+// Tư thế 0..5: đứng oai / lấy hơi / hú / lấy đà / bổ nhào / đáp đất. Có sheet boss_intro (ChatGPT vẽ) thì dùng `${kind}_i${pose}`,
+// chưa có thì tạm lấy khung có sẵn. Boss đứng trên mây yêu khí đen tím trên cao rồi nhảy xuống điểm đáp.
+const CUT_FALLBACK = ['walk0', 'walk1', 'atk', 'walk3', 'atk', 'atk'];
+function drawCutBoss(ctx, c, vis, time) {
+  const K = BOSS.DRAW_SCALE, intro = vis.bossIntro, bs = vis.bosses;
+  const name = intro && intro.meta.frames[`${c.kind}_i${c.pose}`] ? `${c.kind}_i${c.pose}` : `${c.kind}_${CUT_FALLBACK[c.pose]}`;
+  const sh = intro && intro.meta.frames[name] ? intro : bs;
+  const fx = Math.round(c.bx), fy = Math.round(c.by - c.alt), hi = c.alt / 110;
+  // bóng ở điểm đáp: nhỏ, nhạt khi boss còn cao; đậm dần khi rơi xuống
+  ctx.globalAlpha = 0.18 + 0.32 * (1 - Math.min(1, hi)); ctx.fillStyle = '#000';
+  ctx.beginPath(); ctx.ellipse(fx, Math.round(c.by), 34 * (1 - 0.45 * Math.min(1, hi)), 9 * (1 - 0.45 * Math.min(1, hi)), 0, 0, 6.283); ctx.fill();
+  // mây yêu khí dưới chân lúc còn đứng trên cao (tan dần khi nhảy)
+  if (c.pose <= 3) {
+    for (let i = 0; i < 9; i++) {
+      const a = i / 9 * 6.283 + time * 0.8, rx = 30 + 8 * Math.sin(time * 2 + i), x = fx + Math.cos(a) * rx * 0.9, y = fy + 4 + Math.sin(a) * 6;
+      ctx.globalAlpha = 0.55; ctx.fillStyle = i % 2 ? '#2a1838' : '#3d2350';
+      ctx.beginPath(); ctx.ellipse(x, y, 14, 6, 0, 0, 6.283); ctx.fill();
+    }
+    ctx.globalAlpha = 0.35; ctx.fillStyle = '#7a4aa8'; ctx.beginPath(); ctx.ellipse(fx, fy + 3, 26, 5, 0, 0, 6.283); ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+  if (sh) sheetFrame(ctx, sh, name, fx, fy, c.faceLeft, sh.img, K);
+  else { const spr = BOSS_SPR[c.kind], w = spr.width * 3, h = spr.height * 3; ctx.drawImage(spr, fx - w / 2, fy - h, w, h); }
+  // hú: vòng sóng âm lan ra từ đầu
+  if (c.howl >= 0) {
+    const hx = fx + (c.faceLeft ? -18 : 18), hy = fy - 70;
+    for (let i = 0; i < 3; i++) {
+      const k = (c.howl * 2.2 + i / 3) % 1, r = 14 + k * 120;
+      ctx.globalAlpha = 0.9 * (1 - k); tgRing(ctx, hx, hy, r, Math.round(r * 2.2), '#fff6dc', 3, 0.7);   // dày + viền tối: nổi trên cỏ sáng
+    }
+  }
+  // đáp đất: vòng chấn + bụi
+  if (c.landK >= 0 && c.landK < 1) {
+    const k = c.landK, r = 20 + k * 80;
+    ctx.globalAlpha = 0.8 * (1 - k); pxRing(ctx, fx, Math.round(c.by), r, Math.round(r * 1.8), 0, '#e8dcc8', 3, 0.35);
+    for (let i = 0; i < 10; i++) { const a = i / 10 * 6.283, d = 18 + k * 60; ctx.globalAlpha = 0.5 * (1 - k); ctx.fillStyle = '#cbbf9f'; ctx.fillRect(Math.round(fx + Math.cos(a) * d), Math.round(c.by + Math.sin(a) * d * 0.35 - k * 10), 4, 4); }
+  }
+  ctx.globalAlpha = 1;
+}
+// màn hình: dải đen điện ảnh + bảng tên + nhắc bỏ qua
+function drawCutOverlay(ctx, c) {
+  const bh = Math.round(34 * c.letter);
+  ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, bh); ctx.fillRect(0, H - bh, W, bh);
+  if (c.name > 0) {
+    const y = Math.round(H * 0.72);
+    ctx.globalAlpha = 0.6 * c.name; ctx.fillStyle = '#0b0614'; ctx.fillRect(0, y - 26, W, 44);
+    ctx.globalAlpha = c.name; ctx.fillStyle = '#c9a24a';
+    const w = Math.round(150 + 60 * c.name); ctx.fillRect(W / 2 - w, y - 26, w * 2, 1); ctx.fillRect(W / 2 - w, y + 17, w * 2, 1);
+    txt(ctx, c.title, W / 2, y, '#ffd978', 26);
+    txt(ctx, c.sub, W / 2, y + 13, '#f4e6ff', 11);
+    ctx.globalAlpha = 1;
+  }
+  if (c.skippable && c.letter > 0.6) { ctx.globalAlpha = 0.8; txt(ctx, 'Space · bỏ qua', W - 52, H - 12, '#cfc6e6', 9); ctx.globalAlpha = 1; }
+}
+
 function drawBossBar(ctx, scene, camX, camY) {
   const m = scene.monsters.find(q => q.boss && !q.dead);
   if (!m) return;
@@ -1467,8 +1523,9 @@ export function render(ctx, g) {
   const PR = vis.prof; let pt = PR ? performance.now() : 0;
   const mark = k => { if (!PR) return; const t = performance.now(); PR[k] = (PR[k] || 0) + t - pt; pt = t; };
   if (PR) PR.frames = (PR.frames || 0) + 1;
-  let camX = Math.round(Math.max(0, Math.min(map.pw - W, p.x - W / 2)));
-  let camY = Math.round(Math.max(0, Math.min(map.ph - H, p.y - 8 - H / 2)));
+  const fo = g.cut ? { x: g.cut.focusX, y: g.cut.focusY + 8 } : p;   // (23/11) cutscene: camera theo điểm nhìn của cảnh
+  let camX = Math.round(Math.max(0, Math.min(map.pw - W, fo.x - W / 2)));
+  let camY = Math.round(Math.max(0, Math.min(map.ph - H, fo.y - 8 - H / 2)));
   if (vis.shake > 0) { camX += Math.round(rand(-2, 2)); camY += Math.round(rand(-2, 2)); }
   ctx.setTransform(1, 0, 0, 1, -camX, -camY); vis.cam = { x: camX, y: camY };
 
@@ -1728,6 +1785,7 @@ export function render(ctx, g) {
   mark('objects');
   if (g.run) drawSkillsOver(ctx, g.run, p, time, vis);
   if (scene.kind !== 'hub') drawTelegraphsTop(ctx, scene);
+  if (g.cut) drawCutBoss(ctx, g.cut, vis, time);   // (23/11) cutscene boss: trên cây/vật thể
   if (FEATURES.aiDebug && scene.kind === 'run') drawAIDebug(ctx, scene, camX, camY, p);
   else if (g.trib && g.trib.interactive) drawTribulation(ctx, g.trib, time, true);
   if (scene.enemyShots) drawEnemyShots(ctx, scene.enemyShots, vis);
@@ -1774,7 +1832,7 @@ export function render(ctx, g) {
 
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   if (g.run && g.run.rooms && scene.kind === 'run') drawMinimap(ctx, g.run);   // M9-B
-  drawBossBar(ctx, scene, camX, camY);
+  if (g.cut) drawCutOverlay(ctx, g.cut); else drawBossBar(ctx, scene, camX, camY);
   if (vis.banner) {
     const b = vis.banner; ctx.globalAlpha = Math.min(1, b.life * 2);
     ctx.font = `bold 13px ${FONT}`; const bw = ctx.measureText(b.text).width;

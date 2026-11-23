@@ -46,6 +46,7 @@ export function defaultMeta(hubSpawn) {
     tutorial: defaultTutorial(),                                        // M7-06
     lore: defaultLore(),                                                // M7-14
     mastery: {},                                                        // M9-D: Tham Ngộ Công Pháp { skillId: bậc }
+    seenIntro: {},                                                      // (23/11) đã xem cutscene boss nào (lần sau được bỏ qua)
   };
 }
 
@@ -88,6 +89,7 @@ export function sanitizeMeta(src, ctx, warnings = []) {
   out.lastDifficulty = int(src.lastDifficulty, 0, 3, 0);
   out.tutorial = sanitizeTutorial(src.tutorial);
   out.mastery = sanitizeMastery(src.mastery);   // M9-D
+  out.seenIntro = {}; if (src.seenIntro && typeof src.seenIntro === 'object') for (const k of ['MINI', 'FINAL']) if (src.seenIntro[k] === true) out.seenIntro[k] = true;
   out.lore = sanitizeLore(src.lore);               // M7-14   // M7-06: save cũ chưa có -> mặc định (người đã chơi không thấy gợi ý vì runs > 0)
   if (src.settings && typeof src.settings === 'object') {
     const vol = (v, d) => { const n = num(v); return Number.isNaN(n) ? d : Math.min(1, Math.max(0, n)); };

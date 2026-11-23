@@ -33,6 +33,7 @@ import { setupTouch } from './ui/touch.js';
 import { createPlaytestLog } from './systems/playtest.js';
 import { masteryLevel, masteryCost, masteryMinRealm, canMaster, buyMastery, startLevel } from './progression/mastery.js';   // M9-D
 import { teleFrame, teleSummary } from './systems/telemetry.js';
+import { createCutscene, stepCutscene, skipCutscene, cutsceneState } from './systems/cutscene.js';   // (23/11) cutscene boss
 import { BUILD } from './core/config.js';
 import { metaGoals, previewAfterClaim } from './progression/goals.js';
 import { newDiscoveries } from './progression/codex.js';
@@ -84,7 +85,7 @@ async function loadSheet(name) {
   const tint = col => { const c = document.createElement('canvas'); c.width = img.width; c.height = img.height; const g = c.getContext('2d'); g.drawImage(img, 0, 0); g.globalCompositeOperation = 'source-in'; g.fillStyle = col; g.fillRect(0, 0, c.width, c.height); return c; };
   return { img, meta, white: tint('#ffffff'), glow: tint('#c070ff'), wind: tint('#7ff0c8') };   // wind: tàn ảnh Phong Ảnh Bộ
 }
-for (const [key, name] of [['pbLang', 'pb_lang'], ['pbYeu', 'pb_yeu'], ['hero', 'nhan_vat'], ['mobs', 'quai'], ['bosses', 'boss'], ['rung', 'rung'], ['congTrinh', 'cong_trinh'], ['icons', 'bieu_tuong'], ['tienHoa', 'tien_hoa'], ['bia', 'bia'], ['phim', 'phim'],
+for (const [key, name] of [['pbLang', 'pb_lang'], ['pbYeu', 'pb_yeu'], ['hero', 'nhan_vat'], ['mobs', 'quai'], ['bosses', 'boss'], ['bossIntro', 'boss_intro'], ['rung', 'rung'], ['congTrinh', 'cong_trinh'], ['icons', 'bieu_tuong'], ['tienHoa', 'tien_hoa'], ['bia', 'bia'], ['phim', 'phim'],
   ...(FEATURES.sectHub || /[?&]sect=1/.test(location.search) ? [['tmCt', 'tm_cong_trinh'], ['tmDv', 'tm_do_vat'], ['tmCd', 'tm_cay_da'], ['tmTran', 'tm_tran'], ['tmThem', 'tm_them'], ['tmCh', 'tm_chuong'], ['tmNui', 'tm_nui']] : [])]) {
   try { vis[key] = await loadSheet(name); } catch (e) { console.warn('[sprite] dùng hình cũ:', name, e); }
 }
@@ -750,6 +751,7 @@ function pauseRun() {
   UI.showPause(() => { paused = false; input.clear(); }, () => { paused = false; endRun(run, 'ABANDON'); finishRun(); });
 }
 function finishRun() {
+  if (cut) { cut.boss.introHide = false; cut = null; }   // rời bí cảnh giữa cutscene
   view = 'RESULTS'; input.clear();
   const r = run;
   meta.stats.runs++;
@@ -955,6 +957,7 @@ function onAction(code) {
   if (code === 'F3') { PERF.on = !PERF.on; return true; }
   if (UI.modalOpen()) return UI.modalKey(code);
   if (view === 'RUN') {
+    if (cut) { if (code === 'Space' || code === 'Enter' || code === 'Escape' || code === 'KeyE') skipCutscene(cut); return true; }   // cutscene: nuốt phím; đã từng xem thì bỏ qua được
     if (code === 'Escape' || code === 'KeyP') { pauseRun(); return true; }
     if (code === 'KeyE') { openShrine(); return true; }
     return false;
@@ -991,6 +994,33 @@ addEventListener('beforeunload', save);
 addEventListener('pagehide', save);
 addEventListener('blur', () => { if (view === 'RUN') pauseRun(); });
 document.addEventListener('visibilitychange', () => { if (document.hidden && view === 'RUN') pauseRun(); });
+
+// ---------- (23/11) cutscene xuất hiện boss ----------
+// Trong lúc chạy: không gọi updateRun (quái, đạn, đồng hồ, người chơi đứng yên; không ai trúng đòn). Boss thật đã sinh ở điểm đáp
+// nhưng ẩn (introHide) — render vẽ bản cutscene. Xem xong: hiện boss, ghi đã xem (lần sau bỏ qua được), xóa phím đang giữ.
+let cut = null;
+function startCut(e) {
+  if (!FEATURES.bossCutscene || !run || cut) return;
+  const b = run.scene.monsters.find(m => m.boss && !m.dead && m.bossKind === e.kind);
+  if (!b) return;
+  cut = createCutscene(e.kind, b, p, !!(meta.seenIntro && meta.seenIntro[e.kind]));
+  if (!cut) return;
+  cut.boss = b; b.introHide = true; input.clear();
+}
+function updateCut(dt) {
+  for (const e of stepCutscene(cut, dt)) {
+    if (e.type === 'sfx') Audio.play(e.name);
+    else if (e.type === 'shake') ev.push(e);
+    else if (e.type === 'land') ev.push({ type: 'boom', x: cut.bx, y: cut.by, r: 46, color: '#e8dcc8' }, { type: 'pulse', x: cut.bx, y: cut.by, r: 70, color: '#fff3d0' });
+  }
+  if (cut.done) endCut();
+}
+function endCut() {
+  if (!cut) return;
+  cut.boss.introHide = false;
+  meta.seenIntro = { ...(meta.seenIntro || {}), [cut.kind]: true };
+  cut = null; input.clear(); save();
+}
 
 // ---------- vòng lặp ----------
 const TIMER_LOOP = new URLSearchParams(location.search).get('loop') === 'timer';
@@ -1034,11 +1064,12 @@ function frame(now) {
   stressTopUp();
   let worldDt = 0;
   if (view === 'HUB') { time += dt; worldDt = dt; updateHub(dt); }
-  else if (view === 'RUN' && !paused) { time += dt; worldDt = dt; updateRunView(dt); }
+  else if (view === 'RUN' && !paused) { time += dt; worldDt = dt; if (cut) updateCut(dt); else updateRunView(dt); }   // cutscene: logic trận đứng yên
   for (const e of ev) {
     if (e.type === 'announce') UI.log(e.text, 'bad');
     else if (e.type === 'sfx') Audio.play(e.name);
     else if (e.type === 'death') Audio.play('hit');
+    else if (e.type === 'bossIntro') startCut(e);
   }
   consumeEvents(vis, ev);
   updateVis(vis, worldDt);
@@ -1046,7 +1077,7 @@ function frame(now) {
   if (vis.pfxSkills && view === 'RUN') vis.pfxSkills.tornado.update(worldDt);
   const scene = run && view !== 'HUB' ? run.scene : hub;
   vis.hiDraw = null; const textQ = []; setTextQueue(textQ);
-  render(ctx, { scene, player: p, time, vis, medFx, trib, inForm: p.inForm, portal: scene === hub ? PORTAL : null, bia: scene === hub && FEATURES.lore ? BIA : null, sect: scene === hub ? SECT_MAP : null, interact: scene === hub ? INTERACT.cur : null, sectStatus: SECT_MAP ? sectStatus : null, run: scene === hub ? null : run, hubShots: scene === hub ? hubShots : null, dtWorld: worldDt });
+  render(ctx, { scene, player: p, time, vis, cut: cut && view === 'RUN' ? cutsceneState(cut) : null, medFx, trib, inForm: p.inForm, portal: scene === hub ? PORTAL : null, bia: scene === hub && FEATURES.lore ? BIA : null, sect: scene === hub ? SECT_MAP : null, interact: scene === hub ? INTERACT.cur : null, sectStatus: SECT_MAP ? sectStatus : null, run: scene === hub ? null : run, hubShots: scene === hub ? hubShots : null, dtWorld: worldDt });
   // lớp nét cao: vẽ nhân vật lơ lửng ở toạ độ lẻ, mỗi điểm ảnh game = hiK điểm ảnh màn hình (nét, không nhoè)
   hiCtx.setTransform(1, 0, 0, 1, 0, 0); hiCtx.clearRect(0, 0, hiCv.width, hiCv.height);
   if (vis.hiSprites && vis.hiSprites.length) {   // (17/11) vật trôi mượt ở toạ độ lẻ (lá sen)
