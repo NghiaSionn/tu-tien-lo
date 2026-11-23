@@ -65,7 +65,7 @@
   body[data-mode=run] #panel, body[data-mode=run] #actions, body[data-mode=run] #btnSettings { display: none; }
   body[data-mode=run] #help::after { content: ' · Esc: tạm dừng'; }
   /* M8: sảnh tông môn — bỏ hàng nút & dòng phím (đi tới khu + E); thiết bị cảm ứng vẫn giữ hàng nút */
-  body.sect #help, body.sect:not(.touch) #actions { display: none; }
+  body.sect #help, body.sect #actions { display: none; }   /* M8-12/14: sảnh tông môn mọi việc làm tại công trình (cả cảm ứng: nút E + bảng chọn chạm) */
   /* M8: khung nhắc tương tác cố định giữa đáy màn hình */
   /* ngay dưới nhân vật (camera giữ người chơi ở giữa màn), không nền, chữ có viền tối để đọc được trên mọi nền */
   #prompt { position: absolute; left: 50%; top: 61%; transform: translateX(-50%); font-size: 1.2em; font-weight: bold; color: #fff6dc;
@@ -101,7 +101,7 @@
   #joyBase { position: absolute; width: 84px; height: 84px; border-radius: 50%; border: 2px solid rgba(255,255,255,.35); background: rgba(20,14,32,.35); z-index: 6; pointer-events: none; }
   #joyKnob { position: absolute; left: 27px; top: 27px; width: 30px; height: 30px; border-radius: 50%; background: rgba(255,217,120,.7); }
   #touchE { display: none; }
-  body.touch #touchE { display: block; position: absolute; right: 1em; bottom: 5em; width: 3.6em; height: 3.6em; border-radius: 50%; z-index: 6; font-size: 1.1em; }
+  body.touch #touchE { display: block; position: absolute; right: 1em; bottom: 5em; width: 3.6em; height: 3.6em; min-width: 48px; min-height: 48px; border-radius: 50%; z-index: 6; font-size: 1.1em; }   /* M8-14: khung nhỏ (640×360) em co lại -> giữ ≥ 48 px */
   body.touch #help { display: none; }
   body.touch[data-mode=hub] #touchE { bottom: 8.5em; }
   body.touch[data-mode=hub] #log { bottom: calc(44px + 3em); }   /* M7-08: không chồng lên hàng nút động phủ */
@@ -162,6 +162,13 @@
   #login { position: fixed; inset: 0; z-index: 30; display: flex; align-items: center; justify-content: center;
     background: #0b0816 url(sprites/login_bg.jpg) center / cover no-repeat; font-family: inherit; color: #eee; }
   #login[hidden] { display: none; }
+  /* M8-14: màn thấp (điện thoại xoay ngang ~360–420 px) thẻ cao hơn màn -> cuộn được, không bị cắt mép trên; thẻ tự căn giữa khi đủ chỗ */
+  #login { overflow-y: auto; align-items: flex-start; padding: .6em 0; box-sizing: border-box; }
+  #login .card { margin: auto; }
+  @media (max-height: 480px) {
+    #login .card { padding: .8em 1.1em .7em; } #login h1 { font-size: 1.6em; } #login .tag { margin: .1em 0 .5em; }
+    #login button { margin: .2em 0; padding: .45em; } #login p { margin: .3em 0; font-size: .85em; }
+  }
   #login::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at center, rgba(10,6,24,.35) 0%, rgba(10,6,24,.82) 75%); }
   #login .card { position: relative; width: min(23em, 92vw); background: rgba(16, 11, 28, .9); border: 1px solid #b89a54; border-radius: .6em;
     padding: 1.4em 1.4em 1.1em; box-shadow: 0 10px 40px rgba(0,0,0,.6), 0 0 0 1px rgba(255,217,120,.08) inset; text-align: center; }
@@ -172,6 +179,7 @@
   #login button:disabled { opacity: .5; cursor: default; }
   #login button.google { background: #fff; color: #222; border-color: #fff; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: .5em; }
   #login button.google:hover:not(:disabled) { background: #eee; }
+  @media (pointer: coarse) { #login button, #login input { min-height: 44px; } }   /* M8-14: vùng chạm ≥ 44 px (màn đăng nhập hiện trước khi game gắn class .touch) */
   #login button.guest { background: transparent; border-color: rgba(255,255,255,.25); color: #cfc6b0; }
   #login input { width: 100%; box-sizing: border-box; padding: .6em; margin: .25em 0; border-radius: .35em; border: 1px solid #5a4a7a; background: #120d1f; color: #fff; font: inherit; }
   #login .two { display: flex; gap: .4em; } #login .two button { flex: 1; }
