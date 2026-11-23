@@ -51,12 +51,12 @@ function cliffActor(c, t) {
   const tipX = C.TIP_X, y = C.LEDGE_Y;
   if (t < T.EMERGE || t >= T.ARENA) return null;
   if (t < T.WALK) return { x: C.START_X, y: C.START_Y, frame: 'i0', flip: false, show: ease(seg(t, T.EMERGE, T.WALK)), step: -1 };
-  if (t < T.LOOK) {   // bước đi KHỚP sải chân: mỗi bước (nửa vòng) tiến đúng STRIDE/2; ngay sau khi chân đặt xuống hơi chững (dồn trọng lượng)
-    const Wk = S.WALK, f = (t - T.WALK) * Wk.FPS, half = Wk.FRAMES / 2;
-    const n = Math.floor(f / half), p = (f % half) / half;                          // bước thứ n, pha 0..1 trong bước (0 = chân vừa chạm đất)
-    const steps = Math.min(Wk.CYCLES * 2, n + p - 0.1 * Math.sin(2 * Math.PI * p));
-    const k = steps / (Wk.CYCLES * 2);
-    return { x: C.START_X + steps * Wk.STRIDE / 2 / 640, y: lerp(C.START_Y, y, k), frame: 'w' + (Math.floor(f) % Wk.FRAMES), flip: false, show: 1, step: p };
+  if (t < T.LOOK) {   // bước đi KHỚP sải chân: thân chỉ tiến khi đổi khung, đúng STRIDE/FRAMES mỗi khung (bàn chân đang chạm đất đứng yên)
+    const Wk = S.WALK, f = Math.min(Math.floor((t - T.WALK) * Wk.FPS), Wk.CYCLES * Wk.FRAMES - 1);
+    const k = f / (Wk.CYCLES * Wk.FRAMES - 1);
+    const sinceContact = Math.min(...Wk.CONTACT.map(cf => ((f - cf) % Wk.FRAMES + Wk.FRAMES) % Wk.FRAMES));
+    return { x: C.START_X + f * Wk.STRIDE / Wk.FRAMES / 640, y: lerp(C.START_Y, y, k), frame: 'w' + (f % Wk.FRAMES), flip: false, show: 1,
+      step: sinceContact < 3 ? sinceContact / 3 : -1 };   // bụi tung 3 khung sau khi chân trước đặt xuống
   }
   if (t < T.INHALE) {  // nhìn quanh: quay lại sau lưng rồi nhìn ra vực
     const k = seg(t, T.LOOK, T.INHALE);

@@ -1,10 +1,10 @@
 {
  "frameSize": [
-  48,
-  31
+  64,
+  32
  ],
  "pivot": [
-  29,
+  37,
   30
  ],
  "image": "boss_walk.png",
@@ -14,36 +14,50 @@
    0
   ],
   "MINI_w1": [
-   48,
+   64,
    0
   ],
   "MINI_w2": [
-   96,
+   128,
    0
   ],
   "MINI_w3": [
-   144,
-   0
-  ],
-  "MINI_w4": [
    192,
    0
   ],
+  "MINI_w4": [
+   256,
+   0
+  ],
   "MINI_w5": [
-   240,
+   320,
    0
   ],
   "MINI_w6": [
-   288,
+   384,
    0
   ],
   "MINI_w7": [
-   336,
+   448,
+   0
+  ],
+  "MINI_w8": [
+   512,
+   0
+  ],
+  "MINI_w9": [
+   576,
+   0
+  ],
+  "MINI_w10": [
+   640,
+   0
+  ],
+  "MINI_w11": [
+   704,
    0
   ]
  },
- "source": "docs/concept/lang_vuong_buoc_di_chatgpt.png",
- "tool": "tools/sprite_clean.py",
- "scale": 6.0,
- "colors": 32
+ "source": "docs/concept/lang_vuong_khung_goc_buoc_di.png",
+ "tool": "tools/wolf_walk_rig.py"
 }
