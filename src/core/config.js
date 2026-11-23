@@ -334,6 +334,14 @@ export const BOSS = {
 
 // ---------- Phần thưởng run (M2-03) [THỬ NGHIỆM] ----------
 // Thua/rời vẫn nhận theo tiến độ (quái, cấp, thời gian, boss đã hạ); thắng nhân WIN_MULT + vé. Nhân thêm theo cảnh giới.
+// M9-D: Tham Ngộ Công Pháp (Tàng Kinh Các) — nâng vĩnh viễn công pháp khởi đầu, lượt sau bắt đầu ở cấp 1 + bậc.
+// Giá bậc 1 ≈ một lượt thắng (~300 linh thạch, ~180 linh khí); linh khí cũng là nguồn tu vi -> phải chọn tu luyện hay tham ngộ.
+export const MASTERY = {
+  MAX: 2,
+  COST: [{ linhThach: 150, lingQi: 80 }, { linhThach: 400, lingQi: 200 }],   // giá lên bậc 1, bậc 2
+  MIN_REALM: [0, 3],                                                          // bậc 2 cần Luyện Khí tầng 4 (realmLevel ≥ 3)
+};
+
 export const REWARD = {
   STONE: { PER_KILL: 0.1, PER_LEVEL: 2, PER_MIN: 3 },      // linh thạch (1 viên đan = 25)
   LINGQI_PER_MIN: 6,                                        // linh khí (sẽ đổi ra tu vi khi tọa thiền, M3)

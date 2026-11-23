@@ -371,7 +371,7 @@ import { canPay } from '../progression/gear.js';
 import { buildCodex } from '../progression/codex.js';
 import { variantOf } from '../systems/variants.js';
 
-const costText = c => Object.entries(c).map(([k, v]) => `${v}${{ craftMats: '🔩', linhThach: '💎' }[k]}`).join(' ');
+const costText = c => Object.entries(c).map(([k, v]) => `${v}${{ craftMats: '🔩', linhThach: '💎', lingQi: '✨' }[k]}`).join(' ');
 const resLine = meta => `💎 ${meta.linhThach} · 🔩 ${meta.craftMats} · ✨ ${Math.floor(meta.lingQi)} · 🎫 ${meta.coDuyenTicket} · 📜 ${meta.shards} mảnh`;
 
 // act(kind, ...args) do main.js xử lý (kiểm tra + lưu chắc chắn), rồi gọi lại hàm này để vẽ lại
@@ -425,6 +425,22 @@ export function showForge(meta, act, note = '') {
     ${note ? `<p class="note">${esc(note)}</p>` : ''}${rows}<div class="row"><button class="ghost" data-a="close">Đóng (Esc)</button></div>`,
   code => { if (code === 'Escape' || code === 'KeyG') { closeModal(); return true; } return false; });
   $('modal').querySelectorAll('[data-a]').forEach(b => b.addEventListener('click', () => b.dataset.a === 'close' ? closeModal() : act(b.dataset.a, b.dataset.id)));
+}
+
+// M9-D: Tham Ngộ Công Pháp — mỗi công pháp khởi đầu: bậc hiện tại, cấp bắt đầu lượt sau, giá/điều kiện bậc kế
+export function showMastery(meta, q, act, note = '') {
+  const rows = q.skills.map(id => {
+    const d = SKILLS[id], lv = q.level(id), c = q.check(id), cost = lv < q.max ? q.cost(lv) : null;
+    const why = !c.ok && c.needRealm !== undefined ? `cần ${esc(q.realmName(c.needRealm))}` : !c.ok && lv < q.max ? esc(c.reason) : '';
+    const btn = lv >= q.max ? '<span class="sub">tối đa</span>'
+      : `<button data-a="buy" data-id="${id}"${c.ok ? '' : ` disabled title="${why}"`}>Tham ngộ ${lv}→${lv + 1} · ${costText(cost)}</button>`;
+    return `<div class="itemrow"><span>${d.icon} <b>${esc(d.name)}</b> — bậc ${lv}/${q.max}<br><span class="sub">Lượt sau bắt đầu ở <b>cấp ${q.start(id)}</b>${lv < q.max ? ` (bậc kế: cấp ${Math.min(d.maxLevel - 1, q.start(id) + 1)})` : ''}${why ? ` · ${why}` : ''}</span></span><span>${btn}</span></div>`;
+  }).join('');
+  open(`<h2>Tàng Kinh Các — Tham Ngộ Công Pháp</h2><p class="sub">${resLine(meta)}</p>
+    <p class="sub">Dùng linh thạch và linh khí mang về từ bí cảnh để tham ngộ công pháp khởi đầu. Hiệu quả vĩnh viễn: lượt sau công pháp đó bắt đầu ở cấp cao hơn. Linh khí cũng dùng để tọa thiền — hãy cân nhắc.</p>
+    ${note ? `<p class="note">${esc(note)}</p>` : ''}${rows}<div class="row"><button class="ghost" data-a="close">Đóng (Esc)</button></div>`,
+  code => { if (code === 'Escape') { closeModal(); return true; } return false; });
+  $('modal').querySelectorAll('[data-a]').forEach(b => b.addEventListener('click', () => b.dataset.a === 'close' ? closeModal() : act(b.dataset.id)));
 }
 
 export function showGacha(meta, act, last = null, note = '') {

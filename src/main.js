@@ -1,5 +1,6 @@
 // Điều phối: vòng lặp, các cảnh (động phủ / bí cảnh), chuyển trạng thái HUB -> PREPARE -> RUN <-> CARD_DRAFT -> RESULTS -> HUB.
-import { VIEW, HUB, PLAYER, BASIC_ATTACK, MEDITATION, HUB_MONSTER as HM, REALM, FEATURES, ITEMS } from './core/config.js';
+import { VIEW, HUB, PLAYER, BASIC_ATTACK, MEDITATION, HUB_MONSTER as HM, REALM, FEATURES, ITEMS, MASTERY, RUN as RUN_CFG } from './core/config.js';
+const RUN_START = RUN_CFG.START_SKILLS;   // M9-D
 import { makeInput } from './core/input.js';
 import { makeHubMap, makeSectMap } from './world/map.js';
 import { levelName, maxHp, atk, need, isMajor, realmOf, REALMS, MAX_L, grantUnlocks } from './progression/realm.js';
@@ -30,6 +31,7 @@ import * as Audio from './audio/sfx.js';
 import { makeRunEnemy } from './systems/director.js';
 import { setupTouch } from './ui/touch.js';
 import { createPlaytestLog } from './systems/playtest.js';
+import { masteryLevel, masteryCost, masteryMinRealm, canMaster, buyMastery, startLevel } from './progression/mastery.js';   // M9-D
 import { teleFrame, teleSummary } from './systems/telemetry.js';
 import { BUILD } from './core/config.js';
 import { metaGoals, previewAfterClaim } from './progression/goals.js';
@@ -389,6 +391,19 @@ function transact(fn) {
   meta = draft;
   return out;
 }
+// M9-D: Tham Ngộ Công Pháp (Tàng Kinh Các)
+let lastMasteryAt = 0;
+function openMastery(note = '') {
+  if (view !== 'HUB' || trib) return;
+  UI.showMastery(meta, { level: id => masteryLevel(meta, id), start: id => startLevel(meta, id), check: id => canMaster(meta, id), cost: masteryCost, minRealm: masteryMinRealm, realmName: levelName, max: MASTERY.MAX, skills: RUN_START }, id => {
+    const now = performance.now();
+    if (now - lastMasteryAt < 350) return;   // bấm đúp không mua 2 lần
+    lastMasteryAt = now;
+    const r = transact(m => buyMastery(m, id));
+    metaAct('mastery', !(r && r.ok === false));
+    openMastery(r && r.ok === false ? `Không được: ${r.reason}.` : `Tham ngộ thành công — lượt sau công pháp này bắt đầu ở cấp ${startLevel(meta, id)}.`);
+  }, note);
+}
 let lastForgeAt = 0;
 function openForge(note = '') {
   if (view !== 'HUB' || trib) return;
@@ -647,7 +662,7 @@ function startRun(skill, difficulty = 0) {
   const seed = nextRunSeed ?? ((Date.now() ^ Math.floor(Math.random() * 0x7fffffff)) >>> 0);
   nextRunSeed = null;
   const roomsMode = FEATURES.rooms && !/[?&]rooms=0/.test(location.search);   // M9-B: ?rooms=0 = đấu trường cũ
-  run = createRun({ seed, variant: pickVariant(seed), startSkill: skill, realmLevel: meta.realmLevel, difficulty, unlocked: meta.unlocks.skills, gear: gearMods(meta), mode: roomsMode ? 'rooms' : 'arena' });
+  run = createRun({ seed, variant: pickVariant(seed), startSkill: skill, realmLevel: meta.realmLevel, difficulty, unlocked: meta.unlocks.skills, gear: gearMods(meta), mode: roomsMode ? 'rooms' : 'arena', startLevel: startLevel(meta, skill) });
   p.x = run.scene.map.cx; p.y = run.scene.map.cy; p.inv = 1; p.med = false; p.cd = 0;
   hubShots.length = 0; clearVis(vis); input.clear(); ev.length = 0;
   view = 'RUN'; paused = false;
@@ -884,7 +899,7 @@ function openSettings() {
 const INTERACT = { cur: null, ix: makeInteractor() };
 const SECT_ACTIONS = {
   truyen_thua: [{ id: 'gacha', label: 'Truyền Thừa', run: () => openGacha() }],
-  tang_kinh: [{ id: 'codex', label: 'Đồ giám', run: () => openCodex() }],
+  tang_kinh: [{ id: 'mastery', label: 'Tham ngộ công pháp', run: () => openMastery() }, { id: 'codex', label: 'Đồ giám', run: () => openCodex() }],   // M9-D
   cong_duc: [{ id: 'ach', label: 'Thành tựu', run: () => UI.showAchievements(meta) }],
   luyen_khi: [{ id: 'forge', label: 'Luyện khí', run: () => openForge() }],
   dan_duoc: [{ id: 'pill_use', get label() { return `Dùng Tụ Khí Đan (còn ${meta.pills})`; }, run: () => usePill() },
@@ -897,7 +912,7 @@ function sectStatus(id) {
     case 'dan_duoc': return { s: `Tụ Khí Đan: ${meta.pills} · ${meta.linhThach} linh thạch`, hot: meta.pills > 0 || meta.linhThach >= ITEMS.PILL_COST };
     case 'cong_duc': return { s: `Thành tựu ${meta.achievements.length}/${ACHIEVEMENTS.length}`, hot: false };
     case 'luyen_khi': return { s: `Luyện liệu: ${meta.craftMats}`, hot: meta.craftMats > 0 };
-    case 'tang_kinh': return { s: 'Công pháp · tiến hóa', hot: false };
+    case 'tang_kinh': return { s: `Tham ngộ ${RUN_START.reduce((a, id) => a + masteryLevel(meta, id), 0)}/${RUN_START.length * MASTERY.MAX}`, hot: RUN_START.some(id => canMaster(meta, id).ok) };   // M9-D
     case 'luyen_vo': return { s: 'Sắp mở — nuôi linh thú đồng hành', hot: false };
     default: return null;
   }

@@ -20,13 +20,13 @@ import { runStats, updateSkills, updateProjectiles, updateZones, absorbDamage } 
 
 let runCounter = 0;
 
-export function createRun({ seed, startSkill, realmLevel, difficulty = 0, unlocked = [], gear = null, variant = 'thuong', mode = 'arena' }) {
+export function createRun({ seed, startSkill, realmLevel, difficulty = 0, unlocked = [], gear = null, variant = 'thuong', mode = 'arena', startLevel = 1 }) {
   const map = mode === 'rooms' ? makeRoomsMap(seed) : makeArenaMap(RUN.ARENA_W, RUN.ARENA_H, seed);   // M9-B: 'rooms' = bí cảnh nhiều phòng
   const run = {
     diff: Math.max(0, Math.min(DIFFICULTY.length - 1, difficulty | 0)),   // M3-02: độ khó bí cảnh
     unlocked: [...unlocked], gear,                                     // M4: công pháp đã mở (pool thẻ), chỉ số trang bị
     id: ++runCounter, uid: `${Date.now().toString(36)}-${seed}-${runCounter}`, seed, eliteKills: 0, rng: mulberry32(seed), status: 'RUNNING', time: 0,
-    level: 1, xp: 0, pendingDrafts: 0, skills: [{ id: startSkill, level: 1, evolved: null, st: {} }],
+    level: 1, xp: 0, pendingDrafts: 0, skills: [{ id: startSkill, level: Math.max(1, startLevel | 0), evolved: null, st: {} }],   // M9-D: Tham Ngộ -> bắt đầu cấp cao hơn
     passives: {}, evolutions: [], kills: 0, damageTaken: 0, dmgBy: {}, tele: createTele(), dir: createDirector(), outcome: null,
     rerolls: FEATURES.draftReroll ? RUN.REROLLS : 0, rerollsUsed: 0,   // M7-09
     variant: variantOf(variant) === variantOf('thuong') && variant !== 'thuong' ? 'thuong' : variant,   // M7-10 (id lạ -> Bình thường)

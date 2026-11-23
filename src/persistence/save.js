@@ -18,6 +18,7 @@ import { sanitizeGear } from '../progression/gear.js';
 import { ACHIEVEMENTS } from '../data/achievements.js';
 import { EVOLUTIONS } from '../data/skills.js';
 import { maxHp, need } from '../progression/realm.js';
+import { sanitizeMastery } from '../progression/mastery.js';
 
 export const KEYS = {
   V1: 'tutien_save_v1', V1_BACKUP: 'tutien_save_v1_backup',
@@ -44,6 +45,7 @@ export function defaultMeta(hubSpawn) {
     stats: { runs: 0, wins: 0, bestTime: 0, bestLevel: 0, kills: 0, minis: 0, evos: [], bestDiffWin: -1 },
     tutorial: defaultTutorial(),                                        // M7-06
     lore: defaultLore(),                                                // M7-14
+    mastery: {},                                                        // M9-D: Tham Ngộ Công Pháp { skillId: bậc }
   };
 }
 
@@ -85,6 +87,7 @@ export function sanitizeMeta(src, ctx, warnings = []) {
   if (src.unlocks && Array.isArray(src.unlocks.skills)) out.unlocks = { skills: src.unlocks.skills.filter(s => typeof s === 'string').slice(0, 64), tier: int(src.unlocks.tier, 0, 3, 0) };
   out.lastDifficulty = int(src.lastDifficulty, 0, 3, 0);
   out.tutorial = sanitizeTutorial(src.tutorial);
+  out.mastery = sanitizeMastery(src.mastery);   // M9-D
   out.lore = sanitizeLore(src.lore);               // M7-14   // M7-06: save cũ chưa có -> mặc định (người đã chơi không thấy gợi ý vì runs > 0)
   if (src.settings && typeof src.settings === 'object') {
     const vol = (v, d) => { const n = num(v); return Number.isNaN(n) ? d : Math.min(1, Math.max(0, n)); };
