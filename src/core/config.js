@@ -287,6 +287,13 @@ export const BOSS_V2 = {
   },
 };
 
+// M10-11: tên chiêu boss hiện trên thanh máu + trên đầu boss lúc gồng (chỉ khi bossPatternsV2); màu theo loại cảnh báo
+export const BOSS_SKILL_LABELS = {
+  dash: ['Tam Liên Lao', '#ff8a6a'], howl: ['Lang Hú', '#ffd978'], howlDash: ['Hú Rồi Lao', '#ffd978'], claw: ['Liệt Trảo', '#ff8a6a'], leap: ['Vồ Đầu Đàn', '#ffb070'],
+  burst: ['Hắc Ám Đạn Trận', '#e0a8ff'], zones: ['Hắc Diễm Truy Sát', '#e0a8ff'], slam: ['Chấn Địa', '#ff8a6a'], prison: ['Ma Ảnh Lao Tù', '#e0a8ff'],
+  shadow: ['Ảnh Độn', '#d9a8ff'], sweep: ['Ma Quang Hoành Tảo', '#f4d8ff'], cross: ['Thập Tự Hắc Liệt', '#ff8a6a'],
+};
+
 // M10-03: tên chiêu cho thống kê nguồn sát thương (run.dmgBy) — khóa = nguồn ghi trong run.js
 export const SKILL_NAMES = {
   chaser: 'Dã Lang cắn', charger: 'Hỏa Hồ cắn', 'charger:dash': 'Hỏa Hồ lao', ranged: 'Huyền Băng Thú cắn', 'ranged:shot': 'Băng tiễn',

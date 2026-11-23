@@ -17,13 +17,15 @@ export function bossAI(m, player, dx, dy, d, dt, io) {
   }
   const V = io.bossV2 ? BOSS_V2[m.bossKind] : null;   // M10-09: bộ chiêu 2 pha mới (null = boss cũ)
   const phase2 = V ? m.hp <= m.max * (V.PHASE2 ?? B.PHASE2) : (m.bossKind === 'FINAL' && m.hp <= m.max * B.PHASE2);   // M10-10: FINAL giữ ngưỡng BOSS.FINAL.PHASE2
-  if (V) {   // ước lượng vận tốc người chơi (cho Vồ Đầu Đàn dự đoán), làm mượt
+  if (V) {   // M10-11: m.v2 -> thanh máu hiện pha + tên chiêu
+    m.v2 = true;
+    // ước lượng vận tốc người chơi (cho Vồ Đầu Đàn dự đoán), làm mượt
     if (m.ppx !== undefined && dt > 0) { m.pvx = (m.pvx || 0) * 0.8 + (player.x - m.ppx) / dt * 0.2; m.pvy = (m.pvy || 0) * 0.8 + (player.y - m.ppy) / dt * 0.2; }
     m.ppx = player.x; m.ppy = player.y;
     // chuyển P1 -> P2 đúng một lần, chỉ giữa hai chiêu (không cắt đòn đang ra): thông báo + choáng (sơ hở)
     if (phase2 && !m.p2 && (m.st === 'move' || m.st === 'recover')) {
       m.p2 = true; m.st = 'recover'; m.stT = V.STAGGER; m.vuln = V.STAGGER; m.vx = m.vy = 0;
-      io.ev.push({ type: 'announce', x: m.x, y: m.y, text: V.P2_TEXT, color: '#ff8a5a' }, { type: 'shake', t: 0.2 });
+      io.ev.push({ type: 'announce', x: m.x, y: m.y, text: V.P2_TEXT, color: '#ff8a5a' }, { type: 'shake', t: 0.2 }, { type: 'sfx', name: 'bossPhase' });   // M10-11: tiếng chuyển pha
       return true;
     }
   }
@@ -88,7 +90,8 @@ export function bossAI(m, player, dx, dy, d, dt, io) {
   if (m.gapT > 0) return true;
   let pat = (io.tactics || V) ? selectBossSkill(m, B, d, io, player, phase2) : pickPattern(m, B, d);   // M10-02: chọn theo tình huống khi bật cờ (M10-09: luôn dùng selector cho bộ chiêu mới)
   if (pat === 'leap' && !startLeap(m, player, io, B, V)) pat = 'dash';   // không có dấu đáp hợp lệ / hết lối né -> lao thường
-  if (!pat) { m.gapT = 0.4; return true; }   // M10-03: chưa có chiêu hợp lệ -> đuổi tiếp, xét lại sau
+  if (!pat) { m.gapT = 0.4; return true; }
+  if (V) { m.v2 = true; io.ev.push({ type: 'sfx', name: 'bossWarn' }); }   // M10-11: tiếng báo boss ra chiêu (khoảng nghỉ 0,8 s trong sfx.js)   // M10-03: chưa có chiêu hợp lệ -> đuổi tiếp, xét lại sau
   m.pat = pat;
   if (io.log) io.log(m.bossKind, pat);   // M10: telemetry chiêu boss (cả AI cũ và mới)
   if (pat === 'dash') { m.dashLeft = B.DASH.COUNT; aimDash(m, player, B); }

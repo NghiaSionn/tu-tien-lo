@@ -1,5 +1,5 @@
 // Vẽ một khung: bản đồ, vật thể sắp theo y, yêu thú, người chơi, công pháp, hiệu ứng beanfx và hạt sáng.
-import { VIEW, TILE as T, HUB, FEATURES, ARCH, BOSS, WOLF_PACK, FOX_TRAIL, ICE_FAN, ELITE_V2, BOSS_V2, TRIBULATION, SHRINE, BASIC_ATTACK } from '../core/config.js';
+import { VIEW, TILE as T, HUB, FEATURES, ARCH, BOSS, WOLF_PACK, FOX_TRAIL, ICE_FAN, ELITE_V2, BOSS_V2, BOSS_SKILL_LABELS, TRIBULATION, SHRINE, BASIC_ATTACK } from '../core/config.js';
 import { GRASS, WATER, STONE, TREE, ROCK, BUILDING, FENCE, DIRT, CLIFF, CLOUD, FALL } from '../world/map.js';
 import { SPR, TIERS, BOSS_WHITE, BOSS_SPR, grassTiles, waterTiles, waterBank, stoneTile, treeSprs, rockSpr, hash } from './sprites.js';
 import { createFx } from '../../lib/beanfx.js';
@@ -737,7 +737,29 @@ function drawMobSheet(ctx, sh, m, prefix, time, k = 1) {
   if (m.hit > 0) { ctx.globalAlpha = 0.55; sheetFrame(ctx, sh, name, m.x, m.y, flip, sh.white, k); ctx.globalAlpha = 1; }
 }
 
+// M10-11: bóng mờ boss ở điểm sắp hiện ra (Ảnh Độn / giải kẹt) hoặc điểm đáp (Vồ Đầu Đàn) — dễ phân biệt với vòng quái thường
+function bossGhostAt(m) {
+  if (m.st === 'blink' && m.blinkX !== undefined) return [m.blinkX, m.blinkY, 1 - Math.max(0, m.stT) / (m.stMax || 1)];
+  if (m.pat === 'leap' && (m.st === 'windup' || m.st === 'leap') && m.leapX !== undefined) return [m.leapX, m.leapY, m.st === 'leap' ? 1 : 1 - Math.max(0, m.stT) / (m.stMax || 1)];
+  return null;
+}
+function drawBossGhost(ctx, m, time, vis) {
+  const g = bossGhostAt(m); if (!g) return;
+  const [gx, gy, prog] = g, bs = vis && vis.bosses, pulse = 0.18 + 0.12 * prog + 0.05 * Math.sin(time * 12);
+  ctx.globalAlpha = pulse;
+  if (bs) sheetFrame(ctx, bs, m.bossKind + '_atk', gx, gy, mobFlip(m), bs.white, BOSS.DRAW_SCALE);
+  else { const spr = BOSS_WHITE[m.bossKind], w = spr.width * 3, h = spr.height * 3; ctx.drawImage(spr, Math.round(gx - w / 2), Math.round(gy - h + 3), w, h); }
+  ctx.globalAlpha = 1;
+}
+function drawBossLabel(ctx, m) {   // M10-11: tên chiêu trên đầu boss trong lúc gồng (chỉ bộ chiêu mới)
+  if (!m.v2 || !(m.st === 'windup' || m.st === 'blink' || m.st === 'sweep')) return;
+  const L = BOSS_SKILL_LABELS[m.pat]; if (!L) return;
+  txt(ctx, L[0], Math.round(m.x), Math.round(m.y) - 50 * BOSS.DRAW_SCALE - 6, L[1], 10);
+}
+
 function drawBoss(ctx, m, time, vis) {
+  drawBossGhost(ctx, m, time, vis);
+  drawBossLabel(ctx, m);
   const bs = vis && vis.bosses;
   if (bs) {
     const K = BOSS.DRAW_SCALE, top = Math.round(m.y) - 50 * K;
@@ -1186,10 +1208,14 @@ function drawBossBar(ctx, scene, camX, camY) {
   ctx.globalAlpha = sy > H - 48 && sx > (W - 260) / 2 && sx < (W + 260) / 2 ? 0.35 : 1;
   const B = BOSS[m.bossKind], w = 220, x = Math.round((W - w) / 2), y = H - 20;
   ctx.fillStyle = 'rgba(10,6,20,.75)'; ctx.fillRect(x - 3, y - 15, w + 6, 23);
-  txt(ctx, B.name + (m.enraged ? ' · cuồng nộ' : m.vuln > 0 ? ' · sơ hở' : ''), W / 2, y - 4, m.enraged ? '#ff6a6a' : '#f4e6ff', 11);
+  const phase = m.v2 ? (m.p2 ? ' · Pha 2' : ' · Pha 1') : '';   // M10-11: dấu pha (chỉ bộ chiêu mới)
+  txt(ctx, B.name + phase + (m.enraged ? ' · cuồng nộ' : m.vuln > 0 ? ' · sơ hở' : ''), W / 2, y - 4, m.enraged ? '#ff6a6a' : m.p2 ? '#ffc8a0' : '#f4e6ff', 11);
   ctx.fillStyle = '#2a1830'; ctx.fillRect(x, y, w, 5);
-  ctx.fillStyle = m.bossKind === 'FINAL' ? '#c040ff' : '#e2584f'; ctx.fillRect(x, y, Math.max(0, Math.round(w * m.hp / m.max)), 5);
-  if (B.PHASE2) { ctx.fillStyle = '#fff'; ctx.fillRect(x + Math.round(w * B.PHASE2), y - 1, 1, 7); }
+  ctx.fillStyle = m.bossKind === 'FINAL' ? (m.p2 ? '#e040c0' : '#c040ff') : (m.p2 ? '#ff7040' : '#e2584f'); ctx.fillRect(x, y, Math.max(0, Math.round(w * m.hp / m.max)), 5);
+  const P2 = m.v2 ? ((BOSS_V2[m.bossKind] && BOSS_V2[m.bossKind].PHASE2) ?? B.PHASE2) : B.PHASE2;
+  if (P2) { ctx.fillStyle = '#fff'; ctx.fillRect(x + Math.round(w * P2), y - 1, 1, 7); }
+  const L = m.v2 && (m.st === 'windup' || m.st === 'blink' || m.st === 'sweep') && BOSS_SKILL_LABELS[m.pat];   // M10-11: tên chiêu đang gồng ngay trên thanh máu
+  if (L) { ctx.fillStyle = 'rgba(10,6,20,.75)'; ctx.fillRect(x + 40, y - 30, w - 80, 13); txt(ctx, '⚠ ' + L[0], W / 2, y - 20, L[1], 10); }
   ctx.globalAlpha = 1;
 }
 
