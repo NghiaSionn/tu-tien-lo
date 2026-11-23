@@ -1208,30 +1208,14 @@ function drawCutBoss(ctx, c, vis, time) {
   const K = BOSS.DRAW_SCALE, intro = vis.bossIntro, bs = vis.bosses;
   const name = intro && intro.meta.frames[`${c.kind}_i${c.pose}`] ? `${c.kind}_i${c.pose}` : `${c.kind}_${CUT_FALLBACK[c.pose]}`;
   const sh = intro && intro.meta.frames[name] ? intro : bs;
+  if (c.alt < 0) return;   // còn ở cảnh vách đá (chưa rơi xuống đấu trường)
   const fx = Math.round(c.bx), fy = Math.round(c.by - c.alt), hi = c.alt / 110;
   // bóng ở điểm đáp: nhỏ, nhạt khi boss còn cao; đậm dần khi rơi xuống
   ctx.globalAlpha = 0.18 + 0.32 * (1 - Math.min(1, hi)); ctx.fillStyle = '#000';
   ctx.beginPath(); ctx.ellipse(fx, Math.round(c.by), 34 * (1 - 0.45 * Math.min(1, hi)), 9 * (1 - 0.45 * Math.min(1, hi)), 0, 0, 6.283); ctx.fill();
-  // mây yêu khí dưới chân lúc còn đứng trên cao (tan dần khi nhảy)
-  if (c.pose <= 3) {
-    for (let i = 0; i < 9; i++) {
-      const a = i / 9 * 6.283 + time * 0.8, rx = 30 + 8 * Math.sin(time * 2 + i), x = fx + Math.cos(a) * rx * 0.9, y = fy + 4 + Math.sin(a) * 6;
-      ctx.globalAlpha = 0.55; ctx.fillStyle = i % 2 ? '#2a1838' : '#3d2350';
-      ctx.beginPath(); ctx.ellipse(x, y, 14, 6, 0, 0, 6.283); ctx.fill();
-    }
-    ctx.globalAlpha = 0.35; ctx.fillStyle = '#7a4aa8'; ctx.beginPath(); ctx.ellipse(fx, fy + 3, 26, 5, 0, 0, 6.283); ctx.fill();
-  }
   ctx.globalAlpha = 1;
   if (sh) sheetFrame(ctx, sh, name, fx, fy, c.faceLeft, sh.img, K);
   else { const spr = BOSS_SPR[c.kind], w = spr.width * 3, h = spr.height * 3; ctx.drawImage(spr, fx - w / 2, fy - h, w, h); }
-  // hú: vòng sóng âm lan ra từ đầu
-  if (c.howl >= 0) {
-    const hx = fx + (c.faceLeft ? -18 : 18), hy = fy - 70;
-    for (let i = 0; i < 3; i++) {
-      const k = (c.howl * 2.2 + i / 3) % 1, r = 14 + k * 120;
-      ctx.globalAlpha = 0.9 * (1 - k); tgRing(ctx, hx, hy, r, Math.round(r * 2.2), '#fff6dc', 3, 0.7);   // dày + viền tối: nổi trên cỏ sáng
-    }
-  }
   // đáp đất: vòng chấn + bụi
   if (c.landK >= 0 && c.landK < 1) {
     const k = c.landK, r = 20 + k * 80;
@@ -1240,8 +1224,42 @@ function drawCutBoss(ctx, c, vis, time) {
   }
   ctx.globalAlpha = 1;
 }
+// Cảnh vách đá trên cao (màn hình): "camera bay lên" = nền trượt từ trên xuống phủ đấu trường, "hạ xuống" = trượt lên.
+// Ảnh nền ChatGPT vẽ (vis.cutBg[kind]); chưa có ảnh thì vẽ tạm trời đêm + vách đá. Sói: cùng sprite/cỡ với khi đánh nhau.
+function drawCliffScene(ctx, c, vis, time) {
+  if (c.bg <= 0) return;
+  const C = c.cliffCfg, oy = Math.round(c.bgY * H), img = vis.cutBg && vis.cutBg[c.kind];
+  ctx.save(); ctx.translate(0, oy);
+  if (img) ctx.drawImage(img, 0, 0, W, H);
+  else {
+    const gr = ctx.createLinearGradient(0, 0, 0, H); gr.addColorStop(0, '#0c0a24'); gr.addColorStop(1, '#2a2350');
+    ctx.fillStyle = gr; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = '#f2ecd0'; ctx.beginPath(); ctx.arc(W * 0.84, H * 0.18, 26, 0, 6.283); ctx.fill();
+    ctx.fillStyle = '#3c3a5a'; ctx.fillRect(0, H * 0.78, W, H * 0.22);
+    const ly = H * C.LEDGE_Y, tx = W * (C.TIP_X + 0.06);
+    ctx.fillStyle = '#4a4560'; ctx.beginPath(); ctx.moveTo(0, ly); ctx.lineTo(tx, ly); ctx.lineTo(tx - 20, ly + 30); ctx.lineTo(tx - 50, H); ctx.lineTo(0, H); ctx.fill();
+    ctx.fillStyle = '#5d8a4a'; ctx.fillRect(0, ly - 3, tx, 4);
+  }
+  // sương trôi dưới vực cho cảnh có chiều sâu
+  for (let i = 0; i < 6; i++) { const x = ((i * 137 + time * 14) % (W + 160)) - 80; ctx.globalAlpha = 0.12; ctx.fillStyle = '#c8c0ff'; ctx.beginPath(); ctx.ellipse(x, H * 0.86 + (i % 3) * 10, 70, 9, 0, 0, 6.283); ctx.fill(); }
+  ctx.globalAlpha = 1;
+  const a = c.cliff;
+  if (a) {
+    const x = Math.round(a.x * W), y = Math.round(a.y * H), K = BOSS.DRAW_SCALE;
+    const sh = a.frame[0] === 'i' ? vis.bossIntro : vis.bosses, name = `${c.kind}_${a.frame}`;
+    ctx.globalAlpha = 0.4; ctx.fillStyle = '#000'; ctx.beginPath(); ctx.ellipse(x, y, 30, 6, 0, 0, 6.283); ctx.fill(); ctx.globalAlpha = 1;
+    if (sh && sh.meta.frames[name]) sheetFrame(ctx, sh, name, x, y, a.flip, sh.img, K);
+    if (c.howl >= 0) {   // tiếng hú: vòng sóng âm từ đầu sói lan ra bầu trời
+      const hx = x + 22, hy = y - 52;
+      for (let i = 0; i < 3; i++) { const k = (c.howl * 2.2 + i / 3) % 1, r = 12 + k * 150; ctx.globalAlpha = 0.85 * (1 - k); tgRing(ctx, hx, hy, r, Math.round(r * 2.2), '#fff6dc', 3, 1); }
+      ctx.globalAlpha = 1;
+    }
+  }
+  ctx.restore();
+}
 // màn hình: dải đen điện ảnh + bảng tên + nhắc bỏ qua
-function drawCutOverlay(ctx, c) {
+function drawCutOverlay(ctx, c, vis, time) {
+  drawCliffScene(ctx, c, vis, time);
   const bh = Math.round(34 * c.letter);
   ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, bh); ctx.fillRect(0, H - bh, W, bh);
   if (c.name > 0) {
@@ -1832,7 +1850,7 @@ export function render(ctx, g) {
 
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   if (g.run && g.run.rooms && scene.kind === 'run') drawMinimap(ctx, g.run);   // M9-B
-  if (g.cut) drawCutOverlay(ctx, g.cut); else drawBossBar(ctx, scene, camX, camY);
+  if (g.cut) drawCutOverlay(ctx, g.cut, vis, time); else drawBossBar(ctx, scene, camX, camY);
   if (vis.banner && !g.cut) {   // cutscene: không chen dòng thông báo
     const b = vis.banner; ctx.globalAlpha = Math.min(1, b.life * 2);
     ctx.font = `bold 13px ${FONT}`; const bw = ctx.measureText(b.text).width;

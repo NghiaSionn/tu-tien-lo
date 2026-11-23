@@ -89,6 +89,8 @@ for (const [key, name] of [['pbLang', 'pb_lang'], ['pbYeu', 'pb_yeu'], ['hero', 
   ...(FEATURES.sectHub || /[?&]sect=1/.test(location.search) ? [['tmCt', 'tm_cong_trinh'], ['tmDv', 'tm_do_vat'], ['tmCd', 'tm_cay_da'], ['tmTran', 'tm_tran'], ['tmThem', 'tm_them'], ['tmCh', 'tm_chuong'], ['tmNui', 'tm_nui']] : [])]) {
   try { vis[key] = await loadSheet(name); } catch (e) { console.warn('[sprite] dùng hình cũ:', name, e); }
 }
+// (23/11) nền cảnh vách đá của cutscene boss (ChatGPT vẽ); thiếu ảnh thì render vẽ nền tạm
+try { vis.cutBg = { MINI: await loadImg('sprites/cutscene_vach_da.png') }; } catch (e) { console.warn('[sprite] chưa có nền cutscene', e); }
 // công trình động phủ (cổng, tụ linh trận, Linh Mạch) + VFX tiến hóa M7-12: cắt sát nội dung từng khung
 function cropFrames(sheet) {
   const { img, meta } = sheet, [fw, fh] = meta.frameSize, out = {};
@@ -751,7 +753,7 @@ function pauseRun() {
   UI.showPause(() => { paused = false; input.clear(); }, () => { paused = false; endRun(run, 'ABANDON'); finishRun(); });
 }
 function finishRun() {
-  if (cut) { cut.boss.introHide = false; cut = null; }   // rời bí cảnh giữa cutscene
+  if (cut) { cut.boss.introHide = false; cut = null; document.body.classList.remove('cutscene'); }   // rời bí cảnh giữa cutscene
   view = 'RESULTS'; input.clear();
   const r = run;
   meta.stats.runs++;
@@ -1005,7 +1007,7 @@ function startCut(e) {
   if (!b) return;
   cut = createCutscene(e.kind, b, p, !!(meta.seenIntro && meta.seenIntro[e.kind]));
   if (!cut) return;
-  cut.boss = b; b.introHide = true; input.clear();
+  cut.boss = b; b.introHide = true; input.clear(); document.body.classList.add('cutscene');   // ẩn HUD trong lúc chiếu
 }
 function updateCut(dt) {
   for (const e of stepCutscene(cut, dt)) {
@@ -1017,7 +1019,7 @@ function updateCut(dt) {
 }
 function endCut() {
   if (!cut) return;
-  cut.boss.introHide = false;
+  cut.boss.introHide = false; document.body.classList.remove('cutscene');
   meta.seenIntro = { ...(meta.seenIntro || {}), [cut.kind]: true };
   cut = null; input.clear(); save();
 }

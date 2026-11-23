@@ -304,9 +304,13 @@ export const BOSS_ARENA = { CLEAR_FIELD: true, NO_SPAWN: true };
 // Lần đầu xem hết; từ lần thứ hai (meta.seenIntro) bấm Space/Enter/Esc/chạm để bỏ qua.
 export const CUTSCENE = {
   MINI: {
-    TITLE: 'LANG VƯƠNG', SUB: 'Chúa tể bầy sói', HIGH: 110, DUR: 5.2,
-    T: { CAM_IN: 0.9, INHALE: 1.35, HOWL: 1.7, CROUCH: 2.75, LEAP: 3.05, LAND: 3.45, NAME: 3.55, OUT: 4.7 },
-    EVENTS: [[1.72, { type: 'sfx', name: 'howl' }], [1.72, { type: 'shake', t: 0.5 }], [3.45, { type: 'sfx', name: 'land' }], [3.45, { type: 'shake', t: 0.35 }], [3.45, { type: 'land' }]],
+    TITLE: 'LANG VƯƠNG', SUB: 'Chúa tể bầy sói', HIGH: 150, DUR: 8.2,
+    // UP: nền vách bắt đầu trượt xuống · WALK: sói bước ra · LOOK: nhìn quanh · INHALE/HOWL/CROUCH/LEAP · DESCEND: nền trượt lên
+    // FALL..LAND: rơi xuống đấu trường · NAME: bảng tên · OUT: camera về người chơi
+    T: { UP: 0.35, WALK: 1.3, LOOK: 2.8, INHALE: 3.5, HOWL: 3.8, CROUCH: 4.9, LEAP: 5.2, DESCEND: 5.65, FALL: 6.1, LAND: 6.45, NAME: 6.55, OUT: 7.7 },
+    // vị trí trên ảnh nền vách (tỉ lệ 0..1 của màn 640×360): mặt gờ (chân sói) và mỏm đá
+    CLIFF: { BG: 'cutscene_vach_da', LEDGE_Y: 0.48, TIP_X: 0.7, START_X: -0.12 },
+    EVENTS: [[3.82, { type: 'sfx', name: 'howl' }], [3.82, { type: 'shake', t: 0.6 }], [6.45, { type: 'sfx', name: 'land' }], [6.45, { type: 'shake', t: 0.4 }], [6.45, { type: 'land' }]],
   },
 };
 

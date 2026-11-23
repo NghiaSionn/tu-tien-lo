@@ -9,17 +9,25 @@ import { CUTSCENE, BOSS, BOSS_ARENA } from '../src/core/config.js';
 const DT = 1 / 60;
 const run = (c, sec) => { const ev = []; for (let i = 0; i < sec / DT && !c.done; i++) ev.push(...stepCutscene(c, DT)); return ev; };
 
-test('dòng thời gian Lang Vương: camera từ người chơi tới boss rồi về; đứng trên cao -> hú -> nhảy -> đáp; kết thúc đúng thời lượng', () => {
+test('dòng thời gian Lang Vương: nền vách phủ màn -> sói bước ra, nhìn, hú, nhảy -> nền trượt lên -> rơi xuống đấu trường, đáp; camera về người chơi', () => {
   const c = createCutscene('MINI', { x: 500, y: 400 }, { x: 300, y: 380 });
   const S = CUTSCENE.MINI, T = S.T;
   let s = cutsceneState(c);
-  assert.ok(Math.abs(s.focusX - 300) < 1 && s.alt === S.HIGH && s.pose === 0);
-  const poses = [];
-  let t = 0;
-  while (!c.done) { stepCutscene(c, DT); t += DT; s = cutsceneState(c); if (poses[poses.length - 1] !== s.pose) poses.push(s.pose);
-    if (c.t < T.LEAP) assert.equal(s.alt, S.HIGH, 'còn đứng trên cao');
-    if (c.t >= T.LAND) assert.equal(s.alt, 0, 'đã đáp đất'); }
-  assert.deepEqual(poses, [0, 1, 2, 3, 4, 5]);
+  assert.ok(Math.abs(s.focusX - 300) < 1 && s.bg === 0 && s.cliff === null && s.alt < 0);
+  const frames = [], poses = [];
+  let t = 0, full = false;
+  while (!c.done) {
+    stepCutscene(c, DT); t += DT; s = cutsceneState(c);
+    if (s.cliff && frames[frames.length - 1] !== s.cliff.frame.replace(/walk\d/, 'walk')) frames.push(s.cliff.frame.replace(/walk\d/, 'walk'));
+    if (s.alt >= 0 && poses[poses.length - 1] !== s.pose) poses.push(s.pose);
+    if (c.t >= T.WALK && c.t < T.DESCEND) { assert.equal(s.bg, 1, 'nền vách phủ kín'); full = true; assert.ok(s.alt < 0, 'chưa xuống đấu trường'); }
+    if (c.t >= T.FALL) assert.equal(s.bg, 0, 'nền đã trượt đi');
+    if (c.t >= T.LAND) assert.equal(s.alt, 0, 'đã đáp đất');
+    if (s.cliff && c.t < T.LOOK) assert.ok(s.cliff.x <= S.CLIFF.TIP_X + 1e-9, 'bước ra từ trái tới mỏm đá');
+  }
+  assert.ok(full);
+  assert.deepEqual(frames, ['walk', 'i0', 'i1', 'i2', 'i3', 'i4']);
+  assert.deepEqual(poses, [4, 5]);
   assert.ok(Math.abs(t - S.DUR) < 0.05);
   assert.ok(Math.abs(s.focusX - 300) < 1, 'camera về người chơi'); assert.ok(s.letter < 0.01 && s.name < 0.01);
 });
@@ -33,7 +41,7 @@ test('mỗi sự kiện âm thanh/hiệu ứng phát đúng một lần (kể c�
 
 test('lần đầu không bỏ qua được; đã xem rồi thì bỏ qua: nhảy tới cú đáp, không phát tiếng hú', () => {
   const a = createCutscene('MINI', { x: 0, y: 0 }, { x: 0, y: 0 }, false);
-  stepCutscene(a, 0.5); assert.equal(skipCutscene(a), false); assert.ok(a.t < 1);
+  stepCutscene(a, 0.5); assert.equal(skipCutscene(a), false); assert.ok(a.t < 1);  // vẫn ở đầu cảnh
   const b = createCutscene('MINI', { x: 0, y: 0 }, { x: 0, y: 0 }, true);
   stepCutscene(b, 0.5); assert.equal(skipCutscene(b), true);
   const ev = run(b, 10);

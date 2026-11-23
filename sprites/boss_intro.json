@@ -1,11 +1,11 @@
 {
  "frameSize": [
-  76,
-  53
+  54,
+  36
  ],
  "pivot": [
-  42,
-  52
+  29,
+  35
  ],
  "image": "boss_intro.png",
  "frames": {
@@ -14,28 +14,28 @@
    0
   ],
   "MINI_i1": [
-   76,
+   54,
    0
   ],
   "MINI_i2": [
-   152,
+   108,
    0
   ],
   "MINI_i3": [
-   228,
+   162,
    0
   ],
   "MINI_i4": [
-   304,
+   216,
    0
   ],
   "MINI_i5": [
-   380,
+   270,
    0
   ]
  },
  "source": "docs/concept/lang_vuong_cutscene_chatgpt.png",
  "tool": "tools/sprite_clean.py",
- "scale": 5.0,
+ "scale": 7.4,
  "colors": 32
 }

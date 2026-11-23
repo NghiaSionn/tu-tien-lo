@@ -100,14 +100,25 @@ function spawnAround(run, player, arch, power) {
 }
 
 // Boss xuất hiện gần hơn quái thường (trong/sát mép màn) để người chơi thấy ngay. Không được thì thử lại khung sau.
+// (23/11) boss đáp xuống chỗ TRỐNG NHẤT quanh người chơi: thử 24 điểm hợp lệ, chấm độ thoáng (bao nhiêu điểm trong vòng 16–56 px
+// đứng được — không cây/đá/nước/công trình), lấy điểm thoáng nhất -> cú nhảy cutscene không đè lên vật thể.
+export function clearance(map, x, y) {
+  let n = 0;
+  for (const r of [16, 32, 44, 56]) for (let k = 0; k < 6; k++) { const a = k / 6 * Math.PI * 2 + r * 0.01; if (map.canStand(x + Math.cos(a) * r, y + Math.sin(a) * r)) n++; }
+  return n;   // 0..24
+}
 function spawnBoss(run, player, kind, power) {
   const rng = run.rng, map = run.scene.map;
+  let best = null, bestScore = -1;
   for (let i = 0; i < 24; i++) {
     const a = rng() * Math.PI * 2, r = D.SAFE_R + rng() * 40;
     const x = player.x + Math.cos(a) * r, y = player.y + Math.sin(a) * r;
-    if (validSpawn(map, player, x, y)) return makeBoss(run, kind, x, y, power);
+    if (!validSpawn(map, player, x, y)) continue;
+    const sc = clearance(map, x, y);
+    if (sc > bestScore) { best = [x, y]; bestScore = sc; }
+    if (sc === 24) break;   // trống hoàn toàn: khỏi tìm thêm
   }
-  return null;
+  return best ? makeBoss(run, kind, best[0], best[1], power) : null;
 }
 
 // Đợt theo đội hình. Trả về số con thật sự sinh ra.
