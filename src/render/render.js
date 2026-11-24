@@ -763,12 +763,64 @@ function drawBossLabel(ctx, m) {   // M10-11: tên chiêu trên đầu boss tron
   txt(ctx, L[0], Math.round(m.x), Math.round(m.y) - 50 * BOSS.DRAW_SCALE - 6, L[1], 10);
 }
 
+// (24/11) Ma Ảnh Yêu Vương trong trận: hồn ma nên KHÔNG có bóng đen dưới chân — thay bằng quầng tà khí tím phát sáng.
+// Luôn bay lơ lửng (8 khung, cả khi đứng yên), hào quang tím phập phồng quanh thân, lửa tà khí bốc lên từ vạt áo,
+// mắt + ngọc đỏ phát sáng, bóng mờ kéo theo khi di chuyển. Gồng: dang tay (Triệu Ma Ảnh: giơ cầu ma khí) + viền sáng.
+const h01 = i => { const v = Math.sin(i * 91.7 + 17.3) * 43758.5453; return v - Math.floor(v); };
+function drawWraithBoss(ctx, m, time, sh) {
+  const K = BOSS.DRAW_SCALE, flip = mobFlip(m), x = Math.round(m.x), y = Math.round(m.y), M = sh.meta;
+  const name = m.hit > 0 ? 'FINAL_hurt' : m.st === 'windup' ? (m.pat === 'summon' ? 'FINAL_cast' : 'FINAL_atk')
+    : 'FINAL_walk' + (Math.floor(time * 7 + (m.ph || 0) * 8) % (M.float || 8));
+  const pul = 0.5 + 0.5 * Math.sin(time * 3);
+  // bóng mờ kéo theo (chỉ để vẽ, không phải trạng thái trận)
+  const tr = m._trail || (m._trail = []);
+  if (!tr.length || time - tr[tr.length - 1].t > 0.07) { tr.push({ x, y, name, flip, t: time }); if (tr.length > 5) tr.shift(); }
+  const moving = tr.length > 1 && Math.hypot(tr[0].x - x, tr[0].y - y) > 6;
+  // dưới chân: vòng ma ấn xoay chậm (hồn ma không có bóng)
+  ctx.globalAlpha = 0.55 + 0.25 * pul; tgRing(ctx, x, y - 2, 17 * K, 44, '#d890ff', 2, 0.35);
+  ctx.fillStyle = '#f0c8ff';
+  for (let i = 0; i < 6; i++) { const a = time * 0.8 + i * 1.047; ctx.globalAlpha = 0.5 + 0.3 * pul; ctx.fillRect(Math.round(x + Math.cos(a) * 17 * K) - 1, Math.round(y - 2 + Math.sin(a) * 17 * K * 0.35) - 1, 3, 2); }
+  if (moving) for (let i = 0; i < tr.length - 1; i++) { ctx.globalAlpha = 0.1 + 0.08 * i; sheetFrame(ctx, sh, tr[i].name, tr[i].x, tr[i].y, tr[i].flip, sh.glow, K); }
+  // viền tà khí tím đậm phập phồng quanh thân (vẽ đè: rõ trên cả nền sáng)
+  ctx.globalAlpha = 0.45 + 0.3 * pul;
+  for (const [dx, dy] of [[-2, 0], [2, 0], [0, -2], [-2, -2], [2, -2]]) sheetFrame(ctx, sh, name, x + dx, y + dy, flip, sh.glow, K);
+  if (m.st === 'windup') { ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 0.45; for (const [dx, dy] of [[-3, 0], [3, 0], [0, -3], [0, 2]]) sheetFrame(ctx, sh, name, x + dx, y + dy, flip, sh.white, K); ctx.globalCompositeOperation = 'source-over'; }
+  ctx.globalAlpha = 1;
+  sheetFrame(ctx, sh, name, x, y, flip, sh.img, K);
+  if (m.hit > 0) { ctx.globalAlpha = 0.55; sheetFrame(ctx, sh, name, x, y, flip, sh.white, K); }
+  // lửa tà khí bốc lên ở hai bên mép thân + từ đuôi khói (vẽ phía trước để không bị thân che)
+  for (let i = 0; i < 26; i++) {
+    const ph = (time * (0.45 + h01(i) * 0.4) + h01(i + 40)) % 1, side = i % 2 ? 1 : -1;
+    const px = Math.round(x + side * (12 + h01(i + 7) * 12) * K + Math.sin(time * 3 + i) * 3), py = Math.round(y - 3 * K - ph * 36 * K);
+    const a = Math.min(1, ph * 5) * (1 - ph);
+    ctx.globalAlpha = a; ctx.fillStyle = i % 3 === 0 ? '#ff7ad8' : i % 3 === 1 ? '#e090ff' : '#9a40d8';
+    ctx.fillRect(px - 2, py, 4, 4); ctx.globalAlpha = a * 0.65; ctx.fillRect(px - 1, py + 4, 3, 4); ctx.globalAlpha = a * 0.35; ctx.fillRect(px, py + 8, 2, 4);   // ngọn lửa + đuôi
+  }
+  ctx.globalAlpha = 1;
+  // mắt + ngọc đỏ phát sáng
+  const eyes = M.eyes && M.eyes[name];
+  if (eyes && eyes.length) {
+    const [ax, ay] = M.pivot, py = y - (ay + 1) * K + 1;
+    ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = '#ff3a3a';
+    for (const [ex, ey] of eyes) {
+      const ex2 = flip ? x + (ax - ex) * K : x - ax * K + ex * K, ey2 = py + ey * K;
+      ctx.globalAlpha = 0.25 + 0.25 * pul; ctx.fillRect(ex2 - 1, ey2 - 1, K + 2, K + 2);
+    }
+    ctx.globalCompositeOperation = 'source-over';
+  }
+  ctx.globalAlpha = 1;
+  if (m.vuln > 0) {   // sơ hở: 3 sao vàng xoay trên đầu
+    const top = y - 50 * K; ctx.fillStyle = '#ffe066';
+    for (let i = 0; i < 3; i++) { const a = time * 5 + i * 2.094; ctx.fillRect(Math.round(x + Math.cos(a) * 14 * K) - 1, Math.round(top - 4 + Math.sin(a) * 3) - 1, 3, 3); }
+  }
+}
 // (24/11) Yêu Vương trong trận dùng sheet dựng từ tư thế cutscene (tools/yeu_vuong_sheet.py); thiếu thì về sheet boss cũ
 function bossSheet(m, vis) { return (vis && m.bossKind === 'FINAL' && vis.bossFinal) || (vis && vis.bosses); }
 function drawBoss(ctx, m, time, vis) {
   drawBossGhost(ctx, m, time, vis);
   drawBossLabel(ctx, m);
   const bs = bossSheet(m, vis);
+  if (bs && m.bossKind === 'FINAL' && bs.meta.float) return drawWraithBoss(ctx, m, time, bs);
   if (bs) {
     const K = BOSS.DRAW_SCALE, top = Math.round(m.y) - 50 * K;
     ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(Math.round(m.x) - 20 * K, Math.round(m.y) - 4, 40 * K, 7);
