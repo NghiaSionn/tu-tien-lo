@@ -1,0 +1,43 @@
+{
+ "frameSize": [
+  64,
+  58
+ ],
+ "pivot": [
+  28,
+  57
+ ],
+ "image": "boss_final.png",
+ "frames": {
+  "FINAL_walk0": [
+   0,
+   0
+  ],
+  "FINAL_walk1": [
+   64,
+   0
+  ],
+  "FINAL_walk2": [
+   128,
+   0
+  ],
+  "FINAL_walk3": [
+   192,
+   0
+  ],
+  "FINAL_atk": [
+   256,
+   0
+  ],
+  "FINAL_cast": [
+   320,
+   0
+  ],
+  "FINAL_hurt": [
+   384,
+   0
+  ]
+ },
+ "source": "sprites/boss_intro_final.png",
+ "tool": "tools/yeu_vuong_sheet.py"
+}

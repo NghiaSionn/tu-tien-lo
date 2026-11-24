@@ -730,7 +730,8 @@ function mobFlip(m) {
   return !!m.faceL;
 }
 function drawMobSheet(ctx, sh, m, prefix, time, k = 1) {
-  const name = prefix + '_' + mobState(m, time), flip = mobFlip(m);
+  let name = prefix + '_' + mobState(m, time); const flip = mobFlip(m);
+  if (m.pat === 'summon' && m.st === 'windup' && sh.meta.frames[prefix + '_cast']) name = prefix + '_cast';   // (24/11) Triệu Ma Ảnh: tư thế chỉ tay + cầu ma khí
   if (m.elite) for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) { ctx.globalAlpha = 0.8; sheetFrame(ctx, sh, name, m.x + dx, m.y + dy, flip, sh.glow); }
   ctx.globalAlpha = 1;
   if (m.shade) {   // (24/11) ma ảnh Yêu Vương gọi: viền tím, thân bóng tối; mờ dần 2 giây cuối trước khi tan
@@ -750,7 +751,7 @@ function bossGhostAt(m) {
 }
 function drawBossGhost(ctx, m, time, vis) {
   const g = bossGhostAt(m); if (!g) return;
-  const [gx, gy, prog] = g, bs = vis && vis.bosses, pulse = 0.18 + 0.12 * prog + 0.05 * Math.sin(time * 12);
+  const [gx, gy, prog] = g, bs = bossSheet(m, vis), pulse = 0.18 + 0.12 * prog + 0.05 * Math.sin(time * 12);
   ctx.globalAlpha = pulse;
   if (bs) sheetFrame(ctx, bs, m.bossKind + '_atk', gx, gy, mobFlip(m), bs.white, BOSS.DRAW_SCALE);
   else { const spr = BOSS_WHITE[m.bossKind], w = spr.width * 3, h = spr.height * 3; ctx.drawImage(spr, Math.round(gx - w / 2), Math.round(gy - h + 3), w, h); }
@@ -762,16 +763,18 @@ function drawBossLabel(ctx, m) {   // M10-11: tên chiêu trên đầu boss tron
   txt(ctx, L[0], Math.round(m.x), Math.round(m.y) - 50 * BOSS.DRAW_SCALE - 6, L[1], 10);
 }
 
+// (24/11) Yêu Vương trong trận dùng sheet dựng từ tư thế cutscene (tools/yeu_vuong_sheet.py); thiếu thì về sheet boss cũ
+function bossSheet(m, vis) { return (vis && m.bossKind === 'FINAL' && vis.bossFinal) || (vis && vis.bosses); }
 function drawBoss(ctx, m, time, vis) {
   drawBossGhost(ctx, m, time, vis);
   drawBossLabel(ctx, m);
-  const bs = vis && vis.bosses;
+  const bs = bossSheet(m, vis);
   if (bs) {
     const K = BOSS.DRAW_SCALE, top = Math.round(m.y) - 50 * K;
     ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(Math.round(m.x) - 20 * K, Math.round(m.y) - 4, 40 * K, 7);
     if (m.st === 'windup') {   // gồng chiêu: viền trắng sáng quanh thân
       ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 0.35;
-      const name = m.bossKind + '_atk', flip = mobFlip(m);
+      const name = m.bossKind + (m.pat === 'summon' && bs.meta.frames[m.bossKind + '_cast'] ? '_cast' : '_atk'), flip = mobFlip(m);
       for (const [dx, dy] of [[-2, 0], [2, 0], [0, -2], [0, 2]]) sheetFrame(ctx, bs, name, m.x + dx, m.y + dy, flip, bs.white, K);
       ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
     }
