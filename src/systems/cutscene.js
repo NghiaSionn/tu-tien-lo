@@ -72,6 +72,7 @@ function cliffActor(c, t) {
 
 export function cutsceneState(c) {
   if (c.S.STYLE === 'wraith') return wraithState(c);
+  if (c.S.STYLE === 'p2') return p2State(c);
   const S = c.S, T = S.T, t = c.t;
   // màn đen chuyển cảnh: tối dần -> sáng dần (2 lần)
   const fade = t < T.CLIFF ? seg(t, T.FADE1, T.CLIFF) : t < T.FADE2 ? 1 - seg(t, T.CLIFF, T.CLIFF + S.FADE_IN)
@@ -133,4 +134,24 @@ function wraithState(c) {
   return { style: 'wraith', kind: c.kind, focusX: fx, focusY: fy, fade, dark, seal, wind: t < T.ALTAR ? seg(t, 0.2, T.FADE1) : -1, bg, sky,
     actor, line, roar, crack, shatter, rise, pillar, landK, letter, name, altarCfg: S.ALTAR, bx: c.bx, by: c.by,
     skippable: c.skippable, title: S.TITLE, sub: S.SUB, titleCol: S.TITLE_COL, alt: -1, pose: 5, cliff: null, howl: -1 };
+}
+
+// ---------- (24/11) cutscene biến hình pha 2 (storyboard ChatGPT): zoom cận, đổi sprite che bằng chớp, vỡ kính, chữ tên lớn ----------
+function p2State(c) {
+  const S = c.S, T = S.T, t = c.t;
+  const zin = ease(seg(t, 0, T.IN)), zout = ease(seg(t, T.OUT, c.dur)), k = zin * (1 - zout);
+  let pose = S.POSES[0][1];
+  for (const [at, n] of S.POSES) if (t >= at) pose = n;
+  let flash = null;
+  for (const [at, d, col, a] of S.FLASH) if (t >= at && t < at + d) flash = { col, a: a * (1 - (t - at) / d) };
+  const seg2 = r => (r && t >= r[0] && t < r[1] ? seg(t, r[0], r[1]) : -1);
+  const shatter = t >= T.SHATTER && t < T.SHATTER + 1 ? seg(t, T.SHATTER, T.SHATTER + 1) : -1;
+  return { style: 'p2', kind: c.kind, boss: S.BOSS, faceLeft: c.px < c.bx, focusX: lerp(c.px, c.bx, k), focusY: lerp(c.py, c.by - 20, k), zoom: 1 + (S.ZOOM - 1) * k,
+    letter: ease(seg(t, 0, 0.35)) * (1 - zout), pose, flash, black: T.BLACK && t >= T.BLACK && t < T.BLACK + 0.08 ? 1 : 0,
+    crack: t < T.SHATTER ? ease(seg(t, T.CRACK[0], T.CRACK[1])) : 0, shatter, lines: seg2(S.LINES), linesDir: S.LINES && S.LINES[2],
+    smoke: seg2(S.SMOKE), smokeCol: S.SMOKE && S.SMOKE[2], bolts: seg2(S.BOLTS), vign: S.VIGN * k, desat: S.DESAT * zin * (1 - ease(seg(t, T.SWAP, T.SWAP + 0.4))),
+    tilt: S.TILT && shatter >= 0 && shatter < 0.6 ? S.TILT * Math.sin(Math.PI * shatter / 0.6) : 0,
+    title: ease(seg(t, T.TITLE, T.TITLE + 0.25)) * (1 - ease(seg(t, T.OUT, T.OUT + 0.45))), titleK: t >= T.TITLE ? t - T.TITLE : -1, titleOut: seg(t, T.OUT, T.OUT + 0.45),
+    eyes: 1 - zout, bx: c.bx, by: c.by, skippable: c.skippable, title_: S.TITLE, sub: S.SUB, titleCol: S.TITLE_COL, band: S.BAND,
+    alt: -1, cliff: null, howl: -1, name: 0, fade: 0, line: '' };
 }

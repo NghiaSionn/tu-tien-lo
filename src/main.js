@@ -1006,14 +1006,17 @@ function startCut(e) {
   if (!FEATURES.bossCutscene || !run || cut) return;
   const b = run.scene.monsters.find(m => m.boss && !m.dead && m.bossKind === e.kind);
   if (!b) return;
-  cut = createCutscene(e.kind, b, p, !!(meta.seenIntro && meta.seenIntro[e.kind]));
+  const ck = e.p2 ? e.kind + '_P2' : e.kind;
+  cut = createCutscene(ck, b, p, !!(meta.seenIntro && meta.seenIntro[ck]));
   if (!cut) return;
+  if (e.p2) { b.stT = 0.001; b.p2Burst = b.p2Beat = b.p2End = true; }   // cutscene thay màn biến hình tại chỗ; xong cảnh boss vào sơ hở
   cut.boss = b; b.introHide = true; input.clear(); document.body.classList.add('cutscene');   // ẩn HUD trong lúc chiếu
 }
 function updateCut(dt) {
   for (const e of stepCutscene(cut, dt)) {
     if (e.type === 'sfx') Audio.play(e.name);
     else if (e.type === 'shake') ev.push(e);
+    else if (e.type === 'boom' || e.type === 'pulse') ev.push({ ...e, x: cut.bx, y: cut.by - 20 });
     else if (e.type === 'land') { const fin = cut.kind === 'FINAL'; ev.push({ type: 'boom', x: cut.bx, y: cut.by, r: fin ? 60 : 46, color: fin ? '#c070ff' : '#e8dcc8' }, { type: 'pulse', x: cut.bx, y: cut.by, r: fin ? 90 : 70, color: fin ? '#f0c8ff' : '#fff3d0' }); }
   }
   if (cut.done) endCut();
@@ -1073,6 +1076,7 @@ function frame(now) {
     else if (e.type === 'sfx') Audio.play(e.name);
     else if (e.type === 'death') Audio.play('hit');
     else if (e.type === 'bossIntro') startCut(e);
+    else if (e.type === 'bossPhase2') startCut({ kind: e.kind, p2: true });   // (24/11) cutscene biến hình pha 2
   }
   consumeEvents(vis, ev);
   updateVis(vis, worldDt);

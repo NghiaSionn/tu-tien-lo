@@ -1417,6 +1417,7 @@ function drawTribHud(ctx, tr) {
 const CUT_FALLBACK = ['walk0', 'walk1', 'atk', 'walk3', 'atk', 'atk'];
 function drawCutBoss(ctx, c, vis, time) {
   if (c.style === 'wraith') return drawCutWraithWorld(ctx, c, vis, time);
+  if (c.style === 'p2') return drawP2CutBoss(ctx, c, vis, time);   // (24/11) cutscene pha 2
   const K = BOSS.DRAW_SCALE, intro = vis.bossIntro, bs = vis.bosses;
   const name = intro && intro.meta.frames[`${c.kind}_i${c.pose}`] ? `${c.kind}_i${c.pose}` : `${c.kind}_${CUT_FALLBACK[c.pose]}`;
   const sh = intro && intro.meta.frames[name] ? intro : bs;
@@ -1628,9 +1629,131 @@ function drawWraithScreen(ctx, c, vis, time) {
   }
 }
 
+// ---------- (24/11) cutscene biến hình pha 2 (storyboard ChatGPT) ----------
+const P2_SHEET = (vis, n) => (n.startsWith('MINI2') ? vis.bossMini2 : n.startsWith('MINI_') ? vis.bosses : n.startsWith('FINAL2') ? vis.bossFinal2 : vis.bossFinal);
+let P2_EYES = [], P2_ZOOM = null, P2_CAM = { camX: 0, camY: 0 }, ZBUF = null, P2BUF = null;
+const p2Map = (wx, wy) => {   // thế giới -> màn hình (tính cả zoom cận)
+  const sx = wx - P2_CAM.camX, sy = wy - P2_CAM.camY;
+  return P2_ZOOM ? [(sx - P2_ZOOM.sx) * P2_ZOOM.z, (sy - P2_ZOOM.sy) * P2_ZOOM.z] : [sx, sy];
+};
+// Boss trong cảnh (thế giới): khói tụ, viền aura pha 2, sprite theo nhịp, sét hồng (ma), lưu vị trí mắt cho lớp màn hình
+function drawP2CutBoss(ctx, c, vis, time) {
+  const sh = P2_SHEET(vis, c.pose) || vis.bosses; if (!sh || !sh.meta.frames[c.pose]) return;
+  const K = BOSS.DRAW_SCALE, x = Math.round(c.bx), y = Math.round(c.by), flip = c.boss === 'MINI' ? c.faceLeft : false, p2 = /^(MINI2|FINAL2)_/.test(c.pose);
+  if (c.smoke >= 0) for (let i = 0; i < 30; i++) {   // khói tụ quanh chân / xoáy ngược lên
+    const ph = (time * 0.8 + h01(i)) % 1, a = h01(i + 5) * 6.283 + ph * 3, r = (1 - ph) * 40 * K * 0.5 + 6;
+    ctx.globalAlpha = 0.6 * Math.min(1, c.smoke * 3) * (1 - ph * 0.6); ctx.fillStyle = i % 2 ? c.smokeCol : '#1a0610';
+    ctx.beginPath(); ctx.ellipse(x + Math.cos(a) * r, y - 4 - ph * 30 * K * (c.boss === 'FINAL' ? 1 : 0.3), 5, 3, 0, 0, 6.283); ctx.fill();
+  }
+  if (c.boss === 'MINI') { ctx.globalAlpha = 0.35; ctx.fillStyle = '#000'; ctx.beginPath(); ctx.ellipse(x, y, 20 * K, 4 * K, 0, 0, 6.283); ctx.fill(); }
+  if (p2 && sh.rage) { ctx.globalAlpha = 0.55 + 0.25 * Math.sin(time * 6); for (const [dx, dy] of [[-2, 0], [2, 0], [0, -2], [-2, -2], [2, -2]]) sheetFrame(ctx, sh, c.pose, x + dx, y + dy, flip, sh.rage, K); }
+  ctx.globalAlpha = 1;
+  sheetFrame(ctx, sh, c.pose, x, y, flip, sh.img, K);
+  if (c.bolts >= 0 && Math.floor(time * 10) % 2 === 0) {   // sét hồng chạy quanh người
+    const seed = Math.floor(time * 10);
+    for (let b = 0; b < 3; b++) {
+      const a0 = h01(seed * 3 + b) * 6.283; let px = x + Math.cos(a0) * 14 * K, py = y - 28 * K + Math.sin(a0) * 16 * K;
+      for (const [col, w] of [['#2a0a3a', 3], ['#ffc8f0', 1]]) {
+        ctx.strokeStyle = col; ctx.lineWidth = w; ctx.globalAlpha = 0.9; ctx.beginPath(); let qx = px, qy = py; ctx.moveTo(qx, qy);
+        for (let j = 1; j <= 5; j++) { qx = px + Math.cos(a0) * j * 5 * K + (h01(seed * 7 + j + b) - 0.5) * 10; qy = py + Math.sin(a0) * j * 4 * K + (h01(seed * 11 + j + b) - 0.5) * 10; ctx.lineTo(qx, qy); }
+        ctx.stroke();
+      }
+    }
+    ctx.globalAlpha = 1;
+  }
+  const e = eyeOf(sh, c.pose);
+  P2_EYES = e ? e.map(([ex, ey]) => framePt(sh, x, y, flip, ex, ey, K)).sort((a, b) => a[1] - b[1]).slice(0, c.boss === 'FINAL' ? 4 : 2)
+    : [[x + (flip ? -1 : 1) * 17 * K, y - 21 * K]];
+}
+// Zoom cận nguyên khối: chép khung hình rồi phóng phần quanh boss lên toàn màn (giữ nét pixel); nghiêng nhẹ lúc vỡ kính (ma)
+function zoomScreen(ctx, c, camX, camY) {
+  const cv = ctx.canvas, r = cv.width / W, z = c.zoom, K = BOSS.DRAW_SCALE;
+  if (!ZBUF) ZBUF = document.createElement('canvas');
+  if (ZBUF.width !== cv.width || ZBUF.height !== cv.height) { ZBUF.width = cv.width; ZBUF.height = cv.height; }
+  const zg = ZBUF.getContext('2d'); zg.setTransform(1, 0, 0, 1, 0, 0); zg.clearRect(0, 0, cv.width, cv.height); zg.drawImage(cv, 0, 0);
+  const w = W / z, h = H / z, cx = c.bx - camX, cy = c.by - 22 * K - camY;
+  const sx = Math.round(Math.max(0, Math.min(W - w, cx - w / 2))), sy = Math.round(Math.max(0, Math.min(H - h, cy - h / 2)));
+  ctx.save(); ctx.imageSmoothingEnabled = false;
+  if (c.tilt) { ctx.translate(W / 2, H / 2); ctx.rotate(c.tilt * Math.PI / 180); ctx.scale(1.06, 1.06); ctx.translate(-W / 2, -H / 2); }
+  ctx.drawImage(ZBUF, sx * r, sy * r, w * r, h * r, 0, 0, W, H);
+  ctx.restore();
+  return { sx, sy, z };
+}
+function drawP2Screen(ctx, c, vis, time) {
+  const K = BOSS.DRAW_SCALE, [ox, oy] = p2Map(c.bx, c.by - 22 * K), fin = c.boss === 'FINAL';
+  if (c.desat > 0) { ctx.globalCompositeOperation = 'saturation'; ctx.globalAlpha = c.desat; ctx.fillStyle = '#808080'; ctx.fillRect(0, 0, W, H); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1; }
+  if (c.vign > 0) {   // tối viền, sáng quanh boss
+    const g = ctx.createRadialGradient(ox, oy, 50, ox, oy, W * 0.62); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,0.9)');
+    ctx.globalAlpha = c.vign; ctx.fillStyle = g; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1;
+  }
+  if (c.eyes > 0) {   // mắt đỏ rực + vệt sáng ngang kiểu anime
+    const z = P2_ZOOM ? P2_ZOOM.z : 1, pul = 0.7 + 0.3 * Math.sin(time * 9);
+    ctx.globalCompositeOperation = 'lighter';
+    for (const [wx, wy] of P2_EYES) {
+      const [ex, ey] = p2Map(wx, wy);
+      ctx.globalAlpha = 0.45 * pul * c.eyes; ctx.fillStyle = '#ff2a2a'; ctx.beginPath(); ctx.arc(ex, ey, 5 * z, 0, 6.283); ctx.fill();
+      ctx.globalAlpha = 0.5 * pul * c.eyes; ctx.fillRect(Math.round(ex - 22 * z), Math.round(ey), Math.round(44 * z), 1);
+      ctx.globalAlpha = 0.95 * c.eyes; ctx.fillStyle = '#ffe0d0'; ctx.fillRect(Math.round(ex) - 1, Math.round(ey) - 1, 3, 2);
+    }
+    ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
+  }
+  if (c.crack > 0 && c.shatter < 0) {   // vết nứt lan ra từ thân boss (ma: từ lõi ngực)
+    for (const pts of CRACKS) {
+      const n = Math.max(1, Math.ceil(c.crack * (pts.length - 1)));
+      for (const [col, wd] of [[fin ? '#ff3a8a' : '#000', 3], ['#fff', 1]]) {
+        ctx.strokeStyle = col; ctx.lineWidth = wd; ctx.globalAlpha = 0.9; ctx.beginPath(); ctx.moveTo(ox, oy);
+        for (let i = 1; i <= n; i++) ctx.lineTo(ox + pts[i][0], oy + pts[i][1]);
+        ctx.stroke();
+      }
+    }
+    ctx.globalAlpha = 1;
+  }
+  const cv = ctx.canvas, r = cv.width / W;
+  if (c.shatter < 0) {   // lưu khung hình hiện tại: lúc vỡ kính, mảnh của khung này bay đi để lộ ngoại hình mới
+    if (!P2BUF) P2BUF = document.createElement('canvas');
+    if (P2BUF.width !== cv.width || P2BUF.height !== cv.height) { P2BUF.width = cv.width; P2BUF.height = cv.height; }
+    const pg = P2BUF.getContext('2d'); pg.setTransform(1, 0, 0, 1, 0, 0); pg.clearRect(0, 0, cv.width, cv.height); pg.drawImage(cv, 0, 0);
+  } else if (P2BUF) {
+    for (const s of SHARDS) {
+      const k = Math.max(0, c.shatter - s.delay * 0.6);
+      const dx = s.vx * k * 1.4, dy = s.vy * k * 1.4 + 700 * k * k;
+      ctx.save(); ctx.globalAlpha = Math.max(0, 1 - k * 1.4);
+      ctx.translate(s.cx + dx, s.cy + dy); ctx.rotate(s.rot * k); ctx.translate(-s.cx, -s.cy);
+      ctx.beginPath(); ctx.moveTo(...s.p[0]); ctx.lineTo(...s.p[1]); ctx.lineTo(...s.p[2]); ctx.closePath(); ctx.clip();
+      ctx.drawImage(P2BUF, 0, 0, cv.width, cv.height, 0, 0, W, H); if (k > 0) { ctx.strokeStyle = fin ? '#ffc8f0' : '#fff'; ctx.lineWidth = 1; ctx.stroke(); }
+      ctx.restore();
+    }
+  }
+  if (c.lines >= 0) {   // vệt tốc độ: tỏa ra (sói hú) / hội tụ vào ngực (ma)
+    const seed = Math.floor(time * 20), out = c.linesDir === 'out';
+    ctx.fillStyle = '#fff';
+    for (let i = 0; i < 46; i++) {
+      const a = h01(seed * 50 + i) * 6.283, r0 = 70 + h01(seed * 31 + i) * 60, len = 120 + h01(seed * 17 + i) * 260;
+      ctx.globalAlpha = (out ? 0.55 : 0.45) * (1 - c.lines * 0.5);
+      ctx.save(); ctx.translate(ox, oy); ctx.rotate(a); ctx.fillRect(r0, -1, len, out ? 2 : 1); ctx.restore();
+    }
+    ctx.globalAlpha = 1;
+  }
+  if (c.flash) { ctx.globalAlpha = c.flash.a; ctx.fillStyle = c.flash.col; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1; }
+  if (c.black) { ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H); }
+  if (c.title > 0) {   // dải chéo + chữ tên lớn trượt vào; lúc thoát tan thành hạt
+    const y = Math.round(H * 0.7), slide = Math.round((1 - c.title) * -80), w = W + 40;
+    ctx.save(); ctx.globalAlpha = 0.85 * c.title; ctx.fillStyle = c.band;
+    ctx.beginPath(); ctx.moveTo(-20 + slide, y - 22); ctx.lineTo(w + slide, y - 30); ctx.lineTo(w + slide, y + 14); ctx.lineTo(-20 + slide, y + 22); ctx.closePath(); ctx.fill();
+    ctx.globalAlpha = c.title; ctx.fillStyle = c.titleCol; ctx.fillRect(-20 + slide, y - 24, w + 20, 2); ctx.fillRect(-20 + slide, y + 19, w + 20, 1);
+    ctx.restore();
+    ctx.globalAlpha = c.title; txt(ctx, c.title_, W / 2 + slide, y + 2, c.titleCol, 26); txt(ctx, c.sub, W / 2 + slide, y + 15, '#f4e6ff', 10); ctx.globalAlpha = 1;
+  }
+  if (c.titleOut > 0 && c.titleOut < 1) {
+    const y = H * 0.7, k = c.titleOut;
+    for (let i = 0; i < 50; i++) { ctx.globalAlpha = (1 - k) * 0.9; ctx.fillStyle = i % 2 ? c.titleCol : (fin ? '#c040ff' : '#ff3a2a'); ctx.fillRect(Math.round(W / 2 + (h01(i) - 0.5) * 300 + (h01(i + 9) - 0.5) * 40 * k), Math.round(y - k * (20 + h01(i + 3) * 50)), 2, 2); }
+    ctx.globalAlpha = 1;
+  }
+}
+
 // màn hình: dải đen điện ảnh + bảng tên + nhắc bỏ qua
 function drawCutOverlay(ctx, c, vis, time) {
-  if (c.style === 'wraith') drawWraithScreen(ctx, c, vis, time); else
+  if (c.style === 'wraith') drawWraithScreen(ctx, c, vis, time); else if (c.style === 'p2') drawP2Screen(ctx, c, vis, time); else
   drawCliffScene(ctx, c, vis, time);
   if (c.fade > 0) { ctx.globalAlpha = c.fade; ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1; }   // màn đen chuyển cảnh
   const bh = Math.round(34 * c.letter);
@@ -2223,6 +2346,7 @@ export function render(ctx, g) {
   mark('texts');
 
   ctx.setTransform(1, 0, 0, 1, 0, 0);
+  if (g.cut && g.cut.style === 'p2') { P2_CAM = { camX, camY }; P2_ZOOM = g.cut.zoom > 1.001 ? zoomScreen(ctx, g.cut, camX, camY) : null; }   // (24/11) zoom cận cutscene pha 2
   if (g.run && g.run.rooms && scene.kind === 'run') drawMinimap(ctx, g.run);   // M9-B
   if (g.cut) drawCutOverlay(ctx, g.cut, vis, time); else drawBossBar(ctx, scene, camX, camY);
   if (vis.banner && !g.cut) {   // cutscene: không chen dòng thông báo

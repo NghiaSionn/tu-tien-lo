@@ -91,3 +91,11 @@ test('xuất/nhập JSON: vòng tròn, nhận cả định dạng v1, từ chố
   assert.equal(importSave('{bad', ctx).ok, false);
   assert.equal(importSave('x'.repeat(300000), ctx).ok, false);
 });
+
+test('(24/11) seenIntro giữ cutscene pha 2 (MINI_P2, FINAL_P2), bỏ khóa lạ', () => {
+  const st = memoryStorage();
+  const m = defaultMeta(ctx.hubSpawn); m.seenIntro = { MINI: true, MINI_P2: true, FINAL_P2: true, HACK: true, FINAL: 'x' };
+  writeSave(st, m);
+  const back = loadSave(st, ctx).meta.seenIntro;
+  assert.deepEqual(back, { MINI: true, MINI_P2: true, FINAL_P2: true });
+});
