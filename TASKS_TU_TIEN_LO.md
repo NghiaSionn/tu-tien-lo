@@ -493,6 +493,7 @@ Hướng do ChatGPT đề xuất 17/11, người phát triển duyệt "Làm gam
 - [x] Cutscene Lang Vương: vách đá + bước đi dựng xương khớp sải chân + hú + đáp — đã push 24/11
 - [x] Yêu Vương — Triệu Ma Ảnh (2b) — test `tests/boss_summon.test.js`
 - [x] Cutscene Yêu Vương: ma ấn → tế đàn trăng máu → lời thoại, gầm → vỡ kính → trồi lên — test `tests/cutscene.test.js`
+- [x] Cutscene biến hình pha 2 (mỗi boss chữ ký riêng) + VFX beanfx `fx/lv_pha_dia`, `fx/yv_ho_den` (24/11) — test `tests/cutscene.test.js`, `tests/boss_phase2.test.js`; đã chạy thật trong trình duyệt cả 2 cảnh, không lỗi console
 - [ ] Người thật xem/nghe thử (âm thanh mới, Safari) — gộp vào phần kiểm thử tay cuối
 
 ## VIỆC LƯU LẠI ĐỂ LÀM SAU (người phát triển dặn 23/11)

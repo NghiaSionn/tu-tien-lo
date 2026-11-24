@@ -21,6 +21,8 @@ Cập nhật: 2026-11-23 (xem mục **0. Trạng thái 23/11** ngay dưới bả
 - **Cutscene** (`FEATURES.bossCutscene`, `src/systems/cutscene.js`, `CUTSCENE` trong config; lần 2 bỏ qua bằng Space, ghi `meta.seenIntro`):
   - Lang Vương: camera ngửa trời + màn đen → vách đá dưới trăng (nền ChatGPT) → sói bước chậm (bước đi dựng xương `tools/wolf_walk_rig.py`, khớp sải chân) → hú → phóng xuống, đáp. Đã push 24/11.
   - Ma Ảnh Yêu Vương: đấu trường tối dần + ma ấn → tế đàn trăng máu (nền + 6 tư thế ChatGPT) → khói tụ, mắt lóe, hiện thân, lời thoại, gầm → màn hình nứt vỡ như kính → trồi lên từ ma ấn. Ảnh: `docs/playtest/CUTSCENE_yeu_vuong.png`.
+- **Cutscene biến hình pha 2** (`CUTSCENE.MINI_P2` / `FINAL_P2`, mỗi boss một chữ ký riêng): Lang Vương "Cuồng Thú Phá Địa" (nhịp tim, động đất, gai đá, dậm đất, hú) và Yêu Vương "Ma Giới Đảo Nghịch" (thời gian ngưng, đảo màu, hố đen sụp-nổ, chữ phù văn).
+  - (24/11) VFX vẽ lại bằng beanfx thành sprite sheet 2 lớp màu + sáng: `fx/lv_pha_dia` (dậm đất, 35 khung, 24 fps, khung va chạm 4 = mốc STOMP) và `fx/yv_ho_den` (hố đen, 44 khung; đoạn HOLE kéo giãn khung 0–25, khung 26 = mốc ROAR). Nguồn: `drafts/lv_pha_dia/`, `drafts/yv_ho_den/` (chưa đưa vào git). Đồ họa Thấp hoặc thiếu sheet → hình vẽ bằng code cũ.
 - **Yêu Vương — Triệu Ma Ảnh** (quyết định 2b): gồng 1,2 s có ma ấn báo trước → ma ảnh trồi lên đúng chỗ, tự tan sau 20 s, không rơi kinh nghiệm, trần `TACTICS.MAX_SUMMONED`, chủ chết thì tan (`BOSS.FINAL.SUMMON`).
 - Chưa kiểm thử tay bởi người thật: âm thanh mới (dậm chân, rumble, roar, shatter), Safari (filter brightness).
 

@@ -162,7 +162,7 @@ function p2State(c) {
     ring: -1,
     // Ma Giới Đảo Nghịch
     freeze: v ? zin * (t < T.ROAR ? 1 : 0) : 0, pull: v ? seg2(T.PULL) : -1, pullT: v ? t - T.PULL[0] : -1,
-    invert: v && t >= T.INVERT[0] && t < T.INVERT[1] ? 1 : 0, runes: v ? seg2(T.RUNES) : -1, runesT: v ? t - T.RUNES[0] : -1,
+    invert: v && t >= T.INVERT[0] && t < T.INVERT[1] ? 1 : 0, runes: v ? seg2(T.RUNES) : -1, runesT: v ? t - T.RUNES[0] : -1, t, T,
     spiral: v ? seg2(T.SPIRAL) : -1, burst: v ? seg2(T.BURST) : -1,
     hole: v ? (t >= T.HOLE[0] && t < T.ROAR ? ease(seg(t, T.HOLE[0], T.HOLE[1])) : t >= T.ROAR && t < T.ROAR + 0.22 ? 1 - seg(t, T.ROAR, T.ROAR + 0.22) : 0) : 0,
     title: t >= T.TITLE && t < titleEnd ? 1 - titleOut : 0, titleT: t - T.TITLE, titleOut, titleSize: S.TITLE_SIZE || 26,
