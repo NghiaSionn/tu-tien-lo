@@ -1779,7 +1779,7 @@ function drawP2CutBoss(ctx, c, vis, time) {
   }
   // VFX quanh thân vẽ TRƯỚC -> boss đè lên (sóng hú của sói, sét xoắn của Ma Quân)
   if (c.fx === 'quake' && c.howlRings >= 0) { const hx = x + (flip ? -1 : 1) * 18 * K, hy = y - 30 * K + 8;   // tiếng hú: sóng khí beanfx (lv_ho_khi)
-    if (!p2FxAt(ctx, vis, 'lv_ho_khi', Math.floor((c.t - c.T.HOWL[0]) * 24), hx, hy, 1.5))
+    if (!p2FxAt(ctx, vis, 'lv_ho_khi', Math.floor((c.t - c.T.HOWL[0]) * 24) % 12, hx, hy, 1.5))   // vòng lặp 12 khung: 1 đợt / 3 khung
       for (let i = 0; i < 3; i++) { const kk = (c.howlRings * 2.2 + i / 3) % 1; drawJaggedRing(ctx, hx, hy, kk, 160, 24); }   // dự phòng: vòng răng cưa
     ctx.globalAlpha = 1; }
   if (c.fx === 'void' && c.spiral >= 0) drawSpiralBolts(ctx, x, cy, c.spiral, time);
@@ -1798,18 +1798,18 @@ function drawP2CutBoss(ctx, c, vis, time) {
 }
 // Zoom cận nguyên khối: chép khung hình rồi phóng phần quanh boss lên toàn màn (giữ nét pixel)
 // (24/11) khúc xạ tiếng hú: trong dải quanh mỗi đợt sóng khí, chép lại khung hình phóng lệch ra ngoài -> cảnh vật bị nén cong
-// như không khí bị đẩy. Đợt / tuổi khớp sheet lv_ho_khi (WAVES 0, 7, 14; LIFE 16 khung; R = (10 + 96·ease) × 1,5).
+// như không khí bị đẩy. Khớp sheet lv_ho_khi v2: cứ 3 khung (24 fps) một đợt, sống 9 khung, R = (8 + 104·ease2.2) × 1,5.
 let ZBUF2 = null, vis_q = 'high';
-const HOWL_WAVES = [0, 7, 14];
 function howlRefract(ctx, c, camX, camY, sx, sy, z) {
   const cv = ctx.canvas, K = BOSS.DRAW_SCALE;
   const hx = ((c.bx + (c.faceLeft ? -1 : 1) * 18 * K) - camX - sx) * z, hy = ((c.by - 30 * K + 8) - camY - sy) * z;
   let copied = false;
-  for (const w0 of HOWL_WAVES) {
-    const u = ((c.t - c.T.HOWL[0]) * 24 - w0) / 16; if (u < 0 || u >= 1) continue;
+  const fh = (c.t - c.T.HOWL[0]) * 24;
+  for (let w0 = Math.floor(fh / 3) * 3; w0 > fh - 9; w0 -= 3) {
+    const u = (fh - w0) / 9; if (u < 0 || u >= 1) continue;
     if (!copied) { if (!ZBUF2) ZBUF2 = document.createElement('canvas'); if (ZBUF2.width !== cv.width || ZBUF2.height !== cv.height) { ZBUF2.width = cv.width; ZBUF2.height = cv.height; }
       const g2 = ZBUF2.getContext('2d'); g2.setTransform(1, 0, 0, 1, 0, 0); g2.clearRect(0, 0, cv.width, cv.height); g2.drawImage(cv, 0, 0); copied = true; }
-    const Rs = (10 + 96 * (1 - (1 - u) ** 3)) * 1.5 * z, s = 1 + 0.09 * (1 - u) ** 1.5, band = 18 + 10 * u;
+    const Rs = (8 + 104 * (1 - (1 - u) ** 2.2)) * 1.5 * z, s = 1 + 0.07 * (1 - u) ** 1.5, band = 14 + 8 * u;
     ctx.save(); ctx.beginPath();
     ctx.ellipse(hx, hy, Rs + 4, (Rs + 4) * 0.75, 0, 0, 6.283); ctx.ellipse(hx, hy, Math.max(1, Rs - band), Math.max(1, Rs - band) * 0.75, 0, 0, 6.283);
     ctx.clip('evenodd'); ctx.imageSmoothingEnabled = false;
