@@ -46,12 +46,24 @@ const segD = (px, py, s) => { const vx = s.x1 - s.x0, vy = s.y1 - s.y0, l2 = vx 
 const hits = (s, x, y) => s.r !== undefined ? Math.hypot(x - s.x, y - s.y) < s.r : segD(x, y, s) < s.w;
 export const seg = (m, dx, dy, L, w) => ({ x0: m.x, y0: m.y, x1: m.x + dx * L, y1: m.y + dy * L, w });
 export const fanSegs = (m, dx, dy, fan) => (fan ? [0, -IF.SPREAD, IF.SPREAD] : [0]).map(a => { const c = Math.cos(a), s = Math.sin(a); return seg(m, dx * c - dy * s, dx * s + dy * c, 250, ARCH.ranged.SHOT_R + PLAYER.HITBOX); });
+// H-1a (24/11): phần cung CÒN LẠI của tia Ma Quang Hoành Tảo (đang gồng: cả nửa vòng; đang quét: từ góc hiện tại tới góc cuối)
+// thành quạt các đoạn dài L, cách nhau STEP rad — quái thường gồng đòn mới phải chừa lối thoát ngoài vùng quét. Không đổi chiêu của boss.
+const SWEEP_STEP = 0.2;
+export function sweepSegs(m) {
+  const S = BOSS_V2.FINAL.SWEEP, k0 = m.st === 'sweep' ? (m.swK || 0) : 0, out = [];
+  const n = Math.max(1, Math.ceil(S.ARC * (1 - k0) / SWEEP_STEP));
+  for (let i = 0; i <= n; i++) {
+    const a = m.swA0 + m.swDir * S.ARC * (k0 + (1 - k0) * i / n);
+    out.push(seg(m, Math.cos(a), Math.sin(a), S.L, S.W + PLAYER.HITBOX));
+  }
+  return out;
+}
 export function dangerShapes(scene, player) {
   const out = [], near = (x, y) => Math.abs(x - player.x) < 320 && Math.abs(y - player.y) < 320;
   for (const h of scene.hazards) if (near(h.x, h.y)) out.push(h.x0 !== undefined ? { x0: h.x0, y0: h.y0, x1: h.x1, y1: h.y1, w: h.r + PLAYER.HITBOX } : { x: h.x, y: h.y, r: h.r + PLAYER.HITBOX });
   for (const f of scene.fireTrails || []) if (near(f.x, f.y)) out.push({ x: f.x, y: f.y, r: f.r + PLAYER.HITBOX });
   for (const m of scene.monsters) {
-    if (m.dead || (m.st !== 'windup' && m.st !== 'dash') || !near(m.x, m.y)) continue;
+    if (m.dead || (m.st !== 'windup' && m.st !== 'dash' && m.st !== 'sweep') || !near(m.x, m.y)) continue;
     const dash = (sp, time, w) => out.push(seg(m, m.dirX, m.dirY, m.st === 'dash' ? Math.min(sp * time, sp * Math.max(0, m.stT)) : sp * time, w));
     if (m.arch === 'charger') dash(ARCH.charger.DASH_SPEED, ARCH.charger.DASH_TIME, ARCH.charger.HIT_R + PLAYER.HITBOX);
     else if (m.arch === 'chaser') dash(WP.POUNCE.SPEED, WP.POUNCE.TIME, WP.POUNCE.HIT_R + PLAYER.HITBOX);
@@ -59,6 +71,7 @@ export function dangerShapes(scene, player) {
     else if (m.arch === 'ranged' && m.st === 'windup') out.push(...fanSegs(m, m.dirX, m.dirY, m.fan));
     else if (m.arch === 'elite' && m.st === 'windup') out.push({ x: m.x, y: m.y, r: (m.sk === 'claw' ? EV.CLAW.R : ARCH.elite.SLAM_R) + PLAYER.HITBOX });
     else if (m.boss && m.pat === 'claw' && m.st === 'windup') out.push({ x: m.x, y: m.y, r: BOSS_V2.MINI.CLAW.R + PLAYER.HITBOX });   // M10-09
+    else if (m.boss && (m.st === 'sweep' || (m.st === 'windup' && m.pat === 'sweep')) && m.swDir) out.push(...sweepSegs(m));   // H-1a: tia Hoành Tảo
   }
   return out;
 }

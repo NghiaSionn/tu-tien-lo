@@ -498,7 +498,7 @@ Hướng do ChatGPT đề xuất 17/11, người phát triển duyệt "Làm gam
 
 ## VIỆC LƯU LẠI ĐỂ LÀM SAU (người phát triển dặn 23/11)
 
-- [ ] H-1 Ma Quang Hoành Tảo (Yêu Vương P2): (a) đưa tia quét vào "hình nguy hiểm" chống chồng đòn M10-08 (công bằng, không làm dễ); (b) chỉ chỉnh sát thương/tầm/thời gian sau khi có playtest người thật (F-4) — bot A/B: đòn kết liễu số 1 ở L0 (5/20) nhưng bot né kém (không biết vòng ra sau boss).
+- [~] H-1 Ma Quang Hoành Tảo (Yêu Vương P2): **(a) XONG 24/11** — `sweepSegs` trong `src/systems/tactics.js`: phần cung còn lại của tia (đang gồng: cả nửa vòng; đang quét: từ góc hiện tại) thành quạt đoạn dài L vào `dangerShapes`; sửa luôn lỗi `dangerShapes` bỏ qua trạng thái `sweep`. Test `tests/sweep_danger.test.js` (3), sim 6 seed bật 3 cờ: 33 lần quét, 2425/2425 khung có tia trong hình nguy hiểm. Không đổi chiêu boss (không làm dễ). Còn (b). Gốc: (a) đưa tia quét vào "hình nguy hiểm" chống chồng đòn M10-08 (công bằng, không làm dễ); (b) chỉ chỉnh sát thương/tầm/thời gian sau khi có playtest người thật (F-4) — bot A/B: đòn kết liễu số 1 ở L0 (5/20) nhưng bot né kém (không biết vòng ra sau boss).
 
 ---
 
