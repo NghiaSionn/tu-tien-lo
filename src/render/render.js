@@ -1826,7 +1826,7 @@ function zoomScreen(ctx, c, camX, camY) {
   const w = W / z, h = H / z, cx = c.bx - camX, cy = c.by - 22 * K - camY;
   const sx = Math.round(Math.max(0, Math.min(W - w, cx - w / 2))), sy = Math.round(Math.max(0, Math.min(H - h, cy - h / 2)));
   ctx.save(); ctx.imageSmoothingEnabled = false;
-  if (c.shake > 0) { ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H); ctx.translate(Math.round((h01(c.shakeSeed) - 0.5) * 2 * c.shake), Math.round((h01(c.shakeSeed + 77) - 0.5) * 2 * c.shake)); ctx.translate(W / 2, H / 2); ctx.scale(1.04, 1.04); ctx.translate(-W / 2, -H / 2); }   // động đất / cú giật
+  if (c.shake > 0) { ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H); ctx.translate(Math.round((h01(c.shakeSeed) - 0.5) * 2 * c.shake), Math.round((h01(c.shakeSeed + 77) - 0.5) * 2 * c.shake)); const zs = Math.max(1.04, 1 + 2.3 * c.shake / H); ctx.translate(W / 2, H / 2); ctx.scale(zs, zs); ctx.translate(-W / 2, -H / 2); }   // động đất / cú giật; phóng đủ để không lộ viền đen
   ctx.drawImage(ZBUF, sx * r, sy * r, w * r, h * r, 0, 0, W, H);
   ctx.restore();
   if (c.fx === 'quake' && c.howlRings >= 0 && c.T && vis_q !== 'low') howlRefract(ctx, c, camX, camY, sx, sy, z);
