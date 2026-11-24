@@ -494,7 +494,7 @@ CUTSCENE.MINI_P2 = {
   T: { IN: 0.35, BEATS: [0.6, 1.1, 1.6, 2.0], SWAP: 2.2, QUAKE: [2.2, 3.4], SPIKES: [2.35, 3.4], STOMP: 3.4, HOWL: [3.95, 5.0], TITLE: 5.0, OUT: 6.4 },
   POSES: [[0, 'MINI_walk0'], [0.3, 'MINI_atk'], [2.2, 'MINI2_atk'], [3.1, 'MINI2_howl'], [3.4, 'MINI2_atk'], [3.95, 'MINI2_howl'], [5.0, 'MINI2_walk0']],
   FLASH: [[2.2, 0.08, '#ffd9a0', 0.95], [2.28, 0.06, '#ffffff', 0.6], [3.4, 0.1, '#ffffff', 0.95], [3.5, 0.25, '#ff6a2a', 0.55]],
-  SHAKE: [[0.6, 0.15, 2], [1.1, 0.15, 2.5], [1.6, 0.15, 3], [2.0, 0.18, 3.5], [2.2, 1.2, 4.5], [3.4, 0.8, 10], [3.95, 1.0, 2.5]],
+  SHAKE: [[0.6, 0.15, 2], [1.1, 0.15, 2.5], [1.6, 0.15, 3], [2.0, 0.18, 3.5], [2.2, 1.2, 4.5], [3.4, 0.8, 10], [3.95, 0.3, 12], [4.24, 0.3, 10], [4.53, 0.35, 9], [3.95, 1.05, 4]],
   EVENTS: [[0.02, { type: 'sfx', name: 'thud' }], [0.6, { type: 'sfx', name: 'thud' }], [1.1, { type: 'sfx', name: 'thud' }], [1.6, { type: 'sfx', name: 'thud' }],
     [2.0, { type: 'sfx', name: 'thud' }], [2.2, { type: 'sfx', name: 'land' }], [2.2, { type: 'sfx', name: 'rumble' }],
     [3.4, { type: 'sfx', name: 'land' }], [3.4, { type: 'sfx', name: 'rumble' }], [3.4, { type: 'boom', r: 90, color: '#ff7a3a' }],

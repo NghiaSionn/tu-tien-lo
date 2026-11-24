@@ -1778,8 +1778,9 @@ function drawP2CutBoss(ctx, c, vis, time) {
     ctx.globalAlpha = 1;
   }
   // VFX quanh thân vẽ TRƯỚC -> boss đè lên (sóng hú của sói, sét xoắn của Ma Quân)
-  if (c.fx === 'quake' && c.howlRings >= 0) { const hx = x + (flip ? -1 : 1) * 18 * K, hy = y - 30 * K;   // sóng hú răng cưa
-    for (let i = 0; i < 3; i++) { const kk = (c.howlRings * 2.2 + i / 3) % 1; drawJaggedRing(ctx, hx, hy + 8, kk, 160, 24); }
+  if (c.fx === 'quake' && c.howlRings >= 0) { const hx = x + (flip ? -1 : 1) * 18 * K, hy = y - 30 * K + 8;   // tiếng hú: sóng khí beanfx (lv_ho_khi)
+    if (!p2FxAt(ctx, vis, 'lv_ho_khi', Math.floor((c.t - c.T.HOWL[0]) * 24), hx, hy, 1.5))
+      for (let i = 0; i < 3; i++) { const kk = (c.howlRings * 2.2 + i / 3) % 1; drawJaggedRing(ctx, hx, hy, kk, 160, 24); }   // dự phòng: vòng răng cưa
     ctx.globalAlpha = 1; }
   if (c.fx === 'void' && c.spiral >= 0) drawSpiralBolts(ctx, x, cy, c.spiral, time);
   if (p2 && sh.rage) { ctx.globalAlpha = 0.55 + 0.25 * Math.sin(time * 6); for (const [dx, dy] of [[-2, 0], [2, 0], [0, -2], [-2, -2], [2, -2]]) sheetFrame(ctx, sh, c.pose, x + dx, y + dy, flip, sh.rage, K); }
@@ -1796,6 +1797,27 @@ function drawP2CutBoss(ctx, c, vis, time) {
     : [[x + (flip ? -1 : 1) * 17 * K, y - 21 * K]];
 }
 // Zoom cận nguyên khối: chép khung hình rồi phóng phần quanh boss lên toàn màn (giữ nét pixel)
+// (24/11) khúc xạ tiếng hú: trong dải quanh mỗi đợt sóng khí, chép lại khung hình phóng lệch ra ngoài -> cảnh vật bị nén cong
+// như không khí bị đẩy. Đợt / tuổi khớp sheet lv_ho_khi (WAVES 0, 7, 14; LIFE 16 khung; R = (10 + 96·ease) × 1,5).
+let ZBUF2 = null, vis_q = 'high';
+const HOWL_WAVES = [0, 7, 14];
+function howlRefract(ctx, c, camX, camY, sx, sy, z) {
+  const cv = ctx.canvas, K = BOSS.DRAW_SCALE;
+  const hx = ((c.bx + (c.faceLeft ? -1 : 1) * 18 * K) - camX - sx) * z, hy = ((c.by - 30 * K + 8) - camY - sy) * z;
+  let copied = false;
+  for (const w0 of HOWL_WAVES) {
+    const u = ((c.t - c.T.HOWL[0]) * 24 - w0) / 16; if (u < 0 || u >= 1) continue;
+    if (!copied) { if (!ZBUF2) ZBUF2 = document.createElement('canvas'); if (ZBUF2.width !== cv.width || ZBUF2.height !== cv.height) { ZBUF2.width = cv.width; ZBUF2.height = cv.height; }
+      const g2 = ZBUF2.getContext('2d'); g2.setTransform(1, 0, 0, 1, 0, 0); g2.clearRect(0, 0, cv.width, cv.height); g2.drawImage(cv, 0, 0); copied = true; }
+    const Rs = (10 + 96 * (1 - (1 - u) ** 3)) * 1.5 * z, s = 1 + 0.09 * (1 - u) ** 1.5, band = 18 + 10 * u;
+    ctx.save(); ctx.beginPath();
+    ctx.ellipse(hx, hy, Rs + 4, (Rs + 4) * 0.75, 0, 0, 6.283); ctx.ellipse(hx, hy, Math.max(1, Rs - band), Math.max(1, Rs - band) * 0.75, 0, 0, 6.283);
+    ctx.clip('evenodd'); ctx.imageSmoothingEnabled = false;
+    ctx.translate(hx, hy); ctx.scale(s, s); ctx.translate(-hx, -hy);
+    ctx.drawImage(ZBUF2, 0, 0, cv.width, cv.height, 0, 0, W, H);
+    ctx.restore();
+  }
+}
 function zoomScreen(ctx, c, camX, camY) {
   const cv = ctx.canvas, r = cv.width / W, z = c.zoom, K = BOSS.DRAW_SCALE;
   if (!ZBUF) ZBUF = document.createElement('canvas');
@@ -1807,6 +1829,7 @@ function zoomScreen(ctx, c, camX, camY) {
   if (c.shake > 0) { ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H); ctx.translate(Math.round((h01(c.shakeSeed) - 0.5) * 2 * c.shake), Math.round((h01(c.shakeSeed + 77) - 0.5) * 2 * c.shake)); ctx.translate(W / 2, H / 2); ctx.scale(1.04, 1.04); ctx.translate(-W / 2, -H / 2); }   // động đất / cú giật
   ctx.drawImage(ZBUF, sx * r, sy * r, w * r, h * r, 0, 0, W, H);
   ctx.restore();
+  if (c.fx === 'quake' && c.howlRings >= 0 && c.T && vis_q !== 'low') howlRefract(ctx, c, camX, camY, sx, sy, z);
   return { sx, sy, z };
 }
 // vị trí từng chữ của tên (căn giữa)
@@ -2501,7 +2524,7 @@ export function render(ctx, g) {
   mark('texts');
 
   ctx.setTransform(1, 0, 0, 1, 0, 0);
-  if (g.cut && g.cut.style === 'p2') { P2_CAM = { camX, camY }; P2_ZOOM = g.cut.zoom > 1.001 ? zoomScreen(ctx, g.cut, camX, camY) : null; }   // (24/11) zoom cận cutscene pha 2
+  if (g.cut && g.cut.style === 'p2') { P2_CAM = { camX, camY }; vis_q = vis.quality; P2_ZOOM = g.cut.zoom > 1.001 ? zoomScreen(ctx, g.cut, camX, camY) : null; }   // (24/11) zoom cận cutscene pha 2
   if (g.run && g.run.rooms && scene.kind === 'run') drawMinimap(ctx, g.run);   // M9-B
   if (g.cut) drawCutOverlay(ctx, g.cut, vis, time); else drawBossBar(ctx, scene, camX, camY);
   if (vis.banner && !g.cut) {   // cutscene: không chen dòng thông báo
