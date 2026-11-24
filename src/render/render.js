@@ -968,7 +968,7 @@ function drawUlt(ctx, scene, p, time, vis, camX, camY) {
     const fin = cut ? 1 : Math.min(1, Math.max(0, (U.DUR - u.t) / 1.2));
     ctx.fillStyle = U.COLOR;   // vòng vây
     const n = Math.round(u.R * 0.8);
-    for (let i = 0; i < n; i++) { if ((i + Math.floor(time * 8)) % 3 === 0) continue; const a = i / n * 6.283; ctx.globalAlpha = 0.7 * fin * (cut ? Math.min(1, cut.reveal / 7) : 1); ctx.fillRect(Math.round(u.cx + Math.cos(a) * u.R) - 1, Math.round(u.cy + Math.sin(a) * u.R) - 1, 2, 2); }
+    for (let i = 0; i < n; i++) { if ((i + Math.floor(time * 8)) % 3 === 0) continue; const a = i / n * 6.283; ctx.globalAlpha = 0.7 * fin * (cut ? Math.min(1, cut.reveal / 7) : 1); ctx.fillRect(Math.round(u.cx + Math.cos(a) * u.R) - 1, Math.round(u.cy + Math.sin(a) * (u.RY || u.R)) - 1, 2, 2); }   // bầu dục
     const sh = (vis && vis.bossMini2) || (vis && vis.bosses), pose = sh && (sh.meta.frames.MINI2_walk0 ? 'MINI2_walk0' : Object.keys(sh.meta.frames)[0]);
     const wolf = (x, y, flip, a) => { if (!sh) return; ctx.globalAlpha = a; sheetFrame(ctx, sh, pose, x, y, flip, sh.img, K);
       if (sh.rage) { ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = a * 0.12; sheetFrame(ctx, sh, pose, x, y, flip, sh.rage, K); ctx.globalCompositeOperation = 'source-over'; } };   // ánh đỏ nhẹ (đậm quá thành hồng nhạt)

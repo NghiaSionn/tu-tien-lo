@@ -166,15 +166,15 @@ const ULT_CLAW = [   // [giây, báo trước, bù vị trí so với chỗ khó
 function startUlt(m, player, io, U) {
   const u = { t: 0, a0: io.rng() * Math.PI * 2, ev: [], i: 0, clones: [], dashes: [], eyes: [], claws: [], lights: [], R: U.R };
   if (m.bossKind === 'MINI') {   // tâm vòng = người chơi; thu nhỏ vòng nếu sói rơi vào chỗ không đứng được
-    let R = U.R;
-    for (; R >= 80; R -= 10) {
+    let s = 1;   // vòng bầu dục R × RY; thu nhỏ đều nếu sói rơi ra ngoài bản đồ
+    for (; s >= 0.5; s -= 0.08) {
       let ok = true;
-      for (let k = 0; k < 8 && ok; k++) { const a = u.a0 + k * Math.PI / 4; ok = io.map.canStand(player.x + Math.cos(a) * R, player.y + Math.sin(a) * R); }
+      for (let k = 0; k < 8 && ok; k++) { const a = u.a0 + k * Math.PI / 4, x = player.x + Math.cos(a) * U.R * s, y = player.y + Math.sin(a) * U.RY * s; ok = x > 24 && y > 40 && x < (io.map.pw || 1e9) - 24 && y < (io.map.ph || 1e9) - 16; }   // sói bóng đè lên cây được: chỉ cần trong bản đồ
       if (ok) break;
     }
-    if (R < 80) return false;
-    u.R = R; u.cx = player.x; u.cy = player.y;
-    for (let k = 0; k < 8; k++) { const a = u.a0 + k * Math.PI / 4; u.clones.push({ x: u.cx + Math.cos(a) * R, y: u.cy + Math.sin(a) * R, a, hot: -1, real: k === 0 }); }
+    if (s < 0.5) return false;
+    u.R = U.R * s; u.RY = U.RY * s; u.cx = player.x; u.cy = player.y;
+    for (let k = 0; k < 8; k++) { const a = u.a0 + k * Math.PI / 4; u.clones.push({ x: u.cx + Math.cos(a) * u.R, y: u.cy + Math.sin(a) * u.RY, a, hot: -1, real: k === 0 }); }
     m.x = m.lastX = u.clones[0].x; m.y = m.lastY = u.clones[0].y;   // boss thật vào vị trí 0 trên vòng (giữa đám phân thân)
     for (const [at, k, to, tele, sp] of ULT_WOLF) u.ev.push({ at, kind: 'dash', k: k % 8, to: to % 8, tele, sp: sp || U.SPEED });
   } else {
@@ -190,8 +190,8 @@ function startUlt(m, player, io, U) {
 function updateUlt(m, player, dt, io, B, U) {
   const u = m.ult; u.t += dt;
   if (m.bossKind === 'MINI') {
-    const dx = player.x - u.cx, dy = player.y - u.cy, d = Math.hypot(dx, dy), lim = u.R - 10;   // vòng vây: chạm biên bị đẩy vào trong
-    if (d > lim && u.t < U.DUR - 1.2) { player.x = u.cx + dx / d * lim; player.y = u.cy + dy / d * lim; }
+    const dx = player.x - u.cx, dy = player.y - u.cy, q = Math.hypot(dx / u.R, dy / u.RY), lim = 1 - 10 / u.RY;   // vòng vây bầu dục: chạm biên bị đẩy vào trong
+    if (q > lim && u.t < U.DUR - 1.2) { player.x = u.cx + dx / q * lim; player.y = u.cy + dy / q * lim; }
     for (const ds of u.dashes) if (ds.k === 0 && u.t >= ds.fire) {   // boss thật lao thật (thân di chuyển), xong đứng ở đầu kia
       const k = Math.min(1, (u.t - ds.fire) / ds.dur); m.x = ds.x0 + (ds.x1 - ds.x0) * k; m.y = ds.y0 + (ds.y1 - ds.y0) * k; m.lastX = m.x; m.lastY = m.y;
       m.dirX = Math.sign(ds.x1 - ds.x0) || 1;

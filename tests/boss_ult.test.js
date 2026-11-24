@@ -49,7 +49,7 @@ function dodgeBot(p, r, b) {
   // đạn trúng khi |(người.x, người.y - 7) - đạn| < SHOT_R -> trong toạ độ chân người chơi, tâm nguy hiểm dời xuống 7 px
   for (const e of u.eyes) if (e.kind === 'shot' && !e.fired) { const ux = e.tx - e.x, uy = e.ty - e.y, l = Math.hypot(ux, uy) || 1; ds.push({ x0: e.x, y0: e.y + 7, x1: e.x + ux / l * 400, y1: e.y + 7 + uy / l * 400, w: ARCH.ranged.SHOT_R + 4 }); }
   for (const sh of r.scene.enemyShots) for (let k = 0; k <= 4; k++) ds.push({ x: sh.x + sh.vx * k * 0.08, y: sh.y + 7 + sh.vy * k * 0.08, r: ARCH.ranged.SHOT_R + 4 });
-  const ok = (x, y) => (u.cx === undefined || Math.hypot(x - u.cx, y - u.cy) <= u.R - 8) && r.scene.map.canStand(x, y) && !ds.some(sh => hits(sh, x, y));
+  const ok = (x, y) => (u.cx === undefined || Math.hypot((x - u.cx) / u.R, (y - u.cy) / u.RY) <= 1 - 12 / u.RY) && r.scene.map.canStand(x, y) && !ds.some(sh => hits(sh, x, y));
   if (ok(p.x, p.y)) return;
   let best = null;
   for (const rr of [4, 8, 14, 20, 28, 36, 46, 58, 72, 90, 110]) { for (let j = 0; j < 24; j++) { const a = j / 24 * Math.PI * 2, x = p.x + Math.cos(a) * rr, y = p.y + Math.sin(a) * rr; if (ok(x, y)) { best = [x, y]; break; } } if (best) break; }
@@ -71,9 +71,9 @@ test('bot né (0,8 × tốc độ đi bộ) qua trọn tuyệt chiêu không tr�
 test('Lang Vương: 8 phân thân quanh vòng, người chơi bị giữ trong vòng, đứng yên thì trúng', () => {
   const f = fight('MINI', 3, { move: (p, r, b) => { if (b && b.ult && b.ult.cx !== undefined) p.x += 6; } });
   let maxD = 0, ring = null;
-  for (let i = 0; i < 30 * 12; i++) { f.step(1); const b = f.boss(); if (b && b.ult) { ring = b.ult; if (ring.t < BOSS_ULT.MINI.DUR - 1.3) maxD = Math.max(maxD, Math.hypot(f.p.x - ring.cx, f.p.y - ring.cy)); } }   // 1,2 s cuối vòng tan
+  for (let i = 0; i < 30 * 12; i++) { f.step(1); const b = f.boss(); if (b && b.ult) { ring = b.ult; if (ring.t < BOSS_ULT.MINI.DUR - 1.3) maxD = Math.max(maxD, Math.hypot((f.p.x - ring.cx) / ring.R, (f.p.y - ring.cy) / ring.RY)); } }   // 1,2 s cuối vòng tan; bầu dục: chuẩn hoá
   assert.ok(ring && ring.clones.length === 8);
-  assert.ok(maxD <= ring.R - 5, 'bị giữ trong vòng: ' + maxD.toFixed(1));
+  assert.ok(maxD <= 1 - 9 / ring.RY, 'bị giữ trong vòng: ' + maxD.toFixed(3));
   const g = fight('MINI', 3); g.step(30 * 12);
   assert.ok(g.r.dmgBy['miniboss:ult'] > 0 && SKILL_NAMES['miniboss:ult'], 'đứng yên trúng đòn lao');
 });
@@ -98,10 +98,10 @@ test('Yêu Vương (làm lại): mắt khóa chỗ người chơi sau LOCK -> v�
   assert.equal(g.r.scene.hazards.length, 0, 'boss chết: không còn vùng nổ');
 });
 
-test('Lang Vương: boss thật đứng TRONG vòng (vị trí 0) cùng 7 phân thân; vòng bán kính 120 khi đủ chỗ', () => {
+test('Lang Vương: boss thật đứng TRONG vòng (vị trí 0) cùng 7 phân thân; vòng bầu dục R × RY khi đủ chỗ', () => {
   const f = fight('MINI', 1); f.step(30 * 3);
   const b = f.boss(); assert.ok(b.ult);
-  const u = b.ult, r = Math.hypot(b.x - u.cx, b.y - u.cy);
-  assert.ok(Math.abs(r - u.R) < 2, 'boss trên vòng: ' + r.toFixed(1)); assert.ok(u.clones[0].real);
-  assert.ok(u.R >= 80 && u.R <= BOSS_ULT.MINI.R);
+  const u = b.ult, q = Math.hypot((b.x - u.cx) / u.R, (b.y - u.cy) / u.RY);
+  assert.ok(Math.abs(q - 1) < 0.02, 'boss trên vòng: ' + q.toFixed(3)); assert.ok(u.clones[0].real);
+  assert.ok(u.R >= BOSS_ULT.MINI.R * 0.5 && u.R <= BOSS_ULT.MINI.R && u.RY <= BOSS_ULT.MINI.RY);
 });

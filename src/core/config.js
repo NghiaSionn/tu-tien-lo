@@ -338,7 +338,8 @@ export const BOSS_TK = {
 // Chỉ pha 2, không miễn nhiễm; AT: mốc máu lần đầu · CD: hồi (giây) · MAX: số lần/trận · DUR: thời lượng · STUN: choáng sau khi xong.
 // Lang Vương: R vòng vây, W bề rộng dải lao, SPEED px/s. Yêu Vương: LIGHT bán kính vùng sáng, EYE_R khoảng cách mắt tới người chơi, W bề rộng tia.
 export const BOSS_ULT = {
-  MINI: { NAME: 'Vạn Lang Ảnh Sát Trận', AT: 0.35, CD: 40, MAX: 2, R: 120, W: 16, SPEED: 300, DUR: 10, STUN: 2, DMG: 1.6, COLOR: '#ff4a3a' },   // 24/11: vòng 90 -> 120, boss thật trong vòng
+  MINI: { NAME: 'Vạn Lang Ảnh Sát Trận', AT: 0.35, CD: 40, MAX: 2, R: 175, RY: 125, W: 16,   // 24/11: vòng bầu dục 175×125 (khớp màn 640×360)
+    SPEED: 300, DUR: 10, STUN: 2, DMG: 1.6, COLOR: '#ff4a3a' },   // 24/11: vòng 90 -> 120, boss thật trong vòng
   // 24/11 làm lại: mắt khóa chỗ người chơi sau LOCK s -> vòng ma trảo CLAW_R; vùng sáng phụ LIGHT2_R cách LIGHT2_D
   FINAL: { NAME: 'U Minh Vạn Nhãn Kiếp', AT: 0.30, CD: 45, MAX: 2, LIGHT: 70, EYE_R: [110, 135], LOCK: 0.3, CLAW_R: 20, LIGHT2_R: 36, LIGHT2_D: 60, DUR: 11, STUN: 2.5, DMG: 1.6, COLOR: '#ff2a3a' },
 };
