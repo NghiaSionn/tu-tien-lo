@@ -1,0 +1,29 @@
+{
+ "frameSize": [
+  56,
+  36
+ ],
+ "pivot": [
+  29,
+  35
+ ],
+ "image": "lang_vuong_pha2_cat.png",
+ "frames": {
+  "MINI2_base": [
+   0,
+   0
+  ],
+  "MINI2_atk": [
+   56,
+   0
+  ],
+  "MINI2_howl": [
+   112,
+   0
+  ]
+ },
+ "source": "docs/concept/lang_vuong_pha2_chatgpt.png",
+ "tool": "tools/sprite_clean.py",
+ "scale": 12.6,
+ "colors": 40
+}

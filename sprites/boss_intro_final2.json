@@ -1,0 +1,33 @@
+{
+ "frameSize": [
+  64,
+  57
+ ],
+ "pivot": [
+  31,
+  56
+ ],
+ "image": "boss_intro_final2.png",
+ "frames": {
+  "FINAL2_float": [
+   0,
+   0
+  ],
+  "FINAL2_atk": [
+   64,
+   0
+  ],
+  "FINAL2_cast": [
+   128,
+   0
+  ],
+  "FINAL2_roar": [
+   192,
+   0
+  ]
+ },
+ "source": "docs/concept/yeu_vuong_pha2_chatgpt.png",
+ "tool": "tools/sprite_clean.py",
+ "scale": 9.7,
+ "colors": 40
+}

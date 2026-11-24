@@ -7,32 +7,41 @@ dáng đi bốn chân (lateral walk): sau trái -> trước trái -> sau phải 
   - Pha vung (1-STANCE): bàn chân nhấc lên (LIFT px) và vung nhanh về trước.
   - Chân xoay quanh khớp trên (lệch theo hàng: hàng trên đứng yên, bàn chân lệch nhiều nhất) -> giống gập chân pixel art.
   - Thân nhún 1 px lúc chân trước vừa đặt xuống (cảm giác nặng).
-In ra STRIDE (px màn hình mỗi chu kỳ, với game vẽ boss ×2) để đặt vào config CUTSCENE.MINI.WALK.
+In ra STRIDE (px màn hình mỗi chu kỳ, với game vẽ boss ×2) để đặt vào config.
 
-Chạy: .venv/Scripts/python.exe tools/wolf_walk_rig.py  (đọc docs/concept/lang_vuong_khung_goc_buoc_di.png, ghi sprites/boss_walk.png/.json)
+Chạy: .venv/Scripts/python.exe tools/wolf_walk_rig.py MINI MINI2
+  MINI  -> sprites/boss_walk   (cutscene Lang Vương, khung gốc docs/concept/lang_vuong_khung_goc_buoc_di.png)
+  MINI2 -> sprites/boss_mini2  (24/11 Lang Vương pha 2 "Huyết Nguyệt Cuồng Lang": 12 khung đi + gồng + hú)
 """
 import json
 import math
+import sys
 from pathlib import Path
 
 import numpy as np
 from PIL import Image
 
-SRC = Path('docs/concept/lang_vuong_khung_goc_buoc_di.png')
-OUT = Path('sprites/boss_walk')
 FRAMES = 12
 STANCE = 0.62          # tỉ lệ chu kỳ bàn chân chạm đất
 REACH = 4.5            # px (sprite): bàn chân lệch tối đa ra trước/sau so với vị trí gốc
 LIFT = 2               # px: nhấc chân khi vung
-LEG_TOP = 22           # hàng bắt đầu của chân (trên đó là thân)
 DRAW_SCALE = 2         # BOSS.DRAW_SCALE trong game
-EYE = (38, 12)         # mắt đỏ (khung gốc không có -> vẽ cố định cho khỏi chớp)
-# vùng x của từng chân trong khung gốc (đuôi ở x < 11 không phải chân); far = chân phía xa (vẽ sau thân)
-LEGS = {  # tên: (x0, x1, pha lệch, far)
-    'hind_near': (11, 18, 0.00, False),
-    'fore_near': (26, 32, 0.25, False),
-    'hind_far': (19, 25, 0.50, True),
-    'fore_far': (33, 40, 0.75, True),
+# Mỗi bộ xương: khung gốc (file, hoặc (sheet đã cắt không đuôi, tên khung)), nơi ghi, tiền tố tên khung, cột pivot,
+# hàng bắt đầu chân, mắt đỏ cố định (None = khung gốc đã có), vùng x từng chân (tên: (x0, x1, pha lệch)).
+# far = chân phía xa (vẽ sau thân). Đuôi nằm ngoài các vùng chân. extras: khung thêm (gồng/hú) từ sheet đã cắt, cùng pivot.
+RIGS = {
+    'MINI': {
+        'src': 'docs/concept/lang_vuong_khung_goc_buoc_di.png', 'out': 'sprites/boss_walk', 'prefix': 'MINI_w', 'pivot_x': 29,
+        'leg_top': 22, 'eye': (38, 12),
+        'legs': {'hind_near': (11, 18, 0.00), 'fore_near': (26, 32, 0.25), 'hind_far': (19, 25, 0.50), 'fore_far': (33, 40, 0.75)},
+    },
+    'MINI2': {
+        'src': ('docs/concept/lang_vuong_pha2_cat', 'MINI2_base'), 'out': 'sprites/boss_mini2', 'prefix': 'MINI2_walk', 'pivot_x': 29,
+        'leg_top': 27, 'eye': None,
+        'legs': {'hind_near': (13, 21, 0.00), 'fore_near': (30, 39, 0.25), 'hind_far': (22, 29, 0.50), 'fore_far': (40, 51, 0.75)},
+        'extras': ['MINI2_atk', 'MINI2_howl'],
+        'eyes': {'MINI2_walk': [[56, 13]], 'MINI2_atk': [[51, 12]], 'MINI2_howl': [[54, 6]]},   # mắt đỏ (đo trên sheet ra) -> render kéo vệt
+    },
 }
 
 
@@ -46,26 +55,38 @@ def foot(ph):
     return REACH * (-1 + 2 * e), LIFT * math.sin(math.pi * u)
 
 
-def main():
-    base = np.array(Image.open(SRC).convert('RGBA'))
+def load_frame(src):
+    if isinstance(src, str):
+        return np.array(Image.open(src).convert('RGBA')), None
+    path, name = src
+    meta = json.loads(Path(path + '.json').read_text(encoding='utf-8'))
+    sh = np.array(Image.open(path + '.png').convert('RGBA'))
+    (x, y), (fw, fh) = meta['frames'][name], meta['frameSize']
+    return sh[y:y + fh, x:x + fw].copy(), (meta, sh)
+
+
+def build(kind):
+    R = RIGS[kind]
+    LEG_TOP, LEGS, OUT = R['leg_top'], R['legs'], Path(R['out'])
+    base, cut = load_frame(R['src'])
     H, W = base.shape[:2]
-    # mắt đỏ cố định
-    base[EYE[1], EYE[0]] = (214, 40, 40, 255)
+    if R['eye']:
+        base[R['eye'][1], R['eye'][0]] = (214, 40, 40, 255)
     body = base.copy()
     legs = {}
-    for name, (x0, x1, _, _) in LEGS.items():
+    for name, (x0, x1, _) in LEGS.items():
         m = np.zeros((H, W), bool)
         m[LEG_TOP:, x0:x1 + 1] = base[LEG_TOP:, x0:x1 + 1, 3] > 0
         legs[name] = m
         body[m] = 0
     pad = 8   # khung rộng thêm để chân vung không bị cắt
     fw, fh = W + pad * 2, H + 1
-    sheet = Image.new('RGBA', (fw * FRAMES, fh), (0, 0, 0, 0))
+    extras = R.get('extras', [])
+    sheet = Image.new('RGBA', (fw * (FRAMES + len(extras)), fh), (0, 0, 0, 0))
     span = H - 1 - LEG_TOP
     for i in range(FRAMES):
         t = i / FRAMES
         fr = np.zeros((fh, fw, 4), np.uint8)
-        # thân nhún 1 px ngay sau khi chân trước (gần hoặc xa) đặt xuống
         bob = 1 if any(((t - LEGS[n][2]) % 1) < 0.17 for n in ('fore_near', 'fore_far')) else 0
 
         def put(src, mask, dxrow, dyrow, dy0=0):
@@ -76,10 +97,9 @@ def main():
                     fr[ny, nx] = src[y, x]
 
         def leg(name):
-            ph = (t - LEGS[name][2]) % 1
-            dx, lift = foot(ph)
-            k = lambda y: (y - LEG_TOP) / span                       # 0 ở khớp trên, 1 ở bàn chân
-            put(base, legs[name], lambda y: int(round(dx * k(y))), lambda y: -int(round(lift * k(y))), bob * 0)
+            dx, lift = foot((t - LEGS[name][2]) % 1)
+            k = lambda y: (y - LEG_TOP) / span
+            put(base, legs[name], lambda y: int(round(dx * k(y))), lambda y: -int(round(lift * k(y))))
 
         for n in ('hind_far', 'fore_far'):
             leg(n)
@@ -87,15 +107,25 @@ def main():
         for n in ('hind_near', 'fore_near'):
             leg(n)
         sheet.alpha_composite(Image.fromarray(fr), (i * fw, 0))
-    meta = {'frameSize': [fw, fh], 'pivot': [pad + 29, fh - 2], 'image': OUT.name + '.png',
-            'frames': {f'MINI_w{i}': [i * fw, 0] for i in range(FRAMES)},
-            'source': str(SRC).replace('\\', '/'), 'tool': 'tools/wolf_walk_rig.py'}
+    meta = {'frameSize': [fw, fh], 'pivot': [pad + R['pivot_x'], fh - 2], 'image': OUT.name + '.png',
+            'frames': {f"{R['prefix']}{i}": [i * fw, 0] for i in range(FRAMES)},
+            'source': str(R['src']), 'tool': 'tools/wolf_walk_rig.py'}
+    for j, name in enumerate(extras):
+        cm, csh = cut
+        (x, y), (cw, ch) = cm['frames'][name], cm['frameSize']
+        g = np.zeros((fh, fw, 4), np.uint8)
+        g[:ch, pad:pad + cw] = csh[y:y + ch, x:x + cw]
+        sheet.alpha_composite(Image.fromarray(g), ((FRAMES + j) * fw, 0))
+        meta['frames'][name] = [(FRAMES + j) * fw, 0]
+    if R.get('eyes'):
+        meta['eyes'] = R['eyes']
     sheet.save(OUT.with_suffix('.png'))
     OUT.with_suffix('.json').write_text(json.dumps(meta, ensure_ascii=False, indent=1), encoding='utf-8')
     stride = 2 * REACH / STANCE * DRAW_SCALE
     contacts = sorted(round(LEGS[n][2] * FRAMES) for n in ('fore_near', 'fore_far'))
-    print(f'{FRAMES} khung {fw}x{fh} -> {OUT}.png ; STRIDE = {stride:.2f} px màn hình/chu kỳ ; chân trước chạm đất ở khung {contacts}')
+    print(f'{kind}: {len(meta["frames"])} khung {fw}x{fh} -> {OUT}.png ; STRIDE = {stride:.2f} px màn hình/chu kỳ ; chân trước chạm đất ở khung {contacts}')
 
 
 if __name__ == '__main__':
-    main()
+    for k in (sys.argv[1:] or ['MINI']):
+        build(k)

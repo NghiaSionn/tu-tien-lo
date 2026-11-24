@@ -27,7 +27,13 @@ export function bossAI(m, player, dx, dy, d, dt, io) {
   const P = BOSS_P2[m.bossKind];
   if (m.st === 'phase') {
     m.vx = m.vy = 0; m.stT -= dt; m.shield = Math.max(0, m.stT);
-    if (!m.p2Burst && m.stT <= m.stMax * (1 - P.BURST)) {
+    const el = m.stMax - m.stT;
+    if (!m.p2Beat && el >= 0.3) { m.p2Beat = true; io.ev.push({ type: 'sfx', name: 'thud' }); }   // nhịp tim thứ hai
+    if (!m.p2End && el >= P.T.END) {   // sói dậm đất / ma giơ tay: rung nhẹ
+      m.p2End = true; io.ev.push({ type: 'shake', t: 0.2 }, { type: 'pulse', x: m.x, y: m.y, r: 50, color: m.bossKind === 'FINAL' ? '#ff9ad6' : '#e8dcc8' });
+      if (m.bossKind === 'MINI') io.ev.push({ type: 'sfx', name: 'land' });
+    }
+    if (!m.p2Burst && el >= P.T.BURST) {
       m.p2Burst = true;
       io.ev.push({ type: 'announce', x: m.x, y: m.y, text: V ? V.P2_TEXT : P.TEXT, color: m.bossKind === 'FINAL' ? '#ff9ad6' : '#ff8a5a' },
         { type: 'shake', t: 0.5 }, { type: 'boom', x: m.x, y: m.y - 20, r: 70, color: m.bossKind === 'FINAL' ? '#e070ff' : '#ff7a3a' },
@@ -38,8 +44,8 @@ export function bossAI(m, player, dx, dy, d, dt, io) {
   }
   const p2now = V ? phase2 : m.hp <= m.max * P.AT;
   if (p2now && m.hp > 0 && !m.p2 && (m.st === 'move' || m.st === 'recover')) {
-    m.p2 = true; m.st = 'phase'; m.stT = m.stMax = P.ANIM; m.shield = P.ANIM; m.vx = m.vy = 0; m.p2Burst = false;
-    io.ev.push({ type: 'shake', t: 0.25 }, { type: 'sfx', name: 'bossPhase' }, { type: 'bossPhase2', kind: m.bossKind, x: m.x, y: m.y });   // M10-11: tiếng chuyển pha
+    m.p2 = true; m.st = 'phase'; m.stT = m.stMax = P.ANIM; m.shield = P.ANIM; m.vx = m.vy = 0; m.p2Burst = m.p2Beat = m.p2End = false;
+    io.ev.push({ type: 'shake', t: 0.25 }, { type: 'sfx', name: 'bossPhase' }, { type: 'sfx', name: 'thud' }, { type: 'bossPhase2', kind: m.bossKind, x: m.x, y: m.y });   // M10-11: tiếng chuyển pha
     return true;
   }
 

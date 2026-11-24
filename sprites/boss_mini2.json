@@ -1,0 +1,91 @@
+{
+ "frameSize": [
+  72,
+  37
+ ],
+ "pivot": [
+  37,
+  35
+ ],
+ "image": "boss_mini2.png",
+ "frames": {
+  "MINI2_walk0": [
+   0,
+   0
+  ],
+  "MINI2_walk1": [
+   72,
+   0
+  ],
+  "MINI2_walk2": [
+   144,
+   0
+  ],
+  "MINI2_walk3": [
+   216,
+   0
+  ],
+  "MINI2_walk4": [
+   288,
+   0
+  ],
+  "MINI2_walk5": [
+   360,
+   0
+  ],
+  "MINI2_walk6": [
+   432,
+   0
+  ],
+  "MINI2_walk7": [
+   504,
+   0
+  ],
+  "MINI2_walk8": [
+   576,
+   0
+  ],
+  "MINI2_walk9": [
+   648,
+   0
+  ],
+  "MINI2_walk10": [
+   720,
+   0
+  ],
+  "MINI2_walk11": [
+   792,
+   0
+  ],
+  "MINI2_atk": [
+   864,
+   0
+  ],
+  "MINI2_howl": [
+   936,
+   0
+  ]
+ },
+ "source": "('docs/concept/lang_vuong_pha2_cat', 'MINI2_base')",
+ "tool": "tools/wolf_walk_rig.py",
+ "eyes": {
+  "MINI2_walk": [
+   [
+    56,
+    13
+   ]
+  ],
+  "MINI2_atk": [
+   [
+    51,
+    12
+   ]
+  ],
+  "MINI2_howl": [
+   [
+    54,
+    6
+   ]
+  ]
+ }
+}

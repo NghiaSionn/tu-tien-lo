@@ -18,8 +18,13 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 
-SRC = Path('sprites/boss_intro_final')
-OUT = Path('sprites/boss_final')
+# Hai bộ: pha 1 (cutscene) và (24/11) pha 2 "Huyết Lôi Ma Quân" (ChatGPT vẽ, phương án B). extra = khung thêm giữ nguyên.
+SETS = {
+    'FINAL': {'src': 'sprites/boss_intro_final', 'out': 'sprites/boss_final', 'p': 'FINAL',
+              'base': 'FINAL_i2', 'atk': 'FINAL_i3', 'cast': 'FINAL_i5', 'extra': {}},
+    'FINAL2': {'src': 'sprites/boss_intro_final2', 'out': 'sprites/boss_final2', 'p': 'FINAL2',
+               'base': 'FINAL2_float', 'atk': 'FINAL2_atk', 'cast': 'FINAL2_cast', 'extra': {'FINAL2_roar': 'FINAL2_roar'}},
+}
 FLOAT = 8                  # số khung bay
 BOB = 2                    # px nhấp nhô
 WAVE = 1.6                 # px lệch tối đa ở chót đuôi khói
@@ -114,7 +119,8 @@ def eyes(f):
     return [[int(x), int(y)] for y, x in pts if y < h * 0.45]
 
 
-def main():
+def main(kind='FINAL'):
+    C = SETS[kind]; SRC, OUT, P = Path(C['src']), Path(C['out']), C['p']
     meta = json.loads(SRC.with_suffix('.json').read_text(encoding='utf-8'))
     sheet = np.array(Image.open(SRC.with_suffix('.png')).convert('RGBA'))
     fw, fh = meta['frameSize']
@@ -129,7 +135,7 @@ def main():
 
     pad = BOB + 1
     H = fh + pad
-    base = frame('FINAL_i2')
+    base = frame(C['base'])
     frames = {}
 
     def put(f, dy=0, dx=0):
@@ -139,10 +145,12 @@ def main():
 
     for k in range(FLOAT):
         ph = k / FLOAT
-        frames[f'FINAL_walk{k}'] = put(ripple(base, ph, WAVE), -int(round(BOB * (1 - math.cos(2 * math.pi * ph)) / 2)))
-    frames['FINAL_atk'] = put(frame('FINAL_i3'), -1)
-    frames['FINAL_cast'] = put(frame('FINAL_i5'), -1)
-    frames['FINAL_hurt'] = put(ripple(base, 0.25, WAVE * 1.8), 0, -1)
+        frames[f'{P}_walk{k}'] = put(ripple(base, ph, WAVE), -int(round(BOB * (1 - math.cos(2 * math.pi * ph)) / 2)))
+    frames[f'{P}_atk'] = put(frame(C['atk']), -1)
+    frames[f'{P}_cast'] = put(frame(C['cast']), -1)
+    frames[f'{P}_hurt'] = put(ripple(base, 0.25, WAVE * 1.8), 0, -1)
+    for n, src in C['extra'].items():
+        frames[n] = put(frame(src), -1)
     out = Image.new('RGBA', (fw * len(frames), H), (0, 0, 0, 0))
     m = {'frameSize': [fw, H], 'pivot': [meta['pivot'][0], meta['pivot'][1] + pad], 'image': OUT.name + '.png', 'frames': {}, 'eyes': {},
          'float': FLOAT, 'source': str(SRC).replace('\\', '/') + '.png', 'tool': 'tools/yeu_vuong_sheet.py'}
@@ -156,4 +164,6 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    import sys
+    for k in (sys.argv[1:] or ['FINAL']):
+        main(k)

@@ -267,9 +267,13 @@ export const SPECIALISTS = {
 // Tụt dưới AT máu (bộ chiêu mới: BOSS_V2[kind].PHASE2) -> đứng yên ANIM giây, KHÔNG nhận sát thương; ở BURST (tỉ lệ thời gian đã qua)
 // năng lượng bùng nổ (sóng xung kích chỉ là hiệu ứng, không sát thương) + thông báo; xong thì sơ hở STAGGER giây. Sau đó aura pha 2 mãi.
 // Lang Vương AI cũ: pha 2 chỉ đổi hình ảnh/aura, không đổi chiêu (không đổi cân bằng).
+// Nhịp T (giây, ChatGPT đề xuất): EYES mắt đỏ rực xong · POSE vào tư thế gồng · PILLAR cột năng lượng che (đổi ngoại hình bên trong)
+// · BURST bùng nổ · REVEAL lộ ngoại hình pha 2 · END sói dậm đất / ma giơ tay sẵn sàng triệu hồi. AURA_WINDUP: aura còn bấy nhiêu khi gồng chiêu.
 export const BOSS_P2 = {
-  MINI: { AT: 0.5, ANIM: 1.8, BURST: 0.6, STAGGER: 1.0, TITLE: 'CUỒNG HUYẾT', TEXT: 'Lang Vương cuồng huyết!' },
-  FINAL: { AT: 0.5, ANIM: 2.0, BURST: 0.6, STAGGER: 1.2, TITLE: 'CHÂN THÂN', TEXT: 'Ma Ảnh Yêu Vương hiện chân thân!' },
+  MINI: { AT: 0.5, ANIM: 2.0, STAGGER: 1.0, AURA_WINDUP: 0.3, TITLE: 'HUYẾT NGUYỆT CUỒNG LANG', TEXT: 'Lang Vương hóa Huyết Nguyệt Cuồng Lang!',
+    T: { EYES: 0.4, POSE: 0.8, PILLAR: [0.8, 1.5], BURST: 1.3, REVEAL: 1.5, END: 1.75 } },
+  FINAL: { AT: 0.5, ANIM: 2.0, STAGGER: 1.2, AURA_WINDUP: 0.3, TITLE: 'HUYẾT LÔI MA QUÂN', TEXT: 'Ma Ảnh Yêu Vương hiện chân thân — Huyết Lôi Ma Quân!',
+    T: { EYES: 0.4, POSE: 0.8, PILLAR: [0.8, 1.5], BURST: 1.3, REVEAL: 1.5, END: 1.7 } },
 };
 
 export const BOSS_V2 = {
