@@ -137,18 +137,19 @@ test('Yêu Vương: mỗi sự kiện phát đúng 1 lần; bỏ qua (lần 2) n
 
 // ---------- (24/11) cutscene biến hình pha 2 (storyboard ChatGPT) ----------
 for (const kind of ['MINI_P2', 'FINAL_P2']) {
-  test(`${kind}: zoom cận rồi về ×1, đổi sprite pha 1 -> pha 2 đúng 1 lần (che bằng chớp), vỡ kính, chữ tên; mỗi sự kiện 1 lần`, () => {
+  test(`${kind}: zoom cận rồi về ×1, đêm buông + trăng máu, đổi sprite pha 1 -> pha 2 đúng 1 lần (che bằng chớp), chữ tên; mỗi sự kiện 1 lần`, () => {
     const S = CUTSCENE[kind], T = S.T, b1 = S.BOSS + '_', b2 = S.BOSS + '2_';
     const c = createCutscene(kind, { x: 500, y: 400 }, { x: 300, y: 380 });
     let s = cutsceneState(c);
     assert.ok(s.style === 'p2' && s.zoom === 1 && s.pose.startsWith(b1));
     const ev = [], poses = [];
-    let maxZoom = 0, sawTitle = false, sawShatter = false, swapFlash = false, prev = s;
+    let maxZoom = 0, sawTitle = false, sawMoon = false, swapFlash = false, prev = s;
     while (!c.done) {
       ev.push(...stepCutscene(c, DT)); s = cutsceneState(c);
       if (poses[poses.length - 1] !== s.pose) poses.push(s.pose);
       if (prev.pose.startsWith(b1) && s.pose.startsWith(b2)) swapFlash = !!s.flash || !!s.black;
-      maxZoom = Math.max(maxZoom, s.zoom); sawTitle ||= s.title > 0.99; sawShatter ||= s.shatter >= 0;
+      maxZoom = Math.max(maxZoom, s.zoom); sawTitle ||= s.title > 0.99; sawMoon ||= s.moon > 0.99;
+      assert.ok(s.shatter < 0 && !s.crack, '(24/11) pha 2 không dùng vỡ kính — chỉ giữ ở cutscene Yêu Vương xuất hiện');
       assert.ok(Math.abs(s.zoom - prev.zoom) < 0.1, 'zoom không giật');
       prev = s;
     }
@@ -156,15 +157,15 @@ for (const kind of ['MINI_P2', 'FINAL_P2']) {
     const swaps = poses.filter((p, i) => i && poses[i - 1].startsWith(b1) && p.startsWith(b2)).length;
     assert.equal(swaps, 1, poses.join(','));
     assert.ok(swapFlash, 'đổi sprite phải có chớp che');
-    assert.ok(sawTitle && sawShatter);
+    assert.ok(sawTitle && sawMoon, 'có trăng máu dâng + chữ tên');
     assert.ok(s.zoom === 1 && s.letter < 0.01 && s.title < 0.01 && Math.abs(s.focusX - 300) < 1, 'về trận');
     assert.equal(ev.length, S.EVENTS.length);
   });
-  test(`${kind}: lần đầu không bỏ qua được; lần sau bỏ qua -> nhảy tới lúc vỡ kính, không phát lại tiếng gầm/hú`, () => {
+  test(`${kind}: lần đầu không bỏ qua được; lần sau bỏ qua -> nhảy tới lúc lộ ngoại hình mới, không phát lại tiếng gầm/hú`, () => {
     const S = CUTSCENE[kind];
     const a = createCutscene(kind, { x: 0, y: 0 }, { x: 0, y: 0 }); stepCutscene(a, 0.3); assert.equal(skipCutscene(a), false);
     const b = createCutscene(kind, { x: 0, y: 0 }, { x: 0, y: 0 }, true); stepCutscene(b, 0.3);
-    assert.equal(skipCutscene(b), true); assert.ok(Math.abs(b.t - S.T.SHATTER) < 1e-9);
+    assert.equal(skipCutscene(b), true); assert.ok(Math.abs(b.t - S.T[S.SKIP]) < 1e-9);
     const ev = run(b, 30);
     assert.ok(!ev.some(e => e.name === 'howl' || e.name === 'roar'));
     assert.ok(cutsceneState(b).pose.startsWith(S.BOSS + '2_'), 'bỏ qua vẫn kết thúc ở ngoại hình pha 2');

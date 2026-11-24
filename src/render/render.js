@@ -1631,7 +1631,7 @@ function drawWraithScreen(ctx, c, vis, time) {
 
 // ---------- (24/11) cutscene biến hình pha 2 (storyboard ChatGPT) ----------
 const P2_SHEET = (vis, n) => (n.startsWith('MINI2') ? vis.bossMini2 : n.startsWith('MINI_') ? vis.bosses : n.startsWith('FINAL2') ? vis.bossFinal2 : vis.bossFinal);
-let P2_EYES = [], P2_ZOOM = null, P2_CAM = { camX: 0, camY: 0 }, ZBUF = null, P2BUF = null;
+let P2_EYES = [], P2_ZOOM = null, P2_CAM = { camX: 0, camY: 0 }, ZBUF = null;
 const p2Map = (wx, wy) => {   // thế giới -> màn hình (tính cả zoom cận)
   const sx = wx - P2_CAM.camX, sy = wy - P2_CAM.camY;
   return P2_ZOOM ? [(sx - P2_ZOOM.sx) * P2_ZOOM.z, (sy - P2_ZOOM.sy) * P2_ZOOM.z] : [sx, sy];
@@ -1679,15 +1679,83 @@ function zoomScreen(ctx, c, camX, camY) {
   ctx.restore();
   return { sx, sy, z };
 }
+// linh hồn bóng ma: đầu tròn sáng lạnh, mắt rỗng, đuôi khói kéo theo hướng ngược chiều bay (dx, dy)
+function drawSoul(ctx, x, y, s, a, dx, dy) {
+  if (a <= 0) return;
+  const l = Math.hypot(dx, dy) || 1; dx /= l; dy /= l;
+  for (let j = 4; j >= 1; j--) { ctx.globalAlpha = a * (0.55 - j * 0.1); ctx.fillStyle = '#9ad8ff'; ctx.beginPath(); ctx.arc(x - dx * j * 3.2 * s, y - dy * j * 3.2 * s, (4.2 - j * 0.7) * s, 0, 6.283); ctx.fill(); }
+  ctx.globalAlpha = a * 0.3; ctx.fillStyle = '#bfe8ff'; ctx.beginPath(); ctx.arc(x, y, 7 * s, 0, 6.283); ctx.fill();
+  ctx.globalAlpha = a; ctx.fillStyle = '#eef8ff'; ctx.beginPath(); ctx.ellipse(x, y, 4 * s, 4.6 * s, 0, 0, 6.283); ctx.fill();
+  ctx.fillStyle = '#1a2440'; ctx.fillRect(Math.round(x - 2 * s), Math.round(y - s), Math.max(1, Math.round(s)), Math.max(2, Math.round(1.6 * s)));
+  ctx.fillRect(Math.round(x + s), Math.round(y - s), Math.max(1, Math.round(s)), Math.max(2, Math.round(1.6 * s)));
+  ctx.globalAlpha = 1;
+}
+// Lớp màn hình cutscene pha 2: đêm buông, trăng máu dâng sau lưng boss, nguyệt quang/sương đỏ (sói) hoặc linh hồn hút vào rồi bạo phát (ma),
+// boss vẽ lại ở trên thành bóng đen viền đỏ trước trăng, mắt đỏ, vệt tốc độ, chớp, chữ tên.
 function drawP2Screen(ctx, c, vis, time) {
-  const K = BOSS.DRAW_SCALE, [ox, oy] = p2Map(c.bx, c.by - 22 * K), fin = c.boss === 'FINAL';
+  const K = BOSS.DRAW_SCALE, z = P2_ZOOM ? P2_ZOOM.z : 1, [ox, oy] = p2Map(c.bx, c.by - 22 * K), [fx, fy] = p2Map(c.bx, c.by), fin = c.boss === 'FINAL';
   if (c.desat > 0) { ctx.globalCompositeOperation = 'saturation'; ctx.globalAlpha = c.desat; ctx.fillStyle = '#808080'; ctx.fillRect(0, 0, W, H); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1; }
-  if (c.vign > 0) {   // tối viền, sáng quanh boss
-    const g = ctx.createRadialGradient(ox, oy, 50, ox, oy, W * 0.62); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,0.9)');
+  if (c.night > 0) { ctx.globalAlpha = 0.72 * c.night; ctx.fillStyle = '#05071a'; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1; }   // đêm buông
+  if (c.moon > 0 && c.moonFade > 0) {   // trăng máu dâng lên sau lưng boss
+    const pul = c.pulse >= 0 ? Math.sin(Math.PI * Math.min(1, c.pulse * 2)) : 0, R = c.moonR * (1 + 0.12 * pul), mx = ox, my = oy + c.moonY + (1 - c.moon) * 190;
+    const g = ctx.createRadialGradient(mx, my, R * 0.8, mx, my, R * 2.1); g.addColorStop(0, 'rgba(255,60,50,0.55)'); g.addColorStop(1, 'rgba(255,40,40,0)');
+    ctx.globalAlpha = c.moonFade; ctx.fillStyle = g; ctx.fillRect(mx - R * 2.2, my - R * 2.2, R * 4.4, R * 4.4);
+    ctx.fillStyle = c.moonCol[0]; ctx.beginPath(); ctx.arc(mx, my, R, 0, 6.283); ctx.fill();
+    ctx.fillStyle = c.moonCol[1];
+    for (const [a, d, r] of [[0.6, 0.45, 0.22], [2.2, 0.55, 0.15], [3.9, 0.3, 0.18], [5.1, 0.62, 0.1], [1.4, 0.15, 0.12]]) { ctx.globalAlpha = 0.45 * c.moonFade; ctx.beginPath(); ctx.arc(mx + Math.cos(a) * d * R, my + Math.sin(a) * d * R, r * R, 0, 6.283); ctx.fill(); }
+    if (c.pulse >= 0 && c.pulse < 1) { ctx.globalAlpha = 0.9 * (1 - c.pulse) * c.moonFade; tgRing(ctx, mx, my, R + c.pulse * 300, 96, fin ? '#ff6ab0' : '#ff4a3a', 3, 1); }   // nguyệt quang lan ra
+    ctx.globalAlpha = 1;
+  }
+  if (c.beam >= 0) {   // cột nguyệt quang đỏ chiếu xuống con sói
+    const a = Math.sin(Math.PI * c.beam), w = Math.round(34 * z * 0.5 + 10 * a);
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.globalAlpha = 0.35 * a; ctx.fillStyle = '#ff3a2a'; ctx.fillRect(Math.round(fx - w), 0, w * 2, Math.round(fy));
+    ctx.globalAlpha = 0.45 * a; ctx.fillStyle = '#ffc0a0'; ctx.fillRect(Math.round(fx - w / 4), 0, Math.max(2, Math.round(w / 2)), Math.round(fy));
+    ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
+  }
+  if (c.fog >= 0) {   // sương đỏ bò vào từ hai mép dưới
+    const a = Math.min(1, c.fog * 5) * Math.min(1, (1 - c.fog) * 6);
+    for (let i = 0; i < 14; i++) { const side = i % 2 ? 1 : -1, x = W / 2 + side * (W * 0.62 - c.fog * 120 - h01(i) * 60) + Math.sin(time + i) * 10, y = H - 20 - h01(i + 4) * 70;
+      ctx.globalAlpha = 0.28 * a; ctx.fillStyle = i % 3 ? '#8a0a14' : '#c02a2a'; ctx.beginPath(); ctx.ellipse(x, y, 70, 16, 0, 0, 6.283); ctx.fill(); }
+    ctx.globalAlpha = 1;
+  }
+  if (c.souls >= 0) {   // linh hồn trồi lên khắp nơi, xoáy vào lõi ngực Ma Quân và bị hút mất
+    let absorbed = 0;
+    for (let i = 0; i < 22; i++) {
+      const u = Math.max(0, Math.min(1, (c.soulsT - h01(i + 21) * 0.7) / 1.1)); if (u <= 0) continue;
+      const a0 = h01(i) * 6.283, R0 = 190 + h01(i + 3) * 120, e = u * u, r = R0 * (1 - e), ang = a0 + u * 2.6;
+      const x = ox + Math.cos(ang) * r, y = oy + Math.sin(ang) * r * 0.7 + 30 * (1 - u) * (1 - u);
+      if (u >= 1) { absorbed++; continue; }
+      drawSoul(ctx, x, y, 1.5, Math.min(1, u * 5) * (u > 0.85 ? (1 - u) / 0.15 : 1), ox - x, oy - y);
+    }
+    if (absorbed) { ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = Math.min(0.6, absorbed * 0.04); ctx.fillStyle = '#ff6ab0'; ctx.beginPath(); ctx.arc(ox, oy, 10 + absorbed, 0, 6.283); ctx.fill(); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1; }
+  }
+  // boss vẽ lại trên lớp đêm/trăng: bóng đen viền đỏ trước vầng trăng
+  const sh = P2_SHEET(vis, c.pose) || vis.bosses;
+  if (sh && sh.meta.frames[c.pose] && (c.night > 0 || c.moon > 0)) {
+    const flip = c.boss === 'MINI' ? c.faceLeft : false, kk = K * z, rim = sh.rage || sh.glow;
+    ctx.globalAlpha = 0.85 * Math.max(c.night, c.moon * c.moonFade);
+    for (const [dx, dy] of [[-2, 0], [2, 0], [0, -2], [-1, -1], [1, -1]]) sheetFrame(ctx, sh, c.pose, fx + dx, fy + dy, flip, rim, kk);
+    ctx.globalAlpha = 1; ctx.filter = 'brightness(' + (0.55 + 0.45 * (1 - c.night)).toFixed(2) + ')';
+    sheetFrame(ctx, sh, c.pose, fx, fy, flip, sh.img, kk); ctx.filter = 'none';
+  }
+  if (c.burst >= 0) {   // vạn hồn bạo phát: linh hồn tỏa ra mọi hướng
+    for (let i = 0; i < 26; i++) {
+      const a = h01(i + 50) * 6.283, e = 1 - (1 - c.burst) * (1 - c.burst), r = 12 + e * (260 + h01(i + 7) * 140);
+      drawSoul(ctx, ox + Math.cos(a) * r, oy + Math.sin(a) * r * 0.75, 1.4 + c.burst, 1 - c.burst, Math.cos(a), Math.sin(a) * 0.75);
+    }
+  }
+  if (c.rings >= 0) {   // tiếng hú: vòng sóng âm từ đầu sói lan về phía trăng
+    const hx = fx + (c.faceLeft ? -1 : 1) * 16 * K * z, hy = fy - 30 * K * z;
+    for (let i = 0; i < 3; i++) { const k = (c.rings * 2.4 + i / 3) % 1, r = 10 + k * 220; ctx.globalAlpha = 0.8 * (1 - k); tgRing(ctx, hx, hy, r, Math.round(r * 2.2), '#ffd0c0', 3, 0.8); }
+    ctx.globalAlpha = 1;
+  }
+  if (c.vign > 0) {
+    const g = ctx.createRadialGradient(ox, oy, 70, ox, oy, W * 0.66); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,0.9)');
     ctx.globalAlpha = c.vign; ctx.fillStyle = g; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1;
   }
   if (c.eyes > 0) {   // mắt đỏ rực + vệt sáng ngang kiểu anime
-    const z = P2_ZOOM ? P2_ZOOM.z : 1, pul = 0.7 + 0.3 * Math.sin(time * 9);
+    const pul = 0.7 + 0.3 * Math.sin(time * 9);
     ctx.globalCompositeOperation = 'lighter';
     for (const [wx, wy] of P2_EYES) {
       const [ex, ey] = p2Map(wx, wy);
@@ -1697,39 +1765,12 @@ function drawP2Screen(ctx, c, vis, time) {
     }
     ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
   }
-  if (c.crack > 0 && c.shatter < 0) {   // vết nứt lan ra từ thân boss (ma: từ lõi ngực)
-    for (const pts of CRACKS) {
-      const n = Math.max(1, Math.ceil(c.crack * (pts.length - 1)));
-      for (const [col, wd] of [[fin ? '#ff3a8a' : '#000', 3], ['#fff', 1]]) {
-        ctx.strokeStyle = col; ctx.lineWidth = wd; ctx.globalAlpha = 0.9; ctx.beginPath(); ctx.moveTo(ox, oy);
-        for (let i = 1; i <= n; i++) ctx.lineTo(ox + pts[i][0], oy + pts[i][1]);
-        ctx.stroke();
-      }
-    }
-    ctx.globalAlpha = 1;
-  }
-  const cv = ctx.canvas, r = cv.width / W;
-  if (c.shatter < 0) {   // lưu khung hình hiện tại: lúc vỡ kính, mảnh của khung này bay đi để lộ ngoại hình mới
-    if (!P2BUF) P2BUF = document.createElement('canvas');
-    if (P2BUF.width !== cv.width || P2BUF.height !== cv.height) { P2BUF.width = cv.width; P2BUF.height = cv.height; }
-    const pg = P2BUF.getContext('2d'); pg.setTransform(1, 0, 0, 1, 0, 0); pg.clearRect(0, 0, cv.width, cv.height); pg.drawImage(cv, 0, 0);
-  } else if (P2BUF) {
-    for (const s of SHARDS) {
-      const k = Math.max(0, c.shatter - s.delay * 0.6);
-      const dx = s.vx * k * 1.4, dy = s.vy * k * 1.4 + 700 * k * k;
-      ctx.save(); ctx.globalAlpha = Math.max(0, 1 - k * 1.4);
-      ctx.translate(s.cx + dx, s.cy + dy); ctx.rotate(s.rot * k); ctx.translate(-s.cx, -s.cy);
-      ctx.beginPath(); ctx.moveTo(...s.p[0]); ctx.lineTo(...s.p[1]); ctx.lineTo(...s.p[2]); ctx.closePath(); ctx.clip();
-      ctx.drawImage(P2BUF, 0, 0, cv.width, cv.height, 0, 0, W, H); if (k > 0) { ctx.strokeStyle = fin ? '#ffc8f0' : '#fff'; ctx.lineWidth = 1; ctx.stroke(); }
-      ctx.restore();
-    }
-  }
   if (c.lines >= 0) {   // vệt tốc độ: tỏa ra (sói hú) / hội tụ vào ngực (ma)
     const seed = Math.floor(time * 20), out = c.linesDir === 'out';
     ctx.fillStyle = '#fff';
     for (let i = 0; i < 46; i++) {
       const a = h01(seed * 50 + i) * 6.283, r0 = 70 + h01(seed * 31 + i) * 60, len = 120 + h01(seed * 17 + i) * 260;
-      ctx.globalAlpha = (out ? 0.55 : 0.45) * (1 - c.lines * 0.5);
+      ctx.globalAlpha = (out ? 0.5 : 0.4) * (1 - c.lines * 0.5);
       ctx.save(); ctx.translate(ox, oy); ctx.rotate(a); ctx.fillRect(r0, -1, len, out ? 2 : 1); ctx.restore();
     }
     ctx.globalAlpha = 1;

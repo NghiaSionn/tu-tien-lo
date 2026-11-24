@@ -145,12 +145,14 @@ function p2State(c) {
   let flash = null;
   for (const [at, d, col, a] of S.FLASH) if (t >= at && t < at + d) flash = { col, a: a * (1 - (t - at) / d) };
   const seg2 = r => (r && t >= r[0] && t < r[1] ? seg(t, r[0], r[1]) : -1);
-  const shatter = t >= T.SHATTER && t < T.SHATTER + 1 ? seg(t, T.SHATTER, T.SHATTER + 1) : -1;
+  const fadeOut = 1 - ease(seg(t, T.OUT, c.dur));
   return { style: 'p2', kind: c.kind, boss: S.BOSS, faceLeft: c.px < c.bx, focusX: lerp(c.px, c.bx, k), focusY: lerp(c.py, c.by - 20, k), zoom: 1 + (S.ZOOM - 1) * k,
     letter: ease(seg(t, 0, 0.35)) * (1 - zout), pose, flash, black: T.BLACK && t >= T.BLACK && t < T.BLACK + 0.08 ? 1 : 0,
-    crack: t < T.SHATTER ? ease(seg(t, T.CRACK[0], T.CRACK[1])) : 0, shatter, lines: seg2(S.LINES), linesDir: S.LINES && S.LINES[2],
-    smoke: seg2(S.SMOKE), smokeCol: S.SMOKE && S.SMOKE[2], bolts: seg2(S.BOLTS), vign: S.VIGN * k, desat: S.DESAT * zin * (1 - ease(seg(t, T.SWAP, T.SWAP + 0.4))),
-    tilt: S.TILT && shatter >= 0 && shatter < 0.6 ? S.TILT * Math.sin(Math.PI * shatter / 0.6) : 0,
+    night: ease(seg(t, T.NIGHT[0], T.NIGHT[1])) * fadeOut, moon: ease(seg(t, T.MOON[0], T.MOON[1])), moonFade: fadeOut, moonCol: S.MOON_COL, moonR: S.MOON_R || 74, moonY: S.MOON_Y || -16,
+    pulse: t >= S.PULSE ? seg(t, S.PULSE, S.PULSE + 0.9) : -1, beam: seg2(S.BEAM), fog: seg2(S.FOG), rings: seg2(S.RINGS),
+    souls: seg2(S.SOULS), soulsT: S.SOULS ? t - S.SOULS[0] : -1, burst: seg2(S.BURST),
+    lines: seg2(S.LINES), linesDir: S.LINES && S.LINES[2], smoke: -1, bolts: -1, crack: 0, shatter: -1, tilt: 0,
+    vign: S.VIGN * k, desat: S.DESAT * zin * (1 - ease(seg(t, T.SWAP, T.SWAP + 0.4))),
     title: ease(seg(t, T.TITLE, T.TITLE + 0.25)) * (1 - ease(seg(t, T.OUT, T.OUT + 0.45))), titleK: t >= T.TITLE ? t - T.TITLE : -1, titleOut: seg(t, T.OUT, T.OUT + 0.45),
     eyes: 1 - zout, bx: c.bx, by: c.by, skippable: c.skippable, title_: S.TITLE, sub: S.SUB, titleCol: S.TITLE_COL, band: S.BAND,
     alt: -1, cliff: null, howl: -1, name: 0, fade: 0, line: '' };
