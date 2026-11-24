@@ -71,7 +71,9 @@ test('BẬT: số specialist đang sống mỗi loài không vượt CAP; không
 });
 
 test('BẬT: chỉ specialist dùng kỹ năng mới (chồm / Hỏa Vĩ / quạt / Ảnh Bộ / Hắc Trảo)', () => {
+  let normal = false;   // có lúc nào có quái thường (cuối trận Yêu Vương còn sống thì sân đã dọn sạch)
   const r = fullRun(8, true, r => {
+    if (r.scene.monsters.some(m => !m.dead && m.spec === false)) normal = true;
     for (const m of r.scene.monsters) {
       if (m.dead || m.spec !== false) continue;
       assert.ok(!(m.arch === 'chaser' && (m.st === 'windup' || m.role === 'flank')), 'sói thường chồm/vòng sườn');
@@ -79,7 +81,7 @@ test('BẬT: chỉ specialist dùng kỹ năng mới (chồm / Hỏa Vĩ / quạ
       assert.ok(!(m.arch === 'elite' && (m.st === 'blink' || m.sk === 'claw')), 'Ma Ảnh thường dùng kỹ năng mới');
     }
   });
-  assert.ok(r.scene.monsters.some(m => m.spec === false), 'có con thường');
+  assert.ok(normal, 'có con thường');
 });
 
 // Các vùng/đường nguy hiểm đang hiện cảnh báo, theo đúng hình học trúng đòn

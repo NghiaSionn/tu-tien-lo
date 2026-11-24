@@ -496,6 +496,14 @@ Hướng do ChatGPT đề xuất 17/11, người phát triển duyệt "Làm gam
 - [x] Cutscene biến hình pha 2 (mỗi boss chữ ký riêng) + VFX beanfx `fx/lv_pha_dia`, `fx/yv_ho_den` (24/11) — test `tests/cutscene.test.js`, `tests/boss_phase2.test.js`; đã chạy thật trong trình duyệt cả 2 cảnh, không lỗi console
 - [ ] Người thật xem/nghe thử (âm thanh mới, Safari) — gộp vào phần kiểm thử tay cuối
 
+## BOSS KHÓ — TUYỆT KỸ MIỄN NHIỄM (người phát triển 24/11: boss là màn khó rèn phản xạ, nhiều chiêu; pha 2 đổi kiểu đánh dồn dập; có lúc boss miễn nhiễm, phải né hết chuỗi chiêu)
+
+Đề xuất ChatGPT + quy tắc: `docs/design/BOSS_TUYET_KY_DE_XUAT.md`. Quyết định 24/11: bật bộ chiêu V2 mặc định; miễn nhiễm theo mốc máu 70/40/15 %; làm theo 3 đợt.
+
+- [x] Đợt 1 (24/11): `FEATURES.bossPatternsV2 = true` (duyệt phần boss của F-6); hệ Tuyệt Kỹ `BOSS_TK` + `tkNext` trong bosses.js (khiên `m.shield`, chuỗi chiêu cố định, nghỉ 0,45 s không sơ hở, chờ đạn/vùng tan rồi vỡ khiên, choáng = sơ hở); mốc 70 %: Lang Vương "Huyết Lang Hộ Thể" lao ×2 → Liệt Trảo → Vồ (~7,9 s, choáng 2,3 s), Yêu Vương "Vạn Ma Phong Thiên" Thập Tự → Hắc Diễm → đạn tỏa (~7,5 s, choáng 2,7 s). Hiển thị: vỏ khiên 12 cạnh, banner, thanh máu "MIỄN NHIỄM — HÃY NÉ!" + vạch mốc vàng, chữ "MIỄN" khi đòn bị chặn, mảnh khiên vỡ. Test `tests/boss_tuyet_ky.test.js` (5, gồm kiểm mỗi chiêu còn chỗ an toàn chạy kịp); sửa 3 test giả định cờ tắt; 342 test. Video `docs/playtest/BOSS_TUYET_KY_70.mp4`
+- [ ] Đợt 2: bộ chiêu pha 2 mới (Lang Vương 6 chiêu, Ma Quân 7 chiêu — xem file đề xuất)
+- [ ] Đợt 3: Tuyệt Kỹ mốc 40 % / 15 % (bộ chiêu P2), hàng đợi khi qua nhiều mốc
+
 ## VIỆC LƯU LẠI ĐỂ LÀM SAU (người phát triển dặn 23/11)
 
 - [~] H-1 Ma Quang Hoành Tảo (Yêu Vương P2): **(a) XONG 24/11** — `sweepSegs` trong `src/systems/tactics.js`: phần cung còn lại của tia (đang gồng: cả nửa vòng; đang quét: từ góc hiện tại) thành quạt đoạn dài L vào `dangerShapes`; sửa luôn lỗi `dangerShapes` bỏ qua trạng thái `sweep`. Test `tests/sweep_danger.test.js` (3), sim 6 seed bật 3 cờ: 33 lần quét, 2425/2425 khung có tia trong hình nguy hiểm. Không đổi chiêu boss (không làm dễ). Còn (b). Gốc: (a) đưa tia quét vào "hình nguy hiểm" chống chồng đòn M10-08 (công bằng, không làm dễ); (b) chỉ chỉnh sát thương/tầm/thời gian sau khi có playtest người thật (F-4) — bot A/B: đòn kết liễu số 1 ở L0 (5/20) nhưng bot né kém (không biết vòng ra sau boss).

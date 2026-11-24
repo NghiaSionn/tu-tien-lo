@@ -1,7 +1,7 @@
 // Boss (M2-02): Lang Vương (mini-boss giữa run) và Ma Ảnh Yêu Vương (boss cuối). Máy trạng thái:
 //   move (đuổi, đếm GAP) -> windup (gồng, có cảnh báo) -> [dash ×n] -> recover (sơ hở, nhận thêm sát thương) -> move
 // Chiêu chỉ bắt đầu từ 'move'; boss chết thì không còn gì chạy (run.js dọn vùng/đạn). Chỉ dùng io.rng (seed của run).
-import { BOSS, RUN, HUB_MONSTER as HM, TACTICS as TC, BOSS_V2, BOSS_P2, PLAYER } from '../core/config.js';
+import { BOSS, RUN, HUB_MONSTER as HM, TACTICS as TC, BOSS_V2, BOSS_P2, BOSS_TK, PLAYER } from '../core/config.js';
 import { selectBossSkill, keepEscape, hazardDist } from '../systems/tactics.js';
 
 export const bossDef = m => BOSS[m.bossKind];
@@ -10,6 +10,8 @@ export const bossDef = m => BOSS[m.bossKind];
 export function bossAI(m, player, dx, dy, d, dt, io) {
   const B = bossDef(m);
   if (m.vuln > 0) m.vuln -= dt;
+  if (m.immT > 0) m.immT -= dt;
+  if (m.tkStun && !(m.vuln > 0)) m.tkStun = 0;
   m.age += dt;
   if (m.bossKind === 'FINAL' && !m.enraged && m.age >= B.ENRAGE_AFTER) {
     m.enraged = true; m.dmg = Math.round(m.dmg * B.ENRAGE_DMG);
@@ -47,6 +49,28 @@ export function bossAI(m, player, dx, dy, d, dt, io) {
     m.p2 = true; m.st = 'phase'; m.stT = m.stMax = P.ANIM; m.shield = P.ANIM; m.vx = m.vy = 0; m.p2Burst = m.p2Beat = m.p2End = false;
     io.ev.push({ type: 'shake', t: 0.25 }, { type: 'sfx', name: 'bossPhase' }, { type: 'sfx', name: 'thud' }, { type: 'bossPhase2', kind: m.bossKind, x: m.x, y: m.y });   // M10-11: tiếng chuyển pha
     return true;
+  }
+
+  // (24/11) TUYỆT KỸ miễn nhiễm theo mốc máu (BOSS_TK): bật khiên -> chuỗi chiêu cố định phải né hết -> khiên vỡ, choáng
+  const TK = V && BOSS_TK[m.bossKind];
+  if (m.st === 'tkOn' || m.st === 'tkGap') {
+    m.stT -= dt;
+    if (m.st === 'tkGap' && m.tk.chase && d > 40) { m.vx = dx / d * m.speed * 1.3; m.vy = dy / d * m.speed * 1.3; } else m.vx = m.vy = 0;   // sói áp sát giữa các đòn
+    if (m.stT > 0) return true;
+    return tkNext(m, player, dx, dy, d, io, B, V, phase2);
+  }
+  if (TK && m.hp > 0 && !m.tk && (m.st === 'move' || m.st === 'recover')) {
+    m.tkDone = m.tkDone || {};
+    const mk = TK.MARKS.find(k => !m.tkDone[k.AT] && m.hp <= m.max * k.AT && (k.P2 ? m.p2 : !m.p2));
+    if (mk) {
+      m.tkDone[mk.AT] = true;
+      m.tk = { seq: mk.SEQ, i: 0, chase: !!TK.CHASE, at: mk.AT };
+      m.st = 'tkOn'; m.stT = m.stMax = BOSS_TK.START; m.shield = 1e9; m.vuln = 0; m.vx = m.vy = 0;
+      io.ev.push({ type: 'announce', x: m.x, y: m.y, text: TK.TEXT, color: TK.COLOR }, { type: 'shake', t: 0.3 },
+        { type: 'pulse', x: m.x, y: m.y - 14, r: 70, color: TK.COLOR }, { type: 'sfx', name: m.bossKind === 'FINAL' ? 'roar' : 'howl' }, { type: 'tkStart', kind: m.bossKind, x: m.x, y: m.y });
+      if (io.log) io.log(m.bossKind, 'tk' + Math.round(mk.AT * 100));
+      return true;
+    }
   }
 
   if (m.st === 'windup') {
@@ -108,12 +132,34 @@ export function bossAI(m, player, dx, dy, d, dt, io) {
   m.gapT -= dt;
   if (m.gapT > 0) return true;
   let pat = (io.tactics || V) ? selectBossSkill(m, B, d, io, player, phase2) : pickPattern(m, B, d);   // M10-02: chọn theo tình huống khi bật cờ (M10-09: luôn dùng selector cho bộ chiêu mới)
+  return startPattern(m, pat, player, dx, dy, d, io, B, V, phase2);
+}
+
+// Tuyệt Kỹ: chiêu kế trong chuỗi; hết chuỗi -> chờ đạn/vùng cuối tan (END) -> khiên vỡ, choáng STUN (sơ hở, nhận thêm sát thương)
+function tkNext(m, player, dx, dy, d, io, B, V, phase2) {
+  const TK = BOSS_TK[m.bossKind], tk = m.tk;
+  if (tk.i < tk.seq.length) {
+    const [pat, n] = tk.seq[tk.i++];
+    startPattern(m, pat, player, dx, dy, d, io, B, V, phase2, n);   // Vồ không đặt được dấu -> lao (như chiêu thường)
+    if (m.st !== 'windup' && m.st !== 'blink') { m.st = 'tkGap'; m.stT = 0.2; }   // chiêu không ra được -> sang chiêu kế
+    return true;
+  }
+  if (!tk.ending) { tk.ending = true; m.st = 'tkGap'; m.stT = m.stMax = TK.END; m.vx = m.vy = 0; tk.chase = false; return true; }
+  m.tk = null; m.shield = 0;
+  m.st = 'recover'; m.stT = TK.STUN; m.vuln = TK.STUN; m.tkStun = TK.STUN;
+  io.ev.push({ type: 'announce', x: m.x, y: m.y, text: 'KHIÊN VỠ — TẤN CÔNG!', color: '#ffe066' }, { type: 'shake', t: 0.35 },
+    { type: 'boom', x: m.x, y: m.y - 20, r: 60, color: TK.COLOR }, { type: 'sfx', name: 'shatter' }, { type: 'tkBreak', kind: m.bossKind, x: m.x, y: m.y });
+  return true;
+}
+
+// Bắt đầu một chiêu (gọi từ 'move' và từ chuỗi Tuyệt Kỹ). n: số lần lao (Tuyệt Kỹ đặt riêng).
+function startPattern(m, pat, player, dx, dy, d, io, B, V, phase2, n) {
   if (pat === 'leap' && !startLeap(m, player, io, B, V)) pat = 'dash';   // không có dấu đáp hợp lệ / hết lối né -> lao thường
   if (!pat) { m.gapT = 0.4; return true; }
   if (V) { m.v2 = true; io.ev.push({ type: 'sfx', name: 'bossWarn' }); }   // M10-11: tiếng báo boss ra chiêu (khoảng nghỉ 0,8 s trong sfx.js)   // M10-03: chưa có chiêu hợp lệ -> đuổi tiếp, xét lại sau
   m.pat = pat;
   if (io.log) io.log(m.bossKind, pat);   // M10: telemetry chiêu boss (cả AI cũ và mới)
-  if (pat === 'dash') { m.dashLeft = B.DASH.COUNT; aimDash(m, player, B); }
+  if (pat === 'dash') { m.dashLeft = n || B.DASH.COUNT; aimDash(m, player, B); }
   else if (pat === 'claw') {   // M10-09 Liệt Trảo: khóa hướng lúc bắt đầu gồng
     const l = Math.hypot(dx, dy) || 1; m.dirX = dx / l; m.dirY = dy / l; windup(m, V.CLAW.WINDUP);
   }
@@ -173,7 +219,7 @@ export function bossAI(m, player, dx, dy, d, dt, io) {
     }
     placeZones(io, B, player, zs, B.ZONES.WINDUP);
   }
-  return true;
+    return true;
 }
 
 // (24/11) Triệu Ma Ảnh: số quân đang được gọi; chỗ trồi lên quanh boss (đứng được, không sát người chơi, không chồng nhau)
@@ -203,6 +249,7 @@ function aimDash(m, player, B) {
   windup(m, B.DASH.WINDUP);
 }
 function toRecover(m, B, io) {
+  if (m.tk) { m.st = 'tkGap'; m.stT = m.stMax = BOSS_TK.GAP; m.vx = m.vy = 0; return; }   // Tuyệt Kỹ: không sơ hở giữa chuỗi
   m.st = 'recover'; m.stT = B.RECOVER; m.vuln = B.RECOVER;
   io.ev.push({ type: 'text', x: m.x, y: m.y - 34, text: 'sơ hở!', color: '#ffe066' });
 }

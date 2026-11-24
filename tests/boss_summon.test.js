@@ -9,7 +9,7 @@ import { BOSS_SKILLS } from '../src/systems/tactics.js';
 
 const S = BOSS.FINAL.SUMMON, DT = 1 / 30;
 function arena(seed = 77) {
-  const r = createRun({ seed, startSkill: 'sword_qi', realmLevel: 0 });
+  const r = createRun({ seed, startSkill: 'sword_qi', realmLevel: 0 }); r.bossV2 = false;   // chuỗi chiêu ORDER cũ (V2 chọn theo tình huống)
   r.scene.map.tiles.fill(0); r.scene.monsters.length = 0;
   r.dir.mini = 'DEAD'; r.dir.final = 'ALIVE'; r.time = BOSS.FINAL.AT + 1;
   const p = { x: r.scene.map.cx, y: r.scene.map.cy, fx: 1, fy: 0, inv: 1, dead: false };
