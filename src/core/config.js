@@ -302,16 +302,16 @@ export const BOSS_V2 = {
 };
 
 // M10-11: tên chiêu boss hiện trên thanh máu + trên đầu boss lúc gồng (chỉ khi bossPatternsV2); màu theo loại cảnh báo
-// (24/11) TUYỆT KỸ miễn nhiễm (người phát triển: boss là màn khó rèn phản xạ; có lúc boss miễn nhiễm, phải né hết chuỗi chiêu
-// mới được đánh). Đề xuất ChatGPT: docs/design/BOSS_TUYET_KY_DE_XUAT.md. Chỉ khi bossPatternsV2. Đợt 1: mốc 70 % (bộ chiêu P1).
+// (24/11) TUYỆT KỸ: chuỗi chiêu liên hoàn theo mốc máu (người phát triển: boss là màn khó rèn phản xạ).
+// SHIELD: bật khiên miễn nhiễm + choáng khi vỡ — người phát triển 24/11: KHÔNG cần cho bản đầu (giữ code, tắt). Đề xuất ChatGPT: docs/design/BOSS_TUYET_KY_DE_XUAT.md. Chỉ khi bossPatternsV2. Đợt 1: mốc 70 % (bộ chiêu P1).
 // START: bật khiên (đứng yên, báo) · GAP: nghỉ giữa hai chiêu (0,3–0,6 s, không sơ hở) · END: chờ đạn/vùng cuối tan rồi mới vỡ khiên
 // STUN: choáng sau khi khiên vỡ (sơ hở, nhận BOSS.VULN_MULT sát thương) · CHASE: sói áp sát giữa các đòn
 // MARKS: { AT: mốc máu, P2: chỉ khi đã sang pha 2, SEQ: [[chiêu, số lần lao]] } — mốc 40 % / 15 % (P2) để đợt 3.
 export const BOSS_TK = {
-  START: 1.0, GAP: 0.45,
-  MINI: { TEXT: 'Huyết Lang Hộ Thể — MIỄN NHIỄM, HÃY NÉ!', COLOR: '#ff6a3a', CHASE: true, END: 0.4, STUN: 2.3,
+  SHIELD: false, START: 1.0, GAP: 0.45,
+  MINI: { TEXT: 'Huyết Lang Hộ Thể — HÃY NÉ!', COLOR: '#ff6a3a', CHASE: true, END: 0.4, STUN: 2.3,
     MARKS: [{ AT: 0.7, SEQ: [['dash', 2], ['claw'], ['leap']] }] },
-  FINAL: { TEXT: 'Vạn Ma Phong Thiên — MIỄN NHIỄM, HÃY NÉ!', COLOR: '#d070ff', CHASE: false, END: 1.4, STUN: 2.7,
+  FINAL: { TEXT: 'Vạn Ma Phong Thiên — HÃY NÉ!', COLOR: '#d070ff', CHASE: false, END: 1.4, STUN: 2.7,
     MARKS: [{ AT: 0.7, SEQ: [['cross'], ['zones'], ['burst']] }] },
 };
 export const BOSS_SKILL_LABELS = {

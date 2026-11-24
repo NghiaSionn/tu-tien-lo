@@ -1,5 +1,5 @@
-// (24/11) Tuyệt Kỹ miễn nhiễm (đợt 1, mốc 70 %): boss bật khiên -> chuỗi chiêu cố định -> khiên vỡ, choáng.
-// Khiên chặn mọi sát thương; mỗi mốc chỉ 1 lần; tắt bộ chiêu V2 thì không có; mỗi chiêu trong chuỗi lúc bắt đầu gồng
+// (24/11) Tuyệt Kỹ (đợt 1, mốc 70 %): chuỗi chiêu liên hoàn cố định. Bản đầu KHÔNG khiên (BOSS_TK.SHIELD = false, người
+// phát triển 24/11): vẫn nhận sát thương, hết chuỗi là sơ hở thường. Bật SHIELD: khiên chặn sát thương, vỡ thì choáng. Mỗi mốc chỉ 1 lần; tắt bộ chiêu V2 thì không có; mỗi chiêu trong chuỗi lúc bắt đầu gồng
 // luôn còn chỗ an toàn chạy tới kịp (đi bộ PLAYER.SPEED trong thời gian gồng).
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -39,33 +39,31 @@ function runTk(kind, seed, opts) {
   return { ...f, b, seq, on, off, minHp, ev };
 }
 
-test('Tuyệt Kỹ 70 %: Lang Vương lao ×2 -> Liệt Trảo -> Vồ, khiên giữ máu, vỡ thì choáng', () => {
+test('Tuyệt Kỹ 70 %: Lang Vương lao ×2 -> Liệt Trảo -> Vồ, không khiên, hết chuỗi sơ hở thường', () => {
   for (const seed of [1, 2, 3]) {
     const t = runTk('MINI', seed);
     assert.ok(t.on >= 0 && t.off > t.on, 'bật rồi vỡ khiên');
     const pats = t.seq.filter((p, i) => p !== t.seq[i - 1]);   // lao ×2 gồng 2 lần cùng tên
     assert.deepEqual(pats.slice(0, 2), ['dash', 'claw'], t.seq.join(','));
     assert.ok(['leap', 'dash'].includes(pats[2]), 'Vồ (không đặt được dấu thì lao)');
-    assert.equal(t.minHp, Math.round(t.b.max * 0.69), 'không mất máu khi có khiên');
-    assert.ok(t.b.vuln > 0 && t.b.shield === 0 && t.b.st === 'recover', 'choáng / sơ hở sau khi vỡ');
+    assert.ok(!t.b.shield && t.b.vuln > 0 && t.b.vuln <= BOSS.MINI.RECOVER && t.b.st === 'recover', 'không khiên; hết chuỗi sơ hở thường');
     const dur = (t.off - t.on) * DT;
-    assert.ok(dur > 6 && dur < 10, 'chuỗi 6–10 s: ' + dur.toFixed(2));
-    assert.ok(t.ev.some(e => e.type === 'tkStart') && t.ev.some(e => e.type === 'tkBreak'));
+    assert.ok(dur > 5.5 && dur < 10, 'chuỗi 5,5–10 s: ' + dur.toFixed(2));
+    assert.ok(t.ev.some(e => e.type === 'tkStart') && !t.ev.some(e => e.type === 'tkBreak'));
   }
 });
 
-test('Tuyệt Kỹ 70 %: Yêu Vương Thập Tự -> Hắc Diễm -> đạn tỏa, khiên giữ máu', () => {
+test('Tuyệt Kỹ 70 %: Yêu Vương Thập Tự -> Hắc Diễm -> đạn tỏa', () => {
   for (const seed of [1, 2, 3]) {
     const t = runTk('FINAL', seed);
     assert.ok(t.on >= 0 && t.off > t.on);
     assert.ok(['cross', 'burst'].includes(t.seq[0]), t.seq.join(','));   // Thập Tự không chừa lối né -> đổi sang đạn tỏa
     assert.deepEqual(t.seq.slice(1), ['zones', 'burst']);
-    assert.equal(t.minHp, Math.round(t.b.max * 0.69));
-    assert.ok(t.b.vuln >= BOSS_TK.FINAL.STUN - 0.1);
+    assert.ok(!t.b.shield && t.b.st === 'recover');
   }
 });
 
-test('khiên chặn sát thương (có báo "MIỄN" thưa), mỗi mốc chỉ 1 lần', () => {
+test('khiên (khi bật SHIELD) chặn sát thương, báo "MIỄN" thưa; mỗi mốc chỉ 1 lần', () => {
   const t = runTk('MINI', 4);
   const b = t.b;
   b.tk = { seq: [], i: 0 }; b.shield = 1e9;
@@ -109,4 +107,14 @@ test('mỗi chiêu trong chuỗi: lúc bắt đầu gồng luôn còn chỗ an t
     }
     assert.ok(checked >= 3, kind + ' kiểm được các chiêu trong chuỗi');
   }
+});
+
+test('bật BOSS_TK.SHIELD: khiên giữ máu suốt chuỗi, vỡ thì choáng STUN', () => {
+  BOSS_TK.SHIELD = true;
+  try {
+    const t = runTk('MINI', 1);
+    assert.equal(t.minHp, Math.round(t.b.max * 0.69), 'không mất máu khi có khiên');
+    assert.ok(t.b.vuln >= BOSS_TK.MINI.STUN - 0.1 && t.b.shield === 0, 'choáng sau khi vỡ');
+    assert.ok(t.ev.some(e => e.type === 'tkBreak'));
+  } finally { BOSS_TK.SHIELD = false; }
 });

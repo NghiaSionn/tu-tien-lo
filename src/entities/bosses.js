@@ -65,7 +65,7 @@ export function bossAI(m, player, dx, dy, d, dt, io) {
     if (mk) {
       m.tkDone[mk.AT] = true;
       m.tk = { seq: mk.SEQ, i: 0, chase: !!TK.CHASE, at: mk.AT };
-      m.st = 'tkOn'; m.stT = m.stMax = BOSS_TK.START; m.shield = 1e9; m.vuln = 0; m.vx = m.vy = 0;
+      m.st = 'tkOn'; m.stT = m.stMax = BOSS_TK.START; m.shield = BOSS_TK.SHIELD ? 1e9 : 0; m.vuln = 0; m.vx = m.vy = 0;
       io.ev.push({ type: 'announce', x: m.x, y: m.y, text: TK.TEXT, color: TK.COLOR }, { type: 'shake', t: 0.3 },
         { type: 'pulse', x: m.x, y: m.y - 14, r: 70, color: TK.COLOR }, { type: 'sfx', name: m.bossKind === 'FINAL' ? 'roar' : 'howl' }, { type: 'tkStart', kind: m.bossKind, x: m.x, y: m.y });
       if (io.log) io.log(m.bossKind, 'tk' + Math.round(mk.AT * 100));
@@ -144,6 +144,7 @@ function tkNext(m, player, dx, dy, d, io, B, V, phase2) {
     if (m.st !== 'windup' && m.st !== 'blink') { m.st = 'tkGap'; m.stT = 0.2; }   // chiêu không ra được -> sang chiêu kế
     return true;
   }
+  if (!BOSS_TK.SHIELD) { m.tk = null; toRecover(m, B, io); return true; }   // không khiên: hết chuỗi -> sơ hở bình thường
   if (!tk.ending) { tk.ending = true; m.st = 'tkGap'; m.stT = m.stMax = TK.END; m.vx = m.vy = 0; tk.chase = false; return true; }
   m.tk = null; m.shield = 0;
   m.st = 'recover'; m.stT = TK.STUN; m.vuln = TK.STUN; m.tkStun = TK.STUN;

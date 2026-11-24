@@ -1010,7 +1010,7 @@ function drawMonster(ctx, m, time, vis) {
   if (m.boss) {   // (23/11) đang cutscene: vẽ bản cutscene thay
     if (m.introHide) return;
     drawBoss(ctx, m, time, vis);
-    if (m.tk) drawTkShield(ctx, m, time);   // (24/11) Tuyệt Kỹ: khiên miễn nhiễm phủ lên thân
+    if (m.tk && BOSS_TK.SHIELD) drawTkShield(ctx, m, time);   // (24/11) Tuyệt Kỹ: khiên miễn nhiễm phủ lên thân
     return;
   }
   const ms = vis && vis.mobs;
@@ -1978,7 +1978,7 @@ function drawBossBar(ctx, scene, camX, camY) {
   const B = BOSS[m.bossKind], w = 220, x = Math.round((W - w) / 2), y = H - 20;
   ctx.fillStyle = 'rgba(10,6,20,.75)'; ctx.fillRect(x - 3, y - 15, w + 6, 23);
   const phase = m.v2 ? (m.p2 ? ' · Pha 2' : ' · Pha 1') : '';   // M10-11: dấu pha (chỉ bộ chiêu mới)
-  if (m.tk) txt(ctx, B.name + ' · MIỄN NHIỄM — HÃY NÉ!', W / 2, y - 4, BOSS_TK[m.bossKind].COLOR, 11);   // (24/11) Tuyệt Kỹ
+  if (m.tk) txt(ctx, B.name + (BOSS_TK.SHIELD ? ' · MIỄN NHIỄM — HÃY NÉ!' : ' · LIÊN HOÀN — HÃY NÉ!'), W / 2, y - 4, BOSS_TK[m.bossKind].COLOR, 11);   // (24/11) Tuyệt Kỹ
   else txt(ctx, B.name + phase + (m.enraged ? ' · cuồng nộ' : m.vuln > 0 ? (m.tkStun ? ' · KHIÊN VỠ' : ' · sơ hở') : ''), W / 2, y - 4, m.enraged ? '#ff6a6a' : m.vuln > 0 && m.tkStun ? '#ffe066' : m.p2 ? '#ffc8a0' : '#f4e6ff', 11);
   ctx.fillStyle = '#2a1830'; ctx.fillRect(x, y, w, 5);
   ctx.fillStyle = m.bossKind === 'FINAL' ? (m.p2 ? '#e040c0' : '#c040ff') : (m.p2 ? '#ff7040' : '#e2584f'); ctx.fillRect(x, y, Math.max(0, Math.round(w * m.hp / m.max)), 5);
@@ -1986,7 +1986,7 @@ function drawBossBar(ctx, scene, camX, camY) {
   if (P2) { ctx.fillStyle = '#fff'; ctx.fillRect(x + Math.round(w * P2), y - 1, 1, 7); }
   const TKc = m.v2 && BOSS_TK[m.bossKind];   // (24/11) vạch mốc Tuyệt Kỹ (vàng; đã qua thì mờ) + thanh khiên phủ khi đang miễn nhiễm
   if (TKc) for (const k of TKc.MARKS) { ctx.fillStyle = m.tkDone && m.tkDone[k.AT] ? '#6a5a40' : '#ffd060'; ctx.fillRect(x + Math.round(w * k.AT), y - 2, 2, 9); }
-  if (m.tk) { ctx.globalAlpha *= 0.55 + 0.25 * Math.sin(Date.now() / 90); ctx.fillStyle = BOSS_TK[m.bossKind].COLOR; for (let i = 0; i < w; i += 6) ctx.fillRect(x + i, y, 3, 5); ctx.globalAlpha = 1; }
+  if (m.tk && BOSS_TK.SHIELD) { ctx.globalAlpha *= 0.55 + 0.25 * Math.sin(Date.now() / 90); ctx.fillStyle = BOSS_TK[m.bossKind].COLOR; for (let i = 0; i < w; i += 6) ctx.fillRect(x + i, y, 3, 5); ctx.globalAlpha = 1; }
   const L = m.v2 && (m.st === 'windup' || m.st === 'blink' || m.st === 'sweep') && BOSS_SKILL_LABELS[m.pat];   // M10-11: tên chiêu đang gồng ngay trên thanh máu
   if (L) { ctx.fillStyle = 'rgba(10,6,20,.75)'; ctx.fillRect(x + 40, y - 30, w - 80, 13); txt(ctx, '⚠ ' + L[0], W / 2, y - 20, L[1], 10); }
   ctx.globalAlpha = 1;
