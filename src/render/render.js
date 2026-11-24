@@ -760,7 +760,7 @@ function drawBossGhost(ctx, m, time, vis) {
 }
 function drawBossLabel(ctx, m) {   // M10-11: tên chiêu trên đầu boss trong lúc gồng (chỉ bộ chiêu mới)
   if (!m.v2 || !(m.st === 'windup' || m.st === 'blink' || m.st === 'sweep')) return;
-  const L = BOSS_SKILL_LABELS[m.pat]; if (!L) return;
+  const L = BOSS_SKILL_LABELS[m.patLabel] || BOSS_SKILL_LABELS[m.pat]; if (!L) return;   // (24/11) chiêu liên hoàn / Tam Xung: tên riêng
   txt(ctx, L[0], Math.round(m.x), Math.round(m.y) - 50 * BOSS.DRAW_SCALE - 6, L[1], 10);
 }
 

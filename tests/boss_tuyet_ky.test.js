@@ -118,3 +118,53 @@ test('bật BOSS_TK.SHIELD: khiên giữ máu suốt chuỗi, vỡ thì choáng 
     assert.ok(t.ev.some(e => e.type === 'tkBreak'));
   } finally { BOSS_TK.SHIELD = false; }
 });
+
+// (24/11) đợt 3: mốc 40 % / 15 % chỉ ở pha 2, chuỗi dùng chiêu pha 2; mỗi chiêu trong chuỗi còn chỗ an toàn chạy kịp
+const P2_SEQ = { MINI: { 0.4: ['dash', 'claw', 'leap', 'leap'], 0.15: ['dash', 'cracks', 'leap', 'quake', 'rageHowl'] },
+  FINAL: { 0.4: ['thunder', 'runes', 'chainBolt', 'sweep'], 0.15: ['net', 'runes', 'thunder', 'burst', 'sweep'] } };
+function runTkP2(kind, seed, at, done, move) {
+  const f = fight(kind, seed, { move }), b = f.boss();
+  b.p2 = true; b.tkDone = { ...done }; b.hp = Math.round(b.max * at);
+  const seq = [], checks = []; let prev = '', on = -1, off = -1;
+  const hitS = (s, x, y) => s.ring ? false : s.r !== undefined ? Math.hypot(x - s.x, y - s.y) < s.r
+    : (() => { const vx = s.x1 - s.x0, vy = s.y1 - s.y0, l2 = vx * vx + vy * vy || 1, k = Math.max(0, Math.min(1, ((x - s.x0) * vx + (y - s.y0) * vy) / l2)); return Math.hypot(x - s.x0 - vx * k, y - s.y0 - vy * k) < s.w; })();
+  for (let i = 0; i < 30 * 20; i++) {
+    f.step(1);
+    if (b.st === 'tkOn' && on < 0) on = i;
+    const k = b.st + ':' + b.pat + ':' + (b.tk ? b.tk.i : '');
+    if (on >= 0 && b.tk && b.st === 'windup' && k !== prev) {
+      seq.push(b.pat);
+      const ds = dangerShapes(f.r.scene, f.p), tMin = Math.min(b.stT, ...f.r.scene.hazards.map(h => h.t)), reach = PLAYER.SPEED * tMin * 0.8;
+      const bad = (x, y) => ds.some(s => s.ring ? Math.abs(Math.hypot(x - s.x, y - s.y) - s.R) < s.w && (s.span >= 6.28 || ((Math.atan2(y - s.y, x - s.x) - s.a0) % 6.2832 + 6.2832) % 6.2832 <= s.span) : hitS(s, x, y));
+      let ok = !bad(f.p.x, f.p.y);
+      for (let j = 0; j < 32 && !ok; j++) for (const fr of [0.25, 0.5, 0.75, 1]) { const a = j / 32 * Math.PI * 2, x = f.p.x + Math.cos(a) * reach * fr, y = f.p.y + Math.sin(a) * reach * fr; if (f.r.scene.map.canStand(x, y) && !bad(x, y)) { ok = true; break; } }
+      checks.push({ pat: b.pat, ok, reach: Math.round(reach) });
+    }
+    prev = k;
+    if (on >= 0 && !b.tk) { off = i; break; }
+  }
+  return { b, seq, checks, on, off };
+}
+test('Tuyệt Kỹ mốc 40 % / 15 % (pha 2): đúng chuỗi chiêu pha 2, mỗi chiêu còn chỗ an toàn chạy kịp', () => {
+  const circle = (p, r, b) => { if (b) { const a = r.time * 0.9; p.x = r.scene.map.cx + Math.cos(a) * 70; p.y = r.scene.map.cy + Math.sin(a) * 45; } };
+  for (const kind of ['MINI', 'FINAL']) for (const [at, done] of [[0.39, { 0.7: true }], [0.14, { 0.7: true, 0.4: true }]]) for (const seed of [1, 2, 3]) {
+    const mk = at > 0.3 ? 0.4 : 0.15, t = runTkP2(kind, seed, at, done, circle);
+    assert.ok(t.on >= 0 && t.off > t.on, `${kind} ${mk} seed ${seed}: bật rồi kết thúc`);
+    const pats = t.seq.filter((p, i) => !(p === 'dash' && t.seq[i - 1] === 'dash'));   // Tam Xung gồng 3 lần cùng tên
+    const want = P2_SEQ[kind][mk];
+    assert.equal(pats.length, want.length, `${kind} ${mk}: ${t.seq.join(',')}`);
+    for (let i = 0; i < want.length; i++) assert.ok(pats[i] === want[i] || (want[i] === 'leap' && pats[i] === 'dash'), `${kind} ${mk}: ${t.seq.join(',')}`);
+    for (const c of t.checks) assert.ok(c.ok, `${kind} ${mk} seed ${seed}: ${c.pat} hết chỗ an toàn trong ${c.reach} px`);
+    assert.ok(t.b.tkDone[mk], 'đánh dấu mốc đã dùng');
+  }
+});
+
+test('mốc pha 2 không bật khi boss chưa sang pha 2; mốc pha 1 không bật khi đã ở pha 2', () => {
+  const f = fight('MINI', 5), b = f.boss();
+  b.p2 = false; b.tkDone = { 0.7: true }; b.hp = Math.round(b.max * 0.39);
+  for (let i = 0; i < 20; i++) { f.step(1); b.p2 = false; if (b.st === 'phase') break; }
+  assert.ok(!b.tk || b.st === 'phase', 'chưa pha 2 thì không có Tuyệt Kỹ 40 %');
+  const g = fight('FINAL', 5), c = g.boss();
+  c.p2 = true; c.tkDone = {}; c.hp = Math.round(c.max * 0.45); g.step(30);
+  assert.ok(!c.tkDone[0.7], 'mốc 70 % (pha 1) không bật ở pha 2');
+});

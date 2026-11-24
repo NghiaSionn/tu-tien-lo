@@ -39,7 +39,7 @@ function force(kind, id, seed, dist = 90) {
     if (kind === 'FINAL') { r.dir.mini = 'DEAD'; r.dir.final = 'ALIVE'; } else r.dir.mini = 'ALIVE';
     const p = { x: s.x, y: s.y, inv: 1, dead: false, fx: 1, fy: 0 };
     const b = makeBoss(r, kind, p.x + dist, p.y, 1);
-    b.hp = Math.round(b.max * 0.4); b.p2 = true; b.tkDone = { 0.7: true }; b.gapT = 0;
+    b.hp = Math.round(b.max * 0.4); b.p2 = true; b.tkDone = { 0.7: true, 0.4: true, 0.15: true }; b.gapT = 0;   // không để Tuyệt Kỹ chen vào
     const checks = [], srcs = new Set();
     let prev = '', maxHz = 0, shots = 0;
     for (let i = 0; i < 30 * 7 && r.status === 'RUNNING'; i++) {

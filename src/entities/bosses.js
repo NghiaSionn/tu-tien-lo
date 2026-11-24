@@ -57,6 +57,7 @@ export function bossAI(m, player, dx, dy, d, dt, io) {
     m.stT -= dt;
     if (m.st === 'tkGap' && m.tk.chase && d > 40) { m.vx = dx / d * m.speed * 1.3; m.vy = dy / d * m.speed * 1.3; } else m.vx = m.vy = 0;   // sói áp sát giữa các đòn
     if (m.stT > 0) return true;
+    if (m.st === 'tkGap' && io.hazards.some(h => h.owner === m)) return true;   // (24/11) chờ vùng nổ của chiêu trước nổ hết: từng nhịp rõ ràng, không chồng đòn
     return tkNext(m, player, dx, dy, d, io, B, V, phase2);
   }
   if (TK && m.hp > 0 && !m.tk && (m.st === 'move' || m.st === 'recover')) {
@@ -66,7 +67,7 @@ export function bossAI(m, player, dx, dy, d, dt, io) {
       m.tkDone[mk.AT] = true;
       m.tk = { seq: mk.SEQ, i: 0, chase: !!TK.CHASE, at: mk.AT };
       m.st = 'tkOn'; m.stT = m.stMax = BOSS_TK.START; m.shield = BOSS_TK.SHIELD ? 1e9 : 0; m.vuln = 0; m.vx = m.vy = 0;
-      io.ev.push({ type: 'announce', x: m.x, y: m.y, text: TK.TEXT, color: TK.COLOR }, { type: 'shake', t: 0.3 },
+      io.ev.push({ type: 'announce', x: m.x, y: m.y, text: TK.TEXT.replace(' — ', (mk.SUFFIX || '') + ' — '), color: TK.COLOR }, { type: 'shake', t: 0.3 },
         { type: 'pulse', x: m.x, y: m.y - 14, r: 70, color: TK.COLOR }, { type: 'sfx', name: m.bossKind === 'FINAL' ? 'roar' : 'howl' }, { type: 'tkStart', kind: m.bossKind, x: m.x, y: m.y });
       if (io.log) io.log(m.bossKind, 'tk' + Math.round(mk.AT * 100));
       return true;
