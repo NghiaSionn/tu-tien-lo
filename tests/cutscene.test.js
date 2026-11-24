@@ -137,19 +137,22 @@ test('Yêu Vương: mỗi sự kiện phát đúng 1 lần; bỏ qua (lần 2) n
 
 // ---------- (24/11) cutscene biến hình pha 2 (storyboard ChatGPT) ----------
 for (const kind of ['MINI_P2', 'FINAL_P2']) {
-  test(`${kind}: zoom cận rồi về ×1, đêm buông + trăng máu, đổi sprite pha 1 -> pha 2 đúng 1 lần (che bằng chớp), chữ tên; mỗi sự kiện 1 lần`, () => {
+  test(`${kind}: zoom cận rồi về ×1, hiệu ứng chữ ký riêng của boss, đổi sprite pha 1 -> pha 2 đúng 1 lần (che bằng chớp/đảo màu), chữ tên; mỗi sự kiện 1 lần`, () => {
     const S = CUTSCENE[kind], T = S.T, b1 = S.BOSS + '_', b2 = S.BOSS + '2_';
     const c = createCutscene(kind, { x: 500, y: 400 }, { x: 300, y: 380 });
     let s = cutsceneState(c);
     assert.ok(s.style === 'p2' && s.zoom === 1 && s.pose.startsWith(b1));
     const ev = [], poses = [];
-    let maxZoom = 0, sawTitle = false, sawMoon = false, swapFlash = false, prev = s;
+    let maxZoom = 0, sawTitle = false, sawSig = false, swapFlash = false, prev = s;
     while (!c.done) {
       ev.push(...stepCutscene(c, DT)); s = cutsceneState(c);
       if (poses[poses.length - 1] !== s.pose) poses.push(s.pose);
-      if (prev.pose.startsWith(b1) && s.pose.startsWith(b2)) swapFlash = !!s.flash || !!s.black;
-      maxZoom = Math.max(maxZoom, s.zoom); sawTitle ||= s.title > 0.99; sawMoon ||= s.moon > 0.99;
-      assert.ok(s.shatter < 0 && !s.crack, '(24/11) pha 2 không dùng vỡ kính — chỉ giữ ở cutscene Yêu Vương xuất hiện');
+      if (prev.pose.startsWith(b1) && s.pose.startsWith(b2)) swapFlash = !!s.flash || !!s.black || !!s.invert;
+      maxZoom = Math.max(maxZoom, s.zoom); sawTitle ||= s.title > 0.99;
+      // (24/11) mỗi boss một chữ ký: sói = đất nứt + xung kích răng cưa; ma = đảo màu + vòng phù văn. Không vỡ kính, không trăng ở pha 2
+      assert.ok(s.shatter < 0 && !s.moon && !s.night, 'pha 2 không dùng vỡ kính / trăng');
+      if (S.BOSS === 'MINI') { assert.ok(!s.invert && s.runes < 0, 'sói không dùng hiệu ứng của ma'); sawSig ||= s.crack > 0.99 && true; }
+      else { assert.ok(!s.crack && s.ring < 0, 'ma không dùng hiệu ứng của sói'); sawSig ||= s.invert === 1 || s.runes > 0.5; }
       assert.ok(Math.abs(s.zoom - prev.zoom) < 0.1, 'zoom không giật');
       prev = s;
     }
@@ -157,7 +160,7 @@ for (const kind of ['MINI_P2', 'FINAL_P2']) {
     const swaps = poses.filter((p, i) => i && poses[i - 1].startsWith(b1) && p.startsWith(b2)).length;
     assert.equal(swaps, 1, poses.join(','));
     assert.ok(swapFlash, 'đổi sprite phải có chớp che');
-    assert.ok(sawTitle && sawMoon, 'có trăng máu dâng + chữ tên');
+    assert.ok(sawTitle && sawSig, 'có chữ ký riêng + chữ tên');
     assert.ok(s.zoom === 1 && s.letter < 0.01 && s.title < 0.01 && Math.abs(s.focusX - 300) < 1, 'về trận');
     assert.equal(ev.length, S.EVENTS.length);
   });

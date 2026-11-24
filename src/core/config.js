@@ -480,30 +480,30 @@ export const GACHA = {
 };
 
 // (24/11) Cutscene biến hình chuyển pha 2 — trận đứng yên như cutscene xuất hiện; lần 2 bỏ qua được (nhảy tới SKIP).
-// Người phát triển: vỡ kính chỉ giữ ở cutscene Yêu Vương xuất hiện (dùng nhiều mất ấn tượng). Pha 2 theo chủ đề ĐÊM — HUYẾT NGUYỆT — LINH HỒN:
-//   Lang Vương "Huyết Nguyệt": đêm buông, trăng máu dâng sau lưng, cột nguyệt quang đỏ chiếu xuống, sương đỏ, hú vang -> trăng đập, sóng nguyệt quang.
-//   Ma Quân "Vạn Hồn Quy Tông": đêm buông, trăng máu dâng, linh hồn bóng ma trồi lên xoáy vào lõi ngực -> vạn hồn bạo phát, bóng Ma Quân trước trăng.
-// T: IN zoom xong · NIGHT [đầu, cuối] đêm buông · MOON [đầu, cuối] trăng dâng · SWAP đổi sprite (che bằng chớp) · REVEAL lộ ngoại hình pha 2
-// · TITLE chữ tên · OUT về trận. BEAM/FOG/RINGS (sói), SOULS/BURST (ma): [đầu, cuối]. POSES: [mốc, tên khung]. FLASH: [mốc, dài, màu, độ đậm].
+// Người phát triển: MỖI BOSS MỘT CHỮ KÝ RIÊNG, 4 cutscene không lặp hiệu ứng chủ đạo (vỡ kính chỉ ở Yêu Vương xuất hiện; trăng chỉ ở cảnh vách đá).
+// ChatGPT đề xuất 2 ngôn ngữ đối lập:
+//   Lang Vương "Cuồng Thú Phá Địa" (FX 'quake'): sức mạnh thể chất — từ tâm NỔ RA; góc nhọn, vết nứt, răng cưa; camera rung/giật/nảy;
+//     đổi sprite bằng chớp cam trắng; tên GHÉP TỪ MẢNH ĐÁ, thoát cảnh vỡ vụn rơi.
+//   Ma Ảnh Yêu Vương "Ma Giới Đảo Nghịch" (FX 'void'): siêu nhiên — từ ngoài HÚT VÀO tâm; đường cong, xoắn ốc, đồng tâm; camera tĩnh,
+//     zoom chậm, chỉ giật một lần; thời gian ngưng (hạt đứng yên), đổi sprite bằng ĐẢO MÀU; tên TỰ VIẾT bằng phù văn ánh sáng, tan thành khói.
+// T: IN zoom xong · SWAP đổi sprite pha 2 · TITLE chữ tên · OUT zoom về ×1. Các khoảng [đầu, cuối] riêng từng FX. POSES: [mốc, tên khung].
 CUTSCENE.MINI_P2 = {
-  STYLE: 'p2', BOSS: 'MINI', TITLE: 'HUYẾT NGUYỆT CUỒNG LANG', SUB: 'Lang Vương · pha 2', TITLE_COL: '#ffb070', BAND: '#7a0f14',
-  DUR: 5.0, ZOOM: 2, VIGN: 0.6, DESAT: 0, SKIP: 'REVEAL', MOON_COL: ['#e8323a', '#8a0a14'], MOON_R: 74, MOON_Y: -16,
-  T: { IN: 0.5, NIGHT: [0.1, 0.9], MOON: [0.5, 1.8], SWAP: 1.3, BLACK: 2.3, REVEAL: 2.38, TITLE: 3.3, OUT: 4.3 },
-  POSES: [[0, 'MINI_walk0'], [0.5, 'MINI_atk'], [1.3, 'MINI2_howl'], [3.3, 'MINI2_walk0'], [4.4, 'MINI2_atk']],
-  FLASH: [[1.3, 0.12, '#ffffff', 0.9], [1.42, 0.1, '#ff2a2a', 0.6], [2.38, 0.3, '#ff2a2a', 0.75]],
-  LINES: [1.3, 2.3, 'out'], BEAM: [0.9, 2.6], FOG: [0.4, 4.6], RINGS: [1.3, 2.3], PULSE: 2.38, SOULS: null, BURST: null,
-  EVENTS: [[0.02, { type: 'sfx', name: 'thud' }], [0.6, { type: 'sfx', name: 'thud' }], [0.6, { type: 'shake', t: 0.4 }],
-    [1.3, { type: 'sfx', name: 'howl' }], [1.3, { type: 'shake', t: 0.9 }], [2.38, { type: 'sfx', name: 'land' }], [2.38, { type: 'sfx', name: 'rumble' }],
-    [2.38, { type: 'shake', t: 0.6 }], [2.38, { type: 'boom', r: 70, color: '#ff3a2a' }], [3.3, { type: 'sfx', name: 'bossPhase' }]],
+  STYLE: 'p2', FX: 'quake', BOSS: 'MINI', TITLE: 'HUYẾT NGUYỆT CUỒNG LANG', SUB: 'Lang Vương · cuồng thú phá địa', TITLE_COL: '#ffb070',
+  DUR: 5.0, ZOOM: 2, VIGN: 0.45, DESAT: 0, SKIP: 'TITLE',
+  T: { IN: 0.25, CRACK: [0.1, 1.4], SWAP: 1.4, HOWL: 2.3, RING: [2.3, 3.1], TITLE: 3.2, OUT: 4.2 },
+  POSES: [[0, 'MINI_walk0'], [0.15, 'MINI_atk'], [1.4, 'MINI2_atk'], [2.3, 'MINI2_howl'], [3.2, 'MINI2_walk0']],
+  FLASH: [[1.4, 0.07, '#ffd9a0', 0.95], [1.47, 0.06, '#ffffff', 0.6], [2.3, 0.08, '#ff7a3a', 0.45]],
+  EVENTS: [[0.02, { type: 'sfx', name: 'thud' }], [0.05, { type: 'shake', t: 0.12 }], [0.6, { type: 'sfx', name: 'thud' }], [0.6, { type: 'shake', t: 0.1 }],
+    [0.6, { type: 'sfx', name: 'land' }], [0.9, { type: 'sfx', name: 'thud' }], [0.9, { type: 'shake', t: 0.1 }], [1.15, { type: 'sfx', name: 'thud' }],
+    [1.15, { type: 'shake', t: 0.12 }], [1.4, { type: 'sfx', name: 'land' }], [1.4, { type: 'shake', t: 0.3 }], [2.3, { type: 'sfx', name: 'howl' }],
+    [2.3, { type: 'shake', t: 0.15 }], [2.3, { type: 'boom', r: 70, color: '#ff7a3a' }], [3.2, { type: 'sfx', name: 'thud' }], [4.2, { type: 'sfx', name: 'bossPhase' }]],
 };
 CUTSCENE.FINAL_P2 = {
-  STYLE: 'p2', BOSS: 'FINAL', TITLE: 'HUYẾT LÔI MA QUÂN', SUB: 'Vạn Hồn Quy Tông · chân thân', TITLE_COL: '#ff9ad6', BAND: '#3a0a4a',
-  DUR: 5.5, ZOOM: 2, VIGN: 0.6, DESAT: 0.7, SKIP: 'REVEAL', MOON_COL: ['#d8283a', '#6a0814'], MOON_R: 108, MOON_Y: -58,   // to + cao hơn: cánh Ma Quân không che hết trăng
-  T: { IN: 0.6, NIGHT: [0, 0.8], MOON: [0.5, 2.0], SWAP: 1.4, BLACK: 0, REVEAL: 2.4, TITLE: 3.5, OUT: 4.6 },
-  POSES: [[0, 'FINAL_walk0'], [0.6, 'FINAL_atk'], [1.4, 'FINAL2_roar'], [3.5, 'FINAL2_atk'], [4.7, 'FINAL2_walk0']],
-  FLASH: [[1.4, 0.08, '#000000', 0.9], [1.48, 0.18, '#ff2a4a', 0.65], [2.4, 0.25, '#ffd0f0', 0.6]],
-  LINES: [1.6, 2.4, 'in'], BEAM: null, FOG: null, RINGS: null, PULSE: 2.4, SOULS: [0.6, 2.4], BURST: [2.4, 3.6],
-  EVENTS: [[0.05, { type: 'sfx', name: 'rumble' }], [0.3, { type: 'sfx', name: 'eyes' }], [0.6, { type: 'shake', t: 0.4 }],
-    [1.4, { type: 'sfx', name: 'roar' }], [1.4, { type: 'shake', t: 0.6 }], [2.4, { type: 'sfx', name: 'bossPhase' }], [2.4, { type: 'shake', t: 0.7 }],
-    [2.4, { type: 'boom', r: 80, color: '#ff4a8a' }], [2.45, { type: 'sfx', name: 'eyes' }], [3.5, { type: 'sfx', name: 'rumble' }]],
+  STYLE: 'p2', FX: 'void', BOSS: 'FINAL', TITLE: 'HUYẾT LÔI MA QUÂN', SUB: 'Ma Ảnh Yêu Vương · ma giới đảo nghịch', TITLE_COL: '#ff9ad6',
+  DUR: 5.5, ZOOM: 2, VIGN: 0.7, DESAT: 0.85, SKIP: 'TITLE',
+  T: { IN: 0.7, PULL: [0.7, 1.5], SWAP: 1.5, INVERT: [1.5, 1.57], RUNES: [2.5, 4.9], SPIRAL: [2.5, 3.5], ROAR: 3.5, BURST: [3.5, 4.3], COLOR: 3.5, TITLE: 4.6, OUT: 4.6 },
+  POSES: [[0, 'FINAL_walk0'], [1.5, 'FINAL2_atk'], [3.5, 'FINAL2_roar'], [4.6, 'FINAL2_walk0']],
+  FLASH: [],
+  EVENTS: [[0.05, { type: 'sfx', name: 'rumble' }], [0.7, { type: 'sfx', name: 'eyes' }], [1.5, { type: 'sfx', name: 'bossPhase' }],
+    [2.5, { type: 'sfx', name: 'eyes' }], [3.5, { type: 'sfx', name: 'roar' }], [3.5, { type: 'shake', t: 0.25 }], [4.6, { type: 'sfx', name: 'rumble' }]],
 };
