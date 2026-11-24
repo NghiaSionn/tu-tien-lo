@@ -1755,12 +1755,13 @@ function titleLayout(ctx, s, size) {
   let x = W / 2 - tot / 2;
   return [...s].map((ch, i) => { const cx = x + ws[i] / 2; x += ws[i]; return [ch, cx]; });
 }
+const easeP2 = v => { v = Math.max(0, Math.min(1, v)); return v * v * (3 - 2 * v); };   // smoothstep (render.js không có ease của cutscene.js)
 const VOID_SPECKS = Array.from({ length: 80 }, (_, i) => [h01(i + 200) * W, 20 + h01(i + 300) * (H - 40)]);
 function drawP2Screen(ctx, c, vis, time) {
   const K = BOSS.DRAW_SCALE, z = P2_ZOOM ? P2_ZOOM.z : 1, [ox, oy] = p2Map(c.bx, c.by - 22 * K), fin = c.fx === 'void';
   if (c.desat > 0) { ctx.globalCompositeOperation = 'saturation'; ctx.globalAlpha = c.desat; ctx.fillStyle = '#808080'; ctx.fillRect(0, 0, W, H); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1; }
   if (fin && (c.freeze > 0 || c.burst >= 0)) {   // thời gian ngưng: hạt bụi đứng yên giữa không trung -> bị hút về tâm -> bắn vọt ra khi gầm
-    const pk = c.pull >= 0 ? ease(c.pull) : (c.pullT >= 0.8 ? 1 : 0), bk = c.burst >= 0 ? c.burst : -1;
+    const pk = c.pull >= 0 ? easeP2(c.pull) : (c.pullT >= 0.8 ? 1 : 0), bk = c.burst >= 0 ? c.burst : -1;
     for (let i = 0; i < VOID_SPECKS.length; i++) {
       let [sx, sy] = VOID_SPECKS[i]; sx += (ox - sx) * 0.45 * pk; sy += (oy - sy) * 0.45 * pk;
       if (bk >= 0) { const a = Math.atan2(sy - oy, sx - ox), d = bk * bk * 400; sx += Math.cos(a) * d; sy += Math.sin(a) * d; }
@@ -1790,7 +1791,7 @@ function drawP2Screen(ctx, c, vis, time) {
     const y = Math.round(H * 0.72), L = titleLayout(ctx, c.title_, 26), tt = c.titleT, out = c.titleOut;
     if (!fin) {   // tên ghép từ mảnh đá bay lên; lúc thoát vỡ vụn rơi xuống
       L.forEach(([ch, cx], i) => {
-        const at = 0.12 + i * 0.03, e = ease((tt - at + 0.35) / 0.35);
+        const at = 0.12 + i * 0.03, e = easeP2((tt - at + 0.35) / 0.35);
         if (e <= 0) return;
         const fall = out * out, dy = (1 - e) * 90 + fall * (180 + h01(i) * 120), rot = (1 - e) * (h01(i + 3) - 0.5) * 2.4 + fall * (h01(i + 5) - 0.5) * 4;
         ctx.save(); ctx.globalAlpha = Math.min(1, e * 2) * (1 - out); ctx.translate(Math.round(cx), Math.round(y + dy)); ctx.rotate(rot);
