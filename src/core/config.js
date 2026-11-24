@@ -338,8 +338,9 @@ export const BOSS_TK = {
 // Chỉ pha 2, không miễn nhiễm; AT: mốc máu lần đầu · CD: hồi (giây) · MAX: số lần/trận · DUR: thời lượng · STUN: choáng sau khi xong.
 // Lang Vương: R vòng vây, W bề rộng dải lao, SPEED px/s. Yêu Vương: LIGHT bán kính vùng sáng, EYE_R khoảng cách mắt tới người chơi, W bề rộng tia.
 export const BOSS_ULT = {
-  MINI: { NAME: 'Vạn Lang Ảnh Sát Trận', AT: 0.35, CD: 40, MAX: 2, R: 90, W: 16, SPEED: 300, DUR: 10, STUN: 2, DMG: 1.6, COLOR: '#ff4a3a' },
-  FINAL: { NAME: 'U Minh Vạn Nhãn Kiếp', AT: 0.30, CD: 45, MAX: 2, LIGHT: 65, EYE_R: [110, 135], W: 12, DUR: 11, STUN: 2.5, DMG: 1.6, COLOR: '#ff2a3a' },
+  MINI: { NAME: 'Vạn Lang Ảnh Sát Trận', AT: 0.35, CD: 40, MAX: 2, R: 120, W: 16, SPEED: 300, DUR: 10, STUN: 2, DMG: 1.6, COLOR: '#ff4a3a' },   // 24/11: vòng 90 -> 120, boss thật trong vòng
+  // 24/11 làm lại: mắt khóa chỗ người chơi sau LOCK s -> vòng ma trảo CLAW_R; vùng sáng phụ LIGHT2_R cách LIGHT2_D
+  FINAL: { NAME: 'U Minh Vạn Nhãn Kiếp', AT: 0.30, CD: 45, MAX: 2, LIGHT: 70, EYE_R: [110, 135], LOCK: 0.3, CLAW_R: 20, LIGHT2_R: 36, LIGHT2_D: 60, DUR: 11, STUN: 2.5, DMG: 1.6, COLOR: '#ff2a3a' },
 };
 export const BOSS_SKILL_LABELS = {
   dash: ['Tam Liên Lao', '#ff8a6a'], howl: ['Lang Hú', '#ffd978'], howlDash: ['Hú Rồi Lao', '#ffd978'], claw: ['Liệt Trảo', '#ff8a6a'], leap: ['Vồ Đầu Đàn', '#ffb070'],
@@ -555,4 +556,23 @@ CUTSCENE.FINAL_P2 = {
   EVENTS: [[0.05, { type: 'sfx', name: 'rumble' }], [1.0, { type: 'sfx', name: 'eyes' }], [1.8, { type: 'sfx', name: 'eyes' }], [2.6, { type: 'sfx', name: 'bossPhase' }],
     [2.8, { type: 'sfx', name: 'rumble' }], [4.4, { type: 'sfx', name: 'roar' }], [4.4, { type: 'boom', r: 100, color: '#ff6ab0' }],
     [5.0, { type: 'sfx', name: 'eyes' }], [6.9, { type: 'sfx', name: 'rumble' }]],
+};
+
+// (24/11) Cutscene NGẮN khi boss tung tuyệt chiêu (ChatGPT storyboard; không lặp hiệu ứng cutscene xuất hiện / pha 2).
+// Lang Vương "bầy sói đồng loạt mở mắt": zoom vào boss -> lùi thấy vòng, 7 bóng sói hiện lần lượt -> 8 cặp mắt đỏ cùng mở
+//   -> tên chiêu hiện theo vòng cung rồi tan thành 8 vệt đỏ. Yêu Vương "cả thế giới nhắm mắt, chỉ Ma Quân được nhìn":
+//   ánh sáng tắt từng vùng -> zoom vào đôi mắt Ma Quân, chớp -> hàng loạt mắt nhỏ mở nhìn người chơi -> vòng sáng nhỏ bật quanh
+//   người chơi, tên chiêu lóe từng chữ như đồng tử. Trận đứng yên trong lúc chiếu; lần 2 bỏ qua được (nhảy tới OUT).
+CUTSCENE.MINI_ULT = {
+  STYLE: 'ult', FX: 'pack', BOSS: 'MINI', TITLE: 'VẠN LANG ẢNH SÁT TRẬN', TITLE_COL: '#ff5a3a', DUR: 2.0, SKIP: 'OUT',
+  T: { IN: 0.35, RING: [0.4, 0.9], EYES: 0.9, TITLE: 1.15, OUT: 1.5 },
+  SHAKE: [[0.9, 0.3, 3], [1.5, 0.2, 2]],
+  EVENTS: [[0.02, { type: 'sfx', name: 'thud' }], [0.45, { type: 'sfx', name: 'land' }], [0.6, { type: 'sfx', name: 'land' }], [0.75, { type: 'sfx', name: 'land' }],
+    [0.9, { type: 'sfx', name: 'howl' }], [1.2, { type: 'sfx', name: 'bossPhase' }]],
+};
+CUTSCENE.FINAL_ULT = {
+  STYLE: 'ult', FX: 'eyes', BOSS: 'FINAL', TITLE: 'U MINH VẠN NHÃN KIẾP', TITLE_COL: '#ff2a3a', DUR: 2.2, SKIP: 'OUT',
+  T: { DARK: [0, 0.5], EYE: [0.5, 1.0], MANY: [1.0, 1.6], TITLE: 1.35, OUT: 1.6 },
+  SHAKE: [[1.6, 0.25, 3]],
+  EVENTS: [[0.05, { type: 'sfx', name: 'rumble' }], [0.5, { type: 'sfx', name: 'eyes' }], [1.0, { type: 'sfx', name: 'eyes' }], [1.6, { type: 'sfx', name: 'roar' }]],
 };

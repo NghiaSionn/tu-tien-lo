@@ -146,72 +146,83 @@ export function bossAI(m, player, dx, dy, d, dt, io) {
 }
 
 // ---------- (24/11) TUYỆT CHIÊU (ultimate) mỗi boss — docs/design/BOSS_TUYET_KY_DE_XUAT.md ----------
-// Lang Vương "Vạn Lang Ảnh Sát Trận": vòng 8 phân thân nhốt người chơi, từng đợt phân thân lao xuyên vòng (dải có vệt báo).
-// Yêu Vương "U Minh Vạn Nhãn Kiếp": bóng tối (render), mắt đỏ hiện ngoài vùng sáng, mắt thật bắn tia / đạn có vệt báo, mắt giả tự tắt.
-// Kịch bản = danh sách sự kiện { at, kind, ... } sinh sẵn lúc bắt đầu (tất định theo io.rng); boss đứng yên, VẪN nhận sát thương.
-const ULT_WOLF = [   // [giây, phân thân k (góc k·45° + gốc), đích (k + 4 = xuyên tâm, k + 3/5 = dây cung), báo trước, tốc độ]
-  [1.2, 0, 4, 0.95], [2.7, 1, 5, 0.9], [3.05, 3, 7, 0.9], [4.2, 0, 4, 0.85], [4.6, 2, 6, 0.85],
-  [5.7, 5, 8, 0.8], [6.1, 1, 4, 0.8], [6.5, 3, 6, 0.8], [7.2, 0, 4, 0.8], [7.2, 2, 7, 0.8], [7.75, 6, 10, 0.75, 330],
+// Lang Vương "Vạn Lang Ảnh Sát Trận": vòng 8 sói (1 boss thật + 7 phân thân cùng cỡ) nhốt người chơi, từng đợt lao xuyên vòng
+// (dải có vệt báo); đợt cuối boss thật cũng lao. Né = đọc hướng lao, bước ngang.
+// Yêu Vương "U Minh Vạn Nhãn Kiếp" (làm lại 24/11 cho khác hẳn sói): bóng tối (render), mắt đỏ mở trong bóng tối, 0,3 s sau
+// KHÓA chỗ người chơi đứng -> vòng tròn ma trảo trồi lên từ đất ở đó. Né = bước ra khỏi vòng (không phải né đường thẳng);
+// có đợt mở vùng sáng phụ làm chỗ trú. Kịch bản = danh sách sự kiện sinh sẵn (tất định theo io.rng). Boss VẪN nhận sát thương.
+// Mở đầu: sự kiện bossUlt -> main.js chiếu cutscene ngắn (CUTSCENE.*_ULT), trận đứng yên trong lúc chiếu.
+const ULT_WOLF = [   // [giây, phân thân k (góc k·45° + gốc; k = 0 là BOSS THẬT), đích (k + 4 = xuyên tâm, khác = dây cung), báo trước, tốc độ]
+  [1.2, 2, 6, 0.95], [2.7, 1, 5, 0.9], [3.1, 3, 7, 0.9], [4.2, 2, 6, 0.85], [4.6, 4, 8, 0.85],
+  [5.7, 5, 8, 0.8], [6.1, 1, 4, 0.8], [6.5, 3, 6, 0.8], [7.2, 2, 7, 0.8], [7.6, 0, 4, 0.8], [8.0, 6, 10, 0.75, 330],
 ];
-const ULT_EYES = [   // [giây, kiểu, góc lệch (rad) so với gốc ngẫu nhiên, báo trước, tốc độ đạn]
-  [1.2, 'beam', 0, 1.1], [2.9, 'beam', 2.2, 1.0], [3.3, 'beam', 4.0, 1.0], [4.6, 'shot', 1.0, 0.9, 220], [4.6, 'shot', 3.4, 0.9, 220],
-  [6.3, 'fake', 0.6, 0.5], [6.3, 'fake', 2.6, 0.5], [6.3, 'beam', 4.6, 1.0], [8.0, 'beam', 1.6, 0.8], [8.4, 'beam', 3.9, 0.8], [8.8, 'shot', 5.6, 0.8, 260],
+const ULT_CLAW = [   // [giây, báo trước, bù vị trí so với chỗ khóa [dx, dy] (khung xoay ngẫu nhiên), có vùng sáng phụ]
+  [1.2, 1.2, [0, 0]],
+  [2.9, 1.1, [0, 0]], [3.35, 1.1, [0, 0]],
+  [4.6, 1.0, [-22, 0]], [4.6, 1.0, [22, 0]], [5.1, 1.0, [0, 0]],
+  [6.3, 1.1, [0, 0]], [6.3, 1.1, [-34, 26]], [6.3, 1.1, [-34, -26]], [6.3, 0, null, 'light'],
+  [8.0, 0.9, [0, 0]], [8.35, 0.9, [0, 0]], [8.7, 0.9, [0, 0]], [9.05, 0.9, [0, 0]],
 ];
 function startUlt(m, player, io, U) {
-  const u = { t: 0, a0: io.rng() * Math.PI * 2, ev: [], i: 0, clones: [], dashes: [], eyes: [], R: U.R };
-  if (m.bossKind === 'MINI') {   // tâm vòng = người chơi; thu nhỏ vòng nếu phân thân rơi vào chỗ không đứng được
+  const u = { t: 0, a0: io.rng() * Math.PI * 2, ev: [], i: 0, clones: [], dashes: [], eyes: [], claws: [], lights: [], R: U.R };
+  if (m.bossKind === 'MINI') {   // tâm vòng = người chơi; thu nhỏ vòng nếu sói rơi vào chỗ không đứng được
     let R = U.R;
-    for (; R >= 60; R -= 10) {
+    for (; R >= 80; R -= 10) {
       let ok = true;
       for (let k = 0; k < 8 && ok; k++) { const a = u.a0 + k * Math.PI / 4; ok = io.map.canStand(player.x + Math.cos(a) * R, player.y + Math.sin(a) * R); }
       if (ok) break;
     }
-    if (R < 60) return false;
+    if (R < 80) return false;
     u.R = R; u.cx = player.x; u.cy = player.y;
-    for (let k = 0; k < 8; k++) { const a = u.a0 + k * Math.PI / 4; u.clones.push({ x: u.cx + Math.cos(a) * R, y: u.cy + Math.sin(a) * R, a, hot: -1 }); }
+    for (let k = 0; k < 8; k++) { const a = u.a0 + k * Math.PI / 4; u.clones.push({ x: u.cx + Math.cos(a) * R, y: u.cy + Math.sin(a) * R, a, hot: -1, real: k === 0 }); }
+    m.x = m.lastX = u.clones[0].x; m.y = m.lastY = u.clones[0].y;   // boss thật vào vị trí 0 trên vòng (giữa đám phân thân)
     for (const [at, k, to, tele, sp] of ULT_WOLF) u.ev.push({ at, kind: 'dash', k: k % 8, to: to % 8, tele, sp: sp || U.SPEED });
   } else {
-    for (const [at, kind, da, tele, sp] of ULT_EYES) u.ev.push({ at, kind, da, tele, sp });
+    for (const [at, tele, off, light] of ULT_CLAW) u.ev.push({ at, kind: light ? 'light' : 'eye', tele, off });
   }
   u.ev.sort((a, b) => a.at - b.at);
   m.ult = u; m.st = 'ult'; m.vx = m.vy = 0; m.vuln = 0;
-  io.ev.push({ type: 'announce', x: m.x, y: m.y, text: U.NAME + ' — HÃY NÉ!', color: U.COLOR }, { type: 'shake', t: 0.4 },
-    { type: 'sfx', name: m.bossKind === 'FINAL' ? 'roar' : 'howl' }, { type: 'ultStart', kind: m.bossKind });
+  io.ev.push({ type: 'announce', x: m.x, y: m.y, text: U.NAME + ' — HÃY NÉ!', color: U.COLOR }, { type: 'shake', t: 0.3 },
+    { type: 'ultStart', kind: m.bossKind }, { type: 'bossUlt', kind: m.bossKind });
   if (io.log) io.log(m.bossKind, 'ult');
   return true;
 }
 function updateUlt(m, player, dt, io, B, U) {
   const u = m.ult; u.t += dt;
-  if (m.bossKind === 'MINI') {   // vòng vây: chạm biên bị đẩy vào trong (không sát thương)
-    const dx = player.x - u.cx, dy = player.y - u.cy, d = Math.hypot(dx, dy), lim = u.R - 6;
+  if (m.bossKind === 'MINI') {
+    const dx = player.x - u.cx, dy = player.y - u.cy, d = Math.hypot(dx, dy), lim = u.R - 10;   // vòng vây: chạm biên bị đẩy vào trong
     if (d > lim && u.t < U.DUR - 1.2) { player.x = u.cx + dx / d * lim; player.y = u.cy + dy / d * lim; }
+    for (const ds of u.dashes) if (ds.k === 0 && u.t >= ds.fire) {   // boss thật lao thật (thân di chuyển), xong đứng ở đầu kia
+      const k = Math.min(1, (u.t - ds.fire) / ds.dur); m.x = ds.x0 + (ds.x1 - ds.x0) * k; m.y = ds.y0 + (ds.y1 - ds.y0) * k; m.lastX = m.x; m.lastY = m.y;
+      m.dirX = Math.sign(ds.x1 - ds.x0) || 1;
+    }
   }
   while (u.i < u.ev.length && u.ev[u.i].at <= u.t) {
     const e = u.ev[u.i++], late = u.t - e.at;
-    if (e.kind === 'dash') {   // phân thân k lao tới phía đối diện (qua tâm hoặc dây cung), dải rộng W
+    if (e.kind === 'dash') {   // sói k lao tới phía đối diện (qua tâm hoặc dây cung), dải rộng W
       const c = u.clones[e.k], to = u.clones[e.to], ux = to.x - c.x, uy = to.y - c.y, l = Math.hypot(ux, uy) || 1, ex = to.x + ux / l * 16, ey = to.y + uy / l * 16;
       addHazard(io, B, { x: (c.x + ex) / 2, y: (c.y + ey) / 2, x0: c.x, y0: c.y, x1: ex, y1: ey, r: U.W / 2, t: e.tele - late, dmg: m.dmg * U.DMG, owner: m, src: 'miniboss:ult', color: U.COLOR });
       c.hot = u.t + e.tele - late; u.dashes.push({ x0: c.x, y0: c.y, x1: ex, y1: ey, fire: c.hot, dur: (l + 16) / e.sp, k: e.k });
       io.ev.push({ type: 'sfx', name: 'bossWarn' });
-    } else {   // mắt: vị trí quanh người chơi (ngoài vùng sáng), khóa mục tiêu lúc mở mắt
-      const a = u.a0 + e.da, r = U.EYE_R[0] + io.rng() * (U.EYE_R[1] - U.EYE_R[0]);
-      let x = player.x + Math.cos(a) * r, y = player.y + Math.sin(a) * r;
-      const eye = { x, y, open: u.t, until: u.t + e.tele + 0.35, fire: u.t + e.tele - late, kind: e.kind, tx: player.x, ty: player.y - 7, sp: e.sp, fired: false };   // đạn trúng ở giữa thân (y - 7)
-      if (e.kind === 'fake') eye.until = u.t + e.tele;
-      if (e.kind === 'beam') {
-        const ux = player.x - x, uy = player.y - y, l = Math.hypot(ux, uy) || 1;
-        addHazard(io, B, { x: player.x, y: player.y, x0: x, y0: y, x1: x + ux / l * (l * 2 + 40), y1: y + uy / l * (l * 2 + 40), r: U.W / 2, t: e.tele - late, dmg: m.dmg * U.DMG, owner: m, src: 'boss:ultEye', color: U.COLOR });
-      }
-      u.eyes.push(eye);
-      if (e.kind !== 'fake') io.ev.push({ type: 'sfx', name: 'eyes' });
+    } else if (e.kind === 'eye') {   // mắt mở ngoài vùng sáng; khóa vị trí sau LOCK giây
+      const a = u.a0 + u.eyes.length * 2.4, r = U.EYE_R[0] + io.rng() * (U.EYE_R[1] - U.EYE_R[0]);
+      u.eyes.push({ x: player.x + Math.cos(a) * r, y: player.y + Math.sin(a) * r, open: u.t, lockAt: u.t + U.LOCK - late, fire: u.t + e.tele - late, off: e.off, rot: u.a0 + io.rng() * 0.6, locked: false });
+      io.ev.push({ type: 'sfx', name: 'eyes' });
+    } else if (e.kind === 'light') {   // vùng sáng phụ: chỗ trú (không có ma trảo của đợt này), xa các vùng sắp nổ
+      const a = u.a0 + Math.PI + 0.3, x = player.x + Math.cos(a) * U.LIGHT2_D, y = player.y + Math.sin(a) * U.LIGHT2_D;
+      u.lights.push({ x, y, r: U.LIGHT2_R, from: u.t, until: u.t + 1.6 });
     }
   }
-  for (const eye of u.eyes) if (eye.kind === 'shot' && !eye.fired && u.t >= eye.fire) {   // đạn ma khí theo hướng đã khóa
-    eye.fired = true;
-    const ux = eye.tx - eye.x, uy = eye.ty - eye.y, l = Math.hypot(ux, uy) || 1;
-    if (io.shots.length < RUN.MAX_ENEMY_SHOTS) io.shots.push({ x: eye.x, y: eye.y, vx: ux / l * eye.sp, vy: uy / l * eye.sp, life: 3, dmg: m.dmg * U.DMG, kind: 'dark', src: 'boss:ultEye' });
+  for (const eye of u.eyes) if (!eye.locked && u.t >= eye.lockAt) {   // khóa: vòng ma trảo tại chỗ người chơi (+ bù theo khung xoay)
+    eye.locked = true;
+    const [ox, oy] = eye.off, c = Math.cos(eye.rot), s = Math.sin(eye.rot), x = player.x + ox * c - oy * s, y = player.y + ox * s + oy * c;
+    eye.zx = x; eye.zy = y;
+    addHazard(io, B, { x, y, r: U.CLAW_R, t: Math.max(0.1, eye.fire - u.t), dmg: m.dmg * U.DMG, owner: m, src: 'boss:ultEye', color: U.COLOR });
   }
-  u.eyes = u.eyes.filter(e => u.t < e.until || (e.kind === 'shot' && !e.fired));
+  for (const eye of u.eyes) if (eye.locked && !eye.clawed && u.t >= eye.fire) { eye.clawed = true; u.claws.push({ x: eye.zx, y: eye.zy, at: u.t }); }
+  u.eyes = u.eyes.filter(e => u.t < e.fire + 0.35);
+  u.claws = u.claws.filter(c => u.t < c.at + 0.5);
+  u.lights = u.lights.filter(l => u.t < l.until);
   if (u.t >= U.DUR) {   // kết thúc: tan vòng / sáng lại, boss choáng (sơ hở)
     m.ult = null; m.st = 'recover'; m.stT = U.STUN; m.vuln = U.STUN; m.ultN = (m.ultN || 0) + 1; m.ultAt = m.age;
     io.ev.push({ type: 'announce', x: m.x, y: m.y, text: 'Phá giải! — TẤN CÔNG!', color: '#ffe066' }, { type: 'ultEnd', kind: m.bossKind, x: m.x, y: m.y }, { type: 'shake', t: 0.25 });

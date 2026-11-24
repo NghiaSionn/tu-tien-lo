@@ -78,18 +78,30 @@ test('Lang Vương: 8 phân thân quanh vòng, người chơi bị giữ trong v
   assert.ok(g.r.dmgBy['miniboss:ult'] > 0 && SKILL_NAMES['miniboss:ult'], 'đứng yên trúng đòn lao');
 });
 
-test('Yêu Vương: mắt giả không có vệt / không sát thương; đạn bay theo hướng khóa; boss chết giữa chừng thì hủy hết', () => {
-  const f = fight('FINAL', 2);
-  let fakes = 0, shots = 0;
-  for (let i = 0; i < 30 * 12; i++) {
+test('Yêu Vương (làm lại): mắt khóa chỗ người chơi sau LOCK -> vòng ma trảo tròn ở đó; có vùng sáng phụ; boss chết giữa chừng thì hủy hết', () => {
+  const U = BOSS_ULT.FINAL, f = fight('FINAL', 2);
+  let checked = 0, lights = 0, claws = 0;
+  for (let i = 0; i < 30 * 13; i++) {
+    const before = new Set(f.r.scene.hazards);
     f.step(1); const b = f.boss(); if (!b || !b.ult) continue;
-    fakes = Math.max(fakes, b.ult.eyes.filter(e => e.kind === 'fake').length);
-    shots = Math.max(shots, f.r.scene.enemyShots.filter(s => s.src === 'boss:ultEye').length);
+    for (const h of f.r.scene.hazards) if (!before.has(h) && h.src === 'boss:ultEye') {
+      assert.equal(h.x0, undefined, 'vòng tròn, không phải dải'); assert.equal(h.r, U.CLAW_R);
+      assert.ok(Math.hypot(h.x - f.p.x, h.y - f.p.y) <= 45, 'đặt ở (quanh) chỗ người chơi lúc khóa (bù tối đa ~43 px)');
+      checked++;
+    }
+    lights = Math.max(lights, b.ult.lights.length); claws = Math.max(claws, b.ult.claws.length);
   }
-  assert.ok(fakes >= 2 && shots >= 1);
-  assert.ok(f.r.scene.hazards.every(h => h.src !== 'boss:ultEye' || h.x0 !== undefined), 'chỉ tia mới có vùng');
+  assert.ok(checked >= 10, 'đủ vòng ma trảo: ' + checked); assert.ok(lights >= 1, 'có vùng sáng phụ'); assert.ok(claws >= 1, 'ma trảo trồi');
   const g = fight('FINAL', 3); g.step(30 * 4);
   const b = g.boss(); assert.ok(b.ult);
   b.hp = 1; b.vuln = 0; b.dead = true; g.step(2);
   assert.equal(g.r.scene.hazards.length, 0, 'boss chết: không còn vùng nổ');
+});
+
+test('Lang Vương: boss thật đứng TRONG vòng (vị trí 0) cùng 7 phân thân; vòng bán kính 120 khi đủ chỗ', () => {
+  const f = fight('MINI', 1); f.step(30 * 3);
+  const b = f.boss(); assert.ok(b.ult);
+  const u = b.ult, r = Math.hypot(b.x - u.cx, b.y - u.cy);
+  assert.ok(Math.abs(r - u.R) < 2, 'boss trên vòng: ' + r.toFixed(1)); assert.ok(u.clones[0].real);
+  assert.ok(u.R >= 80 && u.R <= BOSS_ULT.MINI.R);
 });

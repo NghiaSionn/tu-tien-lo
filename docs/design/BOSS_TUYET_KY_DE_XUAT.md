@@ -64,3 +64,10 @@ Hủy ngay hitbox / bóng tối / vòng vây nếu boss chết giữa chừng.
 - Mắt đỏ hiện cách người chơi ≥ 95 px; tia ma quang dải 12 px (khóa vị trí lúc mắt mở), đạn ma khí 220–260 px/s; cảnh báo 1,1 → 0,8 s.
 - 5 đợt: 1 tia → 2 tia lệch 0,4 s → 2 đạn → 3 mắt (2 mắt giả tắt sau 0,5 s, không có vệt báo) + 1 tia → 2 tia + 1 đạn. Kết thúc: mắt nhắm, sáng lại từ tâm, choáng 2,5 s.
 - Mỗi đợt phải có đường né đi bộ tới chỗ an toàn (82 px/s, trừ 0,2 s phản ứng); nghỉ ≥ 0,2–0,3 s giữa các đợt.
+
+### Sửa theo góp ý 24/11 (ChatGPT chi tiết hóa)
+- Lang Vương: vòng 120 px; 1 boss thật (vị trí 0) + 7 phân thân CÙNG CỠ (hơi trong); đợt cuối boss thật cũng lao.
+- Yêu Vương làm lại cho khác hẳn sói: bỏ tia thẳng — mắt đỏ khóa chỗ người chơi sau 0,3 s -> vòng ma trảo (R 20) trồi lên ở đó;
+  né = bước ra khỏi vòng; đợt 4 có vùng sáng phụ (R 36) làm chỗ trú; đợt 5 bốn vòng nổ nối tiếp theo chân người chơi.
+- Cutscene 2 s / 2,2 s (CUTSCENE.MINI_ULT / FINAL_ULT): "bầy sói đồng loạt mở mắt" (tên theo vòng cung tan thành 8 vệt đỏ) /
+  "cả thế giới nhắm mắt, chỉ Ma Quân được nhìn" (tắt sáng từng vùng, mắt Ma Quân, mắt nhỏ, tên lóe từng chữ như đồng tử).

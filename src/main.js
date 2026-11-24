@@ -1007,11 +1007,11 @@ function startCut(e) {
   if (!FEATURES.bossCutscene || !run || cut) return;
   const b = run.scene.monsters.find(m => m.boss && !m.dead && m.bossKind === e.kind);
   if (!b) return;
-  const ck = e.p2 ? e.kind + '_P2' : e.kind;
+  const ck = e.ult ? e.kind + '_ULT' : e.p2 ? e.kind + '_P2' : e.kind;   // (24/11) + cutscene tuyệt chiêu
   cut = createCutscene(ck, b, p, !!(meta.seenIntro && meta.seenIntro[ck]));
   if (!cut) return;
   if (e.p2) { b.stT = 0.001; b.p2Burst = b.p2Beat = b.p2End = true; }   // cutscene thay màn biến hình tại chỗ; xong cảnh boss vào sơ hở
-  cut.boss = b; b.introHide = true; input.clear(); document.body.classList.add('cutscene');   // ẩn HUD trong lúc chiếu
+  cut.boss = b; if (!e.ult) b.introHide = true; input.clear(); document.body.classList.add('cutscene');   // ẩn HUD trong lúc chiếu; tuyệt chiêu: boss + vòng sói vẽ thật trong trận
 }
 function updateCut(dt) {
   for (const e of stepCutscene(cut, dt)) {
@@ -1077,7 +1077,8 @@ function frame(now) {
     else if (e.type === 'sfx') Audio.play(e.name);
     else if (e.type === 'death') Audio.play('hit');
     else if (e.type === 'bossIntro') startCut(e);
-    else if (e.type === 'bossPhase2') startCut({ kind: e.kind, p2: true });   // (24/11) cutscene biến hình pha 2
+    else if (e.type === 'bossPhase2') startCut({ kind: e.kind, p2: true });
+    else if (e.type === 'bossUlt') startCut({ kind: e.kind, ult: true });   // (24/11) cutscene tuyệt chiêu   // (24/11) cutscene biến hình pha 2
   }
   consumeEvents(vis, ev);
   updateVis(vis, worldDt);

@@ -21,7 +21,7 @@ const seg = (t, a, b) => clamp01((t - a) / (b - a));
 export function createCutscene(kind, boss, player, seen = false) {
   const S = CS[kind];
   if (!S) return null;
-  return { kind, S, t: 0, dur: S.DUR, bx: boss.x, by: boss.y, px: player.x, py: player.y, skippable: !!seen, fired: new Set(), done: false };
+  return { kind, S, t: 0, dur: S.DUR, bx: boss.x, by: boss.y, px: player.x, py: player.y, skippable: !!seen, fired: new Set(), done: false, ring: boss.ult || null };
 }
 
 // Tiến thời gian; trả về các sự kiện (âm thanh / hiệu ứng) vừa tới mốc — mỗi mốc phát đúng một lần
@@ -73,6 +73,7 @@ function cliffActor(c, t) {
 export function cutsceneState(c) {
   if (c.S.STYLE === 'wraith') return wraithState(c);
   if (c.S.STYLE === 'p2') return p2State(c);
+  if (c.S.STYLE === 'ult') return ultState(c);   // (24/11) cutscene tuyệt chiêu
   const S = c.S, T = S.T, t = c.t;
   // màn đen chuyển cảnh: tối dần -> sáng dần (2 lần)
   const fade = t < T.CLIFF ? seg(t, T.FADE1, T.CLIFF) : t < T.FADE2 ? 1 - seg(t, T.CLIFF, T.CLIFF + S.FADE_IN)
@@ -169,4 +170,32 @@ function p2State(c) {
     eyes: 1 - zout, bx: c.bx, by: c.by, skippable: c.skippable, title_: S.TITLE, sub: S.SUB, titleCol: S.TITLE_COL,
     night: 0, moon: 0, beam: -1, fog: -1, souls: -1, rings: -1, lines: -1, smoke: -1, bolts: -1, shatter: -1, tilt: 0,
     alt: -1, cliff: null, howl: -1, name: 0, fade: 0, line: '' };
+}
+
+// (24/11) Cutscene tuyệt chiêu (CUTSCENE.*_ULT). pack: Lang Vương — zoom vào boss, lùi về tâm vòng, sói hiện lần lượt, mắt mở,
+// tên theo vòng cung. eyes: Yêu Vương — tắt sáng từng vùng, zoom vào mắt Ma Quân, mắt nhỏ mở, vòng sáng quanh người chơi.
+function ultState(c) {
+  const S = c.S, T = S.T, t = c.t, fx = S.FX, K = 2, ring = c.ring;
+  let shake = 0;
+  for (const [at, d, a] of S.SHAKE || []) if (t >= at && t < at + d) shake = Math.max(shake, a * (1 - (t - at) / d));
+  const out = ease(seg(t, T.OUT, c.dur));
+  let zoom = 1, fx0 = c.bx, fy0 = c.by - 22 * K, focusX = c.px, focusY = c.py;
+  if (fx === 'pack') {
+    const cx = ring && ring.cx !== undefined ? ring.cx : c.px, cy = ring && ring.cy !== undefined ? ring.cy : c.py;
+    const zin = ease(seg(t, 0, T.IN)), pan = ease(seg(t, T.RING[0], T.RING[1]));
+    zoom = (1 + zin) - pan * 0.75 - out * 0.25; if (zoom < 1) zoom = 1;
+    fx0 = lerp(c.bx, cx, pan); fy0 = lerp(c.by - 22 * K, cy, pan);
+    focusX = fx0; focusY = fy0;
+    return { style: 'ult', fx, kind: c.kind, t, T, bx: c.bx, by: c.by, px: c.px, py: c.py, ring, zoom, zx: fx0, zy: fy0, focusX, focusY: focusY - 8,
+      reveal: t < T.RING[0] ? 0 : Math.min(7, Math.floor(1 + 7 * seg(t, T.RING[0], T.RING[1]))), eyesOn: t >= T.EYES,
+      letter: ease(seg(t, 0, 0.3)) * (1 - out), shake, shakeSeed: Math.floor(t * 45), titleT: t - T.TITLE, outK: t >= T.OUT ? seg(t, T.OUT, c.dur) : -1,
+      title_: S.TITLE, titleCol: S.TITLE_COL, skippable: c.skippable, fade: 0, name: 0, line: '' };
+  }
+  // eyes: zoom vào mắt Ma Quân (0,5–1,0), giữ (1,0–1,6), về người chơi (1,6–2,2)
+  const zin = ease(seg(t, T.EYE[0], T.EYE[1]));
+  zoom = 1 + zin * (1 - out); fx0 = lerp(c.bx, c.px, out); fy0 = lerp(c.by - 30 * K, c.py - 8, out);
+  return { style: 'ult', fx, kind: c.kind, t, T, bx: c.bx, by: c.by, px: c.px, py: c.py, ring, zoom, zx: fx0, zy: fy0, focusX: lerp(c.bx, c.px, out), focusY: lerp(c.by, c.py, out) - 8,
+    dark: seg(t, T.DARK[0], T.DARK[1]), bossEyes: t >= T.EYE[0] && t < T.MANY[1] ? 1 : 0, blink: t >= 0.82 && t < 0.9, many: t >= T.MANY[0] ? seg(t, T.MANY[0], T.MANY[1]) : -1,
+    lightK: out, letter: ease(seg(t, 0, 0.3)) * (1 - out), shake, shakeSeed: Math.floor(t * 45), titleT: t - T.TITLE,
+    title_: S.TITLE, titleCol: S.TITLE_COL, skippable: c.skippable, fade: 0, name: 0, line: '' };
 }
