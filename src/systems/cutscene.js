@@ -139,28 +139,34 @@ function wraithState(c) {
 // ---------- (24/11) cutscene biến hình pha 2 (storyboard ChatGPT): zoom cận, đổi sprite che bằng chớp, vỡ kính, chữ tên lớn ----------
 function p2State(c) {
   const S = c.S, T = S.T, t = c.t, fx = S.FX;
-  const zin = ease(seg(t, 0, T.IN)), zout = ease(seg(t, T.OUT, c.dur)), k = zin * (1 - zout);
+  const zin = ease(seg(t, 0, T.IN)), zout = ease(seg(t, T.OUT, c.dur)), k = zin * (1 - zout), endFade = 1 - zout;
   let pose = S.POSES[0][1];
   for (const [at, n] of S.POSES) if (t >= at) pose = n;
   let flash = null;
   for (const [at, d, col, a] of S.FLASH) if (t >= at && t < at + d) flash = { col, a: a * (1 - (t - at) / d) };
+  let shake = 0;   // rung camera của cảnh: biên độ px, giảm dần trong mỗi khoảng
+  for (const [at, d, a] of S.SHAKE || []) if (t >= at && t < at + d) shake = Math.max(shake, a * (1 - (t - at) / d));
   const seg2 = r => (r && t >= r[0] && t < r[1] ? seg(t, r[0], r[1]) : -1);
-  // chữ tên: sói — các mảnh đá bay lên ghép chữ rồi vỡ rơi lúc OUT; ma — phù văn tự viết từng nét tới hết cảnh, tan thành khói 0,35 s cuối
-  const titleEnd = fx === 'void' ? c.dur : T.OUT + 0.5, titleOut = fx === 'void' ? seg(t, c.dur - 0.35, c.dur) : seg(t, T.OUT, T.OUT + 0.5);
+  const titleEnd = fx === 'void' ? c.dur : T.OUT + 0.5, titleOut = fx === 'void' ? seg(t, c.dur - 0.4, c.dur) : seg(t, T.OUT, T.OUT + 0.5);
+  const q = fx === 'quake', v = fx === 'void';
+  // vết nứt dưới chân lớn dần theo từng nhịp tim, đầy hẳn khi hóa hình
+  const crack = q ? (t >= T.SWAP ? 1 : T.BEATS.reduce((a, b) => a + ease(seg(t, b, b + 0.15)), 0) / (T.BEATS.length + 1) + 0.15 * ease(seg(t, 0.2, 0.5))) * endFade : 0;
   return { style: 'p2', fx, kind: c.kind, boss: S.BOSS, faceLeft: c.px < c.bx,
     focusX: lerp(c.px, c.bx, k), focusY: lerp(c.py, c.by - 20, k), zoom: 1 + (S.ZOOM - 1) * k,
-    letter: ease(seg(t, 0, 0.35)) * (1 - zout), pose, flash,
+    letter: ease(seg(t, 0, 0.35)) * (1 - zout), pose, flash, shake, shakeSeed: Math.floor(t * 45),
     vign: S.VIGN * k, desat: S.DESAT * zin * (1 - ease(seg(t, T.COLOR ?? T.SWAP, (T.COLOR ?? T.SWAP) + 0.4))),
     // Cuồng Thú Phá Địa
-    crack: fx === 'quake' ? (t < T.CRACK[0] ? 0 : ease(seg(t, T.CRACK[0], T.CRACK[1]))) * (1 - ease(seg(t, T.OUT, c.dur))) : 0,
-    ring: fx === 'quake' ? seg2(T.RING) : -1,
+    crack, quake: q && t >= T.QUAKE[0] ? ease(seg(t, T.QUAKE[0], T.QUAKE[0] + 1.0)) * (1 - ease(seg(t, T.STOMP + 0.5, T.STOMP + 1.3))) : 0,   // nứt màn hình tắt dần sau cú dậm (không rối lúc hiện tên)
+    spikes: q && t >= T.SPIKES[0] && t < T.STOMP + 0.35 ? ease(seg(t, T.SPIKES[0], T.SPIKES[0] + 0.5)) : 0, spikesBreak: q && t >= T.STOMP ? seg(t, T.STOMP, T.STOMP + 0.35) : -1,
+    stomp: q && t >= T.STOMP ? seg(t, T.STOMP, T.STOMP + 1.2) : -1, howlRings: q ? seg2(T.HOWL) : -1, dust: q && t >= T.STOMP ? (1 - seg(t, T.STOMP, T.OUT + 0.6)) : 0,
+    ring: -1,
     // Ma Giới Đảo Nghịch
-    freeze: fx === 'void' ? zin * (t < T.ROAR ? 1 : 0) : 0, pull: fx === 'void' ? seg2(T.PULL) : -1, pullT: fx === 'void' ? t - T.PULL[0] : -1,
-    invert: fx === 'void' && t >= T.INVERT[0] && t < T.INVERT[1] ? 1 : 0, runes: fx === 'void' ? seg2(T.RUNES) : -1, runesT: fx === 'void' ? t - T.RUNES[0] : -1,
-    spiral: fx === 'void' ? seg2(T.SPIRAL) : -1, burst: fx === 'void' ? seg2(T.BURST) : -1,
-    title: t >= T.TITLE && t < titleEnd ? 1 - titleOut : 0, titleT: t - T.TITLE, titleOut,
+    freeze: v ? zin * (t < T.ROAR ? 1 : 0) : 0, pull: v ? seg2(T.PULL) : -1, pullT: v ? t - T.PULL[0] : -1,
+    invert: v && t >= T.INVERT[0] && t < T.INVERT[1] ? 1 : 0, runes: v ? seg2(T.RUNES) : -1, runesT: v ? t - T.RUNES[0] : -1,
+    spiral: v ? seg2(T.SPIRAL) : -1, burst: v ? seg2(T.BURST) : -1,
+    hole: v ? (t >= T.HOLE[0] && t < T.ROAR ? ease(seg(t, T.HOLE[0], T.HOLE[1])) : t >= T.ROAR && t < T.ROAR + 0.22 ? 1 - seg(t, T.ROAR, T.ROAR + 0.22) : 0) : 0,
+    title: t >= T.TITLE && t < titleEnd ? 1 - titleOut : 0, titleT: t - T.TITLE, titleOut, titleSize: S.TITLE_SIZE || 26,
     eyes: 1 - zout, bx: c.bx, by: c.by, skippable: c.skippable, title_: S.TITLE, sub: S.SUB, titleCol: S.TITLE_COL,
-    // các trường của kiểu cũ (tắt) để render chung không vẽ nhầm
     night: 0, moon: 0, beam: -1, fog: -1, souls: -1, rings: -1, lines: -1, smoke: -1, bolts: -1, shatter: -1, tilt: 0,
     alt: -1, cliff: null, howl: -1, name: 0, fade: 0, line: '' };
 }
