@@ -83,7 +83,7 @@ async function loadSheet(name) {
   const meta = await (await fetch(`sprites/${name}.json`)).json();
   const img = await loadImg('sprites/' + meta.image);
   const tint = col => { const c = document.createElement('canvas'); c.width = img.width; c.height = img.height; const g = c.getContext('2d'); g.drawImage(img, 0, 0); g.globalCompositeOperation = 'source-in'; g.fillStyle = col; g.fillRect(0, 0, c.width, c.height); return c; };
-  return { img, meta, white: tint('#ffffff'), glow: tint('#c070ff'), wind: tint('#7ff0c8') };   // wind: tàn ảnh Phong Ảnh Bộ
+  return { img, meta, white: tint('#ffffff'), glow: tint('#c070ff'), wind: tint('#7ff0c8'), rage: tint('#ff4a2a') };   // rage: aura pha 2 (24/11)   // wind: tàn ảnh Phong Ảnh Bộ
 }
 for (const [key, name] of [['pbLang', 'pb_lang'], ['pbYeu', 'pb_yeu'], ['hero', 'nhan_vat'], ['mobs', 'quai'], ['bosses', 'boss'], ['bossIntro', 'boss_intro'], ['bossWalk', 'boss_walk'], ['bossIntroF', 'boss_intro_final'], ['bossFinal', 'boss_final'], ['rung', 'rung'], ['congTrinh', 'cong_trinh'], ['icons', 'bieu_tuong'], ['tienHoa', 'tien_hoa'], ['bia', 'bia'], ['phim', 'phim'],
   ...(FEATURES.sectHub || /[?&]sect=1/.test(location.search) ? [['tmCt', 'tm_cong_trinh'], ['tmDv', 'tm_do_vat'], ['tmCd', 'tm_cay_da'], ['tmTran', 'tm_tran'], ['tmThem', 'tm_them'], ['tmCh', 'tm_chuong'], ['tmNui', 'tm_nui']] : [])]) {

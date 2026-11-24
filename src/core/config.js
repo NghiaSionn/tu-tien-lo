@@ -263,6 +263,15 @@ export const SPECIALISTS = {
 // ---------- M10-09: Lang Vương 2 pha / 5 chiêu [THỬ NGHIỆM] (chỉ khi FEATURES.bossPatternsV2) ----------
 // P1 (máu > PHASE2): Tam Liên Lao, Lang Hú, Liệt Trảo. Chuyển pha đúng 1 lần: thông báo + choáng STAGGER giây (sơ hở).
 // P2: thêm Vồ Đầu Đàn và Hú Rồi Lao (chiêu phối, độ khó Linh+), nghỉ giữa chiêu ngắn hơn (GAP × P2_GAP).
+// (24/11, người phát triển yêu cầu) Biến hình chuyển pha 2 — cả hai boss, cả AI cũ lẫn bộ chiêu mới.
+// Tụt dưới AT máu (bộ chiêu mới: BOSS_V2[kind].PHASE2) -> đứng yên ANIM giây, KHÔNG nhận sát thương; ở BURST (tỉ lệ thời gian đã qua)
+// năng lượng bùng nổ (sóng xung kích chỉ là hiệu ứng, không sát thương) + thông báo; xong thì sơ hở STAGGER giây. Sau đó aura pha 2 mãi.
+// Lang Vương AI cũ: pha 2 chỉ đổi hình ảnh/aura, không đổi chiêu (không đổi cân bằng).
+export const BOSS_P2 = {
+  MINI: { AT: 0.5, ANIM: 1.8, BURST: 0.6, STAGGER: 1.0, TITLE: 'CUỒNG HUYẾT', TEXT: 'Lang Vương cuồng huyết!' },
+  FINAL: { AT: 0.5, ANIM: 2.0, BURST: 0.6, STAGGER: 1.2, TITLE: 'CHÂN THÂN', TEXT: 'Ma Ảnh Yêu Vương hiện chân thân!' },
+};
+
 export const BOSS_V2 = {
   MINI: {
     PHASE2: 0.55, STAGGER: 1.0, P2_GAP: 0.75, P2_TEXT: 'Lang Vương nổi giận — coi chừng cú vồ!',

@@ -46,10 +46,10 @@ test('BẬT: mỗi lần boss ra chiêu có sự kiện tiếng báo; chuyển p
   }
 });
 
-test('TẮT: không có tiếng báo/tiếng chuyển pha mới, boss không đánh dấu v2', () => {
+test('TẮT: không có tiếng báo ra chiêu, boss không đánh dấu v2; (24/11) biến hình pha 2 vẫn có, tiếng chuyển pha tối đa 1 lần', () => {
   for (const kind of ['MINI', 'FINAL']) {
     const f = fight(kind, false, 25);
-    assert.equal(f.sfx.length, 0); assert.ok(!f.b.v2);
+    assert.equal(f.sfx.filter(s => s.name === 'bossWarn').length, 0); assert.ok(f.sfx.filter(s => s.name === 'bossPhase').length <= 1); assert.ok(!f.b.v2);
   }
 });
 

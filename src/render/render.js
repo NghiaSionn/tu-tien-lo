@@ -1,5 +1,5 @@
 // Vẽ một khung: bản đồ, vật thể sắp theo y, yêu thú, người chơi, công pháp, hiệu ứng beanfx và hạt sáng.
-import { VIEW, TILE as T, HUB, FEATURES, ARCH, BOSS, WOLF_PACK, FOX_TRAIL, ICE_FAN, ELITE_V2, BOSS_V2, BOSS_SKILL_LABELS, TRIBULATION, SHRINE, BASIC_ATTACK } from '../core/config.js';
+import { VIEW, TILE as T, HUB, FEATURES, ARCH, BOSS, WOLF_PACK, FOX_TRAIL, ICE_FAN, ELITE_V2, BOSS_V2, BOSS_P2, BOSS_SKILL_LABELS, TRIBULATION, SHRINE, BASIC_ATTACK } from '../core/config.js';
 import { GRASS, WATER, STONE, TREE, ROCK, BUILDING, FENCE, DIRT, CLIFF, CLOUD, FALL } from '../world/map.js';
 import { SPR, TIERS, BOSS_WHITE, BOSS_SPR, grassTiles, waterTiles, waterBank, stoneTile, treeSprs, rockSpr, hash } from './sprites.js';
 import { createFx } from '../../lib/beanfx.js';
@@ -763,11 +763,66 @@ function drawBossLabel(ctx, m) {   // M10-11: tên chiêu trên đầu boss tron
   txt(ctx, L[0], Math.round(m.x), Math.round(m.y) - 50 * BOSS.DRAW_SCALE - 6, L[1], 10);
 }
 
+// ---------- (24/11) biến hình chuyển pha 2 + aura pha 2 ----------
+const P2_COL = { MINI: ['#ffd978', '#ff7a3a', '#ff3a2a'], FINAL: ['#ff9ad6', '#e070ff', '#ff3a6a'] };
+// Lúc biến hình (m.st 'phase', k 0..1): năng lượng tụ về thân -> bùng nổ (cột sáng + sóng xung kích). back: vẽ sau thân / trước thân
+function drawPhaseFx(ctx, m, time, back) {
+  const P = BOSS_P2[m.bossKind], k = 1 - Math.max(0, m.stT) / (m.stMax || 1), C = P2_COL[m.bossKind], x = m.x, cy = m.y - 22 * BOSS.DRAW_SCALE;
+  if (back) {
+    if (k < P.BURST) {   // tụ: hạt xoáy vào thân + vòng dưới đất co lại
+      const g = k / P.BURST;
+      for (let i = 0; i < 30; i++) {
+        const ph = (g * 1.6 + h01(i)) % 1, a = h01(i + 3) * 6.283 + ph * 2, r = (1 - ph) * 130;
+        ctx.globalAlpha = ph * 0.9; ctx.fillStyle = C[i % 3]; ctx.fillRect(Math.round(x + Math.cos(a) * r) - 1, Math.round(cy + Math.sin(a) * r * 0.7) - 1, 3, 3);
+      }
+      ctx.globalAlpha = 0.5 + 0.4 * g; tgRing(ctx, x, m.y, 60 * (1 - g) + 14, 44, C[1], 2, 0.4);
+    } else {             // bùng nổ: cột sáng + 2 sóng xung kích
+      const g = (k - P.BURST) / (1 - P.BURST);
+      const w = Math.round(28 - g * 16), x0 = Math.round(x - w / 2);   // cột sáng (vẽ đè, không cộng sáng: giữ đúng màu trên nền cỏ)
+      ctx.globalAlpha = 0.5 * (1 - g); ctx.fillStyle = C[1]; ctx.fillRect(x0, 0, w, Math.round(m.y));
+      ctx.globalAlpha = 0.7 * (1 - g); ctx.fillStyle = '#fff6e8'; ctx.fillRect(x0 + Math.round(w / 3), 0, Math.max(2, Math.round(w / 3)), Math.round(m.y));
+      for (const [d, w] of [[0, 3], [0.15, 2]]) { const gg = Math.max(0, g - d); ctx.globalAlpha = 0.9 * (1 - gg); tgRing(ctx, x, m.y, 20 + gg * 170, 72, C[w === 3 ? 1 : 0], w, 0.45); }
+    }
+    ctx.globalAlpha = 1;
+    return;
+  }
+  if (k < P.BURST) {   // thân sáng dần trong lúc tụ (vẽ trước thân, cộng sáng)
+    ctx.globalAlpha = 0.22 * (k / P.BURST); ctx.fillStyle = C[0];
+    ctx.beginPath(); ctx.ellipse(x, cy, 26 * BOSS.DRAW_SCALE * 0.6, 30 * BOSS.DRAW_SCALE * 0.6, 0, 0, 6.283); ctx.fill(); ctx.globalAlpha = 1;
+  }
+}
+// tư thế lúc biến hình: lấy từ cutscene (Lang Vương hú, Yêu Vương gầm); rung bần bật trước khi bùng nổ
+function drawPhasePose(ctx, m, time, vis) {
+  const sh = m.bossKind === 'FINAL' ? vis.bossIntroF : vis.bossIntro, name = m.bossKind === 'FINAL' ? 'FINAL_i4' : 'MINI_i2';
+  if (!sh || !sh.meta.frames[name]) return false;
+  const P = BOSS_P2[m.bossKind], k = 1 - Math.max(0, m.stT) / (m.stMax || 1), K = BOSS.DRAW_SCALE, flip = mobFlip(m);
+  const jx = k < P.BURST ? Math.round(rand(-1, 1) * (1 + 2 * k)) : 0;
+  sheetFrame(ctx, sh, name, m.x + jx, m.y, flip, sh.img, K);
+  const flash = k < P.BURST ? 0.6 * k / P.BURST : 0.8 * Math.max(0, 1 - (k - P.BURST) / 0.2);
+  if (flash > 0) { ctx.globalAlpha = flash; sheetFrame(ctx, sh, name, m.x + jx, m.y, flip, sh.white, K); ctx.globalAlpha = 1; }
+  return true;
+}
+// Aura pha 2 của Lang Vương: viền lửa đỏ cam phập phồng, tàn lửa bốc lên, vòng đỏ dưới chân
+function drawRageAura(ctx, m, time, bs, front) {
+  const K = BOSS.DRAW_SCALE, x = Math.round(m.x), y = Math.round(m.y), pul = 0.5 + 0.5 * Math.sin(time * 5);
+  if (!front) {
+    ctx.globalAlpha = 0.45 + 0.25 * pul; tgRing(ctx, x, y, 22 * K, 44, '#ff5a2a', 2, 0.35);
+    const name = m.bossKind + '_' + mobState(m, time), flip = mobFlip(m);
+    ctx.globalAlpha = 0.5 + 0.3 * pul; for (const [dx, dy] of [[-2, 0], [2, 0], [0, -2], [-2, -2], [2, -2]]) sheetFrame(ctx, bs, name, x + dx, y + dy, flip, bs.rage, K);
+    ctx.globalAlpha = 1; return;
+  }
+  for (let i = 0; i < 18; i++) {
+    const ph = (time * (0.7 + h01(i) * 0.5) + h01(i + 40)) % 1, px = Math.round(x + (h01(i + 7) - 0.5) * 44 * K + Math.sin(time * 4 + i) * 3), py = Math.round(y - 4 - ph * 34 * K);
+    ctx.globalAlpha = Math.min(1, ph * 5) * (1 - ph); ctx.fillStyle = i % 3 === 0 ? '#ffd978' : i % 3 === 1 ? '#ff7a3a' : '#ff3a2a';
+    ctx.fillRect(px - 1, py, 3, 3); ctx.globalAlpha *= 0.5; ctx.fillRect(px, py + 3, 1, 3);
+  }
+  ctx.globalAlpha = 1;
+}
 // (24/11) Ma Ảnh Yêu Vương trong trận: hồn ma nên KHÔNG có bóng đen dưới chân — thay bằng quầng tà khí tím phát sáng.
 // Luôn bay lơ lửng (8 khung, cả khi đứng yên), hào quang tím phập phồng quanh thân, lửa tà khí bốc lên từ vạt áo,
 // mắt + ngọc đỏ phát sáng, bóng mờ kéo theo khi di chuyển. Gồng: dang tay (Triệu Ma Ảnh: giơ cầu ma khí) + viền sáng.
 const h01 = i => { const v = Math.sin(i * 91.7 + 17.3) * 43758.5453; return v - Math.floor(v); };
-function drawWraithBoss(ctx, m, time, sh) {
+function drawWraithBoss(ctx, m, time, sh, vis) {
   const K = BOSS.DRAW_SCALE, flip = mobFlip(m), x = Math.round(m.x), y = Math.round(m.y), M = sh.meta;
   const name = m.hit > 0 ? 'FINAL_hurt' : m.st === 'windup' ? (m.pat === 'summon' ? 'FINAL_cast' : 'FINAL_atk')
     : 'FINAL_walk' + (Math.floor(time * 7 + (m.ph || 0) * 8) % (M.float || 8));
@@ -776,27 +831,37 @@ function drawWraithBoss(ctx, m, time, sh) {
   const tr = m._trail || (m._trail = []);
   if (!tr.length || time - tr[tr.length - 1].t > 0.07) { tr.push({ x, y, name, flip, t: time }); if (tr.length > 5) tr.shift(); }
   const moving = tr.length > 1 && Math.hypot(tr[0].x - x, tr[0].y - y) > 6;
-  // dưới chân: vòng ma ấn xoay chậm (hồn ma không có bóng)
-  ctx.globalAlpha = 0.55 + 0.25 * pul; tgRing(ctx, x, y - 2, 17 * K, 44, '#d890ff', 2, 0.35);
+  const p2 = m.p2 && m.st !== 'phase', rim = p2 ? sh.rage : sh.glow;   // pha 2: viền tà khí chuyển đỏ hồng
+  if (m.st === 'phase') drawPhaseFx(ctx, m, time, true);
+  // dưới chân: vòng ma ấn xoay chậm (hồn ma không có bóng); pha 2 thêm vòng phù văn đỏ xoay ngược
+  ctx.globalAlpha = 0.55 + 0.25 * pul; tgRing(ctx, x, y - 2, 17 * K, 44, p2 ? '#ff9ad6' : '#d890ff', 2, 0.35);
+  if (p2) { ctx.fillStyle = '#ff5a8a'; for (let i = 0; i < 8; i++) { const a = -time * 1.3 + i * 0.785; ctx.globalAlpha = 0.7; ctx.fillRect(Math.round(x + Math.cos(a) * 25 * K) - 1, Math.round(y - 2 + Math.sin(a) * 25 * K * 0.35) - 1, 3, 3); } ctx.globalAlpha = 0.4 + 0.2 * pul; tgRing(ctx, x, y - 2, 25 * K, 56, '#ff5a8a', 1, 0.35); }
   ctx.fillStyle = '#f0c8ff';
   for (let i = 0; i < 6; i++) { const a = time * 0.8 + i * 1.047; ctx.globalAlpha = 0.5 + 0.3 * pul; ctx.fillRect(Math.round(x + Math.cos(a) * 17 * K) - 1, Math.round(y - 2 + Math.sin(a) * 17 * K * 0.35) - 1, 3, 2); }
-  if (moving) for (let i = 0; i < tr.length - 1; i++) { ctx.globalAlpha = 0.1 + 0.08 * i; sheetFrame(ctx, sh, tr[i].name, tr[i].x, tr[i].y, tr[i].flip, sh.glow, K); }
+  if (moving) for (let i = 0; i < tr.length - 1; i++) { ctx.globalAlpha = 0.1 + 0.08 * i; sheetFrame(ctx, sh, tr[i].name, tr[i].x, tr[i].y, tr[i].flip, rim, K); }
   // viền tà khí tím đậm phập phồng quanh thân (vẽ đè: rõ trên cả nền sáng)
-  ctx.globalAlpha = 0.45 + 0.3 * pul;
-  for (const [dx, dy] of [[-2, 0], [2, 0], [0, -2], [-2, -2], [2, -2]]) sheetFrame(ctx, sh, name, x + dx, y + dy, flip, sh.glow, K);
+  if (m.st === 'phase' && drawPhasePose(ctx, m, time, vis)) { drawPhaseFx(ctx, m, time, false); return; }
+  ctx.globalAlpha = (p2 ? 0.55 : 0.45) + 0.3 * pul;
+  for (const [dx, dy] of [[-2, 0], [2, 0], [0, -2], [-2, -2], [2, -2]]) sheetFrame(ctx, sh, name, x + dx, y + dy, flip, rim, K);
   if (m.st === 'windup') { ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 0.45; for (const [dx, dy] of [[-3, 0], [3, 0], [0, -3], [0, 2]]) sheetFrame(ctx, sh, name, x + dx, y + dy, flip, sh.white, K); ctx.globalCompositeOperation = 'source-over'; }
   ctx.globalAlpha = 1;
   sheetFrame(ctx, sh, name, x, y, flip, sh.img, K);
   if (m.hit > 0) { ctx.globalAlpha = 0.55; sheetFrame(ctx, sh, name, x, y, flip, sh.white, K); }
   // lửa tà khí bốc lên ở hai bên mép thân + từ đuôi khói (vẽ phía trước để không bị thân che)
-  for (let i = 0; i < 26; i++) {
-    const ph = (time * (0.45 + h01(i) * 0.4) + h01(i + 40)) % 1, side = i % 2 ? 1 : -1;
+  for (let i = 0; i < (p2 ? 40 : 26); i++) {
+    const ph = (time * ((p2 ? 0.7 : 0.45) + h01(i) * 0.4) + h01(i + 40)) % 1, side = i % 2 ? 1 : -1;
     const px = Math.round(x + side * (12 + h01(i + 7) * 12) * K + Math.sin(time * 3 + i) * 3), py = Math.round(y - 3 * K - ph * 36 * K);
     const a = Math.min(1, ph * 5) * (1 - ph);
-    ctx.globalAlpha = a; ctx.fillStyle = i % 3 === 0 ? '#ff7ad8' : i % 3 === 1 ? '#e090ff' : '#9a40d8';
+    ctx.globalAlpha = a; ctx.fillStyle = p2 ? (i % 3 === 0 ? '#ff5a8a' : i % 3 === 1 ? '#ff9ad6' : '#c040ff') : (i % 3 === 0 ? '#ff7ad8' : i % 3 === 1 ? '#e090ff' : '#9a40d8');
     ctx.fillRect(px - 2, py, 4, 4); ctx.globalAlpha = a * 0.65; ctx.fillRect(px - 1, py + 4, 3, 4); ctx.globalAlpha = a * 0.35; ctx.fillRect(px, py + 8, 2, 4);   // ngọn lửa + đuôi
   }
   ctx.globalAlpha = 1;
+  if (p2 && Math.floor(time * 2.5) % 3 === 0) {   // pha 2: tia sét tà khí lóe quanh thân
+    const seed = Math.floor(time * 2.5), a0 = h01(seed) * 6.283; let px = x + Math.cos(a0) * 10 * K, py = y - 30 * K + Math.sin(a0) * 14 * K;
+    for (const [col, w] of [['#2a0a3a', 3], ['#ffc8f0', 1]]) { ctx.strokeStyle = col; ctx.lineWidth = w; ctx.globalAlpha = 0.9; ctx.beginPath(); let qx = px, qy = py; ctx.moveTo(qx, qy);
+      for (let j = 1; j <= 5; j++) { qx = px + Math.cos(a0) * j * 7 * K + (h01(seed * 7 + j) - 0.5) * 10; qy = py + Math.sin(a0) * j * 5 * K + (h01(seed * 11 + j) - 0.5) * 10; ctx.lineTo(qx, qy); } ctx.stroke(); }
+    ctx.globalAlpha = 1;
+  }
   // mắt + ngọc đỏ phát sáng
   const eyes = M.eyes && M.eyes[name];
   if (eyes && eyes.length) {
@@ -820,7 +885,7 @@ function drawBoss(ctx, m, time, vis) {
   drawBossGhost(ctx, m, time, vis);
   drawBossLabel(ctx, m);
   const bs = bossSheet(m, vis);
-  if (bs && m.bossKind === 'FINAL' && bs.meta.float) return drawWraithBoss(ctx, m, time, bs);
+  if (bs && m.bossKind === 'FINAL' && bs.meta.float) return drawWraithBoss(ctx, m, time, bs, vis);
   if (bs) {
     const K = BOSS.DRAW_SCALE, top = Math.round(m.y) - 50 * K;
     ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(Math.round(m.x) - 20 * K, Math.round(m.y) - 4, 40 * K, 7);
@@ -830,7 +895,8 @@ function drawBoss(ctx, m, time, vis) {
       for (const [dx, dy] of [[-2, 0], [2, 0], [0, -2], [0, 2]]) sheetFrame(ctx, bs, name, m.x + dx, m.y + dy, flip, bs.white, K);
       ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
     }
-    drawMobSheet(ctx, bs, m, m.bossKind, time, K);
+    if (m.st === 'phase') { drawPhaseFx(ctx, m, time, true); if (!drawPhasePose(ctx, m, time, vis)) drawMobSheet(ctx, bs, m, m.bossKind, time, K); drawPhaseFx(ctx, m, time, false); }
+    else { if (m.p2 && bs.rage) drawRageAura(ctx, m, time, bs, false); drawMobSheet(ctx, bs, m, m.bossKind, time, K); if (m.p2) drawRageAura(ctx, m, time, bs, true); }
     if (m.vuln > 0) {   // sơ hở: 3 sao vàng xoay trên đầu
       ctx.fillStyle = '#ffe066';
       for (let i = 0; i < 3; i++) { const a = time * 5 + i * 2.094; ctx.fillRect(Math.round(m.x + Math.cos(a) * 14 * K) - 1, Math.round(top - 4 + Math.sin(a) * 3) - 1, 3, 3); }

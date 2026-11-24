@@ -1,7 +1,7 @@
 // Boss (M2-02): Lang Vương (mini-boss giữa run) và Ma Ảnh Yêu Vương (boss cuối). Máy trạng thái:
 //   move (đuổi, đếm GAP) -> windup (gồng, có cảnh báo) -> [dash ×n] -> recover (sơ hở, nhận thêm sát thương) -> move
 // Chiêu chỉ bắt đầu từ 'move'; boss chết thì không còn gì chạy (run.js dọn vùng/đạn). Chỉ dùng io.rng (seed của run).
-import { BOSS, RUN, HUB_MONSTER as HM, TACTICS as TC, BOSS_V2, PLAYER } from '../core/config.js';
+import { BOSS, RUN, HUB_MONSTER as HM, TACTICS as TC, BOSS_V2, BOSS_P2, PLAYER } from '../core/config.js';
 import { selectBossSkill, keepEscape, hazardDist } from '../systems/tactics.js';
 
 export const bossDef = m => BOSS[m.bossKind];
@@ -22,12 +22,25 @@ export function bossAI(m, player, dx, dy, d, dt, io) {
     // ước lượng vận tốc người chơi (cho Vồ Đầu Đàn dự đoán), làm mượt
     if (m.ppx !== undefined && dt > 0) { m.pvx = (m.pvx || 0) * 0.8 + (player.x - m.ppx) / dt * 0.2; m.pvy = (m.pvy || 0) * 0.8 + (player.y - m.ppy) / dt * 0.2; }
     m.ppx = player.x; m.ppy = player.y;
-    // chuyển P1 -> P2 đúng một lần, chỉ giữa hai chiêu (không cắt đòn đang ra): thông báo + choáng (sơ hở)
-    if (phase2 && !m.p2 && (m.st === 'move' || m.st === 'recover')) {
-      m.p2 = true; m.st = 'recover'; m.stT = V.STAGGER; m.vuln = V.STAGGER; m.vx = m.vy = 0;
-      io.ev.push({ type: 'announce', x: m.x, y: m.y, text: V.P2_TEXT, color: '#ff8a5a' }, { type: 'shake', t: 0.2 }, { type: 'sfx', name: 'bossPhase' });   // M10-11: tiếng chuyển pha
-      return true;
+  }
+  // (24/11) chuyển P1 -> P2 đúng một lần, chỉ giữa hai chiêu (không cắt đòn đang ra): biến hình (không nhận sát thương) -> bùng nổ -> sơ hở
+  const P = BOSS_P2[m.bossKind];
+  if (m.st === 'phase') {
+    m.vx = m.vy = 0; m.stT -= dt; m.shield = Math.max(0, m.stT);
+    if (!m.p2Burst && m.stT <= m.stMax * (1 - P.BURST)) {
+      m.p2Burst = true;
+      io.ev.push({ type: 'announce', x: m.x, y: m.y, text: V ? V.P2_TEXT : P.TEXT, color: m.bossKind === 'FINAL' ? '#ff9ad6' : '#ff8a5a' },
+        { type: 'shake', t: 0.5 }, { type: 'boom', x: m.x, y: m.y - 20, r: 70, color: m.bossKind === 'FINAL' ? '#e070ff' : '#ff7a3a' },
+        { type: 'pulse', x: m.x, y: m.y - 10, r: 120, color: m.bossKind === 'FINAL' ? '#ff9ad6' : '#ffd978' }, { type: 'sfx', name: m.bossKind === 'FINAL' ? 'roar' : 'howl' });
     }
+    if (m.stT <= 0) { const st = V ? V.STAGGER : P.STAGGER; m.shield = 0; m.st = 'recover'; m.stT = st; m.vuln = st; }
+    return true;
+  }
+  const p2now = V ? phase2 : m.hp <= m.max * P.AT;
+  if (p2now && m.hp > 0 && !m.p2 && (m.st === 'move' || m.st === 'recover')) {
+    m.p2 = true; m.st = 'phase'; m.stT = m.stMax = P.ANIM; m.shield = P.ANIM; m.vx = m.vy = 0; m.p2Burst = false;
+    io.ev.push({ type: 'shake', t: 0.25 }, { type: 'sfx', name: 'bossPhase' }, { type: 'bossPhase2', kind: m.bossKind, x: m.x, y: m.y });   // M10-11: tiếng chuyển pha
+    return true;
   }
 
   if (m.st === 'windup') {

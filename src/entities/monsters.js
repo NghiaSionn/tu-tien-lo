@@ -80,6 +80,7 @@ export function applySlow(m, f, time) {
 // Gây sát thương; đánh dấu chết (dọn ở cuối khung để không xóa mảng khi đang duyệt)
 export function damageMonster(m, dmg, ev, color = '#fff') {
   if (m.dead || !(dmg > 0) || !Number.isFinite(dmg)) return false;
+  if (m.shield > 0) return false;   // (24/11) boss đang biến hình chuyển pha: không nhận sát thương
   let d = Math.max(1, Math.round(dmg * (m.vuln > 0 ? BOSS.VULN_MULT : 1)));
   if (m.hitCap) d = Math.min(d, m.hitCap);           // boss: một đòn không quá HIT_CAP máu tối đa
   m.hp -= d; m.hit = 0.12; m.aggro = true;

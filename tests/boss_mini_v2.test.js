@@ -39,11 +39,11 @@ function fight(seed, { on = true, diff = 1, sec = 60, move, hpAt, each, vuln = f
   return { r, p, boss, ev, seq, s };
 }
 
-test('cờ mặc định TẮT; TẮT: Lang Vương không có Liệt Trảo / Vồ / chuyển pha', () => {
+test('cờ mặc định TẮT; TẮT: Lang Vương không có Liệt Trảo / Vồ (24/11: vẫn biến hình pha 2 — chỉ hình ảnh/aura, không đổi chiêu)', () => {
   assert.equal(FEATURES.bossPatternsV2, false);
   const f = fight(1, { on: false, hpAt: t => Math.max(0.2, 1 - t / 40) });
   assert.ok(!f.seq.some(s => s.pat === 'claw' || s.pat === 'leap'), f.seq.map(s => s.pat).join(','));
-  assert.equal(f.boss.p2, undefined);
+  assert.equal(f.boss.p2, true, 'biến hình pha 2 khi tụt dưới BOSS_P2.MINI.AT');
 });
 
 test('BẬT: chuyển P1 -> P2 đúng 1 lần ở ngưỡng 55 %; P1 không có Vồ / Hú Rồi Lao; P2 có Vồ', () => {
