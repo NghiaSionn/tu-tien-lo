@@ -1732,19 +1732,42 @@ function p2FxAt(ctx, vis, name, f, x, y, scale) {
   fx.frame = f; fx.x = Math.round(x); fx.y = Math.round(y); fx.scale = scale; fx.draw(ctx);
   return true;
 }
+// (24/11) lớp MẶT ĐẤT của cảnh Lang Vương pha 2: vết nứt động đất, bóng, sheet dậm đất, gai đá, bụi.
+// Gọi ngay sau lớp nền -> cây, quái và chính boss đè lên (VFX nằm dưới đất, không phủ lên nhân vật).
+export function drawP2Ground(ctx, c, vis, time) {
+  if (!c || c.style !== 'p2' || c.fx !== 'quake') return;
+  const K = BOSS.DRAW_SCALE, x = Math.round(c.bx), y = Math.round(c.by);
+  const lvOn = c.T && c.t >= c.T.STOMP && !!p2Fx(vis, 'lv_pha_dia');   // từ cú dậm trở đi sheet tự vẽ khe dung nham + gai + bụi
+  if (c.quake > 0 && !lvOn) {   // động đất: khe nứt đỏ lan từ chân sói ra xa (toạ độ thế giới, zoom ×2 thành cỡ cũ)
+    const glow = 0.6 + 0.4 * Math.sin(time * 11);
+    for (let i = 0; i < 12; i++) {
+      let a = i / 12 * 6.283 + h01(i + 140) * 0.4, px = x, py = y; const pts = [[px, py]];
+      for (let j = 0; j < 9; j++) { a += (h01(i * 17 + j) - 0.5) * 0.8; const l = (26 + h01(i * 9 + j) * 34) / 2; px += Math.cos(a) * l; py += Math.sin(a) * l * 0.55; pts.push([px, py]); }
+      const n = Math.max(1, Math.ceil(c.quake * (pts.length - 1)));
+      for (const [col, w, al] of [['#140404', 2.5, 0.85], ['#ff3a1a', 1, 0.9 * glow]]) { ctx.globalAlpha = al; ctx.strokeStyle = col; ctx.lineWidth = w; ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]); for (let j = 1; j <= n; j++) ctx.lineTo(pts[j][0], pts[j][1]); ctx.stroke(); }
+    }
+    ctx.globalAlpha = 1;
+  }
+  if (c.crack > 0 && !lvOn) drawGroundCracks(ctx, x, y, c.crack, time);
+  ctx.globalAlpha = 0.35; ctx.fillStyle = '#000'; ctx.beginPath(); ctx.ellipse(x, y, 20 * K, 4 * K, 0, 0, 6.283); ctx.fill(); ctx.globalAlpha = 1;
+  if (c.crack > 0 && c.crack < 1) for (let i = 0; i < 16; i++) {   // bụi đá bị ép xuống quanh chân
+    const ph = (time * 1.5 + h01(i + 90)) % 1, a = h01(i + 91) * 6.283, r = 14 + ph * 30;
+    ctx.globalAlpha = 0.6 * (1 - ph); ctx.fillStyle = '#b8a890'; ctx.fillRect(Math.round(x + Math.cos(a) * r), Math.round(y + Math.sin(a) * r * 0.4 - (1 - ph) * 6), 2, 2);
+  }
+  ctx.globalAlpha = 1;
+  // dậm đất beanfx (lv_pha_dia): khung va chạm 4 trùng mốc STOMP, 1,5 lần cỡ thế giới
+  const lvFx = c.T ? p2FxAt(ctx, vis, 'lv_pha_dia', Math.floor((c.t - c.T.STOMP) * 24) + 4, x, y, 1.5) : false;
+  if (c.spikes > 0 && !lvOn) drawEarthSpikes(ctx, x, y, c.spikes, c.spikesBreak);
+  if (c.stomp >= 0 && !lvFx) { drawJaggedRing(ctx, x, y, Math.min(1, c.stomp * 1.3), 230, 40); if (c.stomp > 0.15) drawJaggedRing(ctx, x, y, Math.min(1, (c.stomp - 0.15) * 1.3), 150, 30); }
+  if (c.dust > 0 && !lvFx) for (let i = 0; i < 22; i++) {   // mây bụi sau cú dậm
+    const a = h01(i + 120) * 6.283, r = 30 + (1 - c.dust) * 140 + h01(i + 121) * 40;
+    ctx.globalAlpha = 0.35 * c.dust; ctx.fillStyle = i % 2 ? '#a08a70' : '#6a5a48'; ctx.beginPath(); ctx.ellipse(x + Math.cos(a) * r, y + Math.sin(a) * r * 0.4, 18, 8, 0, 0, 6.283); ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+}
 function drawP2CutBoss(ctx, c, vis, time) {
   const sh = P2_SHEET(vis, c.pose) || vis.bosses; if (!sh || !sh.meta.frames[c.pose]) return;
   const K = BOSS.DRAW_SCALE, x = Math.round(c.bx), y = Math.round(c.by), flip = c.boss === 'MINI' ? c.faceLeft : false, p2 = /^(MINI2|FINAL2)_/.test(c.pose), cy = y - 22 * K;
-  // từ cú dậm trở đi sheet lv_pha_dia tự vẽ khe dung nham + gai + bụi -> ẩn bản vẽ code cho đỡ rối
-  const lvOn = c.fx === 'quake' && c.T && c.t >= c.T.STOMP && !!p2Fx(vis, 'lv_pha_dia');
-  if (c.fx === 'quake') {
-    if (c.crack > 0 && !lvOn) drawGroundCracks(ctx, x, y, c.crack, time);
-    ctx.globalAlpha = 0.35; ctx.fillStyle = '#000'; ctx.beginPath(); ctx.ellipse(x, y, 20 * K, 4 * K, 0, 0, 6.283); ctx.fill(); ctx.globalAlpha = 1;
-    if (c.crack > 0 && c.crack < 1) for (let i = 0; i < 16; i++) {   // bụi đá bị ép xuống quanh chân
-      const ph = (time * 1.5 + h01(i + 90)) % 1, a = h01(i + 91) * 6.283, r = 14 + ph * 30;
-      ctx.globalAlpha = 0.6 * (1 - ph); ctx.fillStyle = '#b8a890'; ctx.fillRect(Math.round(x + Math.cos(a) * r), Math.round(y + Math.sin(a) * r * 0.4 - (1 - ph) * 6), 2, 2);
-    }
-  }
   if (c.fx === 'void') {
     if (c.runes >= 0) drawRuneRings(ctx, x, cy, c.runes, c.runesT);
     if (c.pull >= 0) for (let i = 0; i < 26; i++) {   // khói tím co ngược vào ma ấn trên ngực
@@ -1754,24 +1777,18 @@ function drawP2CutBoss(ctx, c, vis, time) {
     }
     ctx.globalAlpha = 1;
   }
-  let lvFx = false;   // dậm đất beanfx (lv_pha_dia): khung va chạm 4 trùng mốc STOMP, 1,5 lần cỡ thế giới
-  if (c.fx === 'quake' && c.T) lvFx = p2FxAt(ctx, vis, 'lv_pha_dia', Math.floor((c.t - c.T.STOMP) * 24) + 4, x, y, 1.5);
+  // VFX quanh thân vẽ TRƯỚC -> boss đè lên (sóng hú của sói, sét xoắn của Ma Quân)
+  if (c.fx === 'quake' && c.howlRings >= 0) { const hx = x + (flip ? -1 : 1) * 18 * K, hy = y - 30 * K;   // sóng hú răng cưa
+    for (let i = 0; i < 3; i++) { const kk = (c.howlRings * 2.2 + i / 3) % 1; drawJaggedRing(ctx, hx, hy + 8, kk, 160, 24); }
+    ctx.globalAlpha = 1; }
+  if (c.fx === 'void' && c.spiral >= 0) drawSpiralBolts(ctx, x, cy, c.spiral, time);
   if (p2 && sh.rage) { ctx.globalAlpha = 0.55 + 0.25 * Math.sin(time * 6); for (const [dx, dy] of [[-2, 0], [2, 0], [0, -2], [-2, -2], [2, -2]]) sheetFrame(ctx, sh, c.pose, x + dx, y + dy, flip, sh.rage, K); }
   ctx.globalAlpha = 1;
   sheetFrame(ctx, sh, c.pose, x, y, flip, sh.img, K);
   if (c.fx === 'quake') {
-    if (c.spikes > 0 && !lvOn) drawEarthSpikes(ctx, x, y, c.spikes, c.spikesBreak);
-    if (c.stomp >= 0 && !lvFx) { drawJaggedRing(ctx, x, y, Math.min(1, c.stomp * 1.3), 230, 40); if (c.stomp > 0.15) drawJaggedRing(ctx, x, y, Math.min(1, (c.stomp - 0.15) * 1.3), 150, 30); }
-    if (c.dust > 0 && !lvFx) for (let i = 0; i < 22; i++) {   // mây bụi sau cú dậm
-      const a = h01(i + 120) * 6.283, r = 30 + (1 - c.dust) * 140 + h01(i + 121) * 40;
-      ctx.globalAlpha = 0.35 * c.dust; ctx.fillStyle = i % 2 ? '#a08a70' : '#6a5a48'; ctx.beginPath(); ctx.ellipse(x + Math.cos(a) * r, y + Math.sin(a) * r * 0.4, 18, 8, 0, 0, 6.283); ctx.fill();
-    }
-    if (c.howlRings >= 0) { const hx = x + (flip ? -1 : 1) * 18 * K, hy = y - 30 * K;   // sóng hú răng cưa
-      for (let i = 0; i < 3; i++) { const kk = (c.howlRings * 2.2 + i / 3) % 1; drawJaggedRing(ctx, hx, hy + 8, kk, 160, 24); } }
     ctx.globalAlpha = 1;
   }
   if (c.fx === 'void') {
-    if (c.spiral >= 0) drawSpiralBolts(ctx, x, cy, c.spiral, time);
     if (p2) { ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 0.35 + 0.25 * Math.sin(time * 7); ctx.fillStyle = '#ff4a9a'; ctx.beginPath(); ctx.arc(x, cy + 4, 7, 0, 6.283); ctx.fill(); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1; }
   }
   const e = eyeOf(sh, c.pose);
@@ -1814,16 +1831,6 @@ function drawP2Screen(ctx, c, vis, time) {
     }
     ctx.globalAlpha = 1;
   }
-  if (c.quake > 0 && !(c.T && c.t >= c.T.STOMP && p2Fx(vis, 'lv_pha_dia'))) {   // động đất: vết nứt đỏ lan từ chân sói ra tận mép màn hình (sau cú dậm nhường cho sheet)
-    const [fx0, fy0] = p2Map(c.bx, c.by), glow = 0.6 + 0.4 * Math.sin(time * 11);
-    for (let i = 0; i < 12; i++) {
-      let a = i / 12 * 6.283 + h01(i + 140) * 0.4, x = fx0, y = fy0; const pts = [[x, y]];
-      for (let j = 0; j < 9; j++) { a += (h01(i * 17 + j) - 0.5) * 0.8; const l = 26 + h01(i * 9 + j) * 34; x += Math.cos(a) * l; y += Math.sin(a) * l * 0.55; pts.push([x, y]); }
-      const n = Math.max(1, Math.ceil(c.quake * (pts.length - 1)));
-      for (const [col, w, al] of [['#140404', 5, 0.85], ['#ff3a1a', 2, 0.9 * glow]]) { ctx.globalAlpha = al; ctx.strokeStyle = col; ctx.lineWidth = w; ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]); for (let j = 1; j <= n; j++) ctx.lineTo(pts[j][0], pts[j][1]); ctx.stroke(); }
-    }
-    ctx.globalAlpha = 1;
-  }
   if (c.howlRings >= 0) for (let i = 0; i < 30; i++) {   // tàn lửa bay lên khi hú
     const ph = (time * 0.8 + h01(i + 160)) % 1; ctx.globalAlpha = (1 - ph) * 0.9; ctx.fillStyle = i % 3 ? '#ff7a2a' : '#ffd070';
     ctx.fillRect(Math.round(h01(i + 161) * W), Math.round(H - ph * H * 0.9), 2, 3);
@@ -1837,7 +1844,7 @@ function drawP2Screen(ctx, c, vis, time) {
   if (fin && c.T && c.t >= c.T.HOLE[0]) {
     const T = c.T, f = c.t < T.ROAR ? Math.floor((c.t - T.HOLE[0]) / (T.ROAR - T.HOLE[0]) * 26) : 26 + Math.floor((c.t - T.ROAR) * 24);
     yvFx = p2FxAt(ctx, vis, 'yv_ho_den', f, ox, oy, 2.2 * z);
-    if (yvFx && c.hole > 0) { const sh2 = P2_SHEET(vis, c.pose); if (sh2 && sh2.meta.frames[c.pose]) { const [fx1, fy1] = p2Map(c.bx, c.by); ctx.globalAlpha = 0.8; for (const [dx, dy] of [[-2, 0], [2, 0], [0, -2]]) sheetFrame(ctx, sh2, c.pose, fx1 + dx, fy1 + dy, false, sh2.rage || sh2.glow, K * z); ctx.globalAlpha = 1; sheetFrame(ctx, sh2, c.pose, fx1, fy1, false, sh2.img, K * z); } }
+    if (yvFx && (c.hole > 0 || c.burst >= 0)) { const sh2 = P2_SHEET(vis, c.pose); if (sh2 && sh2.meta.frames[c.pose]) { const [fx1, fy1] = p2Map(c.bx, c.by); ctx.globalAlpha = 0.8; for (const [dx, dy] of [[-2, 0], [2, 0], [0, -2]]) sheetFrame(ctx, sh2, c.pose, fx1 + dx, fy1 + dy, false, sh2.rage || sh2.glow, K * z); ctx.globalAlpha = 1; sheetFrame(ctx, sh2, c.pose, fx1, fy1, false, sh2.img, K * z); } }
   }
   if (fin && c.hole > 0 && !yvFx) {   // hố đen nở sau lưng Ma Quân, viền hồng; Ma Quân vẽ lại phía trên
     const R = c.hole * 170, g = ctx.createRadialGradient(ox, oy, R * 0.2, ox, oy, R * 1.25);
@@ -2361,6 +2368,7 @@ export function render(ctx, g) {
     if (g.run && g.run.shrine && !g.run.shrine.used) drawShrine(ctx, g.run, p, time, vis);
   }
 
+  if (g.cut) drawP2Ground(ctx, g.cut, vis, time);   // (24/11) VFX mặt đất cutscene pha 2: dưới cây / quái / boss
   mark('ground');
   for (const m of scene.monsters) objs.push({ y: m.y, m });
   objs.push({ y: p.y, player: true });
