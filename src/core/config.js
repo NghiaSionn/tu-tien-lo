@@ -181,11 +181,11 @@ export const TACTICS = {
   THINK: [0.15, 0.3],                 // giây: nhịp đánh giá so le giữa các con (không đánh giá mỗi khung)
   BUDGET: { NORMAL: 2, NORMAL_HIGH: 3, BOSS_HEAVY: 1 },   // trong khung nhìn: tối đa đòn đặc biệt quái thường đang gồng/lao (độ khó Huyền+ dùng NORMAL_HIGH), chiêu boss nặng
   RETRY: 0.35,                        // giây: hết ngân sách -> quái thử gồng lại sau bấy nhiêu
-  HEAVY: { slam: 1, zones: 1, prison: 1, burst: 1, howlDash: 1, leap: 1, sweep: 1, cross: 1 },   // chiêu boss tính là "nặng"
+  HEAVY: { slam: 1, zones: 1, prison: 1, burst: 1, howlDash: 1, leap: 1, sweep: 1, cross: 1, bloodDash: 1, comboClaw: 1, quake: 1, hunt: 1, cracks: 1, rageHowl: 1, thunder: 1, eight: 1, runes: 1, chainBolt: 1, clones: 1, doubleSweep: 1, net: 1 },   // chiêu boss tính là "nặng"
   MAX_REPEAT: 2,                      // boss không dùng một chiêu quá 2 lần liên tiếp
   MAX_SUMMONED: 8,                    // sói do Lang Vương gọi còn sống tối đa (không hú thêm)
   SLAM_RANGE_MULT: 1.6,               // Chấn Địa hợp lệ khi người chơi trong TRIGGER × hệ số
-  SKILL_CD: { FINAL: { slam: 6, prison: 9, shadow: 8, sweep: 7, cross: 7, summon: 12 }, MINI: { howl: 8, claw: 3, leap: 6 } },   // giây (theo tuổi boss): hồi chiêu riêng, chống spam
+  SKILL_CD: { FINAL: { slam: 6, prison: 9, shadow: 8, sweep: 7, cross: 7, summon: 12, thunder: 6, eight: 7, runes: 9, chainBolt: 6, clones: 9, doubleSweep: 10, net: 9 }, MINI: { howl: 8, claw: 3, leap: 6, bloodDash: 6, comboClaw: 5, quake: 8, hunt: 8, cracks: 6, rageHowl: 9 } },   // giây (theo tuổi boss): hồi chiêu riêng, chống spam
   // M10-03: chống chồng đòn bất công
   BUDGET_DURING_HEAVY: 1,             // khi boss đang gồng chiêu nặng hoặc người chơi đang đứng trong vùng cảnh báo: quái thường chỉ 1 đòn đặc biệt trên màn
   ESCAPE: { SPEED_MUL: 0.6, DIRS: 12, MARGIN: 4 },
@@ -283,6 +283,13 @@ export const BOSS_V2 = {
     CLAW: { TRIGGER: 85, R: 72, ARC: 2.2, WINDUP: 0.8, DMG: 1.6 },
     // Vồ Đầu Đàn: dấu đáp (vùng tròn R) ở vị trí người chơi + vận tốc × LEAD (dự đoán tối đa MAX_LEAD px), gồng WINDUP, bay AIR giây
     LEAP: { MIN_D: 55, MAX_D: 230, LEAD: 0.55, MAX_LEAD: 60, R: 34, WINDUP: 1.0, AIR: 0.35, SYNC: 0.07, DMG: 1.8 },
+    // (24/11) ĐỢT 2 — pha 2 "Huyết Nguyệt Cuồng Lang": ít đứng gồng, nhiều liên hoàn, ép vị trí (docs/design/BOSS_TUYET_KY_DE_XUAT.md)
+    BLOOD_DASH: { COUNT: 3, WINDUP: 0.65 },                                   // Huyết Ảnh Tam Xung: 3 lần lao, mỗi lần khóa hướng lại
+    COMBO: { L: -0.55, R: 0.55, WL: 0.7, WR: 0.55, BITE_D: 36, BITE_R: 30, BITE_T: 0.8, BITE_DMG: 1.6, GAP: 0.2 },   // Cuồng Nha Liên Kích: quạt lệch trái -> phải -> cắn trước mặt
+    QUAKE: { WINDUP: 0.5, N: 4, R0: 42, STEP: 34, W: 8, T0: 1.0, DT: 0.22, GAP: 0.85, DMG: 1.5 },   // Huyết Nguyệt Trấn Địa: vòng sóng nổ dần ra, chừa khe GAP rad (hướng về người chơi)
+    HUNT: { GAP: 0.3 },                                                       // Lang Vương Truy Mệnh: Vồ 2 lần liền
+    CRACKS: { N: 3, SPREAD: 0.5, L: 175, W: 8, T0: 1.0, DT: 0.25, DMG: 1.6 },   // Huyết Trảo Phá Địa: 3 vệt nứt hình quạt nổ lần lượt
+    RAGE_HOWL: { R: 70, T: 1.1, DMG: 1.7 },                                   // Cuồng Lang Bạo Khiếu: vòng nổ lớn quanh thân
   },
   // ---------- M10-10: Ma Ảnh Yêu Vương 2 pha / 7 chiêu (ĐÚNG 2 pha; cuồng nộ cũ chỉ là trạng thái trong P2) ----------
   // PHASE2 null = giữ ngưỡng hiện có BOSS.FINAL.PHASE2 (không đổi ngưỡng khi chưa duyệt).
@@ -298,6 +305,14 @@ export const BOSS_V2 = {
     SWEEP: { WINDUP: 1.1, TIME: 1.4, ARC: 3.1416, L: 180, W: 9, SAFE_START: 1.0, DMG: 1.8 },
     // Thập Tự Hắc Liệt: hai dải nổ vuông góc (dài 2×LEN, nửa bề rộng W) giao tại vị trí người chơi lúc khóa; 4 góc chéo an toàn
     CROSS: { WINDUP: 1.4, LEN: 130, W: 14, DMG: 1.8 },
+    // (24/11) ĐỢT 2 — pha 2 "Huyết Lôi Ma Quân": vùng sét đỏ nổ theo nhịp — đọc thứ tự, tìm khe, đổi vị trí
+    THUNDER: { N: 4, R: 22, SPREAD: 36, T0: 0.9, DT: 0.25, DMG: 1.5 },        // Huyết Lôi Thiên Phạt: 4 điểm sét nổ tuần tự quanh người chơi
+    EIGHT: { N: 8, L: 210, W: 8, T: 1.0, DMG: 1.5 },                          // Ma Lôi Bát Phương: 8 tia sét tỏa từ boss, khe giữa các tia
+    RUNES: { N: 6, R: 90, W: 60, T0: 1.2, DT: 0.3, DMG: 1.5 },                // Nghịch Chuyển Ma Trận: vành 30..150 quanh boss chia 6 cung, nổ lần lượt
+    CHAIN: { N: 5, STEP: 40, ZIG: 22, W: 8, T: 1.0, DMG: 1.6 },               // Huyết Lôi Liên Tỏa: đường sét gấp khúc cắt qua người chơi
+    CLONES: { N: 2, D: 110, T: 1.2, SHOTS: 10, DMG: 1.2 },                    // Ma Ảnh Phân Thân: 2 bóng hai bên người chơi, mỗi bóng bắn đạn tỏa có khe
+    SWEEP2: { WINDUP: 0.7, GAP: 0.4 },                                        // Diệt Thế Ma Quang: quét 2 nhịp — nhịp 2 quét tiếp NỬA VÒNG CÒN LẠI (phải đổi sang vùng vừa quét)
+    NET: { N: 5, SPACING: 48, L: 240, W: 9, T0: 1.2, DT: 0.22, DMG: 1.5 },    // Huyết Lôi Thiên Võng: dải sét song song nổ thành sóng (khe >= 20 px)
   },
 };
 
@@ -317,7 +332,9 @@ export const BOSS_TK = {
 export const BOSS_SKILL_LABELS = {
   dash: ['Tam Liên Lao', '#ff8a6a'], howl: ['Lang Hú', '#ffd978'], howlDash: ['Hú Rồi Lao', '#ffd978'], claw: ['Liệt Trảo', '#ff8a6a'], leap: ['Vồ Đầu Đàn', '#ffb070'],
   burst: ['Hắc Ám Đạn Trận', '#e0a8ff'], zones: ['Hắc Diễm Truy Sát', '#e0a8ff'], slam: ['Chấn Địa', '#ff8a6a'], prison: ['Ma Ảnh Lao Tù', '#e0a8ff'],
-  summon: ['Triệu Ma Ảnh', '#c070ff'], shadow: ['Ảnh Độn', '#d9a8ff'], sweep: ['Ma Quang Hoành Tảo', '#f4d8ff'], cross: ['Thập Tự Hắc Liệt', '#ff8a6a'],
+  summon: ['Triệu Ma Ảnh', '#c070ff'],
+  bloodDash: ['Huyết Ảnh Tam Xung', '#ff6a4a'], comboClaw: ['Cuồng Nha Liên Kích', '#ff8a5a'], quake: ['Huyết Nguyệt Trấn Địa', '#ff7040'], hunt: ['Lang Vương Truy Mệnh', '#ffa070'], cracks: ['Huyết Trảo Phá Địa', '#ff5a3a'], rageHowl: ['Cuồng Lang Bạo Khiếu', '#ffd070'],
+  thunder: ['Huyết Lôi Thiên Phạt', '#ff4a6a'], eight: ['Ma Lôi Bát Phương', '#ff6a8a'], runes: ['Nghịch Chuyển Ma Trận', '#e070ff'], chainBolt: ['Huyết Lôi Liên Tỏa', '#ff5a7a'], clones: ['Ma Ảnh Phân Thân', '#d9a8ff'], doubleSweep: ['Diệt Thế Ma Quang', '#f4d8ff'], net: ['Huyết Lôi Thiên Võng', '#ff4a5a'], shadow: ['Ảnh Độn', '#d9a8ff'], sweep: ['Ma Quang Hoành Tảo', '#f4d8ff'], cross: ['Thập Tự Hắc Liệt', '#ff8a6a'],
 };
 
 // (23/11, người phát triển yêu cầu) Trận boss tập trung: boss xuất hiện thì dọn sạch quái thường (tan biến, KHÔNG rơi kinh nghiệm),
@@ -382,6 +399,8 @@ export const SKILL_NAMES = {
   chaser: 'Dã Lang cắn', charger: 'Hỏa Hồ cắn', 'charger:dash': 'Hỏa Hồ lao', ranged: 'Huyền Băng Thú cắn', 'ranged:shot': 'Băng tiễn',
   elite: 'Ma Ảnh cắn', 'elite:slam': 'Ma Ảnh đập đất', miniboss: 'Lang Vương cắn', 'miniboss:dash': 'Lang Vương lao',
   boss: 'Yêu Vương cắn', 'boss:slam': 'Chấn Địa', 'boss:zone': 'Hắc Diễm', 'boss:prison': 'Ma Ảnh Lao Tù', 'boss:burst': 'Hắc Diễm Đạn', 'boss:prisonShot': 'Đạn Lao Tù', 'chaser:pounce': 'Dã Lang chồm', 'charger:trail': 'Hỏa Vĩ', 'ranged:fan': 'Tam Băng Tiễn', 'elite:claw': 'Hắc Trảo', 'miniboss:claw': 'Liệt Trảo', 'miniboss:leap': 'Vồ Đầu Đàn', 'boss:sweep': 'Ma Quang Hoành Tảo', 'boss:cross': 'Thập Tự Hắc Liệt',
+  'miniboss:bite': 'Cuồng Nha Liên Kích', 'miniboss:quake': 'Huyết Nguyệt Trấn Địa', 'miniboss:cracks': 'Huyết Trảo Phá Địa', 'miniboss:rageHowl': 'Cuồng Lang Bạo Khiếu',
+  'boss:thunder': 'Huyết Lôi Thiên Phạt', 'boss:eight': 'Ma Lôi Bát Phương', 'boss:runes': 'Nghịch Chuyển Ma Trận', 'boss:chainBolt': 'Huyết Lôi Liên Tỏa', 'boss:clones': 'Ma Ảnh Phân Thân', 'boss:net': 'Huyết Lôi Thiên Võng',
 };
 
 // ---------- Boss (M2-02) [THỬ NGHIỆM] ----------

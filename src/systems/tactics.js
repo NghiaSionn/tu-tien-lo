@@ -6,9 +6,16 @@ import { inCameraView } from './director.js';
 
 // M10-10: khoảng cách từ điểm tới lõi vùng nổ (tròn: tâm; dải: đoạn x0,y0–x1,y1). Trúng khi < h.r
 export function hazardDist(h, x, y) {
+  if (h.ring) return ringDist(h, x, y);   // (24/11) vành khuyên / cung: khoảng cách tới đường tròn bán kính R trong cung [a0, a0+span]
   if (h.x0 === undefined) return Math.hypot(x - h.x, y - h.y);
   const vx = h.x1 - h.x0, vy = h.y1 - h.y0, l2 = vx * vx + vy * vy || 1, k = Math.max(0, Math.min(1, ((x - h.x0) * vx + (y - h.y0) * vy) / l2));
   return Math.hypot(x - h.x0 - vx * k, y - h.y0 - vy * k);
+}
+
+export function ringDist(h, x, y) {
+  const dx = x - h.x, dy = y - h.y, d = Math.hypot(dx, dy);
+  if (h.span < 6.28) { const rel = ((Math.atan2(dy, dx) - h.a0) % 6.2832 + 6.2832) % 6.2832; if (rel > h.span) return 1e9; }
+  return Math.abs(d - h.R);
 }
 
 // ---------- ngân sách đe dọa (đầu mỗi tick, run.js gọi) ----------
@@ -43,7 +50,7 @@ export function claimSpecial(io, m, player, extra = []) {
 // ---------- M10-08: hình nguy hiểm đang hiện cảnh báo (đúng hình học trúng đòn) ----------
 // đoạn {x0,y0,x1,y1,w} hoặc tròn {x,y,r}. Chỉ lấy trong tầm 320 px quanh người chơi.
 const segD = (px, py, s) => { const vx = s.x1 - s.x0, vy = s.y1 - s.y0, l2 = vx * vx + vy * vy || 1, k = Math.max(0, Math.min(1, ((px - s.x0) * vx + (py - s.y0) * vy) / l2)); return Math.hypot(px - s.x0 - vx * k, py - s.y0 - vy * k); };
-const hits = (s, x, y) => s.r !== undefined ? Math.hypot(x - s.x, y - s.y) < s.r : segD(x, y, s) < s.w;
+export const hits = (s, x, y) => s.ring ? ringDist(s, x, y) < s.w : s.r !== undefined ? Math.hypot(x - s.x, y - s.y) < s.r : segD(x, y, s) < s.w;
 export const seg = (m, dx, dy, L, w) => ({ x0: m.x, y0: m.y, x1: m.x + dx * L, y1: m.y + dy * L, w });
 export const fanSegs = (m, dx, dy, fan) => (fan ? [0, -IF.SPREAD, IF.SPREAD] : [0]).map(a => { const c = Math.cos(a), s = Math.sin(a); return seg(m, dx * c - dy * s, dx * s + dy * c, 250, ARCH.ranged.SHOT_R + PLAYER.HITBOX); });
 // H-1a (24/11): phần cung CÒN LẠI của tia Ma Quang Hoành Tảo (đang gồng: cả nửa vòng; đang quét: từ góc hiện tại tới góc cuối)
@@ -60,7 +67,7 @@ export function sweepSegs(m) {
 }
 export function dangerShapes(scene, player) {
   const out = [], near = (x, y) => Math.abs(x - player.x) < 320 && Math.abs(y - player.y) < 320;
-  for (const h of scene.hazards) if (near(h.x, h.y)) out.push(h.x0 !== undefined ? { x0: h.x0, y0: h.y0, x1: h.x1, y1: h.y1, w: h.r + PLAYER.HITBOX } : { x: h.x, y: h.y, r: h.r + PLAYER.HITBOX });
+  for (const h of scene.hazards) if (near(h.x, h.y)) out.push(h.ring ? { ring: true, x: h.x, y: h.y, R: h.R, a0: h.a0, span: h.span, w: h.r + PLAYER.HITBOX } : h.x0 !== undefined ? { x0: h.x0, y0: h.y0, x1: h.x1, y1: h.y1, w: h.r + PLAYER.HITBOX } : { x: h.x, y: h.y, r: h.r + PLAYER.HITBOX });
   for (const f of scene.fireTrails || []) if (near(f.x, f.y)) out.push({ x: f.x, y: f.y, r: f.r + PLAYER.HITBOX });
   for (const m of scene.monsters) {
     if (m.dead || (m.st !== 'windup' && m.st !== 'dash' && m.st !== 'sweep') || !near(m.x, m.y)) continue;
@@ -70,7 +77,7 @@ export function dangerShapes(scene, player) {
     else if (m.boss && m.pat === 'dash') dash(BOSS.MINI.DASH.SPEED, BOSS.MINI.DASH.TIME, BOSS.MINI.DASH.HIT_R);
     else if (m.arch === 'ranged' && m.st === 'windup') out.push(...fanSegs(m, m.dirX, m.dirY, m.fan));
     else if (m.arch === 'elite' && m.st === 'windup') out.push({ x: m.x, y: m.y, r: (m.sk === 'claw' ? EV.CLAW.R : ARCH.elite.SLAM_R) + PLAYER.HITBOX });
-    else if (m.boss && m.pat === 'claw' && m.st === 'windup') out.push({ x: m.x, y: m.y, r: BOSS_V2.MINI.CLAW.R + PLAYER.HITBOX });   // M10-09
+    else if (m.boss && m.pat === 'claw' && m.st === 'windup') { const C = BOSS_V2.MINI.CLAW, a = Math.atan2(m.dirY, m.dirX); out.push({ ring: true, x: m.x, y: m.y, R: C.R / 2, w: C.R / 2 + PLAYER.HITBOX, a0: a - C.ARC / 2 - 0.1, span: C.ARC + 0.2 }); }   // M10-09 (24/11: đúng hình quạt trước mặt, sau lưng an toàn)
     else if (m.boss && (m.st === 'sweep' || (m.st === 'windup' && m.pat === 'sweep')) && m.swDir) out.push(...sweepSegs(m));   // H-1a: tia Hoành Tảo
   }
   return out;
@@ -102,6 +109,8 @@ export function thinkTick(m, dt, rng) {
 const ONCAM = c => !c.io.map || !c.player || inCameraView(c.io.map, c.player, c.m.x, c.m.y, 0);
 const PRISON_ON = c => c.io.hazards.some(h => h.src === 'boss:prison');   // M10-10: Lao Tù và Thập Tự không chồng nhau; đạn tỏa không ra khi Lao Tù đang chờ nổ
 const CROSS_ON = c => c.io.hazards.some(h => h.src === 'boss:cross');
+const ROOM = (c, n, max = BOSS_V2.FINAL.MAX_HAZARDS) => c.io.hazards.length + n <= max;   // (24/11) còn chỗ cho n vùng nổ mới
+const P2_OLD_W = 0.45;   // pha 2: chiêu cũ chỉ còn 45 % trọng số -> đổi kiểu đánh
 const SUMMONED = ctx => ctx.io.scene ? ctx.io.scene.monsters.filter(o => o.summoned && !o.dead).length : 0;
 export const BOSS_SKILLS = {
   MINI: [
@@ -116,6 +125,13 @@ export const BOSS_SKILLS = {
     { id: 'claw', valid: c => c.d < BOSS_V2.MINI.CLAW.TRIGGER, w: () => 3.5 },
     { id: 'howlDash', valid: c => c.phase2 && c.remix && SUMMONED(c) + BOSS.MINI.HOWL.N <= TC.MAX_SUMMONED, w: () => 1.2 },
     { id: 'leap', valid: c => c.phase2 && c.d > BOSS_V2.MINI.LEAP.MIN_D && c.d < BOSS_V2.MINI.LEAP.MAX_D, w: () => 2.5 },
+    // (24/11) đợt 2 — pha 2 Huyết Nguyệt Cuồng Lang (p2: chiêu cũ còn P2_OLD_W trọng số)
+    { id: 'bloodDash', p2: true, valid: c => c.phase2, w: c => c.d > 80 ? 2.4 : 1.2 },
+    { id: 'comboClaw', p2: true, valid: c => c.phase2 && c.d < 120, w: () => 3 },
+    { id: 'quake', p2: true, valid: c => c.phase2 && ROOM(c, BOSS_V2.MINI.QUAKE.N, 12), w: c => c.d < 150 ? 2.2 : 1 },
+    { id: 'hunt', p2: true, valid: c => c.phase2 && c.d > BOSS_V2.MINI.LEAP.MIN_D && c.d < BOSS_V2.MINI.LEAP.MAX_D && ROOM(c, 2, 12), w: () => 1.8 },
+    { id: 'cracks', p2: true, valid: c => c.phase2 && c.d < 190 && ROOM(c, BOSS_V2.MINI.CRACKS.N, 12), w: () => 2 },
+    { id: 'rageHowl', p2: true, valid: c => c.phase2 && c.d < 95 && ROOM(c, 1, 12), w: () => 2.4 },
   ],
   // M10-10 (bossPatternsV2): Yêu Vương 7 chiêu; P1 burst/zones/slam/prison(remix, sau làm quen), P2 thêm shadow/sweep/cross
   FINAL_V2: [
@@ -127,6 +143,14 @@ export const BOSS_SKILLS = {
     { id: 'sweep', valid: c => c.phase2 && ONCAM(c) && c.d < BOSS_V2.FINAL.SWEEP.L - 20, w: c => c.d < 120 ? 2.4 : 1.4 },
     { id: 'cross', valid: c => c.phase2 && !PRISON_ON(c) && !CROSS_ON(c) && c.io.hazards.length + 2 <= BOSS_V2.FINAL.MAX_HAZARDS, w: c => c.d > 70 ? 2.2 : 1.2 },
     { id: 'summon', valid: c => SUMMONED(c) < TC.MAX_SUMMONED, w: c => SUMMONED(c) < 2 ? 1.8 : 0.5 },   // (24/11) Triệu Ma Ảnh
+    // (24/11) đợt 2 — pha 2 Huyết Lôi Ma Quân: vùng sét nổ theo nhịp
+    { id: 'thunder', p2: true, valid: c => c.phase2 && ROOM(c, BOSS_V2.FINAL.THUNDER.N), w: () => 2.2 },
+    { id: 'eight', p2: true, valid: c => c.phase2 && ONCAM(c) && c.d < 200 && ROOM(c, BOSS_V2.FINAL.EIGHT.N), w: () => 1.8 },
+    { id: 'runes', p2: true, valid: c => c.phase2 && c.d < 150 && ROOM(c, BOSS_V2.FINAL.RUNES.N), w: () => 1.6 },
+    { id: 'chainBolt', p2: true, valid: c => c.phase2 && ROOM(c, BOSS_V2.FINAL.CHAIN.N), w: () => 2 },
+    { id: 'clones', p2: true, valid: c => c.phase2 && ONCAM(c), w: () => 1.5 },
+    { id: 'doubleSweep', p2: true, valid: c => c.phase2 && ONCAM(c) && c.d < BOSS_V2.FINAL.SWEEP.L - 20, w: () => 1.4 },
+    { id: 'net', p2: true, valid: c => c.phase2 && ROOM(c, BOSS_V2.FINAL.NET.N), w: () => 1.8 },
   ],
   FINAL: [
     { id: 'burst', valid: c => ONCAM(c), w: c => c.d > 80 ? 2.5 : 1.2 },
@@ -148,7 +172,7 @@ export function selectBossSkill(m, B, d, io, player, phase2) {
   if (io.threat && io.threat.bossHeavy >= TC.BUDGET.BOSS_HEAVY) cands = cands.filter(s => !TC.HEAVY[s.id]);
   if (!cands.length) cands = list.filter(s => s.valid(ctx) && rep(s.id) < TC.MAX_REPEAT);   // hết lựa chọn: bỏ qua hồi chiêu, vẫn chống lặp
   if (!cands.length) return null;   // M10-03: không chiêu nào hợp lệ (vd boss ngoài màn, vùng đã đầy) -> boss chờ, không ép chiêu
-  const ws = cands.map(s => Math.max(0, s.w(ctx)));
+  const ws = cands.map(s => Math.max(0, s.w(ctx)) * (phase2 && !s.p2 && list.some(o => o.p2) ? P2_OLD_W : 1));
   let r = io.rng() * ws.reduce((a, v) => a + v, 0), pick = cands[cands.length - 1];
   for (let i = 0; i < cands.length; i++) { r -= ws[i]; if (r < 0) { pick = cands[i]; break; } }
   m.skillHist.push(pick.id); if (m.skillHist.length > 8) m.skillHist.shift();

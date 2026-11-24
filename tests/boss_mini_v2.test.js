@@ -1,11 +1,18 @@
 // M10-09: Lang Vương 2 pha / 5 chiêu (run.bossV2)
-import test from 'node:test';
+import test, { before, after } from 'node:test';
+import { BOSS_SKILLS } from '../src/systems/tactics.js';
 import assert from 'node:assert/strict';
 import { createRun, updateRun } from '../src/systems/run.js';
 import { makeBoss } from '../src/systems/director.js';
 import { BOSS, BOSS_V2, TACTICS, PLAYER, FEATURES } from '../src/core/config.js';
 
 const DT = 1 / 30, V = BOSS_V2.MINI;
+// (24/11) đợt 2 thêm chiêu pha 2 mới (p2: true) — file này kiểm bộ chiêu M10 cũ nên gỡ tạm chúng khỏi bộ chọn
+// (mỗi file test chạy tiến trình riêng). Chiêu đợt 2 kiểm trong tests/boss_p2_dot2.test.js.
+const SAVED_V2 = {};
+before(() => { for (const k of ['MINI_V2', 'FINAL_V2']) { SAVED_V2[k] = BOSS_SKILLS[k]; BOSS_SKILLS[k] = BOSS_SKILLS[k].filter(s => !s.p2); } });
+after(() => { Object.assign(BOSS_SKILLS, SAVED_V2); });
+
 
 function spotOK(map, x, y) {
   for (let a = 0; a < 16; a++) for (const r of [0, 40, 80, 120]) {
@@ -107,7 +114,7 @@ test('Vồ Đầu Đàn: dấu đáp dự đoán (≤ MAX_LEAD so với người
           for (const m of r.scene.monsters) if (!m.boss) m.dead = true;   // chỉ đo đòn Vồ (sói đàn cắn cho bất tử ngắn làm nhiễu)
           const h = r.scene.hazards.find(z => z.src === 'miniboss:leap');
           if (h && !mark) { mark = { x: h.x, y: h.y }; markAt = i * DT; assert.ok(Math.hypot(h.x - p.x, h.y - p.y) <= V.LEAP.MAX_LEAD + 1, 'dự đoán quá xa'); assert.ok(r.scene.map.monStand(h.x, h.y)); r.dmgBy = {}; }
-          if (mark && landed < 0 && b.st === 'recover') { landed = i * DT; assert.ok(Math.hypot(b.x - mark.x, b.y - mark.y) < 1, 'boss không đáp đúng dấu'); }
+          if (mark && landed < 0 && (b.st === 'recover' || b.st === 'tkGap')) { landed = i * DT; assert.ok(Math.hypot(b.x - mark.x, b.y - mark.y) < 1, 'boss không đáp đúng dấu'); }
           if (mark && firstHit < 0 && r.dmgBy['miniboss:leap'] && (landed < 0 || i * DT <= landed + 0.2)) firstHit = i * DT;   // chỉ cú vồ đầu tiên
         },
       });

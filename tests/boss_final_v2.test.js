@@ -1,12 +1,18 @@
 // M10-10: Ma Ảnh Yêu Vương 2 pha / 7 chiêu (run.bossV2)
-import test from 'node:test';
+import test, { before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { createRun, updateRun } from '../src/systems/run.js';
 import { makeBoss } from '../src/systems/director.js';
-import { hasEscape, hazardDist } from '../src/systems/tactics.js';
+import { hasEscape, hazardDist, BOSS_SKILLS } from '../src/systems/tactics.js';
 import { BOSS, BOSS_V2, PLAYER, SKILL_NAMES } from '../src/core/config.js';
 
 const DT = 1 / 30, V = BOSS_V2.FINAL, P2 = V.PHASE2 ?? BOSS.FINAL.PHASE2;
+// (24/11) đợt 2 thêm chiêu pha 2 mới (p2: true) — file này kiểm bộ chiêu M10 cũ nên gỡ tạm chúng khỏi bộ chọn
+// (mỗi file test chạy tiến trình riêng). Chiêu đợt 2 kiểm trong tests/boss_p2_dot2.test.js.
+const SAVED_V2 = {};
+before(() => { for (const k of ['MINI_V2', 'FINAL_V2']) { SAVED_V2[k] = BOSS_SKILLS[k]; BOSS_SKILLS[k] = BOSS_SKILLS[k].filter(s => !s.p2); } });
+after(() => { Object.assign(BOSS_SKILLS, SAVED_V2); });
+
 
 function spotOK(map, x, y) {
   for (let a = 0; a < 16; a++) for (const r of [0, 50, 100, 150]) {
