@@ -334,10 +334,17 @@ export const BOSS_TK = {
       { AT: 0.4, P2: true, SUFFIX: ' · Nhị Trọng', SEQ: [['thunder'], ['runes'], ['chainBolt'], ['sweep']] },
       { AT: 0.15, P2: true, SUFFIX: ' · Tam Trọng', SEQ: [['net'], ['runes'], ['thunder'], ['burst'], ['sweep']] }] },
 };
+// (24/11) TUYỆT CHIÊU mỗi boss (ý tưởng người phát triển, ChatGPT chi tiết hóa — docs/design/BOSS_TUYET_KY_DE_XUAT.md).
+// Chỉ pha 2, không miễn nhiễm; AT: mốc máu lần đầu · CD: hồi (giây) · MAX: số lần/trận · DUR: thời lượng · STUN: choáng sau khi xong.
+// Lang Vương: R vòng vây, W bề rộng dải lao, SPEED px/s. Yêu Vương: LIGHT bán kính vùng sáng, EYE_R khoảng cách mắt tới người chơi, W bề rộng tia.
+export const BOSS_ULT = {
+  MINI: { NAME: 'Vạn Lang Ảnh Sát Trận', AT: 0.35, CD: 40, MAX: 2, R: 90, W: 16, SPEED: 300, DUR: 10, STUN: 2, DMG: 1.6, COLOR: '#ff4a3a' },
+  FINAL: { NAME: 'U Minh Vạn Nhãn Kiếp', AT: 0.30, CD: 45, MAX: 2, LIGHT: 65, EYE_R: [110, 135], W: 12, DUR: 11, STUN: 2.5, DMG: 1.6, COLOR: '#ff2a3a' },
+};
 export const BOSS_SKILL_LABELS = {
   dash: ['Tam Liên Lao', '#ff8a6a'], howl: ['Lang Hú', '#ffd978'], howlDash: ['Hú Rồi Lao', '#ffd978'], claw: ['Liệt Trảo', '#ff8a6a'], leap: ['Vồ Đầu Đàn', '#ffb070'],
   burst: ['Hắc Ám Đạn Trận', '#e0a8ff'], zones: ['Hắc Diễm Truy Sát', '#e0a8ff'], slam: ['Chấn Địa', '#ff8a6a'], prison: ['Ma Ảnh Lao Tù', '#e0a8ff'],
-  summon: ['Triệu Ma Ảnh', '#c070ff'],
+  summon: ['Triệu Ma Ảnh', '#c070ff'], ultMINI: ['Vạn Lang Ảnh Sát Trận', '#ff4a3a'], ultFINAL: ['U Minh Vạn Nhãn Kiếp', '#ff2a3a'],
   bloodDash: ['Huyết Ảnh Tam Xung', '#ff6a4a'], comboClaw: ['Cuồng Nha Liên Kích', '#ff8a5a'], quake: ['Huyết Nguyệt Trấn Địa', '#ff7040'], hunt: ['Lang Vương Truy Mệnh', '#ffa070'], cracks: ['Huyết Trảo Phá Địa', '#ff5a3a'], rageHowl: ['Cuồng Lang Bạo Khiếu', '#ffd070'],
   thunder: ['Huyết Lôi Thiên Phạt', '#ff4a6a'], eight: ['Ma Lôi Bát Phương', '#ff6a8a'], runes: ['Nghịch Chuyển Ma Trận', '#e070ff'], chainBolt: ['Huyết Lôi Liên Tỏa', '#ff5a7a'], clones: ['Ma Ảnh Phân Thân', '#d9a8ff'], doubleSweep: ['Diệt Thế Ma Quang', '#f4d8ff'], net: ['Huyết Lôi Thiên Võng', '#ff4a5a'], shadow: ['Ảnh Độn', '#d9a8ff'], sweep: ['Ma Quang Hoành Tảo', '#f4d8ff'], cross: ['Thập Tự Hắc Liệt', '#ff8a6a'],
 };
@@ -404,6 +411,7 @@ export const SKILL_NAMES = {
   chaser: 'Dã Lang cắn', charger: 'Hỏa Hồ cắn', 'charger:dash': 'Hỏa Hồ lao', ranged: 'Huyền Băng Thú cắn', 'ranged:shot': 'Băng tiễn',
   elite: 'Ma Ảnh cắn', 'elite:slam': 'Ma Ảnh đập đất', miniboss: 'Lang Vương cắn', 'miniboss:dash': 'Lang Vương lao',
   boss: 'Yêu Vương cắn', 'boss:slam': 'Chấn Địa', 'boss:zone': 'Hắc Diễm', 'boss:prison': 'Ma Ảnh Lao Tù', 'boss:burst': 'Hắc Diễm Đạn', 'boss:prisonShot': 'Đạn Lao Tù', 'chaser:pounce': 'Dã Lang chồm', 'charger:trail': 'Hỏa Vĩ', 'ranged:fan': 'Tam Băng Tiễn', 'elite:claw': 'Hắc Trảo', 'miniboss:claw': 'Liệt Trảo', 'miniboss:leap': 'Vồ Đầu Đàn', 'boss:sweep': 'Ma Quang Hoành Tảo', 'boss:cross': 'Thập Tự Hắc Liệt',
+  'miniboss:ult': 'Vạn Lang Ảnh Sát Trận', 'boss:ultEye': 'U Minh Vạn Nhãn Kiếp',
   'miniboss:bite': 'Cuồng Nha Liên Kích', 'miniboss:quake': 'Huyết Nguyệt Trấn Địa', 'miniboss:cracks': 'Huyết Trảo Phá Địa', 'miniboss:rageHowl': 'Cuồng Lang Bạo Khiếu',
   'boss:thunder': 'Huyết Lôi Thiên Phạt', 'boss:eight': 'Ma Lôi Bát Phương', 'boss:runes': 'Nghịch Chuyển Ma Trận', 'boss:chainBolt': 'Huyết Lôi Liên Tỏa', 'boss:clones': 'Ma Ảnh Phân Thân', 'boss:net': 'Huyết Lôi Thiên Võng',
 };

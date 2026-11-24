@@ -1,5 +1,5 @@
 // Vẽ một khung: bản đồ, vật thể sắp theo y, yêu thú, người chơi, công pháp, hiệu ứng beanfx và hạt sáng.
-import { VIEW, TILE as T, HUB, FEATURES, ARCH, BOSS, WOLF_PACK, FOX_TRAIL, ICE_FAN, ELITE_V2, BOSS_V2, BOSS_P2, BOSS_TK, BOSS_SKILL_LABELS, TRIBULATION, SHRINE, BASIC_ATTACK } from '../core/config.js';
+import { VIEW, TILE as T, HUB, FEATURES, ARCH, BOSS, WOLF_PACK, FOX_TRAIL, ICE_FAN, ELITE_V2, BOSS_V2, BOSS_P2, BOSS_TK, BOSS_ULT, BOSS_SKILL_LABELS, TRIBULATION, SHRINE, BASIC_ATTACK } from '../core/config.js';
 import { GRASS, WATER, STONE, TREE, ROCK, BUILDING, FENCE, DIRT, CLIFF, CLOUD, FALL } from '../world/map.js';
 import { SPR, TIERS, BOSS_WHITE, BOSS_SPR, grassTiles, waterTiles, waterBank, stoneTile, treeSprs, rockSpr, hash } from './sprites.js';
 import { createFx } from '../../lib/beanfx.js';
@@ -94,6 +94,7 @@ export function consumeEvents(vis, ev) {
       case 'death': burst(vis, e.x, e.y - 4, 12, 70, TIER_COLORS[e.tier] || '#fff', 0.6, 2); break;
       case 'announce': vis.banner = { text: e.text, color: e.color || '#ffd978', life: 2.6 }; break;
       case 'shieldBreak': burst(vis, e.x, e.y - 8, 18, 80, '#ffd978', 0.5, 2); addShake(vis, 0.15); break;
+      case 'ultEnd': burst(vis, e.x, e.y - 30, 30, 120, BOSS_ULT[e.kind].COLOR, 0.8, 2); addShake(vis, 0.25); break;   // (24/11) tuyệt chiêu kết thúc
       case 'tkBreak': burst(vis, e.x, e.y - 44, 34, 150, BOSS_TK[e.kind].COLOR, 0.8, 2); burst(vis, e.x, e.y - 44, 16, 90, '#ffffff', 0.5, 2); addShake(vis, 0.3); break;   // (24/11) khiên Tuyệt Kỹ vỡ
     }
   }
@@ -951,6 +952,70 @@ function drawWraithBoss(ctx, m, time, sh1, vis) {
 }
 // (24/11) Yêu Vương trong trận dùng sheet dựng từ tư thế cutscene (tools/yeu_vuong_sheet.py); thiếu thì về sheet boss cũ
 function bossSheet(m, vis) { return (vis && m.bossKind === 'FINAL' && vis.bossFinal) || (vis && vis.bosses); }
+// ---------- (24/11) TUYỆT CHIÊU: hình ảnh (vẽ sau lớp vật thể, trước đạn) ----------
+// Lang Vương: vòng vây chấm đỏ, 8 sói bóng quanh vòng (mắt sáng khi sắp lao), sói đang lao lướt dọc dải kèm bóng mờ.
+// Yêu Vương: bóng tối phủ đấu trường chừa vùng sáng quanh người chơi; telegraph tia / mắt / vệt đạn vẽ LẠI phía trên bóng tối.
+function drawUlt(ctx, scene, p, time, vis, camX, camY) {
+  const m = scene.monsters.find(q => q.boss && !q.dead && q.ult); if (!m) return;
+  const u = m.ult, U = BOSS_ULT[m.bossKind];
+  const fin = Math.min(1, u.t / 1.0) * Math.min(1, Math.max(0, (U.DUR - u.t) / 1.2));   // mở / tan
+  if (m.bossKind === 'MINI') {
+    ctx.fillStyle = U.COLOR;   // vòng vây
+    const n = Math.round(u.R * 0.8);
+    for (let i = 0; i < n; i++) { if ((i + Math.floor(time * 8)) % 3 === 0) continue; const a = i / n * 6.283; ctx.globalAlpha = 0.7 * fin; ctx.fillRect(Math.round(u.cx + Math.cos(a) * u.R) - 1, Math.round(u.cy + Math.sin(a) * u.R) - 1, 2, 2); }
+    const sh = (vis && vis.bossMini2) || (vis && vis.bosses), pose = sh && (sh.meta.frames.MINI2_walk0 ? 'MINI2_walk0' : Object.keys(sh.meta.frames)[0]);
+    const wolf = (x, y, flip, a) => { if (!sh) return; ctx.globalAlpha = a; sheetFrame(ctx, sh, pose, x, y + 10, flip, sh.img, 1);   // sói bóng: màu gốc + ánh đỏ
+      if (sh.rage) { ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = a * 0.45; sheetFrame(ctx, sh, pose, x, y + 10, flip, sh.rage, 1); ctx.globalCompositeOperation = 'source-over'; } };
+    for (let k = 0; k < u.clones.length; k++) {
+      const c = u.clones[k], dash = u.dashes.find(d => d.k === k && u.t >= d.fire && u.t < d.fire + d.dur);
+      if (dash) continue;   // đang lao: vẽ ở dưới
+      const charging = c.hot > u.t && c.hot - u.t < 1.0;
+      wolf(c.x, c.y, c.x > u.cx, (charging ? 0.85 : 0.45) * fin);
+      ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = charging ? '#ffe0d0' : '#ff3a2a';   // mắt
+      ctx.globalAlpha = (charging ? 0.9 + 0.1 * Math.sin(time * 30) : 0.5) * fin;
+      const ex = Math.round(c.x + (c.x > u.cx ? -9 : 9)), ey = Math.round(c.y - 6);
+      ctx.fillRect(ex - 1, ey, 2, 2); ctx.fillRect(ex + (c.x > u.cx ? -4 : 3), ey, 2, 2);
+      if (charging) { ctx.globalAlpha = 0.35 * fin; ctx.fillStyle = U.COLOR; ctx.beginPath(); ctx.arc(ex, ey, 6, 0, 6.283); ctx.fill(); }
+      ctx.globalCompositeOperation = 'source-over';
+    }
+    for (const d of u.dashes) {   // sói lao: 1 hình chính + 3 bóng mờ phía sau
+      const k = (u.t - d.fire) / d.dur; if (k < 0 || k >= 1) continue;
+      for (let j = 3; j >= 0; j--) { const kk = Math.max(0, k - j * 0.06); wolf(d.x0 + (d.x1 - d.x0) * kk, d.y0 + (d.y1 - d.y0) * kk, d.x1 < d.x0, (j ? 0.25 : 0.95) * (1 - j * 0.2)); }
+    }
+    ctx.globalAlpha = 1;
+    return;
+  }
+  // ---- Yêu Vương: bóng tối + mắt đỏ ----
+  const L = U.LIGHT, px = p.x, py = p.y - 8;
+  ctx.globalAlpha = 0.9 * fin; ctx.fillStyle = '#05010a';
+  ctx.beginPath(); ctx.rect(camX - 4, camY - 4, W + 8, H + 8); ctx.moveTo(px + L + 14, py); ctx.arc(px, py, L + 14, 0, 6.2832); ctx.fill('evenodd');   // khoét vùng sáng
+  const g = ctx.createRadialGradient(px, py, L * 0.75, px, py, L + 14); g.addColorStop(0, 'rgba(5,1,10,0)'); g.addColorStop(1, 'rgba(5,1,10,1)');
+  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(px, py, L + 14, 0, 6.283); ctx.fill();
+  ctx.globalAlpha = 1;
+  for (const h of scene.hazards) if (h.src === 'boss:ultEye' && h.x0 !== undefined) {   // vệt tia vẽ xuyên bóng tối
+    const prog = 1 - Math.max(0, h.t) / (h.max || 1);
+    ctx.globalAlpha = 0.25; ctx.fillStyle = '#ff2a3a'; const ux = h.x1 - h.x0, uy = h.y1 - h.y0, l = Math.hypot(ux, uy) || 1, nx = -uy / l * h.r * prog, ny = ux / l * h.r * prog;
+    ctx.beginPath(); ctx.moveTo(h.x0 + nx, h.y0 + ny); ctx.lineTo(h.x1 + nx, h.y1 + ny); ctx.lineTo(h.x1 - nx, h.y1 - ny); ctx.lineTo(h.x0 - nx, h.y0 - ny); ctx.closePath(); ctx.fill();
+    ctx.globalAlpha = 0.9; stripOutline(ctx, h, '#ff4a3a', 1, 0);
+  }
+  for (const e of u.eyes) {
+    const left = e.fire - u.t, fake = e.kind === 'fake';
+    if (e.kind === 'shot' && !e.fired) {   // vệt chấm hướng đạn sẽ bay
+      const ux = e.tx - e.x, uy = e.ty - e.y, l = Math.hypot(ux, uy) || 1; ctx.fillStyle = '#ff6a7a'; ctx.globalAlpha = 0.8;
+      for (let s = 10; s < 320; s += 8) ctx.fillRect(Math.round(e.x + ux / l * s), Math.round(e.y + uy / l * s), 2, 2);
+    }
+    const closing = fake ? Math.max(0, 1 - (u.t - e.open) / (e.until - e.open)) : u.t > e.fire ? Math.max(0, 1 - (u.t - e.fire) / 0.35) : 1;
+    const hot = !fake && left < 0.25 && left > -0.05;
+    const h2 = Math.max(1, Math.round(3 * closing * Math.min(1, (u.t - e.open) / 0.15)));
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.globalAlpha = (fake ? 0.5 + 0.4 * Math.sin(time * 25) : 0.6) * closing; ctx.fillStyle = hot ? '#ffffff' : '#ff2a3a';
+    ctx.beginPath(); ctx.arc(e.x, e.y, 9, 0, 6.283); ctx.fill();
+    ctx.globalAlpha = closing; ctx.fillStyle = hot ? '#ffffff' : '#ff6060';
+    for (const dx of [-5, 3]) ctx.fillRect(Math.round(e.x + dx), Math.round(e.y - h2 / 2), 3, h2);
+    ctx.globalCompositeOperation = 'source-over';
+  }
+  ctx.globalAlpha = 1;
+}
 // (24/11) Ma Ảnh Phân Thân: bóng giả mờ tím, nhấp nháy, không có lõi ngực đỏ (boss thật có); vòng báo nơi đạn sẽ tỏa
 function drawClones(ctx, m, time, vis) {
   const bs = bossSheet(m, vis), K = BOSS.DRAW_SCALE, prog = 1 - Math.max(0, m.stT) / (m.stMax || 1);
@@ -2001,7 +2066,8 @@ function drawBossBar(ctx, scene, camX, camY) {
   const B = BOSS[m.bossKind], w = 220, x = Math.round((W - w) / 2), y = H - 20;
   ctx.fillStyle = 'rgba(10,6,20,.75)'; ctx.fillRect(x - 3, y - 15, w + 6, 23);
   const phase = m.v2 ? (m.p2 ? ' · Pha 2' : ' · Pha 1') : '';   // M10-11: dấu pha (chỉ bộ chiêu mới)
-  if (m.tk && !m.tk.quiet) txt(ctx, B.name + (BOSS_TK.SHIELD ? ' · MIỄN NHIỄM — HÃY NÉ!' : ' · LIÊN HOÀN — HÃY NÉ!'), W / 2, y - 4, BOSS_TK[m.bossKind].COLOR, 11);   // (24/11) Tuyệt Kỹ
+  if (m.ult) txt(ctx, B.name + ' · ' + BOSS_ULT[m.bossKind].NAME.toUpperCase(), W / 2, y - 4, BOSS_ULT[m.bossKind].COLOR, 11);   // (24/11) tuyệt chiêu
+  else if (m.tk && !m.tk.quiet) txt(ctx, B.name + (BOSS_TK.SHIELD ? ' · MIỄN NHIỄM — HÃY NÉ!' : ' · LIÊN HOÀN — HÃY NÉ!'), W / 2, y - 4, BOSS_TK[m.bossKind].COLOR, 11);   // (24/11) Tuyệt Kỹ
   else txt(ctx, B.name + phase + (m.enraged ? ' · cuồng nộ' : m.vuln > 0 ? (m.tkStun ? ' · KHIÊN VỠ' : ' · sơ hở') : ''), W / 2, y - 4, m.enraged ? '#ff6a6a' : m.vuln > 0 && m.tkStun ? '#ffe066' : m.p2 ? '#ffc8a0' : '#f4e6ff', 11);
   ctx.fillStyle = '#2a1830'; ctx.fillRect(x, y, w, 5);
   ctx.fillStyle = m.bossKind === 'FINAL' ? (m.p2 ? '#e040c0' : '#c040ff') : (m.p2 ? '#ff7040' : '#e2584f'); ctx.fillRect(x, y, Math.max(0, Math.round(w * m.hp / m.max)), 5);
@@ -2526,6 +2592,7 @@ export function render(ctx, g) {
   mark('objects');
   if (g.run) drawSkillsOver(ctx, g.run, p, time, vis);
   if (scene.kind !== 'hub') drawTelegraphsTop(ctx, scene);
+  if (scene.kind === 'run') drawUlt(ctx, scene, p, time, vis, camX, camY);   // (24/11) tuyệt chiêu boss
   if (g.cut) drawCutBoss(ctx, g.cut, vis, time);   // (23/11) cutscene boss: trên cây/vật thể
   if (FEATURES.aiDebug && scene.kind === 'run') drawAIDebug(ctx, scene, camX, camY, p);
   else if (g.trib && g.trib.interactive) drawTribulation(ctx, g.trib, time, true);

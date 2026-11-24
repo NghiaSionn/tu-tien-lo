@@ -48,3 +48,19 @@ Bắt đầu: hú ngắn + biểu tượng khiên đỏ trên thanh máu. Kết 
 - 70 % dùng bộ chiêu P1; 50 % cutscene pha 2 (không tuyệt kỹ); 40 % và 15 % dùng bộ chiêu P2.
 - Kiểm bằng mô phỏng vị trí + đường chạy hợp lệ (đặc biệt quét 180°, đường sét, vòng nổ liên tiếp).
 - ChatGPT khuyên làm thử Tuyệt Kỹ 70 % cho mỗi boss trước, đo tỉ lệ né, rồi mới làm 40 % / 15 %.
+
+## Tuyệt chiêu (ultimate) mỗi boss — 24/11 (ý tưởng người phát triển, ChatGPT chi tiết hóa)
+
+Chỉ ở pha 2, boss KHÔNG miễn nhiễm (vẫn nhận sát thương), tối đa 2 lần/trận, hồi 40–45 s. Né hết -> boss choáng (sơ hở).
+Hủy ngay hitbox / bóng tối / vòng vây nếu boss chết giữa chừng.
+
+**Lang Vương — Vạn Lang Ảnh Sát Trận** (35 % máu, 10 s): "Lọt vào vòng săn, chỉ kẻ đọc được từng bước chân mới sống."
+- Vòng vây bán kính 90 px quanh vị trí người chơi lúc bắt đầu, 8 phân thân cách đều 45°. Chạm biên bị đẩy nhẹ vào trong (không sát thương).
+- Mỗi phân thân lao theo dải rộng 16 px, 300 px/s (nhịp cuối 330), có vệt đỏ báo toàn dải 0,95 → 0,75 s.
+- 5 đợt: 1 phân thân xuyên tâm → 2 phân thân gần vuông góc lệch 0,35 s → 2 phân thân chữ X lệch 0,4 s → 3 phân thân tuần tự → 3 phân thân 2 nhịp (nhịp cuối nhanh). Kết thúc: phân thân vỡ thành hạt đỏ, choáng 2 s.
+
+**Ma Ảnh Yêu Vương — U Minh Vạn Nhãn Kiếp** (30 % máu, 11 s): "Trong bóng tối, chỉ những đôi mắt đỏ báo cái chết đến từ đâu."
+- Bóng tối ~90 % che đấu trường, vùng sáng 65 px quanh người chơi; telegraph + mắt + đạn vẫn hiện xuyên bóng tối.
+- Mắt đỏ hiện cách người chơi ≥ 95 px; tia ma quang dải 12 px (khóa vị trí lúc mắt mở), đạn ma khí 220–260 px/s; cảnh báo 1,1 → 0,8 s.
+- 5 đợt: 1 tia → 2 tia lệch 0,4 s → 2 đạn → 3 mắt (2 mắt giả tắt sau 0,5 s, không có vệt báo) + 1 tia → 2 tia + 1 đạn. Kết thúc: mắt nhắm, sáng lại từ tâm, choáng 2,5 s.
+- Mỗi đợt phải có đường né đi bộ tới chỗ an toàn (82 px/s, trừ 0,2 s phản ứng); nghỉ ≥ 0,2–0,3 s giữa các đợt.

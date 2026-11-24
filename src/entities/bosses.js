@@ -1,7 +1,7 @@
 // Boss (M2-02): Lang Vương (mini-boss giữa run) và Ma Ảnh Yêu Vương (boss cuối). Máy trạng thái:
 //   move (đuổi, đếm GAP) -> windup (gồng, có cảnh báo) -> [dash ×n] -> recover (sơ hở, nhận thêm sát thương) -> move
 // Chiêu chỉ bắt đầu từ 'move'; boss chết thì không còn gì chạy (run.js dọn vùng/đạn). Chỉ dùng io.rng (seed của run).
-import { BOSS, RUN, HUB_MONSTER as HM, TACTICS as TC, BOSS_V2, BOSS_P2, BOSS_TK, PLAYER } from '../core/config.js';
+import { BOSS, RUN, HUB_MONSTER as HM, TACTICS as TC, BOSS_V2, BOSS_P2, BOSS_TK, BOSS_ULT, PLAYER } from '../core/config.js';
 import { selectBossSkill, keepEscape, hazardDist } from '../systems/tactics.js';
 
 export const bossDef = m => BOSS[m.bossKind];
@@ -74,6 +74,15 @@ export function bossAI(m, player, dx, dy, d, dt, io) {
     }
   }
 
+  // (24/11) TUYỆT CHIÊU: pha 2, giữa hai chiêu, không trùng Tuyệt Kỹ; tối đa MAX lần, hồi CD giây
+  const UL = V && BOSS_ULT[m.bossKind];
+  if (m.st === 'ult') { m.vx = m.vy = 0; return updateUlt(m, player, dt, io, B, UL); }
+  if (UL && m.p2 && m.hp > 0 && !m.tk && (m.st === 'move' || m.st === 'recover') && (m.ultN || 0) < UL.MAX
+    && m.hp <= m.max * UL.AT && m.age - (m.ultAt ?? -1e9) >= UL.CD) {
+    if (startUlt(m, player, io, UL)) return true;
+    m.ultAt = m.age - UL.CD + 3;   // không dựng được vòng (sát vật cản): thử lại sau 3 s
+  }
+
   if (m.st === 'windup') {
     m.vx = m.vy = 0; m.stT -= dt;
     if (m.stT > 0) return true;
@@ -134,6 +143,80 @@ export function bossAI(m, player, dx, dy, d, dt, io) {
   if (m.gapT > 0) return true;
   let pat = (io.tactics || V) ? selectBossSkill(m, B, d, io, player, phase2) : pickPattern(m, B, d);   // M10-02: chọn theo tình huống khi bật cờ (M10-09: luôn dùng selector cho bộ chiêu mới)
   return startPattern(m, pat, player, dx, dy, d, io, B, V, phase2);
+}
+
+// ---------- (24/11) TUYỆT CHIÊU (ultimate) mỗi boss — docs/design/BOSS_TUYET_KY_DE_XUAT.md ----------
+// Lang Vương "Vạn Lang Ảnh Sát Trận": vòng 8 phân thân nhốt người chơi, từng đợt phân thân lao xuyên vòng (dải có vệt báo).
+// Yêu Vương "U Minh Vạn Nhãn Kiếp": bóng tối (render), mắt đỏ hiện ngoài vùng sáng, mắt thật bắn tia / đạn có vệt báo, mắt giả tự tắt.
+// Kịch bản = danh sách sự kiện { at, kind, ... } sinh sẵn lúc bắt đầu (tất định theo io.rng); boss đứng yên, VẪN nhận sát thương.
+const ULT_WOLF = [   // [giây, phân thân k (góc k·45° + gốc), đích (k + 4 = xuyên tâm, k + 3/5 = dây cung), báo trước, tốc độ]
+  [1.2, 0, 4, 0.95], [2.7, 1, 5, 0.9], [3.05, 3, 7, 0.9], [4.2, 0, 4, 0.85], [4.6, 2, 6, 0.85],
+  [5.7, 5, 8, 0.8], [6.1, 1, 4, 0.8], [6.5, 3, 6, 0.8], [7.2, 0, 4, 0.8], [7.2, 2, 7, 0.8], [7.75, 6, 10, 0.75, 330],
+];
+const ULT_EYES = [   // [giây, kiểu, góc lệch (rad) so với gốc ngẫu nhiên, báo trước, tốc độ đạn]
+  [1.2, 'beam', 0, 1.1], [2.9, 'beam', 2.2, 1.0], [3.3, 'beam', 4.0, 1.0], [4.6, 'shot', 1.0, 0.9, 220], [4.6, 'shot', 3.4, 0.9, 220],
+  [6.3, 'fake', 0.6, 0.5], [6.3, 'fake', 2.6, 0.5], [6.3, 'beam', 4.6, 1.0], [8.0, 'beam', 1.6, 0.8], [8.4, 'beam', 3.9, 0.8], [8.8, 'shot', 5.6, 0.8, 260],
+];
+function startUlt(m, player, io, U) {
+  const u = { t: 0, a0: io.rng() * Math.PI * 2, ev: [], i: 0, clones: [], dashes: [], eyes: [], R: U.R };
+  if (m.bossKind === 'MINI') {   // tâm vòng = người chơi; thu nhỏ vòng nếu phân thân rơi vào chỗ không đứng được
+    let R = U.R;
+    for (; R >= 60; R -= 10) {
+      let ok = true;
+      for (let k = 0; k < 8 && ok; k++) { const a = u.a0 + k * Math.PI / 4; ok = io.map.canStand(player.x + Math.cos(a) * R, player.y + Math.sin(a) * R); }
+      if (ok) break;
+    }
+    if (R < 60) return false;
+    u.R = R; u.cx = player.x; u.cy = player.y;
+    for (let k = 0; k < 8; k++) { const a = u.a0 + k * Math.PI / 4; u.clones.push({ x: u.cx + Math.cos(a) * R, y: u.cy + Math.sin(a) * R, a, hot: -1 }); }
+    for (const [at, k, to, tele, sp] of ULT_WOLF) u.ev.push({ at, kind: 'dash', k: k % 8, to: to % 8, tele, sp: sp || U.SPEED });
+  } else {
+    for (const [at, kind, da, tele, sp] of ULT_EYES) u.ev.push({ at, kind, da, tele, sp });
+  }
+  u.ev.sort((a, b) => a.at - b.at);
+  m.ult = u; m.st = 'ult'; m.vx = m.vy = 0; m.vuln = 0;
+  io.ev.push({ type: 'announce', x: m.x, y: m.y, text: U.NAME + ' — HÃY NÉ!', color: U.COLOR }, { type: 'shake', t: 0.4 },
+    { type: 'sfx', name: m.bossKind === 'FINAL' ? 'roar' : 'howl' }, { type: 'ultStart', kind: m.bossKind });
+  if (io.log) io.log(m.bossKind, 'ult');
+  return true;
+}
+function updateUlt(m, player, dt, io, B, U) {
+  const u = m.ult; u.t += dt;
+  if (m.bossKind === 'MINI') {   // vòng vây: chạm biên bị đẩy vào trong (không sát thương)
+    const dx = player.x - u.cx, dy = player.y - u.cy, d = Math.hypot(dx, dy), lim = u.R - 6;
+    if (d > lim && u.t < U.DUR - 1.2) { player.x = u.cx + dx / d * lim; player.y = u.cy + dy / d * lim; }
+  }
+  while (u.i < u.ev.length && u.ev[u.i].at <= u.t) {
+    const e = u.ev[u.i++], late = u.t - e.at;
+    if (e.kind === 'dash') {   // phân thân k lao tới phía đối diện (qua tâm hoặc dây cung), dải rộng W
+      const c = u.clones[e.k], to = u.clones[e.to], ux = to.x - c.x, uy = to.y - c.y, l = Math.hypot(ux, uy) || 1, ex = to.x + ux / l * 16, ey = to.y + uy / l * 16;
+      addHazard(io, B, { x: (c.x + ex) / 2, y: (c.y + ey) / 2, x0: c.x, y0: c.y, x1: ex, y1: ey, r: U.W / 2, t: e.tele - late, dmg: m.dmg * U.DMG, owner: m, src: 'miniboss:ult', color: U.COLOR });
+      c.hot = u.t + e.tele - late; u.dashes.push({ x0: c.x, y0: c.y, x1: ex, y1: ey, fire: c.hot, dur: (l + 16) / e.sp, k: e.k });
+      io.ev.push({ type: 'sfx', name: 'bossWarn' });
+    } else {   // mắt: vị trí quanh người chơi (ngoài vùng sáng), khóa mục tiêu lúc mở mắt
+      const a = u.a0 + e.da, r = U.EYE_R[0] + io.rng() * (U.EYE_R[1] - U.EYE_R[0]);
+      let x = player.x + Math.cos(a) * r, y = player.y + Math.sin(a) * r;
+      const eye = { x, y, open: u.t, until: u.t + e.tele + 0.35, fire: u.t + e.tele - late, kind: e.kind, tx: player.x, ty: player.y - 7, sp: e.sp, fired: false };   // đạn trúng ở giữa thân (y - 7)
+      if (e.kind === 'fake') eye.until = u.t + e.tele;
+      if (e.kind === 'beam') {
+        const ux = player.x - x, uy = player.y - y, l = Math.hypot(ux, uy) || 1;
+        addHazard(io, B, { x: player.x, y: player.y, x0: x, y0: y, x1: x + ux / l * (l * 2 + 40), y1: y + uy / l * (l * 2 + 40), r: U.W / 2, t: e.tele - late, dmg: m.dmg * U.DMG, owner: m, src: 'boss:ultEye', color: U.COLOR });
+      }
+      u.eyes.push(eye);
+      if (e.kind !== 'fake') io.ev.push({ type: 'sfx', name: 'eyes' });
+    }
+  }
+  for (const eye of u.eyes) if (eye.kind === 'shot' && !eye.fired && u.t >= eye.fire) {   // đạn ma khí theo hướng đã khóa
+    eye.fired = true;
+    const ux = eye.tx - eye.x, uy = eye.ty - eye.y, l = Math.hypot(ux, uy) || 1;
+    if (io.shots.length < RUN.MAX_ENEMY_SHOTS) io.shots.push({ x: eye.x, y: eye.y, vx: ux / l * eye.sp, vy: uy / l * eye.sp, life: 3, dmg: m.dmg * U.DMG, kind: 'dark', src: 'boss:ultEye' });
+  }
+  u.eyes = u.eyes.filter(e => u.t < e.until || (e.kind === 'shot' && !e.fired));
+  if (u.t >= U.DUR) {   // kết thúc: tan vòng / sáng lại, boss choáng (sơ hở)
+    m.ult = null; m.st = 'recover'; m.stT = U.STUN; m.vuln = U.STUN; m.ultN = (m.ultN || 0) + 1; m.ultAt = m.age;
+    io.ev.push({ type: 'announce', x: m.x, y: m.y, text: 'Phá giải! — TẤN CÔNG!', color: '#ffe066' }, { type: 'ultEnd', kind: m.bossKind, x: m.x, y: m.y }, { type: 'shake', t: 0.25 });
+  }
+  return true;
 }
 
 // ---------- (24/11) ĐỢT 2: chiêu pha 2 (docs/design/BOSS_TUYET_KY_DE_XUAT.md) ----------
