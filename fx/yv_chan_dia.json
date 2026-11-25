@@ -1,0 +1,471 @@
+{
+ "frames": [
+  {
+   "filename": "yv_chan_dia 0",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 144,
+    "h": 144
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 144,
+    "h": 144
+   },
+   "sourceSize": {
+    "w": 144,
+    "h": 144
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_chan_dia 1",
+   "frame": {
+    "x": 144,
+    "y": 0,
+    "w": 144,
+    "h": 144
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 144,
+    "h": 144
+   },
+   "sourceSize": {
+    "w": 144,
+    "h": 144
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_chan_dia 2",
+   "frame": {
+    "x": 288,
+    "y": 0,
+    "w": 144,
+    "h": 144
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 144,
+    "h": 144
+   },
+   "sourceSize": {
+    "w": 144,
+    "h": 144
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_chan_dia 3",
+   "frame": {
+    "x": 432,
+    "y": 0,
+    "w": 144,
+    "h": 144
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 144,
+    "h": 144
+   },
+   "sourceSize": {
+    "w": 144,
+    "h": 144
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_chan_dia 4",
+   "frame": {
+    "x": 576,
+    "y": 0,
+    "w": 144,
+    "h": 144
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 144,
+    "h": 144
+   },
+   "sourceSize": {
+    "w": 144,
+    "h": 144
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_chan_dia 5",
+   "frame": {
+    "x": 0,
+    "y": 144,
+    "w": 144,
+    "h": 144
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 144,
+    "h": 144
+   },
+   "sourceSize": {
+    "w": 144,
+    "h": 144
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_chan_dia 6",
+   "frame": {
+    "x": 144,
+    "y": 144,
+    "w": 144,
+    "h": 144
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 144,
+    "h": 144
+   },
+   "sourceSize": {
+    "w": 144,
+    "h": 144
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_chan_dia 7",
+   "frame": {
+    "x": 288,
+    "y": 144,
+    "w": 144,
+    "h": 144
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 144,
+    "h": 144
+   },
+   "sourceSize": {
+    "w": 144,
+    "h": 144
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_chan_dia 8",
+   "frame": {
+    "x": 432,
+    "y": 144,
+    "w": 144,
+    "h": 144
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 144,
+    "h": 144
+   },
+   "sourceSize": {
+    "w": 144,
+    "h": 144
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_chan_dia 9",
+   "frame": {
+    "x": 576,
+    "y": 144,
+    "w": 144,
+    "h": 144
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 144,
+    "h": 144
+   },
+   "sourceSize": {
+    "w": 144,
+    "h": 144
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_chan_dia 10",
+   "frame": {
+    "x": 0,
+    "y": 288,
+    "w": 144,
+    "h": 144
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 144,
+    "h": 144
+   },
+   "sourceSize": {
+    "w": 144,
+    "h": 144
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_chan_dia 11",
+   "frame": {
+    "x": 144,
+    "y": 288,
+    "w": 144,
+    "h": 144
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 144,
+    "h": 144
+   },
+   "sourceSize": {
+    "w": 144,
+    "h": 144
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_chan_dia 12",
+   "frame": {
+    "x": 288,
+    "y": 288,
+    "w": 144,
+    "h": 144
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 144,
+    "h": 144
+   },
+   "sourceSize": {
+    "w": 144,
+    "h": 144
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_chan_dia 13",
+   "frame": {
+    "x": 432,
+    "y": 288,
+    "w": 144,
+    "h": 144
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 144,
+    "h": 144
+   },
+   "sourceSize": {
+    "w": 144,
+    "h": 144
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_chan_dia 14",
+   "frame": {
+    "x": 576,
+    "y": 288,
+    "w": 144,
+    "h": 144
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 144,
+    "h": 144
+   },
+   "sourceSize": {
+    "w": 144,
+    "h": 144
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_chan_dia 15",
+   "frame": {
+    "x": 0,
+    "y": 432,
+    "w": 144,
+    "h": 144
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 144,
+    "h": 144
+   },
+   "sourceSize": {
+    "w": 144,
+    "h": 144
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_chan_dia 16",
+   "frame": {
+    "x": 144,
+    "y": 432,
+    "w": 144,
+    "h": 144
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 144,
+    "h": 144
+   },
+   "sourceSize": {
+    "w": 144,
+    "h": 144
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_chan_dia 17",
+   "frame": {
+    "x": 288,
+    "y": 432,
+    "w": 144,
+    "h": 144
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 144,
+    "h": 144
+   },
+   "sourceSize": {
+    "w": 144,
+    "h": 144
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_chan_dia 18",
+   "frame": {
+    "x": 432,
+    "y": 432,
+    "w": 144,
+    "h": 144
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 144,
+    "h": 144
+   },
+   "sourceSize": {
+    "w": 144,
+    "h": 144
+   },
+   "duration": 42
+  }
+ ],
+ "meta": {
+  "app": "beanfx",
+  "version": "1",
+  "image": "yv_chan_dia.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 720,
+   "h": 576
+  },
+  "scale": "1",
+  "frameTags": [
+   {
+    "name": "yv_chan_dia",
+    "from": 0,
+    "to": 18,
+    "direction": "forward"
+   }
+  ],
+  "beanfx": {
+   "name": "yv_chan_dia",
+   "fps": 24,
+   "loop": false,
+   "end": "remove",
+   "frames": 19,
+   "rows": 1,
+   "frameSize": [
+    144,
+    144
+   ],
+   "pivot": [
+    72,
+    72
+   ],
+   "columns": 5,
+   "blend_light": "add",
+   "light_gain": 1.0,
+   "view": "3/4",
+   "directions": 1,
+   "facing": "east",
+   "mirror": true,
+   "mirror_pivot": [
+    72,
+    72
+   ],
+   "sheet": "yv_chan_dia.png",
+   "light": "yv_chan_dia_light.png",
+   "color": "yv_chan_dia_color.png"
+  }
+ }
+}

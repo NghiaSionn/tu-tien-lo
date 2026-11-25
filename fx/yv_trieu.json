@@ -1,0 +1,537 @@
+{
+ "frames": [
+  {
+   "filename": "yv_trieu 0",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 63,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 63,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 63,
+    "h": 72
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_trieu 1",
+   "frame": {
+    "x": 63,
+    "y": 0,
+    "w": 63,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 63,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 63,
+    "h": 72
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_trieu 2",
+   "frame": {
+    "x": 126,
+    "y": 0,
+    "w": 63,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 63,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 63,
+    "h": 72
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_trieu 3",
+   "frame": {
+    "x": 189,
+    "y": 0,
+    "w": 63,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 63,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 63,
+    "h": 72
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_trieu 4",
+   "frame": {
+    "x": 252,
+    "y": 0,
+    "w": 63,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 63,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 63,
+    "h": 72
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_trieu 5",
+   "frame": {
+    "x": 315,
+    "y": 0,
+    "w": 63,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 63,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 63,
+    "h": 72
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_trieu 6",
+   "frame": {
+    "x": 0,
+    "y": 72,
+    "w": 63,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 63,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 63,
+    "h": 72
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_trieu 7",
+   "frame": {
+    "x": 63,
+    "y": 72,
+    "w": 63,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 63,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 63,
+    "h": 72
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_trieu 8",
+   "frame": {
+    "x": 126,
+    "y": 72,
+    "w": 63,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 63,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 63,
+    "h": 72
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_trieu 9",
+   "frame": {
+    "x": 189,
+    "y": 72,
+    "w": 63,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 63,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 63,
+    "h": 72
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_trieu 10",
+   "frame": {
+    "x": 252,
+    "y": 72,
+    "w": 63,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 63,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 63,
+    "h": 72
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_trieu 11",
+   "frame": {
+    "x": 315,
+    "y": 72,
+    "w": 63,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 63,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 63,
+    "h": 72
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_trieu 12",
+   "frame": {
+    "x": 0,
+    "y": 144,
+    "w": 63,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 63,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 63,
+    "h": 72
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_trieu 13",
+   "frame": {
+    "x": 63,
+    "y": 144,
+    "w": 63,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 63,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 63,
+    "h": 72
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_trieu 14",
+   "frame": {
+    "x": 126,
+    "y": 144,
+    "w": 63,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 63,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 63,
+    "h": 72
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_trieu 15",
+   "frame": {
+    "x": 189,
+    "y": 144,
+    "w": 63,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 63,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 63,
+    "h": 72
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_trieu 16",
+   "frame": {
+    "x": 252,
+    "y": 144,
+    "w": 63,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 63,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 63,
+    "h": 72
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_trieu 17",
+   "frame": {
+    "x": 315,
+    "y": 144,
+    "w": 63,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 63,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 63,
+    "h": 72
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_trieu 18",
+   "frame": {
+    "x": 0,
+    "y": 216,
+    "w": 63,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 63,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 63,
+    "h": 72
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_trieu 19",
+   "frame": {
+    "x": 63,
+    "y": 216,
+    "w": 63,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 63,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 63,
+    "h": 72
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_trieu 20",
+   "frame": {
+    "x": 126,
+    "y": 216,
+    "w": 63,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 63,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 63,
+    "h": 72
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_trieu 21",
+   "frame": {
+    "x": 189,
+    "y": 216,
+    "w": 63,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 63,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 63,
+    "h": 72
+   },
+   "duration": 42
+  }
+ ],
+ "meta": {
+  "app": "beanfx",
+  "version": "1",
+  "image": "yv_trieu.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 378,
+   "h": 288
+  },
+  "scale": "1",
+  "frameTags": [
+   {
+    "name": "yv_trieu",
+    "from": 0,
+    "to": 21,
+    "direction": "forward"
+   }
+  ],
+  "beanfx": {
+   "name": "yv_trieu",
+   "fps": 24,
+   "loop": false,
+   "end": "remove",
+   "frames": 22,
+   "rows": 1,
+   "frameSize": [
+    63,
+    72
+   ],
+   "pivot": [
+    31,
+    60
+   ],
+   "columns": 6,
+   "blend_light": "add",
+   "light_gain": 1.0,
+   "view": "3/4",
+   "directions": 1,
+   "facing": "east",
+   "mirror": true,
+   "mirror_pivot": [
+    32,
+    60
+   ],
+   "sheet": "yv_trieu.png",
+   "light": "yv_trieu_light.png",
+   "color": "yv_trieu_color.png"
+  }
+ }
+}

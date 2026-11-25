@@ -1,0 +1,361 @@
+{
+ "frames": [
+  {
+   "filename": "yv_hac_liet 0",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 160,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 160,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 160,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_hac_liet 1",
+   "frame": {
+    "x": 160,
+    "y": 0,
+    "w": 160,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 160,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 160,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_hac_liet 2",
+   "frame": {
+    "x": 320,
+    "y": 0,
+    "w": 160,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 160,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 160,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_hac_liet 3",
+   "frame": {
+    "x": 0,
+    "y": 56,
+    "w": 160,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 160,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 160,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_hac_liet 4",
+   "frame": {
+    "x": 160,
+    "y": 56,
+    "w": 160,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 160,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 160,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_hac_liet 5",
+   "frame": {
+    "x": 320,
+    "y": 56,
+    "w": 160,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 160,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 160,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_hac_liet 6",
+   "frame": {
+    "x": 0,
+    "y": 112,
+    "w": 160,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 160,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 160,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_hac_liet 7",
+   "frame": {
+    "x": 160,
+    "y": 112,
+    "w": 160,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 160,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 160,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_hac_liet 8",
+   "frame": {
+    "x": 320,
+    "y": 112,
+    "w": 160,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 160,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 160,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_hac_liet 9",
+   "frame": {
+    "x": 0,
+    "y": 168,
+    "w": 160,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 160,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 160,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_hac_liet 10",
+   "frame": {
+    "x": 160,
+    "y": 168,
+    "w": 160,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 160,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 160,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_hac_liet 11",
+   "frame": {
+    "x": 320,
+    "y": 168,
+    "w": 160,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 160,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 160,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_hac_liet 12",
+   "frame": {
+    "x": 0,
+    "y": 224,
+    "w": 160,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 160,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 160,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_hac_liet 13",
+   "frame": {
+    "x": 160,
+    "y": 224,
+    "w": 160,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 160,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 160,
+    "h": 56
+   },
+   "duration": 42
+  }
+ ],
+ "meta": {
+  "app": "beanfx",
+  "version": "1",
+  "image": "yv_hac_liet.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 480,
+   "h": 280
+  },
+  "scale": "1",
+  "frameTags": [
+   {
+    "name": "yv_hac_liet",
+    "from": 0,
+    "to": 13,
+    "direction": "forward"
+   }
+  ],
+  "beanfx": {
+   "name": "yv_hac_liet",
+   "fps": 24,
+   "loop": false,
+   "end": "remove",
+   "frames": 14,
+   "rows": 1,
+   "frameSize": [
+    160,
+    56
+   ],
+   "pivot": [
+    10,
+    28
+   ],
+   "columns": 3,
+   "blend_light": "add",
+   "light_gain": 1.0,
+   "view": "3/4",
+   "directions": 1,
+   "facing": "east",
+   "mirror": true,
+   "mirror_pivot": [
+    150,
+    28
+   ],
+   "sheet": "yv_hac_liet.png",
+   "light": "yv_hac_liet_light.png",
+   "color": "yv_hac_liet_color.png"
+  }
+ }
+}

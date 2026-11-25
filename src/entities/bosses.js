@@ -123,6 +123,7 @@ export function bossAI(m, player, dx, dy, d, dt, io) {
     m.vx = m.vy = 0; m.stT -= dt;
     if (m.stT <= 0) {
       io.ev.push({ type: 'pulse', x: m.x, y: m.y, r: 30, color: '#d9a8ff' }, { type: 'pulse', x: m.blinkX, y: m.blinkY, r: 30, color: '#d9a8ff' });
+      if (m.blinkSkill) io.ev.push({ type: 'bossFx', fx: 'cloneOut', x: m.x, y: m.y }, { type: 'bossFx', fx: 'cloneOut', x: m.blinkX, y: m.blinkY });   // Ảnh Độn: tan ở chỗ cũ, hiện ở chỗ mới
       m.x = m.lastX = m.blinkX; m.y = m.lastY = m.blinkY;
       m.st = 'move'; m.atkCd = Math.max(m.atkCd || 0, TC.BLINK_GRACE);
       if (m.blinkSkill) { m.blinkSkill = false; m.atkCd = Math.max(m.atkCd, B.RECOVER + BOSS_V2.FINAL.SHADOW.GRACE); toRecover(m, B, io); }   // M10-10 Ảnh Độn: hiện ra xong sơ hở
@@ -350,6 +351,7 @@ function startPattern(m, pat, player, dx, dy, d, io, B, V, phase2, n) {
   if (pat === 'leap' && !startLeap(m, player, io, B, V)) pat = 'dash';   // không có dấu đáp hợp lệ / hết lối né -> lao thường
   if (!pat) { m.gapT = 0.4; return true; }
   if (V) { m.v2 = true; io.ev.push({ type: 'sfx', name: 'bossWarn' }); }   // M10-11: tiếng báo boss ra chiêu (khoảng nghỉ 0,8 s trong sfx.js)   // M10-03: chưa có chiêu hợp lệ -> đuổi tiếp, xét lại sau
+  if (pat === 'howl' || pat === 'howlDash') { m.dirX = dx; m.dirY = dy; }   // (26/11) hướng mặt lúc hú (chỉ để vẽ)
   m.pat = pat; m.patLabel = (m.tk && m.tk.label) || null;   // (24/11) tên hiển thị của chiêu liên hoàn
   if (io.log) io.log(m.bossKind, pat);   // M10: telemetry chiêu boss (cả AI cũ và mới)
   if (P2_PATS[pat]) return P2_PATS[pat](m, player, dx, dy, d, io, B, V, phase2);   // (24/11) đợt 2: chiêu pha 2 mới
@@ -453,7 +455,7 @@ function release(m, player, B, io, phase2) {
   if (m.pat === 'claw') {   // M10-09: quét cung theo hướng đã khóa
     const C = clawOf(m), dx = player.x - m.x, dy = player.y - m.y, d = Math.hypot(dx, dy);
     if (d < C.R + PLAYER.HITBOX && (d < 8 || (dx * m.dirX + dy * m.dirY) / d >= Math.cos(C.ARC / 2))) io.onAttack(m, m.dmg * C.DMG, 'miniboss:claw');
-    io.ev.push({ type: 'shake', t: 0.12 }, { type: 'bossFx', fx: 'claw', x: m.x, y: m.y, a: Math.atan2(m.dirY, m.dirX), r: C.R, flip: !!m.clawFlip });
+    io.ev.push({ type: 'shake', t: 0.12 }, { type: 'bossFx', fx: 'claw', x: m.x, y: m.y, a: Math.atan2(m.dirY, m.dirX), r: C.R, flip: !!m.clawFlip, p2: !!m.p2 });
     toRecover(m, B, io); return true;
   }
   if (m.pat === 'clones') {   // (24/11) Ma Ảnh Phân Thân: mỗi bóng bắn một vòng đạn tỏa (khe giữa các viên), rồi tan
@@ -478,7 +480,9 @@ function release(m, player, B, io, phase2) {
     m.pat = 'dash'; m.dashLeft = B.REMIX.HOWL_DASH.COUNT; m.dashWind = m.dashS = m.dashTm = 0; aimDash(m, player, B);
     return true;
   }
+  if (m.pat === 'burst') io.ev.push({ type: 'bossFx', fx: 'burst', x: m.x, y: m.y });
   if (m.pat === 'summon') {   // (24/11) ma ảnh trồi lên đúng các ma ấn đã báo
+    for (const [x, y] of m.sumSpots || []) io.ev.push({ type: 'bossFx', fx: 'trieu', x, y });
     if (io.summonAt) io.summonAt(m.sumSpots || [], B.SUMMON.LIFE);
     for (const [x, y] of m.sumSpots || []) io.ev.push({ type: 'pulse', x, y, r: 26, color: '#c070ff' });
     m.sumSpots = null;

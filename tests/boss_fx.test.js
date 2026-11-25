@@ -6,7 +6,7 @@ import { BOSS_FX_SHEETS, BOSS_FX_DEF, bossFxFrame, bossFxEvent, bossFxUpdate, bo
 import { updateHazards } from '../src/entities/bosses.js';
 
 const FX = {};
-for (const n of BOSS_FX_SHEETS) { const j = JSON.parse(fs.readFileSync(new URL(`../fx/${n}.json`, import.meta.url))); FX[n] = { meta: j.meta.beanfx, frames: j.frames.map(f => f.frame), tags: {}, images: {} }; }
+for (const n of new Set([...BOSS_FX_SHEETS, ...Object.values(BOSS_FX_DEF).map(d => d.name)])) { const j = JSON.parse(fs.readFileSync(new URL(`../fx/${n}.json`, import.meta.url))); FX[n] = { meta: j.meta.beanfx, frames: j.frames.map(f => f.frame), tags: {}, images: {} }; }
 
 test('mọi sheet khai báo có trong fx/ và đủ số khung', () => {
   for (const [src, d] of Object.entries(BOSS_FX_DEF)) {

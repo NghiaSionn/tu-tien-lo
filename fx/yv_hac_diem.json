@@ -1,0 +1,449 @@
+{
+ "frames": [
+  {
+   "filename": "yv_hac_diem 0",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 84,
+    "h": 124
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 84,
+    "h": 124
+   },
+   "sourceSize": {
+    "w": 84,
+    "h": 124
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_hac_diem 1",
+   "frame": {
+    "x": 84,
+    "y": 0,
+    "w": 84,
+    "h": 124
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 84,
+    "h": 124
+   },
+   "sourceSize": {
+    "w": 84,
+    "h": 124
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_hac_diem 2",
+   "frame": {
+    "x": 168,
+    "y": 0,
+    "w": 84,
+    "h": 124
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 84,
+    "h": 124
+   },
+   "sourceSize": {
+    "w": 84,
+    "h": 124
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_hac_diem 3",
+   "frame": {
+    "x": 252,
+    "y": 0,
+    "w": 84,
+    "h": 124
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 84,
+    "h": 124
+   },
+   "sourceSize": {
+    "w": 84,
+    "h": 124
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_hac_diem 4",
+   "frame": {
+    "x": 336,
+    "y": 0,
+    "w": 84,
+    "h": 124
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 84,
+    "h": 124
+   },
+   "sourceSize": {
+    "w": 84,
+    "h": 124
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_hac_diem 5",
+   "frame": {
+    "x": 420,
+    "y": 0,
+    "w": 84,
+    "h": 124
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 84,
+    "h": 124
+   },
+   "sourceSize": {
+    "w": 84,
+    "h": 124
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_hac_diem 6",
+   "frame": {
+    "x": 0,
+    "y": 124,
+    "w": 84,
+    "h": 124
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 84,
+    "h": 124
+   },
+   "sourceSize": {
+    "w": 84,
+    "h": 124
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_hac_diem 7",
+   "frame": {
+    "x": 84,
+    "y": 124,
+    "w": 84,
+    "h": 124
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 84,
+    "h": 124
+   },
+   "sourceSize": {
+    "w": 84,
+    "h": 124
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_hac_diem 8",
+   "frame": {
+    "x": 168,
+    "y": 124,
+    "w": 84,
+    "h": 124
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 84,
+    "h": 124
+   },
+   "sourceSize": {
+    "w": 84,
+    "h": 124
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_hac_diem 9",
+   "frame": {
+    "x": 252,
+    "y": 124,
+    "w": 84,
+    "h": 124
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 84,
+    "h": 124
+   },
+   "sourceSize": {
+    "w": 84,
+    "h": 124
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_hac_diem 10",
+   "frame": {
+    "x": 336,
+    "y": 124,
+    "w": 84,
+    "h": 124
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 84,
+    "h": 124
+   },
+   "sourceSize": {
+    "w": 84,
+    "h": 124
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_hac_diem 11",
+   "frame": {
+    "x": 420,
+    "y": 124,
+    "w": 84,
+    "h": 124
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 84,
+    "h": 124
+   },
+   "sourceSize": {
+    "w": 84,
+    "h": 124
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_hac_diem 12",
+   "frame": {
+    "x": 0,
+    "y": 248,
+    "w": 84,
+    "h": 124
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 84,
+    "h": 124
+   },
+   "sourceSize": {
+    "w": 84,
+    "h": 124
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_hac_diem 13",
+   "frame": {
+    "x": 84,
+    "y": 248,
+    "w": 84,
+    "h": 124
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 84,
+    "h": 124
+   },
+   "sourceSize": {
+    "w": 84,
+    "h": 124
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_hac_diem 14",
+   "frame": {
+    "x": 168,
+    "y": 248,
+    "w": 84,
+    "h": 124
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 84,
+    "h": 124
+   },
+   "sourceSize": {
+    "w": 84,
+    "h": 124
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_hac_diem 15",
+   "frame": {
+    "x": 252,
+    "y": 248,
+    "w": 84,
+    "h": 124
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 84,
+    "h": 124
+   },
+   "sourceSize": {
+    "w": 84,
+    "h": 124
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_hac_diem 16",
+   "frame": {
+    "x": 336,
+    "y": 248,
+    "w": 84,
+    "h": 124
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 84,
+    "h": 124
+   },
+   "sourceSize": {
+    "w": 84,
+    "h": 124
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_hac_diem 17",
+   "frame": {
+    "x": 420,
+    "y": 248,
+    "w": 84,
+    "h": 124
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 84,
+    "h": 124
+   },
+   "sourceSize": {
+    "w": 84,
+    "h": 124
+   },
+   "duration": 42
+  }
+ ],
+ "meta": {
+  "app": "beanfx",
+  "version": "1",
+  "image": "yv_hac_diem.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 504,
+   "h": 372
+  },
+  "scale": "1",
+  "frameTags": [
+   {
+    "name": "yv_hac_diem",
+    "from": 0,
+    "to": 17,
+    "direction": "forward"
+   }
+  ],
+  "beanfx": {
+   "name": "yv_hac_diem",
+   "fps": 24,
+   "loop": false,
+   "end": "remove",
+   "frames": 18,
+   "rows": 1,
+   "frameSize": [
+    84,
+    124
+   ],
+   "pivot": [
+    42,
+    92
+   ],
+   "columns": 6,
+   "blend_light": "add",
+   "light_gain": 1.0,
+   "view": "3/4",
+   "directions": 1,
+   "facing": "east",
+   "mirror": true,
+   "mirror_pivot": [
+    42,
+    92
+   ],
+   "sheet": "yv_hac_diem.png",
+   "light": "yv_hac_diem_light.png",
+   "color": "yv_hac_diem_color.png"
+  }
+ }
+}

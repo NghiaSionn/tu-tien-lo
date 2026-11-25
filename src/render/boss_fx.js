@@ -8,7 +8,9 @@ import { BOSS_V2 } from '../core/config.js';
 import { dashOf } from '../systems/tactics.js';
 
 export const BOSS_FX_SHEETS = ['lv_dia_chan', 'lv_huyet_gai', 'lv_vet_nut', 'lv_dau_vuot', 'lv_trao', 'lv_can', 'lv_ho_khi_tron',
-  'yv_loi_phat', 'yv_sam_bat', 'yv_sam_xich', 'yv_sam_vong', 'yv_nut_an', 'yv_ma_cung', 'yv_phan_anh', 'yv_ma_quang'];
+  'yv_loi_phat', 'yv_sam_bat', 'yv_sam_xich', 'yv_sam_vong', 'yv_nut_an', 'yv_ma_cung', 'yv_phan_anh', 'yv_ma_quang',
+  // (26/11) Đợt C: pha 1 + Thập Tự
+  'lv_trao_1', 'lv_gio_lao', 'lv_ho_khi_1', 'yv_dan_no', 'yv_hac_diem', 'yv_chan_dia', 'yv_trieu', 'yv_hac_liet'];
 const FPS = 24, TILE = 64, CLUMP_N = 14, VET_L = 254, MAX_LIVE = 60, STOMP_K = 0.75;
 // src của vùng -> { name: sheet, peak: khung đúng lúc nổ, n: số khung }
 export const BOSS_FX_DEF = {
@@ -22,6 +24,10 @@ export const BOSS_FX_DEF = {
   'boss:chainBolt': { name: 'yv_sam_xich', peak: 2, n: 12, also: 'yv_nut_an' },
   'boss:net': { name: 'yv_sam_vong', peak: 2, n: 12 },
   'boss:runes': { name: 'yv_ma_cung', peak: 4, n: 16 },
+  'boss:zone': { name: 'yv_hac_diem', peak: 4, n: 18 },
+  'boss:slam': { name: 'yv_chan_dia', peak: 2, n: 19 },
+  'boss:prison': { name: 'yv_ma_trao', peak: 4, n: 15 },
+  'boss:cross': { name: 'yv_hac_liet', peak: 2, n: 14 },
 };
 const CACHE = {};
 function get(vis, name) {
@@ -72,6 +78,9 @@ export const bossFxFrame = (d, left, age) => (age >= 0 ? d.peak + Math.floor(age
 function ground(ctx, vis, h, d, f) {
   switch (h.src) {
     case 'miniboss:cracks': { const L = Math.hypot(h.x1 - h.x0, h.y1 - h.y0) || 1; if (f < d.n) turned(ctx, vis, d.name, f, h.x0, h.y0, Math.atan2(h.y1 - h.y0, h.x1 - h.x0), L / VET_L); break; }
+    case 'boss:slam': cell(ctx, vis, d.name, f, h.x, h.y); break;
+    case 'boss:zone': if (f < d.peak) cell(ctx, vis, d.name, f, h.x, h.y); break;
+    case 'boss:cross': { const a = Math.atan2(h.y1 - h.y0, h.x1 - h.x0), k = Math.hypot(h.x1 - h.x0, h.y1 - h.y0) / 2 / 134; if (f < d.n) for (const q of [a, a + Math.PI]) turned(ctx, vis, d.name, f, h.x, h.y, q, k, 1, 0.7); break; }
     case 'miniboss:leap': cell(ctx, vis, d.name, f, h.x, h.y); break;
     case 'boss:thunder': if (f < d.peak) cell(ctx, vis, d.name, f, h.x, h.y); break;
     case 'boss:eight': strip(ctx, vis, d.name, f, h); break;
@@ -85,7 +94,8 @@ function upright(vis, h, d, left, age, out) {
   if (h.src === 'miniboss:quake' || h.src === 'miniboss:cracks') {
     const name = d.also || d.name; if (!h.ring && h.x0 === undefined) return;   // vùng dậm dưới chân boss: lv_pha_dia vẽ
     for (const [x, y, v, flip, late] of clumps(h)) { const k = f - late; if (k >= 0 && k < CLUMP_N) out.push({ y, draw: ctx => cell(ctx, vis, name, v * CLUMP_N + k, x, y, { flip, light: 0.8 }) }); }
-  } else if (f >= 0 && f < d.n && (h.src === 'miniboss:bite' || (h.src === 'boss:thunder' && f >= d.peak))) out.push({ y: h.y + (h.src === 'miniboss:bite' ? 18 : 4), draw: ctx => cell(ctx, vis, d.name, f, h.x, h.y) });
+  } else if (f >= 0 && f < d.n && h.src === 'boss:prison') out.push({ y: h.y + 4, draw: ctx => cell(ctx, vis, d.name, f, h.x, h.y, { scale: 1.25 }) });
+  else if (f >= 0 && f < d.n && (h.src === 'miniboss:bite' || (h.src === 'boss:zone' && f >= d.peak) || (h.src === 'boss:thunder' && f >= d.peak))) out.push({ y: h.y + (h.src === 'miniboss:bite' ? 18 : 4), draw: ctx => cell(ctx, vis, d.name, f, h.x, h.y) });
 }
 
 // sự kiện nổ: giữ lại bản chụp vùng để chạy nốt khung; true = đã lo phần nhìn (bỏ vòng nổ cũ)
@@ -100,7 +110,9 @@ export function bossFxEvent(vis, e) {
 // hiệu ứng rời: vết cào ('claw'), dậm đất ('stomp'), bóng rã ('cloneOut')
 export function bossFxSpawn(vis, e) {
   const L = vis.bossFx || (vis.bossFx = []);
-  if (e.fx === 'claw' && get(vis, 'lv_trao')) L.push({ claw: e, age: 0, life: 12 / FPS });
+  if (e.fx === 'burst' && get(vis, 'yv_dan_no')) L.push({ burst: e, age: 0, life: 10 / FPS });
+  else if (e.fx === 'trieu' && get(vis, 'yv_trieu')) L.push({ out: e, small: true, age: 0, life: 12 / FPS });
+  else if (e.fx === 'claw' && get(vis, 'lv_trao')) L.push({ claw: e, age: 0, life: 12 / FPS });
   else if (e.fx === 'stomp' && get(vis, 'lv_pha_dia')) L.push({ stomp: e, age: 0, life: 31 / FPS });
   else if (e.fx === 'cloneOut' && get(vis, 'yv_phan_anh')) L.push({ out: e, age: 0, life: 12 / FPS });
 }
@@ -121,7 +133,8 @@ export function bossFxGround(ctx, vis, scene, time) {
       if (q.h.src === 'boss:chainBolt') for (const [x, y] of [[q.h.x0, q.h.y0], [q.h.x1, q.h.y1]]) {   // nút ma ấn ở điểm gấp (mỗi điểm một lần)
         const k = Math.round(x) + ',' + Math.round(y); if (!nodes.has(k)) { nodes.add(k); cell(ctx, vis, 'yv_nut_an', f, x, y, { light: 0.8 }); }
       }
-    } else if (q.claw) { const k = (q.claw.r || 100) / 100; turned(ctx, vis, 'lv_trao', 1 + Math.floor(q.age * FPS), q.claw.x, q.claw.y, q.claw.a, k, q.claw.flip ? -k : k); }
+    } else if (q.claw) { const p1 = !q.claw.p2 && get(vis, 'lv_trao_1'), k = (q.claw.r || 100) / (p1 ? 72 : 100); turned(ctx, vis, p1 ? 'lv_trao_1' : 'lv_trao', 1 + Math.floor(q.age * FPS), q.claw.x, q.claw.y, q.claw.a, k, q.claw.flip ? -k : k); }
+    else if (q.burst) cell(ctx, vis, 'yv_dan_no', 5 + Math.floor(q.age * FPS), q.burst.x, q.burst.y - 10);
     else if (q.stomp) cell(ctx, vis, 'lv_pha_dia', 4 + Math.floor(q.age * FPS), q.stomp.x, q.stomp.y, { scale: STOMP_K });
   }
   for (const m of scene.monsters) {
@@ -143,26 +156,41 @@ function roar(ctx, vis, m, time) {
   if (out > 0) { ctx.beginPath(); ctx.arc(m.howlX, m.howlY, 130, 0, 6.283); ctx.arc(m.howlX, m.howlY, 110 * out, 0, 6.283, true); ctx.clip(); ctx.globalAlpha = 1 - out; }   // dứt tiếng: sóng trôi ra rồi tan
   cell(ctx, vis, 'lv_ho_khi_tron', f, m.howlX, m.howlY, { light: 0.8 * (1 - out) }); ctx.restore();
 }
-// Huyết Ảnh Tam Xung: vệt máu kéo theo sói đang lao (pha 2), dừng lao thì tan 8 khung
+// Vệt lao của sói (pha 1: gió trắng xám, pha 2: máu), dừng lao thì tan 8 khung
 function dashTrail(ctx, vis, m, time) {
-  if (!m.boss || m.bossKind !== 'MINI' || !m.p2 || m.dead || m.ult) return;
+  if (!m.boss || m.bossKind !== 'MINI' || m.dead || m.ult) return;
   if (m.st === 'dash') { if (!m._tr || m._tr.end !== undefined) m._tr = { x: m.x, y: m.y, a: Math.atan2(m.dirY, m.dirX) }; m._tr.far = Math.hypot(m.x - m._tr.x, m.y - m._tr.y); }
   else if (m._tr && m._tr.end === undefined) m._tr.end = time;
-  const tr = m._tr, fx = tr && get(vis, 'lv_huyet_anh'); if (!fx || tr.far < 14) return;
+  const sn = m.p2 ? 'lv_huyet_anh' : 'lv_gio_lao', tr = m._tr, fx = tr && get(vis, sn); if (!fx || tr.far < 14) return;
   const f = tr.end === undefined ? 5 : 6 + Math.floor((time - tr.end) * FPS);
-  if (f >= vis.FX.lv_huyet_anh.meta.frames) return;
+  if (f >= vis.FX[sn].meta.frames) return;
   const L = dashOf(m).SPEED * dashOf(m).TIME;
   ctx.save(); ctx.imageSmoothingEnabled = false; ctx.translate(Math.round(tr.x), Math.round(tr.y) - 16); ctx.rotate(tr.a); ctx.scale(L / 244, 1.8);
   ctx.beginPath(); ctx.rect(-8, -30, Math.max(0, tr.far - (tr.end === undefined ? 10 : 0)) * 244 / L, 60); ctx.clip();
   fx.frame = f; fx.x = 0; fx.y = 0; fx.scale = 1; fx.flip = false; fx.lightGain = 0.35; fx.draw(ctx); ctx.restore();
 }
+// (26/11) Lang Hú / Hú Rồi Lao: sóng hú từ miệng sói trong 60 % cuối lúc gồng
+function howl(ctx, vis, m) {
+  const t = m.stMax * 0.6 - m.stT; if (t < 0) return;
+  const x = m.x + (m.dirX < 0 ? -1 : 1) * 46, y = m.y - 52;
+  ctx.save(); if (t < 9 / FPS) { ctx.beginPath(); ctx.ellipse(x, y, 8 + 72 * (1 - (1 - t * FPS / 9) ** 2.2), (8 + 72 * (1 - (1 - t * FPS / 9) ** 2.2)) * 0.75, 0, 0, 6.283); ctx.clip(); }
+  cell(ctx, vis, 'lv_ho_khi_1', Math.floor(t * FPS) % 12, x, y, { light: 0.7 }); ctx.restore();
+}
 export function bossFxObjs(vis, scene, time) {
   const out = [];
+  for (const m of scene.monsters) if (m.boss && !m.dead && m.st === 'windup') {
+    const k = 1 - Math.max(0, m.stT) / (m.stMax || 1);
+    if ((m.pat === 'howl' || m.pat === 'howlDash') && get(vis, 'lv_ho_khi_1')) out.push({ y: m.y + 1, draw: ctx => howl(ctx, vis, m) });
+    else if (m.pat === 'burst' && get(vis, 'yv_dan_no')) out.push({ y: m.y + 1, draw: ctx => cell(ctx, vis, 'yv_dan_no', Math.min(4, Math.floor(k * 5)), m.x, m.y - 46) });   // cầu tối tụ giữa hai tay
+    else if (m.pat === 'summon' && m.sumSpots && get(vis, 'yv_trieu')) for (const [x, y] of m.sumSpots) out.push({ y: y + 2, draw: ctx => cell(ctx, vis, 'yv_trieu', Math.min(9, Math.floor(k * 10)), x, y) });
+  } else if (m.boss && !m.dead && m.st === 'blink' && m.blinkSkill && get(vis, 'yv_phan_anh')) {   // Ảnh Độn: khói tụ dần ở chỗ sắp hiện ra
+    const f = Math.min(9, Math.floor((1 - Math.max(0, m.stT) / (m.stMax || 1)) * 10)), x = m.blinkX, y = m.blinkY; out.push({ y: y + 2, draw: ctx => cell(ctx, vis, 'yv_phan_anh', f, x, y) });
+  }
   for (const m of scene.monsters) if (m.boss && m.howlX !== undefined) out.push({ y: m.y + 1, draw: ctx => roar(ctx, vis, m, time) });
   for (const h of scene.hazards || []) { const d = BOSS_FX_DEF[h.src]; if (d && has(vis, d)) upright(vis, h, d, h.t, -1, out); }
   for (const q of vis.bossFx || []) {
     if (q.d) upright(vis, q.h, q.d, 0, q.age, out);
-    else if (q.out) { const { x, y } = q.out, f = 10 + Math.floor(q.age * FPS); out.push({ y: y + 1, draw: ctx => cell(ctx, vis, 'yv_phan_anh', f, x, y) }); }
+    else if (q.out) { const { x, y } = q.out, f = 10 + Math.floor(q.age * FPS); out.push({ y: y + 1, draw: ctx => cell(ctx, vis, q.small ? 'yv_trieu' : 'yv_phan_anh', f, x, y) }); }
   }
   for (const m of scene.monsters) if (m.clones && !m.dead && m.st === 'windup' && get(vis, 'yv_phan_anh')) {   // khói tụ thành bóng rồi tan lộ phân thân
     const t = m.stMax - m.stT, f = t < 10 / FPS ? Math.floor(t * FPS) : 10 + Math.floor((t - 10 / FPS) * FPS);

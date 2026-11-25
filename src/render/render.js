@@ -884,10 +884,7 @@ function drawWolfP2(ctx, m, time, sh, vis) {
   sheetFrame(ctx, sh, name, x, y, flip, sh.img, K);
   if (m.hit > 0) { ctx.globalAlpha = 0.55; sheetFrame(ctx, sh, name, x, y, flip, sh.white, K); ctx.globalAlpha = 1; }
   if (pose && pose.glint) {   // móng vuốt giơ cao sáng dần: chớp hình sao + quầng đỏ
-    const [cx, cy] = framePt(sh, x, y, flip, 41, 8, K), g = pose.glint, s = Math.round(3 + 9 * g * (0.8 + 0.2 * Math.sin(time * 40)));
-    ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 0.35 * g; ctx.fillStyle = '#ff3a2a'; ctx.beginPath(); ctx.arc(cx, cy, 6 + 12 * g, 0, 6.283); ctx.fill();
-    ctx.globalAlpha = 0.9 * g; ctx.fillStyle = '#fff2e0'; ctx.fillRect(Math.round(cx) - s, Math.round(cy), s * 2 + 1, 1); ctx.fillRect(Math.round(cx), Math.round(cy) - s, 1, s * 2 + 1); ctx.fillRect(Math.round(cx) - 2, Math.round(cy) - 1, 5, 3);
-    ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
+    drawClawGlint(ctx, sh, x, y, flip, pose.glint, time, '#ff3a2a');
   }
   // lửa chạy dọc bờm, lưng, đuôi (không bao kín thân)
   const line = [[-22, -15], [-14, -22], [-6, -26], [2, -27], [10, -26], [16, -24]];   // đuôi -> bờm (px sprite tính từ pivot, mặt quay phải)
@@ -906,9 +903,9 @@ function drawWolfP2(ctx, m, time, sh, vis) {
 // Pha 2 "Huyết Lôi Ma Quân" (sprites/boss_final2): cánh khói + lõi ma ấn, viền đỏ hồng, vòng phù văn thứ hai, sét trên sừng/vai,
 // mắt đỏ kéo vệt. Aura giảm còn AURA_WINDUP khi gồng chiêu.
 function drawWraithBoss(ctx, m, time, sh1, vis) {
-  const p2 = m.p2 && m.st !== 'phase' && vis.bossFinal2, P = p2 ? 'FINAL2' : 'FINAL', pose = p2 ? wraithP2Pose(m, vis) : null;   // (25/11) tư thế thi triển
+  const p2 = m.p2 && m.st !== 'phase' && vis.bossFinal2, P = p2 ? 'FINAL2' : 'FINAL', pose = p2 ? wraithP2Pose(m, vis) : wraithP1Pose(m, vis, time);   // (25/11) tư thế thi triển
   const sh = pose ? pose.sh : p2 ? vis.bossFinal2 : sh1;
-  const K = BOSS.DRAW_SCALE, flip = mobFlip(m), x = Math.round(m.x), y = Math.round(m.y), M = sh.meta;
+  const K = BOSS.DRAW_SCALE, flip = mobFlip(m), x = Math.round(m.x), y = Math.round(m.y) + ((pose && pose.dy) || 0), M = sh.meta;
   const name = pose ? pose.name : m.hit > 0 ? P + '_hurt' : m.st === 'windup' ? (m.pat === 'summon' ? P + '_cast' : P + '_atk')
     : P + '_walk' + (Math.floor(time * 7 + (m.ph || 0) * 8) % (M.float || 8));
   const pul = 0.5 + 0.5 * Math.sin(time * 3), auraK = m.st === 'windup' ? BOSS_P2.FINAL.AURA_WINDUP : 1, rim = m.p2 ? sh.rage : sh.glow;
@@ -1114,6 +1111,7 @@ function wolfP2Pose(m, vis, time) {
     const k = 1 - Math.max(0, m.stT) / (m.stMax || 1); m._act = null;
     if (dam && m.pat === 'quake') { m._act = 'DAM_dam'; return k < 0.22 ? { sh: lao, name: 'LAO_gong', flip: face } : m.stT < 0.06 ? { sh: dam, name: 'DAM_dam', flip: face } : { sh: dam, name: 'DAM_chom', flip: face, dx: k > 0.6 ? tick : 0, dy: -Math.round(6 * Math.sin(Math.min(1, (k - 0.22) / 0.5) * 1.57)) }; }
     if (dam && (m.pat === 'cracks' || m.pat === 'claw')) { m._act = 'DAM_cao'; return k < 0.2 ? { sh: lao, name: 'LAO_gong', flip: face } : { sh: dam, name: 'DAM_gio', flip: face, dx: k > 0.7 ? tick : 0, glint: k > 0.45 ? (k - 0.45) / 0.55 : 0 }; }
+    if (m.pat === 'howl' || m.pat === 'howlDash') return k < 0.38 ? { sh: lao, name: 'LAO_gong', flip: face } : { sh: vis.bossMini2, name: 'MINI2_howl', flip: face, dx: tick };
     if (m.pat === 'rageHowl') { const left = m.stMax - m.stT - m.howlT; return left < -0.22 ? { sh: lao, name: 'LAO_gong', flip: face, dx: left > -0.6 ? tick : 0 } : { sh: vis.bossMini2, name: 'MINI2_howl', flip: face, dx: tick }; }
   } else if (dam && m._actK && time - m._actT < (m._actK === 'DAM_dam' ? 0.55 : 0.4) && (m.st === 'recover' || m.st === 'tkGap')) return { sh: dam, name: m._actK, flip: face };
   const air = m.st === 'dash' || m.st === 'leap';
@@ -1123,6 +1121,47 @@ function wolfP2Pose(m, vis, time) {
   if (m.st === 'dash') return { sh: lao, name: m.stT > dashOf(m).TIME * 0.75 ? 'LAO_bat' : 'LAO_bay', flip: m.dirX < 0 };
   if (m.st === 'windup' && (m.pat === 'dash' || m.pat === 'leap')) return { sh: lao, name: 'LAO_gong', flip: m.pat === 'leap' ? m.leapX < m.x : m.dirX < 0 };
   if (m._landT !== undefined && time - m._landT < 0.3) return { sh: lao, name: 'LAO_dap' };
+  return null;
+}
+// (26/11) Tư thế Lang Vương pha 1 (sheet boss_mini1_pose, đổi màu từ dáng pha 2): null = dáng đứng / đi cũ.
+function wolfP1Pose(m, vis, time) {
+  const sh = vis && vis.bossMini1; if (!sh) return null;
+  const face = m.dirX < 0, tick = Math.sin(time * 70) > 0 ? 1 : 0, P = (name, o) => ({ sh, name, flip: face, ...o });
+  if (m._act && m.st !== 'windup') { m._actT = time; m._actK = m._act; m._act = null; }
+  if (m.st === 'windup') {
+    const k = 1 - Math.max(0, m.stT) / (m.stMax || 1); m._act = null;
+    if (m.pat === 'claw') { m._act = 'P1_cao'; return k < 0.2 ? P('P1_gong') : P('P1_gio', { dx: k > 0.7 ? tick : 0, glint: k > 0.45 ? (k - 0.45) / 0.55 : 0 }); }
+    if (m.pat === 'howl' || m.pat === 'howlDash') return k < 0.38 ? P('P1_gong') : P('P1_hu', { dx: tick });
+    if (m.pat === 'dash') return P('P1_gong', { dx: k > 0.6 ? tick : 0 });
+    return null;
+  }
+  if (m.st === 'rest') return P('P1_dap');
+  const air = m.st === 'dash'; if (m._air && !air) m._landT = time; m._air = air;
+  if (air) return P(m.stT > dashOf(m).TIME * 0.75 ? 'P1_bat' : 'P1_bay');
+  if (m._actK && time - m._actT < 0.4 && (m.st === 'recover' || m.st === 'tkGap')) return P(m._actK);
+  if (m._landT !== undefined && time - m._landT < 0.3) return P('P1_dap');
+  return null;
+}
+// tia sáng trên móng vuốt đang giơ (pha 1 trắng, pha 2 đỏ)
+function drawClawGlint(ctx, sh, x, y, flip, g, time, col, ex = 47, ey = 10) {
+  const K = BOSS.DRAW_SCALE, [cx, cy] = framePt(sh, x, y, flip, ex, ey, K), s = Math.round(3 + 9 * g * (0.8 + 0.2 * Math.sin(time * 40)));
+  ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 0.22 * g; ctx.fillStyle = col; ctx.beginPath(); ctx.arc(cx, cy, 5 + 8 * g, 0, 6.283); ctx.fill();
+  ctx.globalAlpha = 0.9 * g; ctx.fillStyle = '#fff2e0'; ctx.fillRect(Math.round(cx) - s, Math.round(cy), s * 2 + 1, 1); ctx.fillRect(Math.round(cx), Math.round(cy) - s, 1, s * 2 + 1); ctx.fillRect(Math.round(cx) - 2, Math.round(cy) - 1, 5, 3);
+  ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
+}
+// (26/11) Yêu Vương pha 1: tụ khí -> bung / giơ cao -> giáng (sheet boss_final1_thi); Triệu Ma Ảnh giữ dáng cầm cầu cũ.
+function wraithP1Pose(m, vis, time) {
+  const sh = vis && vis.bossFinal1Thi; if (!sh || m.hit > 0) return null;
+  if (m._act && m.st !== 'windup') { m._actT = time; m._actK = m._act; m._act = null; }
+  if (m.st === 'windup') {
+    const k = 1 - Math.max(0, m.stT) / (m.stMax || 1); m._act = null;
+    if (m.pat === 'burst') { m._act = 'TU_bung'; return { sh, name: 'TU_khi', dy: -Math.round(4 * k) }; }
+    if (m.pat === 'slam') { m._act = 'TU_giang'; return m.stT < 0.07 ? { sh, name: 'TU_giang' } : k < 0.2 ? { sh, name: 'TU_khi' } : { sh, name: 'TU_gio', dy: -Math.round(16 * Math.sin(Math.min(1, (k - 0.2) / 0.55) * 1.57)) }; }
+    if (m.pat === 'zones') { m._act = 'TU_giang'; return { sh, name: k < 0.25 ? 'TU_khi' : 'TU_gio' }; }
+    if (m.pat === 'prison') { m._act = 'TU_bung'; return { sh, name: k < 0.25 ? 'TU_khi' : 'TU_gio' }; }
+    return null;
+  }
+  if (m._actK && time - m._actT < 0.45 && (m.st === 'recover' || m.st === 'tkGap')) return { sh, name: m._actK };
   return null;
 }
 const THI_POSE = { thunder: 'THI_chi', clones: 'THI_chi', chainBolt: 'THI_chi', zones: 'THI_chi', cross: 'THI_chi', runes: 'THI_cao', net: 'THI_cao', eight: 'THI_cao', prison: 'THI_cao', burst: 'THI_dang', sweep: 'THI_dang', slam: 'THI_dang' };
@@ -1343,6 +1382,13 @@ function drawBoss(ctx, m, time, vis) {
   if (bs && m.bossKind === 'FINAL' && bs.meta.float) return drawWraithBoss(ctx, m, time, bs, vis);
   if (m.bossKind === 'MINI' && m.p2 && vis && vis.bossMini2) {
     drawWolfP2(ctx, m, time, vis.bossMini2, vis);
+  } else if (bs && m.bossKind === 'MINI' && wolfP1Pose(m, vis, time)) {   // (26/11) tư thế chiêu pha 1
+    const P = wolfP1Pose(m, vis, time), x = Math.round(m.x) + (P.dx || 0), y = Math.round(m.y);
+    ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(Math.round(m.x) - 20 * K, y - 4, 40 * K, 7);
+    if (m.st === 'windup') { ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 0.35; for (const [dx, dy] of [[-2, 0], [2, 0], [0, -2], [0, 2]]) sheetFrame(ctx, P.sh, P.name, x + dx, y + dy, P.flip, P.sh.white, K); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1; }
+    sheetFrame(ctx, P.sh, P.name, x, y, P.flip, P.sh.img, K);
+    if (m.hit > 0) { ctx.globalAlpha = 0.55; sheetFrame(ctx, P.sh, P.name, x, y, P.flip, P.sh.white, K); ctx.globalAlpha = 1; }
+    if (P.glint) drawClawGlint(ctx, P.sh, x, y, P.flip, P.glint, time, '#cfd6ff', 50, 10);
   } else if (bs) {
     ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(Math.round(m.x) - 20 * K, Math.round(m.y) - 4, 40 * K, 7);
     if (m.st === 'windup') {   // gồng chiêu: viền trắng sáng quanh thân

@@ -1,0 +1,361 @@
+{
+ "frames": [
+  {
+   "filename": "lv_gio_lao 0",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 256,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 256,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 256,
+    "h": 48
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_gio_lao 1",
+   "frame": {
+    "x": 256,
+    "y": 0,
+    "w": 256,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 256,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 256,
+    "h": 48
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_gio_lao 2",
+   "frame": {
+    "x": 0,
+    "y": 48,
+    "w": 256,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 256,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 256,
+    "h": 48
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_gio_lao 3",
+   "frame": {
+    "x": 256,
+    "y": 48,
+    "w": 256,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 256,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 256,
+    "h": 48
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_gio_lao 4",
+   "frame": {
+    "x": 0,
+    "y": 96,
+    "w": 256,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 256,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 256,
+    "h": 48
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_gio_lao 5",
+   "frame": {
+    "x": 256,
+    "y": 96,
+    "w": 256,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 256,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 256,
+    "h": 48
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_gio_lao 6",
+   "frame": {
+    "x": 0,
+    "y": 144,
+    "w": 256,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 256,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 256,
+    "h": 48
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_gio_lao 7",
+   "frame": {
+    "x": 256,
+    "y": 144,
+    "w": 256,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 256,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 256,
+    "h": 48
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_gio_lao 8",
+   "frame": {
+    "x": 0,
+    "y": 192,
+    "w": 256,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 256,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 256,
+    "h": 48
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_gio_lao 9",
+   "frame": {
+    "x": 256,
+    "y": 192,
+    "w": 256,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 256,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 256,
+    "h": 48
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_gio_lao 10",
+   "frame": {
+    "x": 0,
+    "y": 240,
+    "w": 256,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 256,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 256,
+    "h": 48
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_gio_lao 11",
+   "frame": {
+    "x": 256,
+    "y": 240,
+    "w": 256,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 256,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 256,
+    "h": 48
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_gio_lao 12",
+   "frame": {
+    "x": 0,
+    "y": 288,
+    "w": 256,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 256,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 256,
+    "h": 48
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_gio_lao 13",
+   "frame": {
+    "x": 256,
+    "y": 288,
+    "w": 256,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 256,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 256,
+    "h": 48
+   },
+   "duration": 42
+  }
+ ],
+ "meta": {
+  "app": "beanfx",
+  "version": "1",
+  "image": "lv_gio_lao.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 512,
+   "h": 336
+  },
+  "scale": "1",
+  "frameTags": [
+   {
+    "name": "lv_gio_lao",
+    "from": 0,
+    "to": 13,
+    "direction": "forward"
+   }
+  ],
+  "beanfx": {
+   "name": "lv_gio_lao",
+   "fps": 24,
+   "loop": false,
+   "end": "remove",
+   "frames": 14,
+   "rows": 1,
+   "frameSize": [
+    256,
+    48
+   ],
+   "pivot": [
+    6,
+    24
+   ],
+   "columns": 2,
+   "blend_light": "add",
+   "light_gain": 1.0,
+   "view": "top-down",
+   "directions": 1,
+   "facing": "east",
+   "mirror": true,
+   "mirror_pivot": [
+    250,
+    24
+   ],
+   "sheet": "lv_gio_lao.png",
+   "light": "lv_gio_lao_light.png",
+   "color": "lv_gio_lao_color.png"
+  }
+ }
+}
