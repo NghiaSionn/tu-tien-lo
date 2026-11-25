@@ -564,12 +564,15 @@ CUTSCENE.FINAL_P2 = {
 //   -> tên chiêu hiện theo vòng cung rồi tan thành 8 vệt đỏ. Yêu Vương "cả thế giới nhắm mắt, chỉ Ma Quân được nhìn":
 //   ánh sáng tắt từng vùng -> zoom vào đôi mắt Ma Quân, chớp -> hàng loạt mắt nhỏ mở nhìn người chơi -> vòng sáng nhỏ bật quanh
 //   người chơi, tên chiêu lóe từng chữ như đồng tử. Trận đứng yên trong lúc chiếu; lần 2 bỏ qua được (nhảy tới OUT).
+// (25/11) người phát triển: sói chạy vòng quanh người chơi cuốn lên lốc xoáy siêu to; lốc tan thì xung quanh là cả bầy phân thân.
+// CROUCH gồng · RUN chạy vòng (ω = W0 -> W0 + W1) · GROW lốc cuốn lên · STOP lốc khựng (lặng) · TAN xé tan · EYES 8 cặp mắt trong bụi · BODY cả bầy hiện
 CUTSCENE.MINI_ULT = {
-  STYLE: 'ult', FX: 'pack', BOSS: 'MINI', TITLE: 'VẠN LANG ẢNH SÁT TRẬN', TITLE_COL: '#ff5a3a', DUR: 2.0, SKIP: 'OUT',
-  T: { IN: 0.35, RING: [0.4, 0.9], EYES: 0.9, TITLE: 1.15, OUT: 1.5 },
-  SHAKE: [[0.9, 0.3, 3], [1.5, 0.2, 2]],
-  EVENTS: [[0.02, { type: 'sfx', name: 'thud' }], [0.45, { type: 'sfx', name: 'land' }], [0.6, { type: 'sfx', name: 'land' }], [0.75, { type: 'sfx', name: 'land' }],
-    [0.9, { type: 'sfx', name: 'howl' }], [1.2, { type: 'sfx', name: 'bossPhase' }]],
+  STYLE: 'ult', FX: 'pack', BOSS: 'MINI', TITLE: 'VẠN LANG ẢNH SÁT TRẬN', TITLE_COL: '#ff5a3a', DUR: 5.3, SKIP: 'OUT', W0: 2, W1: 22,
+  T: { IN: 0.4, CROUCH: 0.55, RUN: 0.55, GROW: [1.25, 2.15], STOP: 2.85, TAN: [2.97, 3.72], EYES: 3.3, BODY: 3.75, TITLE: 3.85, OUT: 4.85 },
+  SHAKE: [[0.5, 0.15, 3], [1.25, 0.6, 3], [1.8, 1.05, 5], [2.97, 0.3, 9], [3.75, 0.4, 6]],
+  EVENTS: [[0.02, { type: 'sfx', name: 'thud' }], [0.3, { type: 'sfx', name: 'eyes' }], [0.56, { type: 'sfx', name: 'land' }], [0.85, { type: 'sfx', name: 'land' }], [1.08, { type: 'sfx', name: 'land' }],
+    [1.25, { type: 'sfx', name: 'rumble' }], [1.42, { type: 'sfx', name: 'land' }], [1.56, { type: 'sfx', name: 'land' }], [2.05, { type: 'sfx', name: 'rumble' }],
+    [2.97, { type: 'sfx', name: 'shatter' }], [3.3, { type: 'sfx', name: 'eyes' }], [3.75, { type: 'sfx', name: 'howl' }], [3.9, { type: 'sfx', name: 'bossPhase' }]],
 };
 CUTSCENE.FINAL_ULT = {
   STYLE: 'ult', FX: 'eyes', BOSS: 'FINAL', TITLE: 'U MINH VẠN NHÃN KIẾP', TITLE_COL: '#ff2a3a', DUR: 2.2, SKIP: 'OUT',

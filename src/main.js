@@ -73,7 +73,7 @@ for (const name of ['kiem_khi', 'kiem_trung', 'loi_kiep', 'dot_pha', 'toa_thien'
 // đợt 2: Phi Kiếm Trận, Liệt Diễm (kiếm + vùng lửa), Băng Châm, Hàn Khí, Hỏa Luân, hắc diễm của boss
 for (const name of ['loi_cuong_back', 'loi_cuong_front', 'loi_vuc', 'hoa_cau_bay', 'hoa_cau_no', 'phong_nhan', 'hoa_long_quyen_v2',
   'phi_kiem', 'liet_diem_kiem', 'liet_diem_vung', 'bang_cham', 'han_khi', 'hoa_luan', 'hac_diem_no', 'hac_diem_dan',
-  'lv_pha_dia', 'yv_ho_den', 'lv_ho_khi', 'lv_huyet_anh', 'yv_ma_trao']) { try { FX[name] = await loadFx(`fx/${name}.json`); } catch (e) { console.warn('[fx]', name, e); } }
+  'lv_pha_dia', 'yv_ho_den', 'lv_ho_khi', 'lv_huyet_anh', 'yv_ma_trao', 'lv_loc_sau', 'lv_loc_truoc', 'lv_loc_tan_sau', 'lv_loc_tan_truoc']) { try { FX[name] = await loadFx(`fx/${name}.json`); } catch (e) { console.warn('[fx]', name, e); } }
 const vis = makeVis(FX);
 const medFx = createFx(FX.toa_thien);
 // M5-02: sprite sheet ChatGPT vẽ, tools/sprite_clean.py làm sạch (docs/concept/). Lỗi nạp thì dùng sprite code cũ.
@@ -1011,7 +1011,7 @@ function startCut(e) {
   cut = createCutscene(ck, b, p, !!(meta.seenIntro && meta.seenIntro[ck]));
   if (!cut) return;
   if (e.p2) { b.stT = 0.001; b.p2Burst = b.p2Beat = b.p2End = true; }   // cutscene thay màn biến hình tại chỗ; xong cảnh boss vào sơ hở
-  cut.boss = b; if (!e.ult) b.introHide = true; input.clear(); document.body.classList.add('cutscene');   // ẩn HUD trong lúc chiếu; tuyệt chiêu: boss + vòng sói vẽ thật trong trận
+  cut.boss = b; if (!e.ult || e.kind === 'MINI') b.introHide = true; input.clear(); document.body.classList.add('cutscene');   // ẩn HUD trong lúc chiếu; tuyệt chiêu: boss + vòng sói vẽ thật trong trận
 }
 function updateCut(dt) {
   for (const e of stepCutscene(cut, dt)) {

@@ -173,7 +173,7 @@ function startUlt(m, player, io, U) {
       if (ok) break;
     }
     if (s < 0.5) return false;
-    u.R = U.R * s; u.RY = U.RY * s; u.cx = player.x; u.cy = player.y;
+    u.R = U.R * s; u.RY = U.RY * s; u.cx = player.x; u.cy = player.y; u.ox = m.x; u.oy = m.y;   // ox/oy: chỗ đứng trước đó (cutscene bắt đầu chạy từ đây)
     for (let k = 0; k < 8; k++) { const a = u.a0 + k * Math.PI / 4; u.clones.push({ x: u.cx + Math.cos(a) * u.R, y: u.cy + Math.sin(a) * u.RY, a, hot: -1, real: k === 0 }); }
     m.x = m.lastX = u.clones[0].x; m.y = m.lastY = u.clones[0].y;   // boss thật vào vị trí 0 trên vòng (giữa đám phân thân)
     for (const [at, k, to, tele, sp] of ULT_WOLF) u.ev.push({ at, kind: 'dash', k: k % 8, to: to % 8, tele, sp: sp || U.SPEED });

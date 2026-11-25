@@ -1,0 +1,449 @@
+{
+ "frames": [
+  {
+   "filename": "lv_loc_tan_truoc 0",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 320,
+    "h": 290
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 320,
+    "h": 290
+   },
+   "sourceSize": {
+    "w": 320,
+    "h": 290
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_loc_tan_truoc 1",
+   "frame": {
+    "x": 320,
+    "y": 0,
+    "w": 320,
+    "h": 290
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 320,
+    "h": 290
+   },
+   "sourceSize": {
+    "w": 320,
+    "h": 290
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_loc_tan_truoc 2",
+   "frame": {
+    "x": 640,
+    "y": 0,
+    "w": 320,
+    "h": 290
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 320,
+    "h": 290
+   },
+   "sourceSize": {
+    "w": 320,
+    "h": 290
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_loc_tan_truoc 3",
+   "frame": {
+    "x": 960,
+    "y": 0,
+    "w": 320,
+    "h": 290
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 320,
+    "h": 290
+   },
+   "sourceSize": {
+    "w": 320,
+    "h": 290
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_loc_tan_truoc 4",
+   "frame": {
+    "x": 1280,
+    "y": 0,
+    "w": 320,
+    "h": 290
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 320,
+    "h": 290
+   },
+   "sourceSize": {
+    "w": 320,
+    "h": 290
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_loc_tan_truoc 5",
+   "frame": {
+    "x": 0,
+    "y": 290,
+    "w": 320,
+    "h": 290
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 320,
+    "h": 290
+   },
+   "sourceSize": {
+    "w": 320,
+    "h": 290
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_loc_tan_truoc 6",
+   "frame": {
+    "x": 320,
+    "y": 290,
+    "w": 320,
+    "h": 290
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 320,
+    "h": 290
+   },
+   "sourceSize": {
+    "w": 320,
+    "h": 290
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_loc_tan_truoc 7",
+   "frame": {
+    "x": 640,
+    "y": 290,
+    "w": 320,
+    "h": 290
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 320,
+    "h": 290
+   },
+   "sourceSize": {
+    "w": 320,
+    "h": 290
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_loc_tan_truoc 8",
+   "frame": {
+    "x": 960,
+    "y": 290,
+    "w": 320,
+    "h": 290
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 320,
+    "h": 290
+   },
+   "sourceSize": {
+    "w": 320,
+    "h": 290
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_loc_tan_truoc 9",
+   "frame": {
+    "x": 1280,
+    "y": 290,
+    "w": 320,
+    "h": 290
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 320,
+    "h": 290
+   },
+   "sourceSize": {
+    "w": 320,
+    "h": 290
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_loc_tan_truoc 10",
+   "frame": {
+    "x": 0,
+    "y": 580,
+    "w": 320,
+    "h": 290
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 320,
+    "h": 290
+   },
+   "sourceSize": {
+    "w": 320,
+    "h": 290
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_loc_tan_truoc 11",
+   "frame": {
+    "x": 320,
+    "y": 580,
+    "w": 320,
+    "h": 290
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 320,
+    "h": 290
+   },
+   "sourceSize": {
+    "w": 320,
+    "h": 290
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_loc_tan_truoc 12",
+   "frame": {
+    "x": 640,
+    "y": 580,
+    "w": 320,
+    "h": 290
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 320,
+    "h": 290
+   },
+   "sourceSize": {
+    "w": 320,
+    "h": 290
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_loc_tan_truoc 13",
+   "frame": {
+    "x": 960,
+    "y": 580,
+    "w": 320,
+    "h": 290
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 320,
+    "h": 290
+   },
+   "sourceSize": {
+    "w": 320,
+    "h": 290
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_loc_tan_truoc 14",
+   "frame": {
+    "x": 1280,
+    "y": 580,
+    "w": 320,
+    "h": 290
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 320,
+    "h": 290
+   },
+   "sourceSize": {
+    "w": 320,
+    "h": 290
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_loc_tan_truoc 15",
+   "frame": {
+    "x": 0,
+    "y": 870,
+    "w": 320,
+    "h": 290
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 320,
+    "h": 290
+   },
+   "sourceSize": {
+    "w": 320,
+    "h": 290
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_loc_tan_truoc 16",
+   "frame": {
+    "x": 320,
+    "y": 870,
+    "w": 320,
+    "h": 290
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 320,
+    "h": 290
+   },
+   "sourceSize": {
+    "w": 320,
+    "h": 290
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_loc_tan_truoc 17",
+   "frame": {
+    "x": 640,
+    "y": 870,
+    "w": 320,
+    "h": 290
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 320,
+    "h": 290
+   },
+   "sourceSize": {
+    "w": 320,
+    "h": 290
+   },
+   "duration": 42
+  }
+ ],
+ "meta": {
+  "app": "beanfx",
+  "version": "1",
+  "image": "lv_loc_tan_truoc.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 1600,
+   "h": 1160
+  },
+  "scale": "1",
+  "frameTags": [
+   {
+    "name": "lv_loc_tan_truoc",
+    "from": 0,
+    "to": 17,
+    "direction": "forward"
+   }
+  ],
+  "beanfx": {
+   "name": "lv_loc_tan_truoc",
+   "fps": 24,
+   "loop": false,
+   "end": "remove",
+   "frames": 18,
+   "rows": 1,
+   "frameSize": [
+    320,
+    290
+   ],
+   "pivot": [
+    160,
+    218
+   ],
+   "columns": 5,
+   "blend_light": "add",
+   "light_gain": 1.0,
+   "view": "3/4",
+   "directions": 1,
+   "facing": "east",
+   "mirror": true,
+   "mirror_pivot": [
+    160,
+    218
+   ],
+   "sheet": "lv_loc_tan_truoc.png",
+   "light": "lv_loc_tan_truoc_light.png",
+   "color": "lv_loc_tan_truoc_color.png"
+  }
+ }
+}

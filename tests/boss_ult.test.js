@@ -4,6 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createRun, updateRun } from '../src/systems/run.js';
 import { dangerShapes, hits } from '../src/systems/tactics.js';
+import { createCutscene, stepCutscene, cutsceneState } from '../src/systems/cutscene.js';
 import { BOSS, BOSS_ULT, PLAYER, SKILL_NAMES, ARCH } from '../src/core/config.js';
 
 const DT = 1 / 30;
@@ -132,4 +133,20 @@ test('Lang Vương: sói lướt cực nhanh và qua giữa đường đúng lú
       assert.ok(d.dur < 0.35, 'lướt nhanh: ' + d.dur.toFixed(2)); assert.ok(Math.abs(d.fire + d.dur / 2 - d.hit) < 1e-6); }
   }
   assert.equal(seen.size, 11);
+});
+
+test('cutscene mở màn Lang Vương (25/11): gồng -> chạy vòng tăng tốc -> lốc cuốn lên -> khựng -> tan -> mắt trước, thân sau; sói chạy đúng trên vòng', () => {
+  const f = fight('MINI', 1); f.step(30 * 3); const b = f.boss(); assert.ok(b.ult && b.ult.ox !== undefined);
+  const c = createCutscene('MINI_ULT', b, f.p), T = c.S.T, seq = []; let prevAng = -1e9, prevOm = 0;
+  for (let i = 0; i <= Math.round(c.dur * 60); i++) {
+    const s = cutsceneState(c);
+    for (const [k, v] of Object.entries(s)) if (typeof v === 'number') assert.ok(Number.isFinite(v), k + ' NaN ở t=' + c.t.toFixed(2));
+    assert.ok(s.ang >= prevAng - 1e-9 && s.omega >= prevOm - 1e-9, 'chạy một chiều, tăng tốc'); prevAng = s.ang; prevOm = s.omega;
+    const tag = s.bodyK > 0 ? 'body' : s.eyesK > 0 ? 'eyes' : s.tanK > 0 ? 'tan' : s.quiet ? 'quiet' : s.growK > 0 ? 'grow' : s.runK >= 0 ? 'run' : 'crouch';
+    if (seq[seq.length - 1] !== tag) seq.push(tag);
+    stepCutscene(c, 1 / 60);
+  }
+  assert.deepEqual(seq, ['crouch', 'run', 'grow', 'quiet', 'tan', 'eyes', 'body']);
+  assert.ok(prevAng > 12, 'chạy ít nhất 2 vòng: ' + prevAng.toFixed(1));
+  assert.ok(c.dur <= 5.5, 'không quá 5,5 giây');
 });

@@ -172,8 +172,8 @@ function p2State(c) {
     alt: -1, cliff: null, howl: -1, name: 0, fade: 0, line: '' };
 }
 
-// (24/11) Cutscene tuyệt chiêu (CUTSCENE.*_ULT). pack: Lang Vương — zoom vào boss, lùi về tâm vòng, sói hiện lần lượt, mắt mở,
-// tên theo vòng cung. eyes: Yêu Vương — tắt sáng từng vùng, zoom vào mắt Ma Quân, mắt nhỏ mở, vòng sáng quanh người chơi.
+// (24/11) Cutscene tuyệt chiêu (CUTSCENE.*_ULT). pack (25/11): Lang Vương gồng -> chạy vòng quanh người chơi tăng tốc -> lốc Huyết Phong
+// -> lốc khựng, bị xé -> 8 cặp mắt -> cả bầy hiện, tên theo vòng cung. eyes: Yêu Vương — tắt sáng từng vùng, zoom vào mắt Ma Quân, mắt nhỏ mở, vòng sáng quanh người chơi.
 function ultState(c) {
   const S = c.S, T = S.T, t = c.t, fx = S.FX, K = 2, ring = c.ring;
   let shake = 0;
@@ -182,14 +182,19 @@ function ultState(c) {
   let zoom = 1, fx0 = c.bx, fy0 = c.by - 22 * K, focusX = c.px, focusY = c.py;
   if (fx === 'pack') {
     const cx = ring && ring.cx !== undefined ? ring.cx : c.px, cy = ring && ring.cy !== undefined ? ring.cy : c.py;
-    const zin = ease(seg(t, 0, T.IN)), pan = ease(seg(t, T.RING[0], T.RING[1]));
-    zoom = (1 + zin) - pan * 0.75 - out * 0.25; if (zoom < 1) zoom = 1;
-    fx0 = lerp(c.bx, cx, pan); fy0 = lerp(c.by - 22 * K, cy, pan);
-    focusX = fx0; focusY = fy0;
-    return { style: 'ult', fx, kind: c.kind, t, T, bx: c.bx, by: c.by, px: c.px, py: c.py, ring, zoom, zx: fx0, zy: fy0, focusX, focusY: focusY - 8,
-      reveal: t < T.RING[0] ? 0 : Math.min(7, Math.floor(1 + 7 * seg(t, T.RING[0], T.RING[1]))), eyesOn: t >= T.EYES,
-      letter: ease(seg(t, 0, 0.3)) * (1 - out), shake, shakeSeed: Math.floor(t * 45), titleT: t - T.TITLE, outK: t >= T.OUT ? seg(t, T.OUT, c.dur) : -1,
-      title_: S.TITLE, titleCol: S.TITLE_COL, skippable: c.skippable, fade: 0, name: 0, line: '' };
+    const ox = ring && ring.ox !== undefined ? ring.ox : c.bx, oy = ring && ring.oy !== undefined ? ring.oy : c.by;
+    const zin = ease(seg(t, 0, T.IN)), pan = ease(seg(t, T.RUN, T.RUN + 0.6));
+    zoom = 1 + zin * (1 - pan);
+    fx0 = lerp(ox, cx, pan); fy0 = lerp(oy - 22 * K, cy, pan);
+    // góc chạy = tích phân ω = W0 + W1·(τ/D)²; chạy tới khi lốc khựng
+    const D = T.STOP - T.RUN, tau = Math.max(0, Math.min(t, T.STOP) - T.RUN), omega = S.W0 + S.W1 * (tau / D) ** 2, run = S.W0 * tau + S.W1 * tau ** 3 / (3 * D * D);
+    const a0 = Math.atan2((oy - cy) / ((ring && ring.RY) || 1), (ox - cx) / ((ring && ring.R) || 1)), g = Math.max(0, Math.min(t, T.STOP) - T.GROW[0]);
+    return { style: 'ult', fx, kind: c.kind, t, T, bx: c.bx, by: c.by, px: c.px, py: c.py, ring, ox, oy, zoom, zx: fx0, zy: fy0, focusX: fx0, focusY: fy0 - 8,
+      crouch: t < T.CROUCH, runK: t < T.RUN ? -1 : ease(seg(t, T.RUN, T.RUN + 0.35)), runA: seg(t, T.GROW[1] - 0.5, T.GROW[1]), ang: a0 + run, run, omega,
+      growK: ease(seg(t, T.GROW[0], T.GROW[1])), spin: g * (12 + 11 * g), tanK: seg(t, T.TAN[0], T.TAN[1]),
+      eyesK: seg(t, T.EYES, T.EYES + 0.08), bodyK: seg(t, T.BODY, T.BODY + 0.14), quiet: t >= T.STOP && t < T.TAN[0], haze: seg(t, T.TAN[0] + 0.12, T.EYES) * (1 - ease(seg(t, T.BODY, T.BODY + 0.45))),
+      letter: ease(seg(t, 0, 0.3)) * (1 - ease(seg(t, T.GROW[0], T.GROW[1]))) + ease(seg(t, T.BODY, T.BODY + 0.2)) * (1 - out), shake, shakeSeed: Math.floor(t * 45),
+      titleT: t - T.TITLE, outK: t >= T.OUT ? seg(t, T.OUT, c.dur) : -1, title_: S.TITLE, titleCol: S.TITLE_COL, skippable: c.skippable, fade: 0, name: 0, line: '' };
   }
   // eyes: zoom vào mắt Ma Quân (0,5–1,0), giữ (1,0–1,6), về người chơi (1,6–2,2)
   const zin = ease(seg(t, T.EYE[0], T.EYE[1]));
