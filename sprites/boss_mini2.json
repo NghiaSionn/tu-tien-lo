@@ -64,34 +64,12 @@
   "MINI2_howl": [
    936,
    0
-  ],
-  "MINI2_stand0": [
-   1008,
-   0
-  ],
-  "MINI2_stand1": [
-   1080,
-   0
-  ],
-  "MINI2_stand2": [
-   1152,
-   0
-  ],
-  "MINI2_stand3": [
-   1224,
-   0
   ]
  },
  "source": "('docs/concept/lang_vuong_pha2_cat', 'MINI2_base')",
  "tool": "tools/wolf_walk_rig.py",
  "eyes": {
   "MINI2_walk": [
-   [
-    56,
-    13
-   ]
-  ],
-  "MINI2_stand": [
    [
     56,
     13

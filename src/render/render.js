@@ -871,7 +871,7 @@ function drawWolfP2(ctx, m, time, sh, vis) {
   const dt = Math.min(0.1, Math.max(0, time - (m._lt ?? time))); m._lt = time;
   const sp = Math.hypot(m.vx || 0, m.vy || 0);
   m._wph = ((m._wph || 0) + dt * Math.min(24, sp / (29.03 / 12))) % 12;   // khung/giây = tốc độ / (sải ÷ 12 khung): chân không trượt
-  const name = pose ? pose.name : m.st === 'windup' ? 'MINI2_atk' : sp > 1 ? 'MINI2_walk' + Math.floor(m._wph) : 'MINI2_stand' + Math.floor(time * 5) % 4;
+  const name = pose ? pose.name : m.st === 'windup' ? 'MINI2_atk' : 'MINI2_walk' + (sp > 1 ? Math.floor(m._wph) : 0);
   if (pose) sh = pose.sh;
   const auraK = m.st === 'windup' ? BOSS_P2.MINI.AURA_WINDUP : 1;
   ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(x - 20 * K, y - 4, 40 * K, 7);   // sói thật: có bóng
@@ -1005,7 +1005,7 @@ function drawUlt(ctx, scene, p, time, vis, camX, camY) {
     ctx.fillStyle = U.COLOR;   // vòng vây
     const n = Math.round(u.R * 0.8);
     for (let i = 0; i < n; i++) { if ((i + Math.floor(time * 8)) % 3 === 0) continue; const a = i / n * 6.283; ctx.globalAlpha = 0.7 * fin * (cut ? cut.bodyK : 1); ctx.fillRect(Math.round(u.cx + Math.cos(a) * u.R) - 1, Math.round(u.cy + Math.sin(a) * (u.RY || u.R)) - 1, 2, 2); }   // bầu dục
-    const st = (vis && vis.bossMini2) || (vis && vis.bosses), lao = vis && vis.bossMini2Lao, stand = st && (st.meta.frames.MINI2_stand0 ? 'MINI2_stand0' : Object.keys(st.meta.frames)[0]);
+    const st = (vis && vis.bossMini2) || (vis && vis.bosses), lao = vis && vis.bossMini2Lao, stand = st && (st.meta.frames.MINI2_walk0 ? 'MINI2_walk0' : Object.keys(st.meta.frames)[0]);
     const wolf = (sh, pose, x, y, flip, a) => { if (!sh) return; ctx.globalAlpha = a; sheetFrame(ctx, sh, pose, x, y, flip, sh.img, K);
       if (sh.rage) { ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = a * 0.12; sheetFrame(ctx, sh, pose, x, y, flip, sh.rage, K); ctx.globalCompositeOperation = 'source-over'; } };   // ánh đỏ nhẹ (đậm quá thành hồng nhạt)
     const eyes = (sh, pose, x, y, flip, hot, a) => { ctx.globalCompositeOperation = 'lighter';
@@ -1149,7 +1149,7 @@ function drawWolfP1(ctx, m, time, vis) {
   const K = BOSS.DRAW_SCALE, sh = vis.bossMini1, P = wolfP1Pose(m, vis, time), x = Math.round(m.x) + ((P && P.dx) || 0), y = Math.round(m.y), flip = P ? P.flip : mobFlip(m);
   const dt = Math.min(0.1, Math.max(0, time - (m._lt ?? time))), sp = Math.hypot(m.vx || 0, m.vy || 0); m._lt = time;
   m._wph = ((m._wph || 0) + dt * Math.min(24, sp / (29.03 / 12))) % 12;
-  const name = P ? P.name : m.st === 'windup' ? 'P1_atk' : sp > 1 ? 'P1_walk' + Math.floor(m._wph) : 'P1_stand' + Math.floor(time * 4) % 4;   // đứng yên: thở, bốn chân chạm đất
+  const name = P ? P.name : m.st === 'windup' ? 'P1_atk' : 'P1_walk' + (sp > 1 ? Math.floor(m._wph) : 0);
   ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(Math.round(m.x) - 20 * K, y - 4, 40 * K, 7);
   if (m.st === 'windup') { ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 0.35; for (const [dx, dy] of [[-2, 0], [2, 0], [0, -2], [0, 2]]) sheetFrame(ctx, sh, name, x + dx, y + dy, flip, sh.white, K); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1; }
   sheetFrame(ctx, sh, name, x, y, flip, sh.img, K);

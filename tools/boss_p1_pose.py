@@ -16,10 +16,10 @@ from PIL import Image
 ROOT = Path(__file__).resolve().parent.parent
 PICK = [('boss_mini2_lao', 'LAO_gong', 'P1_gong'), ('boss_mini2_lao', 'LAO_bat', 'P1_bat'), ('boss_mini2_lao', 'LAO_bay', 'P1_bay'),
         ('boss_mini2_lao', 'LAO_dap', 'P1_dap'), ('boss_mini2_dam', 'DAM_gio', 'P1_gio'), ('boss_mini2_dam', 'DAM_cao', 'P1_cao'), ('boss_mini2', 'MINI2_howl', 'P1_hu'),
-        ('boss_mini2', 'MINI2_atk', 'P1_atk')] + [('boss_mini2', f'MINI2_walk{i}', f'P1_walk{i}') for i in range(12)] + [('boss_mini2', f'MINI2_stand{i}', f'P1_stand{i}') for i in range(4)]
+        ('boss_mini2', 'MINI2_atk', 'P1_atk')] + [('boss_mini2', f'MINI2_walk{i}', f'P1_walk{i}') for i in range(12)]
 # tên khung cũ (trận, cutscene) -> khung mới: cả game dùng MỘT con sói
-ALIAS = {**{f'MINI_w{i}': f'P1_walk{i}' for i in range(12)}, **{f'MINI_walk{i}': f'P1_walk{i * 3}' for i in range(4)}, 'MINI_walk0': 'P1_stand0', 'MINI_atk': 'P1_atk', 'MINI_hurt': 'P1_stand0',
-         'MINI_i0': 'P1_stand0', 'MINI_i1': 'P1_gong', 'MINI_i2': 'P1_hu', 'MINI_i3': 'P1_gong', 'MINI_i4': 'P1_bay', 'MINI_i5': 'P1_dap'}
+ALIAS = {**{f'MINI_w{i}': f'P1_walk{i}' for i in range(12)}, **{f'MINI_walk{i}': f'P1_walk{i * 3}' for i in range(4)}, 'MINI_atk': 'P1_atk', 'MINI_hurt': 'P1_walk0',
+         'MINI_i0': 'P1_walk0', 'MINI_i1': 'P1_gong', 'MINI_i2': 'P1_hu', 'MINI_i3': 'P1_gong', 'MINI_i4': 'P1_bay', 'MINI_i5': 'P1_dap'}
 MANE = [(40, '#4c427f'), (75, '#8577a0'), (110, '#b4a4c4'), (170, '#d8c8da'), (256, '#f5eadd')]      # đỏ theo độ sáng -> lông
 FUR = [(14, '#020102'), (45, '#140815'), (70, '#332643'), (95, '#4c427f'), (125, '#695784'), (150, '#85749a'), (172, '#9e8fb3'), (190, '#b7a6c4'), (214, '#e1cfd8'), (232, '#fbede0'), (256, '#fcf7f1')]
 
