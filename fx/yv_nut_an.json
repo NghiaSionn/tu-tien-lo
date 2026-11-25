@@ -1,0 +1,339 @@
+{
+ "frames": [
+  {
+   "filename": "yv_nut_an 0",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 60,
+    "h": 60
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 60,
+    "h": 60
+   },
+   "sourceSize": {
+    "w": 60,
+    "h": 60
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_nut_an 1",
+   "frame": {
+    "x": 60,
+    "y": 0,
+    "w": 60,
+    "h": 60
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 60,
+    "h": 60
+   },
+   "sourceSize": {
+    "w": 60,
+    "h": 60
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_nut_an 2",
+   "frame": {
+    "x": 120,
+    "y": 0,
+    "w": 60,
+    "h": 60
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 60,
+    "h": 60
+   },
+   "sourceSize": {
+    "w": 60,
+    "h": 60
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_nut_an 3",
+   "frame": {
+    "x": 180,
+    "y": 0,
+    "w": 60,
+    "h": 60
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 60,
+    "h": 60
+   },
+   "sourceSize": {
+    "w": 60,
+    "h": 60
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_nut_an 4",
+   "frame": {
+    "x": 0,
+    "y": 60,
+    "w": 60,
+    "h": 60
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 60,
+    "h": 60
+   },
+   "sourceSize": {
+    "w": 60,
+    "h": 60
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_nut_an 5",
+   "frame": {
+    "x": 60,
+    "y": 60,
+    "w": 60,
+    "h": 60
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 60,
+    "h": 60
+   },
+   "sourceSize": {
+    "w": 60,
+    "h": 60
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_nut_an 6",
+   "frame": {
+    "x": 120,
+    "y": 60,
+    "w": 60,
+    "h": 60
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 60,
+    "h": 60
+   },
+   "sourceSize": {
+    "w": 60,
+    "h": 60
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_nut_an 7",
+   "frame": {
+    "x": 180,
+    "y": 60,
+    "w": 60,
+    "h": 60
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 60,
+    "h": 60
+   },
+   "sourceSize": {
+    "w": 60,
+    "h": 60
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_nut_an 8",
+   "frame": {
+    "x": 0,
+    "y": 120,
+    "w": 60,
+    "h": 60
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 60,
+    "h": 60
+   },
+   "sourceSize": {
+    "w": 60,
+    "h": 60
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_nut_an 9",
+   "frame": {
+    "x": 60,
+    "y": 120,
+    "w": 60,
+    "h": 60
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 60,
+    "h": 60
+   },
+   "sourceSize": {
+    "w": 60,
+    "h": 60
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_nut_an 10",
+   "frame": {
+    "x": 120,
+    "y": 120,
+    "w": 60,
+    "h": 60
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 60,
+    "h": 60
+   },
+   "sourceSize": {
+    "w": 60,
+    "h": 60
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_nut_an 11",
+   "frame": {
+    "x": 180,
+    "y": 120,
+    "w": 60,
+    "h": 60
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 60,
+    "h": 60
+   },
+   "sourceSize": {
+    "w": 60,
+    "h": 60
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_nut_an 12",
+   "frame": {
+    "x": 0,
+    "y": 180,
+    "w": 60,
+    "h": 60
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 60,
+    "h": 60
+   },
+   "sourceSize": {
+    "w": 60,
+    "h": 60
+   },
+   "duration": 42
+  }
+ ],
+ "meta": {
+  "app": "beanfx",
+  "version": "1",
+  "image": "yv_nut_an.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 240,
+   "h": 240
+  },
+  "scale": "1",
+  "frameTags": [
+   {
+    "name": "yv_nut_an",
+    "from": 0,
+    "to": 12,
+    "direction": "forward"
+   }
+  ],
+  "beanfx": {
+   "name": "yv_nut_an",
+   "fps": 24,
+   "loop": false,
+   "end": "remove",
+   "frames": 13,
+   "rows": 1,
+   "frameSize": [
+    60,
+    60
+   ],
+   "pivot": [
+    30,
+    30
+   ],
+   "columns": 4,
+   "blend_light": "add",
+   "light_gain": 1.0,
+   "view": "3/4",
+   "directions": 1,
+   "facing": "east",
+   "mirror": true,
+   "mirror_pivot": [
+    30,
+    30
+   ],
+   "sheet": "yv_nut_an.png",
+   "light": "yv_nut_an_light.png",
+   "color": "yv_nut_an_color.png"
+  }
+ }
+}

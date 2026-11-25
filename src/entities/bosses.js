@@ -247,7 +247,7 @@ function chain(m, label, seq, gap, chase, player, dx, dy, d, io, B, V, phase2) {
 }
 function comboClawAt(m, dx, dy, off, wt) {   // quạt lệch trái / phải (dùng hình học Liệt Trảo)
   const [ux, uy] = unitV(dx, dy), c = Math.cos(off), s = Math.sin(off);
-  m.pat = 'claw'; m.dirX = ux * c - uy * s; m.dirY = ux * s + uy * c; windup(m, wt); return true;
+  m.pat = 'claw'; m.clawFlip = off > 0; m.dirX = ux * c - uy * s; m.dirY = ux * s + uy * c; windup(m, wt); return true;
 }
 const P2_PATS = {
   // ---- Lang Vương ----
@@ -296,6 +296,7 @@ const P2_PATS = {
   runes(m, player, dx, dy, d, io, B, V) {   // Nghịch Chuyển Ma Trận: vành quanh boss chia N cung, nổ lần lượt theo chiều quay
     const R = V.RUNES, span = Math.PI * 2 / R.N, dir = io.rng() < 0.5 ? 1 : -1, a0 = Math.atan2(dy, dx) - span / 2, zs = [];
     for (let k = 0; k < R.N; k++) zs.push(zRing(m.x, m.y, R.R, R.W, a0 + dir * k * span, span - 0.02, R.T0 + k * R.DT, m.dmg * R.DMG, m, 'boss:runes', '#e070ff'));
+    for (const z of zs) z.spin = dir;   // chiều quay (chỉ để vẽ)
     placeZones(io, B, player, zs, R.T0); windup(m, R.T0); return true;
   },
   chainBolt(m, player, dx, dy, d, io, B, V) {   // Huyết Lôi Liên Tỏa: đường sét gấp khúc cắt ngang chỗ người chơi
@@ -452,14 +453,14 @@ function release(m, player, B, io, phase2) {
   if (m.pat === 'claw') {   // M10-09: quét cung theo hướng đã khóa
     const C = BOSS_V2.MINI.CLAW, dx = player.x - m.x, dy = player.y - m.y, d = Math.hypot(dx, dy);
     if (d < C.R + PLAYER.HITBOX && (d < 8 || (dx * m.dirX + dy * m.dirY) / d >= Math.cos(C.ARC / 2))) io.onAttack(m, m.dmg * C.DMG, 'miniboss:claw');
-    io.ev.push({ type: 'shake', t: 0.12 });
+    io.ev.push({ type: 'shake', t: 0.12 }, { type: 'bossFx', fx: 'claw', x: m.x, y: m.y, a: Math.atan2(m.dirY, m.dirX), flip: !!m.clawFlip });
     toRecover(m, B, io); return true;
   }
   if (m.pat === 'clones') {   // (24/11) Ma Ảnh Phân Thân: mỗi bóng bắn một vòng đạn tỏa (khe giữa các viên), rồi tan
     const C = BOSS_V2.FINAL.CLONES;
     for (const c of m.clones || []) {
       const a0 = io.rng() * Math.PI * 2 / C.SHOTS;
-      io.ev.push({ type: 'pulse', x: c.x, y: c.y - 10, r: 26, color: '#d9a8ff' });
+      io.ev.push({ type: 'pulse', x: c.x, y: c.y - 10, r: 26, color: '#d9a8ff' }, { type: 'bossFx', fx: 'cloneOut', x: c.x, y: c.y });
       for (let i = 0; i < C.SHOTS; i++) {
         if (io.shots.length >= RUN.MAX_ENEMY_SHOTS) break;
         const a = a0 + i * Math.PI * 2 / C.SHOTS;
@@ -578,8 +579,8 @@ export function updateHazards(scene, player, dt, ev, onHit) {
     h.t -= dt;
     if (h.t > 0) continue;
     hz.splice(i, 1);
-    if (h.ring) ev.push({ type: 'pulse', x: h.x, y: h.y, r: h.R + h.r, color: h.color || '#ff6a6a' });   // vành / cung nổ
-    else ev.push({ type: 'boom', x: h.x, y: h.y, r: h.r, color: h.color || '#c070ff' });
+    if (h.ring) ev.push({ type: 'pulse', x: h.x, y: h.y, r: h.R + h.r, color: h.color || '#ff6a6a', hz: h });   // vành / cung nổ; hz: bản chụp vùng cho VFX (src/render/boss_fx.js)
+    else ev.push({ type: 'boom', x: h.x, y: h.y, r: h.r, color: h.color || '#c070ff', hz: h });
     if (!player.dead && hazardDist(h, player.x, player.y) < h.r) { onHit(h.dmg, h); if (hz.length === 0) return; }   // chết -> endRun đã dọn mảng
   }
 }

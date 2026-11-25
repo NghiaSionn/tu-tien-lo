@@ -1,0 +1,317 @@
+{
+ "frames": [
+  {
+   "filename": "yv_sam_bat 0",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 66,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 66,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 66,
+    "h": 48
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_sam_bat 1",
+   "frame": {
+    "x": 66,
+    "y": 0,
+    "w": 66,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 66,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 66,
+    "h": 48
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_sam_bat 2",
+   "frame": {
+    "x": 132,
+    "y": 0,
+    "w": 66,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 66,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 66,
+    "h": 48
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_sam_bat 3",
+   "frame": {
+    "x": 0,
+    "y": 48,
+    "w": 66,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 66,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 66,
+    "h": 48
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_sam_bat 4",
+   "frame": {
+    "x": 66,
+    "y": 48,
+    "w": 66,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 66,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 66,
+    "h": 48
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_sam_bat 5",
+   "frame": {
+    "x": 132,
+    "y": 48,
+    "w": 66,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 66,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 66,
+    "h": 48
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_sam_bat 6",
+   "frame": {
+    "x": 0,
+    "y": 96,
+    "w": 66,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 66,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 66,
+    "h": 48
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_sam_bat 7",
+   "frame": {
+    "x": 66,
+    "y": 96,
+    "w": 66,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 66,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 66,
+    "h": 48
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_sam_bat 8",
+   "frame": {
+    "x": 132,
+    "y": 96,
+    "w": 66,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 66,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 66,
+    "h": 48
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_sam_bat 9",
+   "frame": {
+    "x": 0,
+    "y": 144,
+    "w": 66,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 66,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 66,
+    "h": 48
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_sam_bat 10",
+   "frame": {
+    "x": 66,
+    "y": 144,
+    "w": 66,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 66,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 66,
+    "h": 48
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_sam_bat 11",
+   "frame": {
+    "x": 132,
+    "y": 144,
+    "w": 66,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 66,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 66,
+    "h": 48
+   },
+   "duration": 42
+  }
+ ],
+ "meta": {
+  "app": "beanfx",
+  "version": "1",
+  "image": "yv_sam_bat.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 198,
+   "h": 192
+  },
+  "scale": "1",
+  "frameTags": [
+   {
+    "name": "yv_sam_bat",
+    "from": 0,
+    "to": 11,
+    "direction": "forward"
+   }
+  ],
+  "beanfx": {
+   "name": "yv_sam_bat",
+   "fps": 24,
+   "loop": false,
+   "end": "remove",
+   "frames": 12,
+   "rows": 1,
+   "frameSize": [
+    66,
+    48
+   ],
+   "pivot": [
+    1,
+    24
+   ],
+   "columns": 3,
+   "blend_light": "add",
+   "light_gain": 1.0,
+   "view": "3/4",
+   "directions": 1,
+   "facing": "east",
+   "mirror": true,
+   "mirror_pivot": [
+    65,
+    24
+   ],
+   "sheet": "yv_sam_bat.png",
+   "light": "yv_sam_bat_light.png",
+   "color": "yv_sam_bat_color.png"
+  }
+ }
+}

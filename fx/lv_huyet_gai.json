@@ -1,0 +1,977 @@
+{
+ "frames": [
+  {
+   "filename": "lv_huyet_gai 0",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 44,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 44,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 44,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_huyet_gai 1",
+   "frame": {
+    "x": 44,
+    "y": 0,
+    "w": 44,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 44,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 44,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_huyet_gai 2",
+   "frame": {
+    "x": 88,
+    "y": 0,
+    "w": 44,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 44,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 44,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_huyet_gai 3",
+   "frame": {
+    "x": 132,
+    "y": 0,
+    "w": 44,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 44,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 44,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_huyet_gai 4",
+   "frame": {
+    "x": 176,
+    "y": 0,
+    "w": 44,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 44,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 44,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_huyet_gai 5",
+   "frame": {
+    "x": 220,
+    "y": 0,
+    "w": 44,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 44,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 44,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_huyet_gai 6",
+   "frame": {
+    "x": 264,
+    "y": 0,
+    "w": 44,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 44,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 44,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_huyet_gai 7",
+   "frame": {
+    "x": 308,
+    "y": 0,
+    "w": 44,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 44,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 44,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_huyet_gai 8",
+   "frame": {
+    "x": 0,
+    "y": 56,
+    "w": 44,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 44,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 44,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_huyet_gai 9",
+   "frame": {
+    "x": 44,
+    "y": 56,
+    "w": 44,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 44,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 44,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_huyet_gai 10",
+   "frame": {
+    "x": 88,
+    "y": 56,
+    "w": 44,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 44,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 44,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_huyet_gai 11",
+   "frame": {
+    "x": 132,
+    "y": 56,
+    "w": 44,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 44,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 44,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_huyet_gai 12",
+   "frame": {
+    "x": 176,
+    "y": 56,
+    "w": 44,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 44,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 44,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_huyet_gai 13",
+   "frame": {
+    "x": 220,
+    "y": 56,
+    "w": 44,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 44,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 44,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_huyet_gai 14",
+   "frame": {
+    "x": 264,
+    "y": 56,
+    "w": 44,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 44,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 44,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_huyet_gai 15",
+   "frame": {
+    "x": 308,
+    "y": 56,
+    "w": 44,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 44,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 44,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_huyet_gai 16",
+   "frame": {
+    "x": 0,
+    "y": 112,
+    "w": 44,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 44,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 44,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_huyet_gai 17",
+   "frame": {
+    "x": 44,
+    "y": 112,
+    "w": 44,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 44,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 44,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_huyet_gai 18",
+   "frame": {
+    "x": 88,
+    "y": 112,
+    "w": 44,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 44,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 44,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_huyet_gai 19",
+   "frame": {
+    "x": 132,
+    "y": 112,
+    "w": 44,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 44,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 44,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_huyet_gai 20",
+   "frame": {
+    "x": 176,
+    "y": 112,
+    "w": 44,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 44,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 44,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_huyet_gai 21",
+   "frame": {
+    "x": 220,
+    "y": 112,
+    "w": 44,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 44,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 44,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_huyet_gai 22",
+   "frame": {
+    "x": 264,
+    "y": 112,
+    "w": 44,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 44,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 44,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_huyet_gai 23",
+   "frame": {
+    "x": 308,
+    "y": 112,
+    "w": 44,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 44,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 44,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_huyet_gai 24",
+   "frame": {
+    "x": 0,
+    "y": 168,
+    "w": 44,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 44,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 44,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_huyet_gai 25",
+   "frame": {
+    "x": 44,
+    "y": 168,
+    "w": 44,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 44,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 44,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_huyet_gai 26",
+   "frame": {
+    "x": 88,
+    "y": 168,
+    "w": 44,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 44,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 44,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_huyet_gai 27",
+   "frame": {
+    "x": 132,
+    "y": 168,
+    "w": 44,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 44,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 44,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_huyet_gai 28",
+   "frame": {
+    "x": 176,
+    "y": 168,
+    "w": 44,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 44,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 44,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_huyet_gai 29",
+   "frame": {
+    "x": 220,
+    "y": 168,
+    "w": 44,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 44,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 44,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_huyet_gai 30",
+   "frame": {
+    "x": 264,
+    "y": 168,
+    "w": 44,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 44,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 44,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_huyet_gai 31",
+   "frame": {
+    "x": 308,
+    "y": 168,
+    "w": 44,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 44,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 44,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_huyet_gai 32",
+   "frame": {
+    "x": 0,
+    "y": 224,
+    "w": 44,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 44,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 44,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_huyet_gai 33",
+   "frame": {
+    "x": 44,
+    "y": 224,
+    "w": 44,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 44,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 44,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_huyet_gai 34",
+   "frame": {
+    "x": 88,
+    "y": 224,
+    "w": 44,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 44,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 44,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_huyet_gai 35",
+   "frame": {
+    "x": 132,
+    "y": 224,
+    "w": 44,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 44,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 44,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_huyet_gai 36",
+   "frame": {
+    "x": 176,
+    "y": 224,
+    "w": 44,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 44,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 44,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_huyet_gai 37",
+   "frame": {
+    "x": 220,
+    "y": 224,
+    "w": 44,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 44,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 44,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_huyet_gai 38",
+   "frame": {
+    "x": 264,
+    "y": 224,
+    "w": 44,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 44,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 44,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_huyet_gai 39",
+   "frame": {
+    "x": 308,
+    "y": 224,
+    "w": 44,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 44,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 44,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_huyet_gai 40",
+   "frame": {
+    "x": 0,
+    "y": 280,
+    "w": 44,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 44,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 44,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_huyet_gai 41",
+   "frame": {
+    "x": 44,
+    "y": 280,
+    "w": 44,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 44,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 44,
+    "h": 56
+   },
+   "duration": 42
+  }
+ ],
+ "meta": {
+  "app": "beanfx",
+  "version": "1",
+  "image": "lv_huyet_gai.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 352,
+   "h": 336
+  },
+  "scale": "1",
+  "frameTags": [
+   {
+    "name": "lv_huyet_gai",
+    "from": 0,
+    "to": 41,
+    "direction": "forward"
+   }
+  ],
+  "beanfx": {
+   "name": "lv_huyet_gai",
+   "fps": 24,
+   "loop": false,
+   "end": "remove",
+   "frames": 42,
+   "rows": 1,
+   "frameSize": [
+    44,
+    56
+   ],
+   "pivot": [
+    22,
+    44
+   ],
+   "columns": 8,
+   "blend_light": "add",
+   "light_gain": 1.0,
+   "view": "3/4",
+   "directions": 1,
+   "facing": "east",
+   "mirror": true,
+   "mirror_pivot": [
+    22,
+    44
+   ],
+   "sheet": "lv_huyet_gai.png",
+   "light": "lv_huyet_gai_light.png",
+   "color": "lv_huyet_gai_color.png"
+  }
+ }
+}

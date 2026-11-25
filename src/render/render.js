@@ -1,5 +1,6 @@
 // Vẽ một khung: bản đồ, vật thể sắp theo y, yêu thú, người chơi, công pháp, hiệu ứng beanfx và hạt sáng.
 import { VIEW, TILE as T, HUB, FEATURES, ARCH, BOSS, WOLF_PACK, FOX_TRAIL, ICE_FAN, ELITE_V2, BOSS_V2, BOSS_P2, BOSS_TK, BOSS_ULT, BOSS_SKILL_LABELS, TRIBULATION, SHRINE, BASIC_ATTACK } from '../core/config.js';
+import { bossFxEvent, bossFxSpawn, bossFxUpdate, bossFxClear, bossFxGround, bossFxObjs, bossFxBeam, bossFxCloneT } from './boss_fx.js';
 import { GRASS, WATER, STONE, TREE, ROCK, BUILDING, FENCE, DIRT, CLIFF, CLOUD, FALL } from '../world/map.js';
 import { SPR, TIERS, BOSS_WHITE, BOSS_SPR, grassTiles, waterTiles, waterBank, stoneTile, treeSprs, rockSpr, hash } from './sprites.js';
 import { createFx } from '../../lib/beanfx.js';
@@ -85,10 +86,13 @@ export function consumeEvents(vis, ev) {
       case 'fx': if (room) spawnFx(vis, e.name, e.x, e.y, { scale: e.scale || 1, flip: !!e.flip }); break;
       case 'shake': addShake(vis, e.t); break;
       case 'chain': vis.chains.push({ pts: e.pts, life: 0.18 }); break;
-      case 'boom': if (!e.fx && e.color === '#c070ff') { e.fx = 'hac_diem_no'; e.fxR = 30; }
+      case 'bossFx': bossFxSpawn(vis, e); break;
+      case 'boom': if (e.hz && bossFxEvent(vis, e)) break;
+        if (!e.fx && e.color === '#c070ff') { e.fx = 'hac_diem_no'; e.fxR = 30; }
         if (room && e.fx && vis.FX[e.fx] && vis.quality !== 'low') { spawnFx(vis, e.fx, e.x, e.y, { scale: e.r / e.fxR }); break; }
         vis.rings.push({ x: e.x, y: e.y, r: e.r * 0.4, to: e.r, life: 0.3, max: 0.3, color: e.color, fill: true }); burst(vis, e.x, e.y, 10, 60, e.color, 0.4); break;
-      case 'pulse': if (e.sprite && vis.thx && vis.thx[e.sprite]) { vis.rings.push({ x: e.x, y: e.y - 6, r: e.r * 0.45, to: e.r, life: 0.4, max: 0.4, spr: vis.thx[e.sprite] }); break; }
+      case 'pulse': if (e.hz && bossFxEvent(vis, e)) break;
+        if (e.sprite && vis.thx && vis.thx[e.sprite]) { vis.rings.push({ x: e.x, y: e.y - 6, r: e.r * 0.45, to: e.r, life: 0.4, max: 0.4, spr: vis.thx[e.sprite] }); break; }
         if (room && e.fx && vis.FX[e.fx] && vis.quality !== 'low') { spawnFx(vis, e.fx, e.x, e.y, { scale: e.r / e.fxR }); break; }
         vis.rings.push({ x: e.x, y: e.y - 4, r: 6, to: e.r, life: 0.35, max: 0.35, color: e.color }); break;
       case 'death': burst(vis, e.x, e.y - 4, 12, 70, TIER_COLORS[e.tier] || '#fff', 0.6, 2); break;
@@ -104,6 +108,7 @@ export function consumeEvents(vis, ev) {
 export function updateVis(vis, dt) {
   vis.flash -= dt; vis.shake -= dt;
   if (vis.banner && (vis.banner.life -= dt) <= 0) vis.banner = null;
+  bossFxUpdate(vis, dt);
   for (let i = vis.parts.length - 1; i >= 0; i--) { const q = vis.parts[i]; q.x += q.vx * dt; q.y += q.vy * dt; if ((q.life -= dt) <= 0) vis.parts.splice(i, 1); }
   for (let i = vis.texts.length - 1; i >= 0; i--) { const q = vis.texts[i]; q.y -= 18 * dt; if ((q.life -= dt) <= 0) vis.texts.splice(i, 1); }
   for (let i = vis.fxs.length - 1; i >= 0; i--) if (vis.fxs[i].update(dt).done) vis.fxs.splice(i, 1);
@@ -111,7 +116,7 @@ export function updateVis(vis, dt) {
   for (let i = vis.rings.length - 1; i >= 0; i--) { const r = vis.rings[i]; r.r += (r.to - r.r) * Math.min(1, dt * 12); if ((r.life -= dt) <= 0) vis.rings.splice(i, 1); }
 }
 
-export function clearVis(vis) { vis.parts.length = vis.texts.length = vis.fxs.length = vis.chains.length = vis.rings.length = 0; vis.flash = vis.shake = 0; vis.banner = null; }
+export function clearVis(vis) { bossFxClear(vis); vis.parts.length = vis.texts.length = vis.fxs.length = vis.chains.length = vis.rings.length = 0; vis.flash = vis.shake = 0; vis.banner = null; }
 
 // ---------- vẽ ----------
 function pxRing(ctx, x, y, r, n, rot, col, size, flat = 0.6) {
@@ -1289,8 +1294,10 @@ function drawUltScreen(ctx, c, vis, time) {
 function drawClones(ctx, m, time, vis) {
   const bs = bossSheet(m, vis), K = BOSS.DRAW_SCALE, prog = 1 - Math.max(0, m.stT) / (m.stMax || 1);
   for (const c of m.clones) {
-    ctx.globalAlpha = 0.35 + 0.25 * Math.sin(time * 14 + c.x);
-    if (bs) { const pose = m.bossKind + (bs.meta.frames[m.bossKind + '_atk'] ? '_atk' : ''); sheetFrame(ctx, bs, bs.meta.frames[pose] ? pose : m.bossKind, c.x, c.y, false, bs.glow || bs.white || bs.img, K); }
+    ctx.globalAlpha = (0.55 + 0.2 * Math.sin(time * 14 + c.x)) * bossFxCloneT(vis, m);
+    const thi = m.p2 && vis.bossFinal2Thi;   // (25/11) pha 2: đúng dáng Ma Quân, mờ như ảo ảnh (bản cũ là bóng tím đặc)
+    if (thi) sheetFrame(ctx, thi, 'THI_dang', c.x, c.y, false, thi.img, K);
+    else if (bs) { const pose = m.bossKind + (bs.meta.frames[m.bossKind + '_atk'] ? '_atk' : ''); sheetFrame(ctx, bs, bs.meta.frames[pose] ? pose : m.bossKind, c.x, c.y, false, bs.glow || bs.white || bs.img, K); }
     ctx.globalAlpha = 0.9; tgRing(ctx, c.x, c.y - 10, 10 + 16 * prog, 32, '#d9a8ff', 2, 1);
   }
   ctx.globalAlpha = 1;
@@ -1469,7 +1476,7 @@ function drawFireTrails(ctx, scene) {
   ctx.globalAlpha = 1;
 }
 
-function drawTelegraphs(ctx, scene) {
+function drawTelegraphs(ctx, scene, vis, time) {
   drawFireTrails(ctx, scene);
   // vùng nguy hiểm của boss (đập đất, hắc diễm): vòng đỏ đúng bán kính trúng + lấp tím dần tới lúc nổ
   for (const h of scene.hazards || []) {
@@ -1489,7 +1496,7 @@ function drawTelegraphs(ctx, scene) {
   }
   for (const m of scene.monsters) {
     if (!m.dead && m.st === 'blink') { drawBlinkWarn(ctx, m); continue; }
-    if (!m.dead && m.boss && m.st === 'sweep') { drawSweepBeam(ctx, m); continue; }   // M10-10
+    if (!m.dead && m.boss && m.st === 'sweep') { drawSweepBeam(ctx, m, vis, time); continue; }   // M10-10
     if (m.dead || (m.st !== 'windup' && m.st !== 'rest')) continue;
     if (m.boss) { drawBossTelegraph(ctx, m); continue; }
     if (m.st !== 'windup') continue;
@@ -1565,9 +1572,10 @@ function drawAIDebug(ctx, scene, camX, camY, p) {
 }
 
 // M10-10: tia Ma Quang đang quét — vùng đã quét mờ, tia sáng dày W
-function drawSweepBeam(ctx, m) {
+function drawSweepBeam(ctx, m, vis, time) {
   const S = BOSS_V2.FINAL.SWEEP, a = m.swA0 + m.swDir * S.ARC * (m.swK || 0), c = Math.cos(a), s = Math.sin(a);
   ctx.globalAlpha = 0.6; sweepOutline(ctx, m, '#ff4a3a', 1, 0);
+  if (bossFxBeam(ctx, vis, m, time)) return;
   ctx.globalAlpha = 0.45; pxLine(ctx, m.x, m.y - 10, m.x + c * S.L, m.y - 10 + s * S.L, '#7a2cff', Math.round(S.W * 1.4));
   ctx.globalAlpha = 0.95; pxLine(ctx, m.x, m.y - 10, m.x + c * S.L, m.y - 10 + s * S.L, '#f4d8ff', 3);
   ctx.globalAlpha = 1;
@@ -2771,7 +2779,8 @@ export function render(ctx, g) {
       }
       ctx.globalAlpha = 1;
     }
-    drawTelegraphs(ctx, scene);
+    drawTelegraphs(ctx, scene, vis, time);
+    bossFxGround(ctx, vis, scene, time);   // (25/11) VFX chiêu boss lớp mặt đất
     if (g.run && g.run.shrine && !g.run.shrine.used) drawShrine(ctx, g.run, p, time, vis);
   }
 
@@ -2779,6 +2788,7 @@ export function render(ctx, g) {
   if (g.cut) drawP2Ground(ctx, g.cut, vis, time);   // (24/11) VFX mặt đất cutscene pha 2: dưới cây / quái / boss
   mark('ground');
   for (const m of scene.monsters) objs.push({ y: m.y, m });
+  if (scene.kind === 'run') for (const o of bossFxObjs(vis, scene)) objs.push(o);   // (25/11) VFX chiêu boss dựng đứng: xếp theo chân
   objs.push({ y: p.y, player: true });
   if (scene.kind === 'hub' && FEATURES.run && g.portal && vis.pfx && !(g.sect && g.sect.gate)) objs.push({ y: g.portal.y, portal: true });
   if (scene.kind === 'hub' && g.bia && vis.ct && vis.ct.bia) objs.push({ y: g.bia.y, bia: true });

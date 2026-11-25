@@ -1,0 +1,537 @@
+{
+ "frames": [
+  {
+   "filename": "yv_phan_anh 0",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 112,
+    "h": 128
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 112,
+    "h": 128
+   },
+   "sourceSize": {
+    "w": 112,
+    "h": 128
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_phan_anh 1",
+   "frame": {
+    "x": 112,
+    "y": 0,
+    "w": 112,
+    "h": 128
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 112,
+    "h": 128
+   },
+   "sourceSize": {
+    "w": 112,
+    "h": 128
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_phan_anh 2",
+   "frame": {
+    "x": 224,
+    "y": 0,
+    "w": 112,
+    "h": 128
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 112,
+    "h": 128
+   },
+   "sourceSize": {
+    "w": 112,
+    "h": 128
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_phan_anh 3",
+   "frame": {
+    "x": 336,
+    "y": 0,
+    "w": 112,
+    "h": 128
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 112,
+    "h": 128
+   },
+   "sourceSize": {
+    "w": 112,
+    "h": 128
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_phan_anh 4",
+   "frame": {
+    "x": 448,
+    "y": 0,
+    "w": 112,
+    "h": 128
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 112,
+    "h": 128
+   },
+   "sourceSize": {
+    "w": 112,
+    "h": 128
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_phan_anh 5",
+   "frame": {
+    "x": 560,
+    "y": 0,
+    "w": 112,
+    "h": 128
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 112,
+    "h": 128
+   },
+   "sourceSize": {
+    "w": 112,
+    "h": 128
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_phan_anh 6",
+   "frame": {
+    "x": 0,
+    "y": 128,
+    "w": 112,
+    "h": 128
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 112,
+    "h": 128
+   },
+   "sourceSize": {
+    "w": 112,
+    "h": 128
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_phan_anh 7",
+   "frame": {
+    "x": 112,
+    "y": 128,
+    "w": 112,
+    "h": 128
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 112,
+    "h": 128
+   },
+   "sourceSize": {
+    "w": 112,
+    "h": 128
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_phan_anh 8",
+   "frame": {
+    "x": 224,
+    "y": 128,
+    "w": 112,
+    "h": 128
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 112,
+    "h": 128
+   },
+   "sourceSize": {
+    "w": 112,
+    "h": 128
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_phan_anh 9",
+   "frame": {
+    "x": 336,
+    "y": 128,
+    "w": 112,
+    "h": 128
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 112,
+    "h": 128
+   },
+   "sourceSize": {
+    "w": 112,
+    "h": 128
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_phan_anh 10",
+   "frame": {
+    "x": 448,
+    "y": 128,
+    "w": 112,
+    "h": 128
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 112,
+    "h": 128
+   },
+   "sourceSize": {
+    "w": 112,
+    "h": 128
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_phan_anh 11",
+   "frame": {
+    "x": 560,
+    "y": 128,
+    "w": 112,
+    "h": 128
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 112,
+    "h": 128
+   },
+   "sourceSize": {
+    "w": 112,
+    "h": 128
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_phan_anh 12",
+   "frame": {
+    "x": 0,
+    "y": 256,
+    "w": 112,
+    "h": 128
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 112,
+    "h": 128
+   },
+   "sourceSize": {
+    "w": 112,
+    "h": 128
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_phan_anh 13",
+   "frame": {
+    "x": 112,
+    "y": 256,
+    "w": 112,
+    "h": 128
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 112,
+    "h": 128
+   },
+   "sourceSize": {
+    "w": 112,
+    "h": 128
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_phan_anh 14",
+   "frame": {
+    "x": 224,
+    "y": 256,
+    "w": 112,
+    "h": 128
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 112,
+    "h": 128
+   },
+   "sourceSize": {
+    "w": 112,
+    "h": 128
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_phan_anh 15",
+   "frame": {
+    "x": 336,
+    "y": 256,
+    "w": 112,
+    "h": 128
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 112,
+    "h": 128
+   },
+   "sourceSize": {
+    "w": 112,
+    "h": 128
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_phan_anh 16",
+   "frame": {
+    "x": 448,
+    "y": 256,
+    "w": 112,
+    "h": 128
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 112,
+    "h": 128
+   },
+   "sourceSize": {
+    "w": 112,
+    "h": 128
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_phan_anh 17",
+   "frame": {
+    "x": 560,
+    "y": 256,
+    "w": 112,
+    "h": 128
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 112,
+    "h": 128
+   },
+   "sourceSize": {
+    "w": 112,
+    "h": 128
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_phan_anh 18",
+   "frame": {
+    "x": 0,
+    "y": 384,
+    "w": 112,
+    "h": 128
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 112,
+    "h": 128
+   },
+   "sourceSize": {
+    "w": 112,
+    "h": 128
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_phan_anh 19",
+   "frame": {
+    "x": 112,
+    "y": 384,
+    "w": 112,
+    "h": 128
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 112,
+    "h": 128
+   },
+   "sourceSize": {
+    "w": 112,
+    "h": 128
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_phan_anh 20",
+   "frame": {
+    "x": 224,
+    "y": 384,
+    "w": 112,
+    "h": 128
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 112,
+    "h": 128
+   },
+   "sourceSize": {
+    "w": 112,
+    "h": 128
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_phan_anh 21",
+   "frame": {
+    "x": 336,
+    "y": 384,
+    "w": 112,
+    "h": 128
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 112,
+    "h": 128
+   },
+   "sourceSize": {
+    "w": 112,
+    "h": 128
+   },
+   "duration": 42
+  }
+ ],
+ "meta": {
+  "app": "beanfx",
+  "version": "1",
+  "image": "yv_phan_anh.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 672,
+   "h": 512
+  },
+  "scale": "1",
+  "frameTags": [
+   {
+    "name": "yv_phan_anh",
+    "from": 0,
+    "to": 21,
+    "direction": "forward"
+   }
+  ],
+  "beanfx": {
+   "name": "yv_phan_anh",
+   "fps": 24,
+   "loop": false,
+   "end": "remove",
+   "frames": 22,
+   "rows": 1,
+   "frameSize": [
+    112,
+    128
+   ],
+   "pivot": [
+    56,
+    108
+   ],
+   "columns": 6,
+   "blend_light": "add",
+   "light_gain": 1.0,
+   "view": "3/4",
+   "directions": 1,
+   "facing": "east",
+   "mirror": true,
+   "mirror_pivot": [
+    56,
+    108
+   ],
+   "sheet": "yv_phan_anh.png",
+   "light": "yv_phan_anh_light.png",
+   "color": "yv_phan_anh_color.png"
+  }
+ }
+}

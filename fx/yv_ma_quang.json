@@ -1,0 +1,229 @@
+{
+ "frames": [
+  {
+   "filename": "yv_ma_quang 0",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 208,
+    "h": 52
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 208,
+    "h": 52
+   },
+   "sourceSize": {
+    "w": 208,
+    "h": 52
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_ma_quang 1",
+   "frame": {
+    "x": 208,
+    "y": 0,
+    "w": 208,
+    "h": 52
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 208,
+    "h": 52
+   },
+   "sourceSize": {
+    "w": 208,
+    "h": 52
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_ma_quang 2",
+   "frame": {
+    "x": 0,
+    "y": 52,
+    "w": 208,
+    "h": 52
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 208,
+    "h": 52
+   },
+   "sourceSize": {
+    "w": 208,
+    "h": 52
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_ma_quang 3",
+   "frame": {
+    "x": 208,
+    "y": 52,
+    "w": 208,
+    "h": 52
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 208,
+    "h": 52
+   },
+   "sourceSize": {
+    "w": 208,
+    "h": 52
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_ma_quang 4",
+   "frame": {
+    "x": 0,
+    "y": 104,
+    "w": 208,
+    "h": 52
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 208,
+    "h": 52
+   },
+   "sourceSize": {
+    "w": 208,
+    "h": 52
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_ma_quang 5",
+   "frame": {
+    "x": 208,
+    "y": 104,
+    "w": 208,
+    "h": 52
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 208,
+    "h": 52
+   },
+   "sourceSize": {
+    "w": 208,
+    "h": 52
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_ma_quang 6",
+   "frame": {
+    "x": 0,
+    "y": 156,
+    "w": 208,
+    "h": 52
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 208,
+    "h": 52
+   },
+   "sourceSize": {
+    "w": 208,
+    "h": 52
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_ma_quang 7",
+   "frame": {
+    "x": 208,
+    "y": 156,
+    "w": 208,
+    "h": 52
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 208,
+    "h": 52
+   },
+   "sourceSize": {
+    "w": 208,
+    "h": 52
+   },
+   "duration": 42
+  }
+ ],
+ "meta": {
+  "app": "beanfx",
+  "version": "1",
+  "image": "yv_ma_quang.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 416,
+   "h": 208
+  },
+  "scale": "1",
+  "frameTags": [
+   {
+    "name": "yv_ma_quang",
+    "from": 0,
+    "to": 7,
+    "direction": "forward"
+   }
+  ],
+  "beanfx": {
+   "name": "yv_ma_quang",
+   "fps": 24,
+   "loop": true,
+   "end": "loop",
+   "frames": 8,
+   "rows": 1,
+   "frameSize": [
+    208,
+    52
+   ],
+   "pivot": [
+    16,
+    26
+   ],
+   "columns": 2,
+   "blend_light": "add",
+   "light_gain": 1.0,
+   "view": "3/4",
+   "directions": 1,
+   "facing": "east",
+   "mirror": true,
+   "mirror_pivot": [
+    192,
+    26
+   ],
+   "sheet": "yv_ma_quang.png",
+   "light": "yv_ma_quang_light.png",
+   "color": "yv_ma_quang_color.png"
+  }
+ }
+}

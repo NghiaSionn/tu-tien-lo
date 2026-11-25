@@ -1,0 +1,405 @@
+{
+ "frames": [
+  {
+   "filename": "yv_loi_phat 0",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 84,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 84,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 84,
+    "h": 212
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_loi_phat 1",
+   "frame": {
+    "x": 84,
+    "y": 0,
+    "w": 84,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 84,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 84,
+    "h": 212
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_loi_phat 2",
+   "frame": {
+    "x": 168,
+    "y": 0,
+    "w": 84,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 84,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 84,
+    "h": 212
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_loi_phat 3",
+   "frame": {
+    "x": 252,
+    "y": 0,
+    "w": 84,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 84,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 84,
+    "h": 212
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_loi_phat 4",
+   "frame": {
+    "x": 336,
+    "y": 0,
+    "w": 84,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 84,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 84,
+    "h": 212
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_loi_phat 5",
+   "frame": {
+    "x": 420,
+    "y": 0,
+    "w": 84,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 84,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 84,
+    "h": 212
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_loi_phat 6",
+   "frame": {
+    "x": 504,
+    "y": 0,
+    "w": 84,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 84,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 84,
+    "h": 212
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_loi_phat 7",
+   "frame": {
+    "x": 0,
+    "y": 212,
+    "w": 84,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 84,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 84,
+    "h": 212
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_loi_phat 8",
+   "frame": {
+    "x": 84,
+    "y": 212,
+    "w": 84,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 84,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 84,
+    "h": 212
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_loi_phat 9",
+   "frame": {
+    "x": 168,
+    "y": 212,
+    "w": 84,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 84,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 84,
+    "h": 212
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_loi_phat 10",
+   "frame": {
+    "x": 252,
+    "y": 212,
+    "w": 84,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 84,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 84,
+    "h": 212
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_loi_phat 11",
+   "frame": {
+    "x": 336,
+    "y": 212,
+    "w": 84,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 84,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 84,
+    "h": 212
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_loi_phat 12",
+   "frame": {
+    "x": 420,
+    "y": 212,
+    "w": 84,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 84,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 84,
+    "h": 212
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_loi_phat 13",
+   "frame": {
+    "x": 504,
+    "y": 212,
+    "w": 84,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 84,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 84,
+    "h": 212
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_loi_phat 14",
+   "frame": {
+    "x": 0,
+    "y": 424,
+    "w": 84,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 84,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 84,
+    "h": 212
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_loi_phat 15",
+   "frame": {
+    "x": 84,
+    "y": 424,
+    "w": 84,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 84,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 84,
+    "h": 212
+   },
+   "duration": 42
+  }
+ ],
+ "meta": {
+  "app": "beanfx",
+  "version": "1",
+  "image": "yv_loi_phat.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 588,
+   "h": 636
+  },
+  "scale": "1",
+  "frameTags": [
+   {
+    "name": "yv_loi_phat",
+    "from": 0,
+    "to": 15,
+    "direction": "forward"
+   }
+  ],
+  "beanfx": {
+   "name": "yv_loi_phat",
+   "fps": 24,
+   "loop": false,
+   "end": "remove",
+   "frames": 16,
+   "rows": 1,
+   "frameSize": [
+    84,
+    212
+   ],
+   "pivot": [
+    42,
+    182
+   ],
+   "columns": 7,
+   "blend_light": "add",
+   "light_gain": 1.0,
+   "view": "3/4",
+   "directions": 1,
+   "facing": "east",
+   "mirror": true,
+   "mirror_pivot": [
+    42,
+    182
+   ],
+   "sheet": "yv_loi_phat.png",
+   "light": "yv_loi_phat_light.png",
+   "color": "yv_loi_phat_color.png"
+  }
+ }
+}

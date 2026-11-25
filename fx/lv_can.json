@@ -1,0 +1,383 @@
+{
+ "frames": [
+  {
+   "filename": "lv_can 0",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 108
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 108
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 108
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_can 1",
+   "frame": {
+    "x": 96,
+    "y": 0,
+    "w": 96,
+    "h": 108
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 108
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 108
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_can 2",
+   "frame": {
+    "x": 192,
+    "y": 0,
+    "w": 96,
+    "h": 108
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 108
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 108
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_can 3",
+   "frame": {
+    "x": 288,
+    "y": 0,
+    "w": 96,
+    "h": 108
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 108
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 108
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_can 4",
+   "frame": {
+    "x": 384,
+    "y": 0,
+    "w": 96,
+    "h": 108
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 108
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 108
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_can 5",
+   "frame": {
+    "x": 0,
+    "y": 108,
+    "w": 96,
+    "h": 108
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 108
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 108
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_can 6",
+   "frame": {
+    "x": 96,
+    "y": 108,
+    "w": 96,
+    "h": 108
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 108
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 108
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_can 7",
+   "frame": {
+    "x": 192,
+    "y": 108,
+    "w": 96,
+    "h": 108
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 108
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 108
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_can 8",
+   "frame": {
+    "x": 288,
+    "y": 108,
+    "w": 96,
+    "h": 108
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 108
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 108
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_can 9",
+   "frame": {
+    "x": 384,
+    "y": 108,
+    "w": 96,
+    "h": 108
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 108
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 108
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_can 10",
+   "frame": {
+    "x": 0,
+    "y": 216,
+    "w": 96,
+    "h": 108
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 108
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 108
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_can 11",
+   "frame": {
+    "x": 96,
+    "y": 216,
+    "w": 96,
+    "h": 108
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 108
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 108
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_can 12",
+   "frame": {
+    "x": 192,
+    "y": 216,
+    "w": 96,
+    "h": 108
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 108
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 108
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_can 13",
+   "frame": {
+    "x": 288,
+    "y": 216,
+    "w": 96,
+    "h": 108
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 108
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 108
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_can 14",
+   "frame": {
+    "x": 384,
+    "y": 216,
+    "w": 96,
+    "h": 108
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 108
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 108
+   },
+   "duration": 42
+  }
+ ],
+ "meta": {
+  "app": "beanfx",
+  "version": "1",
+  "image": "lv_can.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 480,
+   "h": 324
+  },
+  "scale": "1",
+  "frameTags": [
+   {
+    "name": "lv_can",
+    "from": 0,
+    "to": 14,
+    "direction": "forward"
+   }
+  ],
+  "beanfx": {
+   "name": "lv_can",
+   "fps": 24,
+   "loop": false,
+   "end": "remove",
+   "frames": 15,
+   "rows": 1,
+   "frameSize": [
+    96,
+    108
+   ],
+   "pivot": [
+    48,
+    54
+   ],
+   "columns": 5,
+   "blend_light": "add",
+   "light_gain": 1.0,
+   "view": "3/4",
+   "directions": 1,
+   "facing": "east",
+   "mirror": true,
+   "mirror_pivot": [
+    48,
+    54
+   ],
+   "sheet": "lv_can.png",
+   "light": "lv_can_light.png",
+   "color": "lv_can_color.png"
+  }
+ }
+}

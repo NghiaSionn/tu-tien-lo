@@ -1,0 +1,361 @@
+{
+ "frames": [
+  {
+   "filename": "lv_vet_nut 0",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 184,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 184,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 184,
+    "h": 36
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_vet_nut 1",
+   "frame": {
+    "x": 184,
+    "y": 0,
+    "w": 184,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 184,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 184,
+    "h": 36
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_vet_nut 2",
+   "frame": {
+    "x": 0,
+    "y": 36,
+    "w": 184,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 184,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 184,
+    "h": 36
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_vet_nut 3",
+   "frame": {
+    "x": 184,
+    "y": 36,
+    "w": 184,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 184,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 184,
+    "h": 36
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_vet_nut 4",
+   "frame": {
+    "x": 0,
+    "y": 72,
+    "w": 184,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 184,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 184,
+    "h": 36
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_vet_nut 5",
+   "frame": {
+    "x": 184,
+    "y": 72,
+    "w": 184,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 184,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 184,
+    "h": 36
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_vet_nut 6",
+   "frame": {
+    "x": 0,
+    "y": 108,
+    "w": 184,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 184,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 184,
+    "h": 36
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_vet_nut 7",
+   "frame": {
+    "x": 184,
+    "y": 108,
+    "w": 184,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 184,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 184,
+    "h": 36
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_vet_nut 8",
+   "frame": {
+    "x": 0,
+    "y": 144,
+    "w": 184,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 184,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 184,
+    "h": 36
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_vet_nut 9",
+   "frame": {
+    "x": 184,
+    "y": 144,
+    "w": 184,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 184,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 184,
+    "h": 36
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_vet_nut 10",
+   "frame": {
+    "x": 0,
+    "y": 180,
+    "w": 184,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 184,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 184,
+    "h": 36
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_vet_nut 11",
+   "frame": {
+    "x": 184,
+    "y": 180,
+    "w": 184,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 184,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 184,
+    "h": 36
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_vet_nut 12",
+   "frame": {
+    "x": 0,
+    "y": 216,
+    "w": 184,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 184,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 184,
+    "h": 36
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_vet_nut 13",
+   "frame": {
+    "x": 184,
+    "y": 216,
+    "w": 184,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 184,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 184,
+    "h": 36
+   },
+   "duration": 42
+  }
+ ],
+ "meta": {
+  "app": "beanfx",
+  "version": "1",
+  "image": "lv_vet_nut.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 368,
+   "h": 252
+  },
+  "scale": "1",
+  "frameTags": [
+   {
+    "name": "lv_vet_nut",
+    "from": 0,
+    "to": 13,
+    "direction": "forward"
+   }
+  ],
+  "beanfx": {
+   "name": "lv_vet_nut",
+   "fps": 24,
+   "loop": false,
+   "end": "remove",
+   "frames": 14,
+   "rows": 1,
+   "frameSize": [
+    184,
+    36
+   ],
+   "pivot": [
+    12,
+    18
+   ],
+   "columns": 2,
+   "blend_light": "add",
+   "light_gain": 1.0,
+   "view": "3/4",
+   "directions": 1,
+   "facing": "east",
+   "mirror": true,
+   "mirror_pivot": [
+    172,
+    18
+   ],
+   "sheet": "lv_vet_nut.png",
+   "light": "lv_vet_nut_light.png",
+   "color": "lv_vet_nut_color.png"
+  }
+ }
+}

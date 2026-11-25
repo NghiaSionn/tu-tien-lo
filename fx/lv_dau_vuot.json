@@ -1,0 +1,427 @@
+{
+ "frames": [
+  {
+   "filename": "lv_dau_vuot 0",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 116
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 116
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 116
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_dau_vuot 1",
+   "frame": {
+    "x": 116,
+    "y": 0,
+    "w": 116,
+    "h": 116
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 116
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 116
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_dau_vuot 2",
+   "frame": {
+    "x": 232,
+    "y": 0,
+    "w": 116,
+    "h": 116
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 116
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 116
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_dau_vuot 3",
+   "frame": {
+    "x": 348,
+    "y": 0,
+    "w": 116,
+    "h": 116
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 116
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 116
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_dau_vuot 4",
+   "frame": {
+    "x": 464,
+    "y": 0,
+    "w": 116,
+    "h": 116
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 116
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 116
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_dau_vuot 5",
+   "frame": {
+    "x": 0,
+    "y": 116,
+    "w": 116,
+    "h": 116
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 116
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 116
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_dau_vuot 6",
+   "frame": {
+    "x": 116,
+    "y": 116,
+    "w": 116,
+    "h": 116
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 116
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 116
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_dau_vuot 7",
+   "frame": {
+    "x": 232,
+    "y": 116,
+    "w": 116,
+    "h": 116
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 116
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 116
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_dau_vuot 8",
+   "frame": {
+    "x": 348,
+    "y": 116,
+    "w": 116,
+    "h": 116
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 116
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 116
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_dau_vuot 9",
+   "frame": {
+    "x": 464,
+    "y": 116,
+    "w": 116,
+    "h": 116
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 116
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 116
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_dau_vuot 10",
+   "frame": {
+    "x": 0,
+    "y": 232,
+    "w": 116,
+    "h": 116
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 116
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 116
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_dau_vuot 11",
+   "frame": {
+    "x": 116,
+    "y": 232,
+    "w": 116,
+    "h": 116
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 116
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 116
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_dau_vuot 12",
+   "frame": {
+    "x": 232,
+    "y": 232,
+    "w": 116,
+    "h": 116
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 116
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 116
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_dau_vuot 13",
+   "frame": {
+    "x": 348,
+    "y": 232,
+    "w": 116,
+    "h": 116
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 116
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 116
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_dau_vuot 14",
+   "frame": {
+    "x": 464,
+    "y": 232,
+    "w": 116,
+    "h": 116
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 116
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 116
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_dau_vuot 15",
+   "frame": {
+    "x": 0,
+    "y": 348,
+    "w": 116,
+    "h": 116
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 116
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 116
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_dau_vuot 16",
+   "frame": {
+    "x": 116,
+    "y": 348,
+    "w": 116,
+    "h": 116
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 116
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 116
+   },
+   "duration": 42
+  }
+ ],
+ "meta": {
+  "app": "beanfx",
+  "version": "1",
+  "image": "lv_dau_vuot.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 580,
+   "h": 464
+  },
+  "scale": "1",
+  "frameTags": [
+   {
+    "name": "lv_dau_vuot",
+    "from": 0,
+    "to": 16,
+    "direction": "forward"
+   }
+  ],
+  "beanfx": {
+   "name": "lv_dau_vuot",
+   "fps": 24,
+   "loop": false,
+   "end": "remove",
+   "frames": 17,
+   "rows": 1,
+   "frameSize": [
+    116,
+    116
+   ],
+   "pivot": [
+    58,
+    58
+   ],
+   "columns": 5,
+   "blend_light": "add",
+   "light_gain": 1.0,
+   "view": "3/4",
+   "directions": 1,
+   "facing": "east",
+   "mirror": true,
+   "mirror_pivot": [
+    58,
+    58
+   ],
+   "sheet": "lv_dau_vuot.png",
+   "light": "lv_dau_vuot_light.png",
+   "color": "lv_dau_vuot_color.png"
+  }
+ }
+}

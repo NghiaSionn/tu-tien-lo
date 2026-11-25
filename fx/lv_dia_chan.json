@@ -1,0 +1,977 @@
+{
+ "frames": [
+  {
+   "filename": "lv_dia_chan 0",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 48,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 48,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 48,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_dia_chan 1",
+   "frame": {
+    "x": 48,
+    "y": 0,
+    "w": 48,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 48,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 48,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_dia_chan 2",
+   "frame": {
+    "x": 96,
+    "y": 0,
+    "w": 48,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 48,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 48,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_dia_chan 3",
+   "frame": {
+    "x": 144,
+    "y": 0,
+    "w": 48,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 48,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 48,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_dia_chan 4",
+   "frame": {
+    "x": 192,
+    "y": 0,
+    "w": 48,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 48,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 48,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_dia_chan 5",
+   "frame": {
+    "x": 240,
+    "y": 0,
+    "w": 48,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 48,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 48,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_dia_chan 6",
+   "frame": {
+    "x": 288,
+    "y": 0,
+    "w": 48,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 48,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 48,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_dia_chan 7",
+   "frame": {
+    "x": 0,
+    "y": 56,
+    "w": 48,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 48,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 48,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_dia_chan 8",
+   "frame": {
+    "x": 48,
+    "y": 56,
+    "w": 48,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 48,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 48,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_dia_chan 9",
+   "frame": {
+    "x": 96,
+    "y": 56,
+    "w": 48,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 48,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 48,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_dia_chan 10",
+   "frame": {
+    "x": 144,
+    "y": 56,
+    "w": 48,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 48,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 48,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_dia_chan 11",
+   "frame": {
+    "x": 192,
+    "y": 56,
+    "w": 48,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 48,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 48,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_dia_chan 12",
+   "frame": {
+    "x": 240,
+    "y": 56,
+    "w": 48,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 48,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 48,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_dia_chan 13",
+   "frame": {
+    "x": 288,
+    "y": 56,
+    "w": 48,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 48,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 48,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_dia_chan 14",
+   "frame": {
+    "x": 0,
+    "y": 112,
+    "w": 48,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 48,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 48,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_dia_chan 15",
+   "frame": {
+    "x": 48,
+    "y": 112,
+    "w": 48,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 48,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 48,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_dia_chan 16",
+   "frame": {
+    "x": 96,
+    "y": 112,
+    "w": 48,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 48,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 48,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_dia_chan 17",
+   "frame": {
+    "x": 144,
+    "y": 112,
+    "w": 48,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 48,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 48,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_dia_chan 18",
+   "frame": {
+    "x": 192,
+    "y": 112,
+    "w": 48,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 48,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 48,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_dia_chan 19",
+   "frame": {
+    "x": 240,
+    "y": 112,
+    "w": 48,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 48,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 48,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_dia_chan 20",
+   "frame": {
+    "x": 288,
+    "y": 112,
+    "w": 48,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 48,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 48,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_dia_chan 21",
+   "frame": {
+    "x": 0,
+    "y": 168,
+    "w": 48,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 48,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 48,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_dia_chan 22",
+   "frame": {
+    "x": 48,
+    "y": 168,
+    "w": 48,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 48,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 48,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_dia_chan 23",
+   "frame": {
+    "x": 96,
+    "y": 168,
+    "w": 48,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 48,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 48,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_dia_chan 24",
+   "frame": {
+    "x": 144,
+    "y": 168,
+    "w": 48,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 48,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 48,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_dia_chan 25",
+   "frame": {
+    "x": 192,
+    "y": 168,
+    "w": 48,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 48,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 48,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_dia_chan 26",
+   "frame": {
+    "x": 240,
+    "y": 168,
+    "w": 48,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 48,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 48,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_dia_chan 27",
+   "frame": {
+    "x": 288,
+    "y": 168,
+    "w": 48,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 48,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 48,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_dia_chan 28",
+   "frame": {
+    "x": 0,
+    "y": 224,
+    "w": 48,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 48,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 48,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_dia_chan 29",
+   "frame": {
+    "x": 48,
+    "y": 224,
+    "w": 48,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 48,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 48,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_dia_chan 30",
+   "frame": {
+    "x": 96,
+    "y": 224,
+    "w": 48,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 48,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 48,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_dia_chan 31",
+   "frame": {
+    "x": 144,
+    "y": 224,
+    "w": 48,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 48,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 48,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_dia_chan 32",
+   "frame": {
+    "x": 192,
+    "y": 224,
+    "w": 48,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 48,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 48,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_dia_chan 33",
+   "frame": {
+    "x": 240,
+    "y": 224,
+    "w": 48,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 48,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 48,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_dia_chan 34",
+   "frame": {
+    "x": 288,
+    "y": 224,
+    "w": 48,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 48,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 48,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_dia_chan 35",
+   "frame": {
+    "x": 0,
+    "y": 280,
+    "w": 48,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 48,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 48,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_dia_chan 36",
+   "frame": {
+    "x": 48,
+    "y": 280,
+    "w": 48,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 48,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 48,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_dia_chan 37",
+   "frame": {
+    "x": 96,
+    "y": 280,
+    "w": 48,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 48,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 48,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_dia_chan 38",
+   "frame": {
+    "x": 144,
+    "y": 280,
+    "w": 48,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 48,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 48,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_dia_chan 39",
+   "frame": {
+    "x": 192,
+    "y": 280,
+    "w": 48,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 48,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 48,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_dia_chan 40",
+   "frame": {
+    "x": 240,
+    "y": 280,
+    "w": 48,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 48,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 48,
+    "h": 56
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_dia_chan 41",
+   "frame": {
+    "x": 288,
+    "y": 280,
+    "w": 48,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 48,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 48,
+    "h": 56
+   },
+   "duration": 42
+  }
+ ],
+ "meta": {
+  "app": "beanfx",
+  "version": "1",
+  "image": "lv_dia_chan.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 336,
+   "h": 336
+  },
+  "scale": "1",
+  "frameTags": [
+   {
+    "name": "lv_dia_chan",
+    "from": 0,
+    "to": 41,
+    "direction": "forward"
+   }
+  ],
+  "beanfx": {
+   "name": "lv_dia_chan",
+   "fps": 24,
+   "loop": false,
+   "end": "remove",
+   "frames": 42,
+   "rows": 1,
+   "frameSize": [
+    48,
+    56
+   ],
+   "pivot": [
+    24,
+    44
+   ],
+   "columns": 7,
+   "blend_light": "add",
+   "light_gain": 1.0,
+   "view": "3/4",
+   "directions": 1,
+   "facing": "east",
+   "mirror": true,
+   "mirror_pivot": [
+    24,
+    44
+   ],
+   "sheet": "lv_dia_chan.png",
+   "light": "lv_dia_chan_light.png",
+   "color": "lv_dia_chan_color.png"
+  }
+ }
+}
