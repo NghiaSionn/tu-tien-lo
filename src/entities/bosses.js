@@ -487,6 +487,7 @@ function release(m, player, B, io, phase2) {
     for (const [x, y] of m.sumSpots || []) io.ev.push({ type: 'pulse', x, y, r: 26, color: '#c070ff' });
     m.sumSpots = null;
   } else if (m.pat === 'howl') {
+    io.ev.push({ type: 'shake', t: 0.5, a: 6 });
     io.summon(m, B.HOWL.N, B.HOWL.R);
     io.ev.push({ type: 'pulse', x: m.x, y: m.y, r: 60, color: '#ffd978' });
   } else if (m.pat === 'burst' || m.pat === 'prison') {

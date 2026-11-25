@@ -1,6 +1,6 @@
 // Vẽ một khung: bản đồ, vật thể sắp theo y, yêu thú, người chơi, công pháp, hiệu ứng beanfx và hạt sáng.
 import { VIEW, TILE as T, HUB, FEATURES, ARCH, BOSS, WOLF_PACK, FOX_TRAIL, ICE_FAN, ELITE_V2, BOSS_V2, BOSS_P2, BOSS_TK, BOSS_ULT, BOSS_SKILL_LABELS, TRIBULATION, SHRINE, BASIC_ATTACK } from '../core/config.js';
-import { bossFxEvent, bossFxSpawn, bossFxUpdate, bossFxClear, bossFxGround, bossFxObjs, bossFxBeam, bossFxCloneT, bossRoars } from './boss_fx.js';
+import { bossFxEvent, bossFxSpawn, bossFxUpdate, bossFxClear, bossFxGround, bossFxObjs, bossFxBeam, bossFxCloneT, bossRoars, bossHowls, howlFrame } from './boss_fx.js';
 import { GRASS, WATER, STONE, TREE, ROCK, BUILDING, FENCE, DIRT, CLIFF, CLOUD, FALL } from '../world/map.js';
 import { SPR, TIERS, BOSS_WHITE, BOSS_SPR, grassTiles, waterTiles, waterBank, stoneTile, treeSprs, rockSpr, hash } from './sprites.js';
 import { createFx } from '../../lib/beanfx.js';
@@ -838,7 +838,7 @@ function drawTransformFx(ctx, m, time, back) {
 // Tư thế + thân trong lúc biến hình
 function drawTransformBody(ctx, m, time, vis) {
   const P = BOSS_P2[m.bossKind], T = P.T, t = p2Elapsed(m), K = BOSS.DRAW_SCALE, flip = mobFlip(m), fin = m.bossKind === 'FINAL';
-  const sh1 = fin ? vis.bossFinal : vis.bosses, sh2 = fin ? vis.bossFinal2 : vis.bossMini2;
+  const sh1 = fin ? vis.bossFinal : wolf1(vis), sh2 = fin ? vis.bossFinal2 : vis.bossMini2;
   let sh, name;
   if (t < T.POSE) { sh = sh1; name = fin ? 'FINAL_walk0' : 'MINI_walk0'; }
   else if (t < T.REVEAL) { sh = sh1; name = fin ? 'FINAL_atk' : 'MINI_atk'; }
@@ -963,7 +963,8 @@ function drawWraithBoss(ctx, m, time, sh1, vis) {
   }
 }
 // (24/11) Yêu Vương trong trận dùng sheet dựng từ tư thế cutscene (tools/yeu_vuong_sheet.py); thiếu thì về sheet boss cũ
-function bossSheet(m, vis) { return (vis && m.bossKind === 'FINAL' && vis.bossFinal) || (vis && vis.bosses); }
+const wolf1 = vis => vis && (vis.bossMini1 || vis.bosses);   // (26/11) Lang Vương thường: MỘT bộ hình cho trận + cutscene
+function bossSheet(m, vis) { return (vis && m.bossKind === 'FINAL' ? vis.bossFinal : wolf1(vis)) || (vis && vis.bosses); }
 // ---------- (24/11) TUYỆT CHIÊU: hình ảnh (vẽ sau lớp vật thể, trước đạn) ----------
 // Lang Vương: vòng vây chấm đỏ, 7 sói bóng CÙNG CỠ boss (hơi trong) + boss thật ở vị trí 0; sói sắp lao mắt sáng, sói lao kèm bóng mờ.
 // Yêu Vương: bóng tối chừa vùng sáng quanh người chơi (+ vùng sáng phụ), mắt đỏ, vòng ma trảo vẽ LẠI trên bóng tối, ma trảo trồi.
@@ -1135,12 +1136,25 @@ function wolfP1Pose(m, vis, time) {
     if (m.pat === 'dash') return P('P1_gong', { dx: k > 0.6 ? tick : 0 });
     return null;
   }
+  if (m._hwAt !== undefined && time - m._hwAt < 0.4 && (m.st === 'recover' || m.st === 'tkGap')) return P('P1_hu', { dx: tick });
   if (m.st === 'rest') return P('P1_dap');
   const air = m.st === 'dash'; if (m._air && !air) m._landT = time; m._air = air;
   if (air) return P(m.stT > dashOf(m).TIME * 0.75 ? 'P1_bat' : 'P1_bay');
   if (m._actK && time - m._actT < 0.4 && (m.st === 'recover' || m.st === 'tkGap')) return P(m._actK);
   if (m._landT !== undefined && time - m._landT < 0.3) return P('P1_dap');
   return null;
+}
+// Lang Vương thường trong trận: bước 12 khung theo tốc độ (chân không trượt) như pha 2
+function drawWolfP1(ctx, m, time, vis) {
+  const K = BOSS.DRAW_SCALE, sh = vis.bossMini1, P = wolfP1Pose(m, vis, time), x = Math.round(m.x) + ((P && P.dx) || 0), y = Math.round(m.y), flip = P ? P.flip : mobFlip(m);
+  const dt = Math.min(0.1, Math.max(0, time - (m._lt ?? time))), sp = Math.hypot(m.vx || 0, m.vy || 0); m._lt = time;
+  m._wph = ((m._wph || 0) + dt * Math.min(24, sp / (29.03 / 12))) % 12;
+  const name = P ? P.name : m.st === 'windup' ? 'P1_atk' : 'P1_walk' + (sp > 1 ? Math.floor(m._wph) : 0);
+  ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(Math.round(m.x) - 20 * K, y - 4, 40 * K, 7);
+  if (m.st === 'windup') { ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 0.35; for (const [dx, dy] of [[-2, 0], [2, 0], [0, -2], [0, 2]]) sheetFrame(ctx, sh, name, x + dx, y + dy, flip, sh.white, K); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1; }
+  sheetFrame(ctx, sh, name, x, y, flip, sh.img, K);
+  if (m.hit > 0) { ctx.globalAlpha = 0.55; sheetFrame(ctx, sh, name, x, y, flip, sh.white, K); ctx.globalAlpha = 1; }
+  if (P && P.glint) drawClawGlint(ctx, sh, x, y, flip, P.glint, time, '#cfd6ff', 50, 10);
 }
 // tia sáng trên móng vuốt đang giơ (pha 1 trắng, pha 2 đỏ)
 function drawClawGlint(ctx, sh, x, y, flip, g, time, col, ex = 47, ey = 10) {
@@ -1382,14 +1396,8 @@ function drawBoss(ctx, m, time, vis) {
   if (bs && m.bossKind === 'FINAL' && bs.meta.float) return drawWraithBoss(ctx, m, time, bs, vis);
   if (m.bossKind === 'MINI' && m.p2 && vis && vis.bossMini2) {
     drawWolfP2(ctx, m, time, vis.bossMini2, vis);
-  } else if (bs && m.bossKind === 'MINI' && wolfP1Pose(m, vis, time)) {   // (26/11) tư thế chiêu pha 1
-    const P = wolfP1Pose(m, vis, time), x = Math.round(m.x) + (P.dx || 0), y = Math.round(m.y);
-    ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(Math.round(m.x) - 20 * K, y - 4, 40 * K, 7);
-    if (m.st === 'windup') { ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 0.35; for (const [dx, dy] of [[-2, 0], [2, 0], [0, -2], [0, 2]]) sheetFrame(ctx, P.sh, P.name, x + dx, y + dy, P.flip, P.sh.white, K); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1; }
-    sheetFrame(ctx, P.sh, P.name, x, y, P.flip, P.sh.img, K);
-    if (m.hit > 0) { ctx.globalAlpha = 0.55; sheetFrame(ctx, P.sh, P.name, x, y, P.flip, P.sh.white, K); ctx.globalAlpha = 1; }
-    if (P.glint) drawClawGlint(ctx, P.sh, x, y, P.flip, P.glint, time, '#cfd6ff', 50, 10);
-  } else if (bs) {
+  } else if (m.bossKind === 'MINI' && vis && vis.bossMini1) drawWolfP1(ctx, m, time, vis);
+  else if (bs) {
     ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(Math.round(m.x) - 20 * K, Math.round(m.y) - 4, 40 * K, 7);
     if (m.st === 'windup') {   // gồng chiêu: viền trắng sáng quanh thân
       ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 0.35;
@@ -1430,6 +1438,15 @@ function drawMonster(ctx, m, time, vis) {
   if (ms) {
     const x = Math.round(m.x), y = Math.round(m.y), top = y - 26;
     ctx.fillStyle = m.elite ? 'rgba(60,20,90,.4)' : 'rgba(0,0,0,.25)'; ctx.fillRect(x - 9, y - 2, 18, 3);
+    if (m.summoned && !m.shade && vis.quality !== 'low') {   // (26/11) sói đàn Lang Hú: trồi lên từ bệ trăng, bóng trắng -> hiện hình
+      if (m._seen === undefined) m._seen = time;
+      const k = Math.min(1, Math.max(0, (time - m._seen - 0.12) / 0.4));
+      if (k < 1) {
+        const nm = (SPECIES[m.tier] || 'lang') + '_' + mobState(m, time), fl = mobFlip(m), up = Math.round((1 - k) * (1 - k) * 22);
+        if (k > 0) { ctx.save(); ctx.beginPath(); ctx.rect(x - 40, y - 60, 80, 62); ctx.clip(); sheetFrame(ctx, ms, nm, m.x, m.y + up, fl, ms.img); ctx.globalAlpha = 1 - k; sheetFrame(ctx, ms, nm, m.x, m.y + up, fl, ms.white); ctx.restore(); }
+        return;
+      }
+    }
     drawMobSheet(ctx, ms, m, SPECIES[m.tier] || 'lang', time);
     if (m.st === 'windup' && !m.elite) { ctx.fillStyle = '#ff4a3a'; ctx.fillRect(x - 1, top - 8, 2, 4); ctx.fillRect(x - 1, top - 3, 2, 1); }
     if (m.burn && m.burn.t > 0 && Math.floor(time * 10 + m.ph) % 3 === 0) { ctx.fillStyle = '#ffb070'; ctx.fillRect(x - 6 + Math.floor(m.ph * 3) % 12, top + 6, 1, 2); }
@@ -1867,8 +1884,8 @@ function drawCutBoss(ctx, c, vis, time) {
   if (c.style === 'wraith') return drawCutWraithWorld(ctx, c, vis, time);
   if (c.style === 'p2') return drawP2CutBoss(ctx, c, vis, time);   // (24/11) cutscene pha 2
   if (c.style === 'ult') return;   // (24/11) tuyệt chiêu: boss + vòng sói vẽ thật trong trận (drawUlt)
-  const K = BOSS.DRAW_SCALE, intro = vis.bossIntro, bs = vis.bosses;
-  const name = intro && intro.meta.frames[`${c.kind}_i${c.pose}`] ? `${c.kind}_i${c.pose}` : `${c.kind}_${CUT_FALLBACK[c.pose]}`;
+  const K = BOSS.DRAW_SCALE, intro = c.kind === 'MINI' ? vis.bossMini1 || vis.bossIntro : vis.bossIntro, bs = vis.bosses;
+  const name = c.kind === 'MINI' && intro && c.pose === 5 && c.landK >= 1 ? 'MINI_i0' : intro && intro.meta.frames[`${c.kind}_i${c.pose}`] ? `${c.kind}_i${c.pose}` : `${c.kind}_${CUT_FALLBACK[c.pose]}`;
   const sh = intro && intro.meta.frames[name] ? intro : bs;
   if (c.alt < 0) return;   // còn ở cảnh vách đá (chưa rơi xuống đấu trường)
   const fx = Math.round(c.bx), fy = Math.round(c.by - c.alt), hi = c.alt / 110;
@@ -1930,7 +1947,7 @@ function drawCliffScene(ctx, c, vis, time) {
   const a = c.cliff;
   if (a && a.show > 0) {
     const x = Math.round(a.x * W), y = Math.round(a.y * H), K = BOSS.DRAW_SCALE;
-    const sh = a.frame[0] === 'i' ? vis.bossIntro : a.frame[0] === 'w' ? vis.bossWalk : vis.bosses, name = `${c.kind}_${a.frame}`;
+    const sh = c.kind === 'MINI' && vis.bossMini1 ? vis.bossMini1 : a.frame[0] === 'i' ? vis.bossIntro : a.frame[0] === 'w' ? vis.bossWalk : vis.bosses, name = `${c.kind}_${a.frame}`;
     ctx.globalAlpha = 0.4 * a.show; ctx.fillStyle = '#000'; ctx.beginPath(); ctx.ellipse(x, y, 30, 6, 0, 0, 6.283); ctx.fill();
     // hiện ra từ bóng tối: bóng đen sáng dần thành sói (canvas filter; trình duyệt không hỗ trợ thì chỉ mờ dần)
     ctx.globalAlpha = Math.sqrt(a.show); if (a.show < 1) ctx.filter = `brightness(${(0.12 + 0.88 * a.show).toFixed(2)})`;
@@ -1944,8 +1961,8 @@ function drawCliffScene(ctx, c, vis, time) {
     }
     ctx.globalAlpha = 1;
     if (c.howl >= 0) {   // tiếng hú: vòng sóng âm từ đầu sói lan ra bầu trời
-      const hx = x + 22, hy = y - 52;
-      for (let i = 0; i < 3; i++) { const k = (c.howl * 2.2 + i / 3) % 1, r = 12 + k * 150; ctx.globalAlpha = 0.85 * (1 - k); tgRing(ctx, hx, hy, r, Math.round(r * 2.2), '#fff6dc', 3, 1); }
+      const hx = x + 45, hy = y - 52;   // miệng sói (khung hú)
+      if (!howlFrame(ctx, vis, c.howl, hx, hy)) for (let i = 0; i < 3; i++) { const k = (c.howl * 2.2 + i / 3) % 1, r = 12 + k * 150; ctx.globalAlpha = 0.85 * (1 - k); tgRing(ctx, hx, hy, r, Math.round(r * 2.2), '#fff6dc', 3, 1); }
       ctx.globalAlpha = 1;
     }
   }
@@ -2079,7 +2096,7 @@ function drawWraithScreen(ctx, c, vis, time) {
 }
 
 // ---------- (24/11) cutscene biến hình pha 2 — mỗi boss một chữ ký (ChatGPT đề xuất) ----------
-const P2_SHEET = (vis, n) => (n.startsWith('MINI2') ? vis.bossMini2 : n.startsWith('MINI_') ? vis.bosses : n.startsWith('FINAL2') ? vis.bossFinal2 : vis.bossFinal);
+const P2_SHEET = (vis, n) => (n.startsWith('MINI2') ? vis.bossMini2 : n.startsWith('MINI_') ? wolf1(vis) : n.startsWith('FINAL2') ? vis.bossFinal2 : vis.bossFinal);
 let P2_EYES = [], P2_ZOOM = null, P2_CAM = { camX: 0, camY: 0 }, ZBUF = null;
 const easeP2 = v => { v = Math.max(0, Math.min(1, v)); return v * v * (3 - 2 * v); };   // smoothstep (render.js không có ease của cutscene.js)
 const p2Map = (wx, wy) => {   // thế giới -> màn hình (tính cả zoom cận)
@@ -2254,14 +2271,14 @@ function howlRefract(ctx, c, camX, camY, sx, sy, z) {
   roarRefract(ctx, ((c.bx + (c.faceLeft ? -1 : 1) * 18 * K) - camX - sx) * z, ((c.by - 30 * K + 8) - camY - sy) * z, (c.t - c.T.HOWL[0]) * 24, 1.5 * z, 0.75, 1e9);
 }
 // hx, hy: tâm (px màn) · fh: khung 24 fps từ đầu tiếng gầm · sc: phóng sheet · flat: ép dẹt · end: khung thôi phát đợt mới
-function roarRefract(ctx, hx, hy, fh, sc, flat, end) {
+function roarRefract(ctx, hx, hy, fh, sc, flat, end, rm = 112, life = 9) {   // rm, life: bán kính và tuổi đợt của sheet
   const cv = ctx.canvas;
   let copied = false;
-  for (let w0 = Math.floor(fh / 3) * 3; w0 > fh - 9; w0 -= 3) {
-    const u = (fh - w0) / 9; if (u < 0 || u >= 1 || w0 < 0 || w0 > end) continue;
+  for (let w0 = Math.floor(fh / 3) * 3; w0 > fh - life; w0 -= 3) {
+    const u = (fh - w0) / life; if (u < 0 || u >= 1 || w0 < 0 || w0 > end) continue;
     if (!copied) { if (!ZBUF2) ZBUF2 = document.createElement('canvas'); if (ZBUF2.width !== cv.width || ZBUF2.height !== cv.height) { ZBUF2.width = cv.width; ZBUF2.height = cv.height; }
       const g2 = ZBUF2.getContext('2d'); g2.setTransform(1, 0, 0, 1, 0, 0); g2.clearRect(0, 0, cv.width, cv.height); g2.drawImage(cv, 0, 0); copied = true; }
-    const Rs = (8 + 104 * (1 - (1 - u) ** 2.2)) * sc, s = 1 + 0.07 * (1 - u) ** 1.5, band = 14 + 8 * u;
+    const Rs = (8 + (rm - 8) * (1 - (1 - u) ** 2.2)) * sc, s = 1 + 0.07 * (1 - u) ** 1.5, band = 14 + 8 * u;
     ctx.save(); ctx.beginPath();
     ctx.ellipse(hx, hy, Rs + 4, (Rs + 4) * flat, 0, 0, 6.283); ctx.ellipse(hx, hy, Math.max(1, Rs - band), Math.max(1, Rs - band) * flat, 0, 0, 6.283);
     ctx.clip('evenodd'); ctx.imageSmoothingEnabled = false;
@@ -2987,7 +3004,7 @@ export function render(ctx, g) {
   mark('texts');
 
   ctx.setTransform(1, 0, 0, 1, 0, 0);
-  if (!g.cut && vis.quality !== 'low' && !vis.reduce) for (const q of bossRoars(scene)) roarRefract(ctx, q.x - camX, q.y - camY, q.f, 110 / 112, 1, q.end);   // (25/11) Cuồng Lang Bạo Khiếu: không khí méo theo từng đợt gầm
+  if (!g.cut && vis.quality !== 'low' && !vis.reduce) { for (const q of bossRoars(scene)) roarRefract(ctx, q.x - camX, q.y - camY, q.f, 110 / 112, 1, q.end); for (const q of bossHowls(scene, time)) roarRefract(ctx, q.x - camX, q.y - camY, q.f, 2, 0.75, 1e9, 170, 12); }   // (25/11) Cuồng Lang Bạo Khiếu: không khí méo theo từng đợt gầm
   if (g.cut && (g.cut.style === 'p2' || g.cut.style === 'ult')) { P2_CAM = { camX, camY }; vis_q = vis.quality; P2_ZOOM = g.cut.zoom > 1.001 || (g.cut.style === 'ult' && g.cut.shake > 0) ? zoomScreen(ctx, g.cut, camX, camY) : null; }   // (24/11) zoom cận cutscene pha 2
   if (g.run && g.run.rooms && scene.kind === 'run') drawMinimap(ctx, g.run);   // M9-B
   if (g.cut) drawCutOverlay(ctx, g.cut, vis, time); else drawBossBar(ctx, scene, camX, camY);

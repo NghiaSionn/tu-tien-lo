@@ -101,7 +101,7 @@ export function updateRun(run, player, dt, ev, realmPowerOverride) {
   if (skillsV2) updatePacks(sc, player, run, dt);
   const bossV2 = run.bossV2 ?? FEATURES.bossPatternsV2;   // M10-C
   const io = { map: sc.map, skillsV2, bossV2, diff: run.diff || 0, shots: sc.enemyShots, hazards: sc.hazards, ev, onAttack, rng: run.rng, scene: sc,
-    summon: (m, n, r) => summonAround(run, player, m.x, m.y, n, r, pw),
+    summon: (m, n, r) => summonAround(run, player, m.x, m.y, n, r, pw, ev),
     summonAt: (pts, life) => summonAt(run, pts, pw, life),   // (24/11) Triệu Ma Ảnh
     tactics, retry: TACTICS.RETRY, threat: tactics ? threatScan(sc, player, run.diff || 0) : null,
     log: (kind, id) => { const k = kind + ':' + id; run.skillsUsed[k] = (run.skillsUsed[k] || 0) + 1; } };

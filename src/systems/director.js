@@ -80,13 +80,14 @@ export function summonAt(run, pts, power, life) {
 }
 
 // Quái được boss gọi ra: quanh boss, đứng được, không sát người chơi
-export function summonAround(run, player, cx, cy, n, R, power) {
+export function summonAround(run, player, cx, cy, n, R, power, ev) {
   let made = 0;
   for (let i = 0; i < n * 4 && made < n; i++) {
     if (run.scene.monsters.length >= RUN.SPAWN.MAX_ALIVE) break;
     const a = run.rng() * Math.PI * 2, x = cx + Math.cos(a) * R, y = cy + Math.sin(a) * R;
     if (!run.scene.map.canStand(x, y) || Math.hypot(x - player.x, y - player.y) < 40) continue;
     makeRunEnemy(run, 'chaser', x, y, power).summoned = true; made++;
+    if (ev) ev.push({ type: 'bossFx', fx: 'trieuSoi', x, y });   // (26/11) hiệu ứng sói đàn hiện ra
   }
   return made;
 }
