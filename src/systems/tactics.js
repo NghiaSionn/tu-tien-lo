@@ -12,6 +12,10 @@ export function hazardDist(h, x, y) {
   return Math.hypot(x - h.x0 - vx * k, y - h.y0 - vy * k);
 }
 
+// (25/11) hình học lao / quạt móng theo từng chiêu (pha 2 rộng hơn): dùng chung cho trúng đòn, cảnh báo, vùng nguy hiểm
+export const dashOf = m => ({ SPEED: m.dashS || BOSS.MINI.DASH.SPEED, TIME: m.dashTm || BOSS.MINI.DASH.TIME });
+export const clawOf = m => (m.clawR ? { ...BOSS_V2.MINI.CLAW, R: m.clawR } : BOSS_V2.MINI.CLAW);
+
 export function ringDist(h, x, y) {
   const dx = x - h.x, dy = y - h.y, d = Math.hypot(dx, dy);
   if (h.span < 6.28) { const rel = ((Math.atan2(dy, dx) - h.a0) % 6.2832 + 6.2832) % 6.2832; if (rel > h.span) return 1e9; }
@@ -74,10 +78,10 @@ export function dangerShapes(scene, player) {
     const dash = (sp, time, w) => out.push(seg(m, m.dirX, m.dirY, m.st === 'dash' ? Math.min(sp * time, sp * Math.max(0, m.stT)) : sp * time, w));
     if (m.arch === 'charger') dash(ARCH.charger.DASH_SPEED, ARCH.charger.DASH_TIME, ARCH.charger.HIT_R + PLAYER.HITBOX);
     else if (m.arch === 'chaser') dash(WP.POUNCE.SPEED, WP.POUNCE.TIME, WP.POUNCE.HIT_R + PLAYER.HITBOX);
-    else if (m.boss && m.pat === 'dash') dash(BOSS.MINI.DASH.SPEED, BOSS.MINI.DASH.TIME, BOSS.MINI.DASH.HIT_R);
+    else if (m.boss && m.pat === 'dash') dash(dashOf(m).SPEED, dashOf(m).TIME, BOSS.MINI.DASH.HIT_R);
     else if (m.arch === 'ranged' && m.st === 'windup') out.push(...fanSegs(m, m.dirX, m.dirY, m.fan));
     else if (m.arch === 'elite' && m.st === 'windup') out.push({ x: m.x, y: m.y, r: (m.sk === 'claw' ? EV.CLAW.R : ARCH.elite.SLAM_R) + PLAYER.HITBOX });
-    else if (m.boss && m.pat === 'claw' && m.st === 'windup') { const C = BOSS_V2.MINI.CLAW, a = Math.atan2(m.dirY, m.dirX); out.push({ ring: true, x: m.x, y: m.y, R: C.R / 2, w: C.R / 2 + PLAYER.HITBOX, a0: a - C.ARC / 2 - 0.1, span: C.ARC + 0.2 }); }   // M10-09 (24/11: đúng hình quạt trước mặt, sau lưng an toàn)
+    else if (m.boss && m.pat === 'claw' && m.st === 'windup') { const C = clawOf(m), a = Math.atan2(m.dirY, m.dirX); out.push({ ring: true, x: m.x, y: m.y, R: C.R / 2, w: C.R / 2 + PLAYER.HITBOX, a0: a - C.ARC / 2 - 0.1, span: C.ARC + 0.2 }); }   // M10-09 (24/11: đúng hình quạt trước mặt, sau lưng an toàn)
     else if (m.boss && (m.st === 'sweep' || (m.st === 'windup' && m.pat === 'sweep')) && m.swDir) out.push(...sweepSegs(m));   // H-1a: tia Hoành Tảo
   }
   return out;
@@ -127,11 +131,11 @@ export const BOSS_SKILLS = {
     { id: 'leap', valid: c => c.phase2 && c.d > BOSS_V2.MINI.LEAP.MIN_D && c.d < BOSS_V2.MINI.LEAP.MAX_D, w: () => 2.5 },
     // (24/11) đợt 2 — pha 2 Huyết Nguyệt Cuồng Lang (p2: chiêu cũ còn P2_OLD_W trọng số)
     { id: 'bloodDash', p2: true, valid: c => c.phase2, w: c => c.d > 80 ? 2.4 : 1.2 },
-    { id: 'comboClaw', p2: true, valid: c => c.phase2 && c.d < 120, w: () => 3 },
-    { id: 'quake', p2: true, valid: c => c.phase2 && ROOM(c, BOSS_V2.MINI.QUAKE.N, 12), w: c => c.d < 150 ? 2.2 : 1 },
+    { id: 'comboClaw', p2: true, valid: c => c.phase2 && c.d < 140, w: () => 3 },
+    { id: 'quake', p2: true, valid: c => c.phase2 && ROOM(c, BOSS_V2.MINI.QUAKE.N + 1, 12), w: c => c.d < 190 ? 2.2 : 1 },
     { id: 'hunt', p2: true, valid: c => c.phase2 && c.d > BOSS_V2.MINI.LEAP.MIN_D && c.d < BOSS_V2.MINI.LEAP.MAX_D && ROOM(c, 2, 12), w: () => 1.8 },
-    { id: 'cracks', p2: true, valid: c => c.phase2 && c.d < 190 && ROOM(c, BOSS_V2.MINI.CRACKS.N, 12), w: () => 2 },
-    { id: 'rageHowl', p2: true, valid: c => c.phase2 && c.d < 95 && ROOM(c, 1, 12), w: () => 2.4 },
+    { id: 'cracks', p2: true, valid: c => c.phase2 && c.d < 260 && ROOM(c, BOSS_V2.MINI.CRACKS.N, 12), w: () => 2 },
+    { id: 'rageHowl', p2: true, valid: c => c.phase2 && c.d < 125 && ROOM(c, BOSS_V2.MINI.RAGE_HOWL.N, 12), w: () => 2.4 },
   ],
   // M10-10 (bossPatternsV2): Yêu Vương 7 chiêu; P1 burst/zones/slam/prison(remix, sau làm quen), P2 thêm shadow/sweep/cross
   FINAL_V2: [
@@ -145,8 +149,8 @@ export const BOSS_SKILLS = {
     { id: 'summon', valid: c => SUMMONED(c) < TC.MAX_SUMMONED, w: c => SUMMONED(c) < 2 ? 1.8 : 0.5 },   // (24/11) Triệu Ma Ảnh
     // (24/11) đợt 2 — pha 2 Huyết Lôi Ma Quân: vùng sét nổ theo nhịp
     { id: 'thunder', p2: true, valid: c => c.phase2 && ROOM(c, BOSS_V2.FINAL.THUNDER.N), w: () => 2.2 },
-    { id: 'eight', p2: true, valid: c => c.phase2 && ONCAM(c) && c.d < 200 && ROOM(c, BOSS_V2.FINAL.EIGHT.N), w: () => 1.8 },
-    { id: 'runes', p2: true, valid: c => c.phase2 && c.d < 150 && ROOM(c, BOSS_V2.FINAL.RUNES.N), w: () => 1.6 },
+    { id: 'eight', p2: true, valid: c => c.phase2 && ONCAM(c) && c.d < 240 && ROOM(c, BOSS_V2.FINAL.EIGHT.N), w: () => 1.8 },
+    { id: 'runes', p2: true, valid: c => c.phase2 && c.d < 185 && ROOM(c, BOSS_V2.FINAL.RUNES.N), w: () => 1.6 },
     { id: 'chainBolt', p2: true, valid: c => c.phase2 && ROOM(c, BOSS_V2.FINAL.CHAIN.N), w: () => 2 },
     { id: 'clones', p2: true, valid: c => c.phase2 && ONCAM(c), w: () => 1.5 },
     { id: 'doubleSweep', p2: true, valid: c => c.phase2 && ONCAM(c) && c.d < BOSS_V2.FINAL.SWEEP.L - 20, w: () => 1.4 },

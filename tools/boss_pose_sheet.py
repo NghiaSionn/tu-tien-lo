@@ -1,6 +1,7 @@
 """Tư thế tuyệt chiêu của 2 boss pha 2 (24-25/11) — cắt từ ảnh ChatGPT (1 hàng 4 khung, nền trắng) thành sheet game.
 
   boss_mini2_lao     Huyết Nguyệt Cuồng Lang: LAO_gong, LAO_bat, LAO_bay, LAO_dap (quay phải; game lật ngang khi cần)
+  boss_mini2_dam     Huyết Nguyệt Cuồng Lang: DAM_chom (chồm dậy), DAM_dam (dậm đất), DAM_gio (giơ vuốt), DAM_cao (cào)
   boss_final2_thi    Huyết Lôi Ma Quân: THI_khep, THI_dang, THI_cao, THI_chi
 Các bước: loang nền từ mép ảnh (lông trắng có viền đen bao kín nên không bị ăn) -> tách từng khung theo cột trống ->
 thu nhỏ: mỗi ô lấy màu xuất hiện nhiều nhất trong phần đục (không nội suy) -> đưa về bảng màu của sheet cũ cùng boss ->
@@ -20,6 +21,9 @@ SETS = [
     dict(src='docs/concept/lang_vuong_p2_lao_chatgpt.png', out='sprites/boss_mini2_lao', pal='sprites/boss_mini2.png',
          names=['LAO_gong', 'LAO_bat', 'LAO_bay', 'LAO_dap'], scale=10.8, ground=True,
          eyes=[[(489, 382)], [(1101, 272)], [(1740, 197)], [(2380, 386)]]),
+    dict(src='docs/concept/lang_vuong_p2_dam_cao_chatgpt.png', out='sprites/boss_mini2_dam', pal='sprites/boss_mini2.png',
+         names=['DAM_chom', 'DAM_dam', 'DAM_gio', 'DAM_cao'], scale=10.0, ground=True,
+         eyes=[[(374, 107)], [(1072, 417)], [(1713, 241)], [(2350, 364)]]),
     dict(src='docs/concept/yeu_vuong_p2_thi_trien_chatgpt.png', out='sprites/boss_final2_thi', pal='sprites/boss_final2.png',
          names=['THI_khep', 'THI_dang', 'THI_cao', 'THI_chi'], scale=10.2, ground=False,
          eyes=[[(295, 201), (342, 201)], [(922, 201), (966, 201)], [(1549, 148), (1590, 148)], [(2169, 207), (2217, 201)]]),

@@ -1,0 +1,185 @@
+{
+ "frames": [
+  {
+   "filename": "lv_khi_trao 0",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 92,
+    "h": 64
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 92,
+    "h": 64
+   },
+   "sourceSize": {
+    "w": 92,
+    "h": 64
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_khi_trao 1",
+   "frame": {
+    "x": 92,
+    "y": 0,
+    "w": 92,
+    "h": 64
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 92,
+    "h": 64
+   },
+   "sourceSize": {
+    "w": 92,
+    "h": 64
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_khi_trao 2",
+   "frame": {
+    "x": 184,
+    "y": 0,
+    "w": 92,
+    "h": 64
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 92,
+    "h": 64
+   },
+   "sourceSize": {
+    "w": 92,
+    "h": 64
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_khi_trao 3",
+   "frame": {
+    "x": 0,
+    "y": 64,
+    "w": 92,
+    "h": 64
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 92,
+    "h": 64
+   },
+   "sourceSize": {
+    "w": 92,
+    "h": 64
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_khi_trao 4",
+   "frame": {
+    "x": 92,
+    "y": 64,
+    "w": 92,
+    "h": 64
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 92,
+    "h": 64
+   },
+   "sourceSize": {
+    "w": 92,
+    "h": 64
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_khi_trao 5",
+   "frame": {
+    "x": 184,
+    "y": 64,
+    "w": 92,
+    "h": 64
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 92,
+    "h": 64
+   },
+   "sourceSize": {
+    "w": 92,
+    "h": 64
+   },
+   "duration": 42
+  }
+ ],
+ "meta": {
+  "app": "beanfx",
+  "version": "1",
+  "image": "lv_khi_trao.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 276,
+   "h": 128
+  },
+  "scale": "1",
+  "frameTags": [
+   {
+    "name": "lv_khi_trao",
+    "from": 0,
+    "to": 5,
+    "direction": "forward"
+   }
+  ],
+  "beanfx": {
+   "name": "lv_khi_trao",
+   "fps": 24,
+   "loop": true,
+   "end": "loop",
+   "frames": 6,
+   "rows": 1,
+   "frameSize": [
+    92,
+    64
+   ],
+   "pivot": [
+    70,
+    32
+   ],
+   "columns": 3,
+   "blend_light": "add",
+   "light_gain": 1.0,
+   "view": "3/4",
+   "directions": 1,
+   "facing": "east",
+   "mirror": true,
+   "mirror_pivot": [
+    22,
+    32
+   ],
+   "sheet": "lv_khi_trao.png",
+   "light": "lv_khi_trao_light.png",
+   "color": "lv_khi_trao_color.png"
+  }
+ }
+}

@@ -48,3 +48,25 @@ test('phiến đá chừa đúng khe an toàn của Trấn Địa', () => {
   bossFxEvent(vis, { hz: h }); bossFxUpdate(vis, 0.1); bossFxObjs(vis, { hazards: [], monsters: [] });
   for (const [x, y] of h._cl) { const a = Math.atan2(y - 3, x); assert.ok(Math.abs(a) > 0.425 + 9 / 110, `phiến đá lấn vào khe (${a.toFixed(2)})`); }
 });
+
+// ---- (25/11) góp ý: sóng khí vuốt bay, gầm nhiều nhịp, lướt xa hơn ----
+test('sóng khí vuốt: trúng đúng lúc đầu sóng lướt qua, mỗi sóng một lần, đứng ngoài dải không trúng', () => {
+  const mk = () => ({ x: 135, y: 0, x0: 0, y0: 0, x1: 270, y1: 0, r: 13, t: 0.02, max: 1, dmg: 5, src: 'miniboss:cracks', travel: 0.3 });
+  const run = (px, py) => {
+    const scene = { hazards: [mk()] }, ev = [], hits = []; let t = 0;
+    for (let i = 0; i < 30 && scene.hazards.length; i++) { t += 1 / 60; updateHazards(scene, { x: px, y: py, dead: false }, 1 / 60, ev, () => hits.push(t)); }
+    assert.equal(scene.hazards.length, 0); assert.equal(ev.filter(e => e.hz).length, 1, 'một sự kiện phóng');
+    return hits;
+  };
+  const a = run(40, 0), b = run(230, 5);
+  assert.equal(a.length, 1); assert.equal(b.length, 1); assert.ok(b[0] - a[0] > 0.15, 'đứng xa trúng sau');
+  assert.equal(run(120, 14).length, 0); assert.equal(run(-20, 0).length, 0); assert.equal(run(290, 0).length, 0);
+});
+
+test('tầm chiêu pha 2 rộng hơn bản cũ; Tam Xung lướt ít nhất gấp 1,8 lần lao thường', async () => {
+  const { BOSS, BOSS_V2 } = await import('../src/core/config.js');
+  const { dashOf, clawOf } = await import('../src/systems/tactics.js');
+  const V = BOSS_V2.MINI, D = V.BLOOD_DASH, L = m => dashOf(m).SPEED * dashOf(m).TIME;
+  assert.ok(L({ dashS: D.SPEED, dashTm: D.TIME }) >= 1.8 * L({})); assert.equal(L({}), BOSS.MINI.DASH.SPEED * BOSS.MINI.DASH.TIME, 'lao thường giữ nguyên');
+  assert.equal(clawOf({}).R, V.CLAW.R); assert.equal(clawOf({ clawR: V.COMBO.CR }).R, 100);
+});

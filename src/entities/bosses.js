@@ -2,7 +2,7 @@
 //   move (đuổi, đếm GAP) -> windup (gồng, có cảnh báo) -> [dash ×n] -> recover (sơ hở, nhận thêm sát thương) -> move
 // Chiêu chỉ bắt đầu từ 'move'; boss chết thì không còn gì chạy (run.js dọn vùng/đạn). Chỉ dùng io.rng (seed của run).
 import { BOSS, RUN, HUB_MONSTER as HM, TACTICS as TC, BOSS_V2, BOSS_P2, BOSS_TK, BOSS_ULT, PLAYER } from '../core/config.js';
-import { selectBossSkill, keepEscape, hazardDist } from '../systems/tactics.js';
+import { selectBossSkill, keepEscape, hazardDist, dashOf, clawOf } from '../systems/tactics.js';
 
 export const bossDef = m => BOSS[m.bossKind];
 
@@ -89,7 +89,7 @@ export function bossAI(m, player, dx, dy, d, dt, io) {
     return release(m, player, B, io, phase2);
   }
   if (m.st === 'dash') {
-    m.vx = m.dirX * B.DASH.SPEED; m.vy = m.dirY * B.DASH.SPEED; m.stT -= dt;
+    m.vx = m.dirX * dashOf(m).SPEED; m.vy = m.dirY * dashOf(m).SPEED; m.stT -= dt;
     if (!m.dashHit && d < B.DASH.HIT_R) { m.dashHit = true; io.onAttack(m, m.dmg * B.DASH.DMG); }
     if (m.stT <= 0) {
       m.dashLeft--;
@@ -247,12 +247,12 @@ function chain(m, label, seq, gap, chase, player, dx, dy, d, io, B, V, phase2) {
 }
 function comboClawAt(m, dx, dy, off, wt) {   // quạt lệch trái / phải (dùng hình học Liệt Trảo)
   const [ux, uy] = unitV(dx, dy), c = Math.cos(off), s = Math.sin(off);
-  m.pat = 'claw'; m.clawFlip = off > 0; m.dirX = ux * c - uy * s; m.dirY = ux * s + uy * c; windup(m, wt); return true;
+  m.pat = 'claw'; m.clawR = BOSS_V2.MINI.COMBO.CR; m.clawFlip = off > 0; m.dirX = ux * c - uy * s; m.dirY = ux * s + uy * c; windup(m, wt); return true;
 }
 const P2_PATS = {
   // ---- Lang Vương ----
   bloodDash(m, player, dx, dy, d, io, B, V) {   // Huyết Ảnh Tam Xung
-    m.pat = 'dash'; m.patLabel = 'bloodDash'; m.dashLeft = V.BLOOD_DASH.COUNT; m.dashWind = V.BLOOD_DASH.WINDUP; aimDash(m, player, B); return true;
+    m.pat = 'dash'; m.patLabel = 'bloodDash'; m.dashLeft = V.BLOOD_DASH.COUNT; m.dashWind = V.BLOOD_DASH.WINDUP; m.dashS = V.BLOOD_DASH.SPEED; m.dashTm = V.BLOOD_DASH.TIME; aimDash(m, player, B); return true;
   },
   comboClaw(m, player, dx, dy, d, io, B, V, phase2) { return chain(m, 'comboClaw', [['clawL'], ['clawR'], ['bite']], V.COMBO.GAP, true, player, dx, dy, d, io, B, V, phase2); },
   clawL(m, player, dx, dy, d, io, B, V) { return comboClawAt(m, dx, dy, V.COMBO.L, V.COMBO.WL); },
@@ -265,22 +265,23 @@ const P2_PATS = {
   quake(m, player, dx, dy, d, io, B, V) {   // Huyết Nguyệt Trấn Địa: vòng sóng nổ dần ra, khe lệch khỏi hướng người chơi
     const Q = V.QUAKE, ap = Math.atan2(dy, dx), gc = ap + (io.rng() < 0.5 ? -1 : 1) * (0.9 + io.rng() * 0.6), zs = [];
     for (let i = 0; i < Q.N; i++) zs.push(zRing(m.x, m.y, Q.R0 + i * Q.STEP, Q.W, gc + Q.GAP / 2, Math.PI * 2 - Q.GAP, Q.T0 + i * Q.DT, m.dmg * Q.DMG, m, 'miniboss:quake', '#ff6a3a'));
-    placeZones(io, B, player, zs, Q.T0); windup(m, Q.WINDUP);
-    io.ev.push({ type: 'shake', t: 0.15 }); return true;
+    zs.unshift({ x: m.x, y: m.y, r: Q.R0 - Q.W, t: Q.T0, dmg: m.dmg * Q.DMG, owner: m, src: 'miniboss:quake', color: '#ff6a3a' });   // cú dậm: ngay dưới chân boss
+    placeZones(io, B, player, zs, Q.T0); windup(m, Q.WINDUP); m.dirX = Math.cos(ap); m.dirY = Math.sin(ap); return true;   // chồm dậy suốt lúc gồng, dậm xuống đúng lúc vành đầu nổ
   },
   hunt(m, player, dx, dy, d, io, B, V, phase2) { return chain(m, 'hunt', [['leap'], ['leap']], V.HUNT.GAP, false, player, dx, dy, d, io, B, V, phase2); },
-  cracks(m, player, dx, dy, d, io, B, V) {   // Huyết Trảo Phá Địa: 3 vệt nứt hình quạt nổ lần lượt
+  cracks(m, player, dx, dy, d, io, B, V) {   // Huyết Trảo Phá Địa: giơ vuốt cào, 3 sóng khí sắc bén bay dọc 3 đường hình quạt
     const K = V.CRACKS, ap = Math.atan2(dy, dx), side = io.rng() < 0.5 ? -1 : 1, zs = [];
     for (let i = 0; i < K.N; i++) {
       const a = ap + side * (i - (K.N - 1) / 2) * K.SPREAD, c = Math.cos(a), s = Math.sin(a);
       zs.push(zSeg(m.x + c * 18, m.y + s * 18, m.x + c * K.L, m.y + s * K.L, K.W, K.T0 + i * K.DT, m.dmg * K.DMG, m, 'miniboss:cracks', '#ff5a3a'));
+      zs[i].travel = K.TRAVEL;   // sóng khí bay: trúng khi đầu sóng lướt qua (updateHazards)
     }
-    placeZones(io, B, player, zs, K.T0); windup(m, K.T0); return true;
+    placeZones(io, B, player, zs, K.T0); windup(m, K.T0); m.dirX = Math.cos(ap); m.dirY = Math.sin(ap); return true;
   },
   rageHowl(m, player, dx, dy, d, io, B, V) {   // Cuồng Lang Bạo Khiếu: vòng nổ lớn quanh thân
     const H = V.RAGE_HOWL;
-    addHazard(io, B, { x: m.x, y: m.y, r: H.R, t: H.T, dmg: m.dmg * H.DMG, owner: m, src: 'miniboss:rageHowl', color: '#ffb050' });
-    windup(m, H.T); return true;
+    for (let i = 0; i < H.N; i++) addHazard(io, B, { x: m.x, y: m.y, r: H.R, t: H.T + i * H.DT, dmg: m.dmg * H.DMG, owner: m, src: 'miniboss:rageHowl', color: '#ffb050', pulse: i, ev: [{ type: 'shake', t: 0.34, a: 4 }, ...(i ? [] : [{ type: 'sfx', name: 'howl' }])] });
+    windup(m, H.T + (H.N - 1) * H.DT); m.howlT = H.T; m.dirX = dx; m.dirY = dy; return true;   // hít hơi rồi gầm suốt N nhịp
   },
   // ---- Ma Ảnh Yêu Vương / Huyết Lôi Ma Quân ----
   thunder(m, player, dx, dy, d, io, B, V) {   // Huyết Lôi Thiên Phạt: điểm đầu ngay chỗ người chơi, 3 điểm quanh đó nổ tiếp
@@ -353,9 +354,9 @@ function startPattern(m, pat, player, dx, dy, d, io, B, V, phase2, n) {
   m.pat = pat; m.patLabel = (m.tk && m.tk.label) || null;   // (24/11) tên hiển thị của chiêu liên hoàn
   if (io.log) io.log(m.bossKind, pat);   // M10: telemetry chiêu boss (cả AI cũ và mới)
   if (P2_PATS[pat]) return P2_PATS[pat](m, player, dx, dy, d, io, B, V, phase2);   // (24/11) đợt 2: chiêu pha 2 mới
-  if (pat === 'dash') { m.dashLeft = n || B.DASH.COUNT; m.dashWind = 0; aimDash(m, player, B); }
+  if (pat === 'dash') { m.dashLeft = n || B.DASH.COUNT; m.dashWind = m.dashS = m.dashTm = 0; aimDash(m, player, B); }
   else if (pat === 'claw') {   // M10-09 Liệt Trảo: khóa hướng lúc bắt đầu gồng
-    const l = Math.hypot(dx, dy) || 1; m.dirX = dx / l; m.dirY = dy / l; windup(m, V.CLAW.WINDUP);
+    const l = Math.hypot(dx, dy) || 1; m.dirX = dx / l; m.dirY = dy / l; m.clawFlip = false; m.clawR = m.p2 ? V.COMBO.CR : 0; windup(m, V.CLAW.WINDUP);   // pha 2: móng vươn xa hơn
   }
   else if (pat === 'leap') { /* startLeap đã đặt dấu đáp + gồng */ }
   else if (pat === 'shadow') {   // M10-10 Ảnh Độn: báo điểm hiện ra (trạng thái blink có cảnh báo), hiện ra xong sơ hở
@@ -449,11 +450,11 @@ function toRecover(m, B, io) {
 }
 
 function release(m, player, B, io, phase2) {
-  if (m.pat === 'dash') { m.st = 'dash'; m.stT = B.DASH.TIME; return true; }
+  if (m.pat === 'dash') { m.st = 'dash'; m.stT = dashOf(m).TIME; return true; }
   if (m.pat === 'claw') {   // M10-09: quét cung theo hướng đã khóa
-    const C = BOSS_V2.MINI.CLAW, dx = player.x - m.x, dy = player.y - m.y, d = Math.hypot(dx, dy);
+    const C = clawOf(m), dx = player.x - m.x, dy = player.y - m.y, d = Math.hypot(dx, dy);
     if (d < C.R + PLAYER.HITBOX && (d < 8 || (dx * m.dirX + dy * m.dirY) / d >= Math.cos(C.ARC / 2))) io.onAttack(m, m.dmg * C.DMG, 'miniboss:claw');
-    io.ev.push({ type: 'shake', t: 0.12 }, { type: 'bossFx', fx: 'claw', x: m.x, y: m.y, a: Math.atan2(m.dirY, m.dirX), flip: !!m.clawFlip });
+    io.ev.push({ type: 'shake', t: 0.12 }, { type: 'bossFx', fx: 'claw', x: m.x, y: m.y, a: Math.atan2(m.dirY, m.dirX), r: C.R, flip: !!m.clawFlip });
     toRecover(m, B, io); return true;
   }
   if (m.pat === 'clones') {   // (24/11) Ma Ảnh Phân Thân: mỗi bóng bắn một vòng đạn tỏa (khe giữa các viên), rồi tan
@@ -469,12 +470,13 @@ function release(m, player, B, io, phase2) {
     }
     m.clones = null; toRecover(m, B, io); return true;
   }
+  if (m.pat === 'quake') io.ev.push({ type: 'shake', t: 0.4, a: 5 }, { type: 'bossFx', fx: 'stomp', x: m.x, y: m.y, dir: m.dirX < 0 ? -1 : 1 });
   if (m.pat === 'sweep') { m.st = 'sweep'; m.stT = BOSS_V2.FINAL.SWEEP.TIME; m.swK = 0; return true; }   // M10-10
   if (m.pat === 'leap') { m.st = 'leap'; m.stT = BOSS_V2.MINI.LEAP.AIR; m.lx0 = m.x; m.ly0 = m.y; return true; }
   if (m.pat === 'howlDash') {   // M7-13: hú xong -> chuỗi lao (mỗi cú vẫn gồng + cảnh báo đường lao)
     io.summon(m, B.HOWL.N, B.HOWL.R);
     io.ev.push({ type: 'pulse', x: m.x, y: m.y, r: 60, color: '#ffd978' });
-    m.pat = 'dash'; m.dashLeft = B.REMIX.HOWL_DASH.COUNT; aimDash(m, player, B);
+    m.pat = 'dash'; m.dashLeft = B.REMIX.HOWL_DASH.COUNT; m.dashWind = m.dashS = m.dashTm = 0; aimDash(m, player, B);
     return true;
   }
   if (m.pat === 'summon') {   // (24/11) ma ảnh trồi lên đúng các ma ấn đã báo
@@ -571,6 +573,11 @@ function unstick(m, d, dt, io, player) {
   return false;
 }
 
+// đầu sóng đi từ u0 tới u1 (tỉ lệ dọc dải) có quét qua người chơi không; lưỡi dày 10 px
+export function travelHits(h, p, u0, u1) {
+  const vx = h.x1 - h.x0, vy = h.y1 - h.y0, L = Math.hypot(vx, vy) || 1, s = ((p.x - h.x0) * vx + (p.y - h.y0) * vy) / L, off = Math.abs((p.x - h.x0) * vy - (p.y - h.y0) * vx) / L;
+  return off < h.r && s >= u0 * L - 10 && s <= u1 * L + 4 && s <= L;
+}
 // Vùng nguy hiểm có cảnh báo: đếm ngược, hết giờ thì nổ một lần
 export function updateHazards(scene, player, dt, ev, onHit) {
   const hz = scene.hazards;
@@ -578,7 +585,15 @@ export function updateHazards(scene, player, dt, ev, onHit) {
     const h = hz[i];
     h.t -= dt;
     if (h.t > 0) continue;
+    if (h.travel) {   // (25/11) sóng khí bay dọc dải: phát sự kiện một lần lúc phóng, trúng khi đầu sóng lướt qua người chơi
+      if (!h.fired) { h.fired = true; ev.push({ type: 'boom', x: h.x0, y: h.y0, r: h.r, color: h.color, hz: h }); }
+      const u0 = h.u || 0, u1 = Math.min(1, -h.t / h.travel); h.u = u1;
+      if (!h.hit && !player.dead && travelHits(h, player, u0, u1)) { h.hit = true; onHit(h.dmg, h); if (hz.length === 0) return; }
+      if (u1 >= 1) hz.splice(i, 1);
+      continue;
+    }
     hz.splice(i, 1);
+    if (h.ev) ev.push(...h.ev);
     if (h.ring) ev.push({ type: 'pulse', x: h.x, y: h.y, r: h.R + h.r, color: h.color || '#ff6a6a', hz: h });   // vành / cung nổ; hz: bản chụp vùng cho VFX (src/render/boss_fx.js)
     else ev.push({ type: 'boom', x: h.x, y: h.y, r: h.r, color: h.color || '#c070ff', hz: h });
     if (!player.dead && hazardDist(h, player.x, player.y) < h.r) { onHit(h.dmg, h); if (hz.length === 0) return; }   // chết -> endRun đã dọn mảng

@@ -5,108 +5,108 @@
    "frame": {
     "x": 0,
     "y": 0,
-    "w": 152,
-    "h": 176
+    "w": 194,
+    "h": 216
    },
    "rotated": false,
    "trimmed": false,
    "spriteSourceSize": {
     "x": 0,
     "y": 0,
-    "w": 152,
-    "h": 176
+    "w": 194,
+    "h": 216
    },
    "sourceSize": {
-    "w": 152,
-    "h": 176
+    "w": 194,
+    "h": 216
    },
    "duration": 42
   },
   {
    "filename": "yv_ma_cung 1",
    "frame": {
-    "x": 152,
+    "x": 194,
     "y": 0,
-    "w": 152,
-    "h": 176
+    "w": 194,
+    "h": 216
    },
    "rotated": false,
    "trimmed": false,
    "spriteSourceSize": {
     "x": 0,
     "y": 0,
-    "w": 152,
-    "h": 176
+    "w": 194,
+    "h": 216
    },
    "sourceSize": {
-    "w": 152,
-    "h": 176
+    "w": 194,
+    "h": 216
    },
    "duration": 42
   },
   {
    "filename": "yv_ma_cung 2",
    "frame": {
-    "x": 304,
+    "x": 388,
     "y": 0,
-    "w": 152,
-    "h": 176
+    "w": 194,
+    "h": 216
    },
    "rotated": false,
    "trimmed": false,
    "spriteSourceSize": {
     "x": 0,
     "y": 0,
-    "w": 152,
-    "h": 176
+    "w": 194,
+    "h": 216
    },
    "sourceSize": {
-    "w": 152,
-    "h": 176
+    "w": 194,
+    "h": 216
    },
    "duration": 42
   },
   {
    "filename": "yv_ma_cung 3",
    "frame": {
-    "x": 456,
+    "x": 582,
     "y": 0,
-    "w": 152,
-    "h": 176
+    "w": 194,
+    "h": 216
    },
    "rotated": false,
    "trimmed": false,
    "spriteSourceSize": {
     "x": 0,
     "y": 0,
-    "w": 152,
-    "h": 176
+    "w": 194,
+    "h": 216
    },
    "sourceSize": {
-    "w": 152,
-    "h": 176
+    "w": 194,
+    "h": 216
    },
    "duration": 42
   },
   {
    "filename": "yv_ma_cung 4",
    "frame": {
-    "x": 608,
+    "x": 776,
     "y": 0,
-    "w": 152,
-    "h": 176
+    "w": 194,
+    "h": 216
    },
    "rotated": false,
    "trimmed": false,
    "spriteSourceSize": {
     "x": 0,
     "y": 0,
-    "w": 152,
-    "h": 176
+    "w": 194,
+    "h": 216
    },
    "sourceSize": {
-    "w": 152,
-    "h": 176
+    "w": 194,
+    "h": 216
    },
    "duration": 42
   },
@@ -114,109 +114,109 @@
    "filename": "yv_ma_cung 5",
    "frame": {
     "x": 0,
-    "y": 176,
-    "w": 152,
-    "h": 176
+    "y": 216,
+    "w": 194,
+    "h": 216
    },
    "rotated": false,
    "trimmed": false,
    "spriteSourceSize": {
     "x": 0,
     "y": 0,
-    "w": 152,
-    "h": 176
+    "w": 194,
+    "h": 216
    },
    "sourceSize": {
-    "w": 152,
-    "h": 176
+    "w": 194,
+    "h": 216
    },
    "duration": 42
   },
   {
    "filename": "yv_ma_cung 6",
    "frame": {
-    "x": 152,
-    "y": 176,
-    "w": 152,
-    "h": 176
+    "x": 194,
+    "y": 216,
+    "w": 194,
+    "h": 216
    },
    "rotated": false,
    "trimmed": false,
    "spriteSourceSize": {
     "x": 0,
     "y": 0,
-    "w": 152,
-    "h": 176
+    "w": 194,
+    "h": 216
    },
    "sourceSize": {
-    "w": 152,
-    "h": 176
+    "w": 194,
+    "h": 216
    },
    "duration": 42
   },
   {
    "filename": "yv_ma_cung 7",
    "frame": {
-    "x": 304,
-    "y": 176,
-    "w": 152,
-    "h": 176
+    "x": 388,
+    "y": 216,
+    "w": 194,
+    "h": 216
    },
    "rotated": false,
    "trimmed": false,
    "spriteSourceSize": {
     "x": 0,
     "y": 0,
-    "w": 152,
-    "h": 176
+    "w": 194,
+    "h": 216
    },
    "sourceSize": {
-    "w": 152,
-    "h": 176
+    "w": 194,
+    "h": 216
    },
    "duration": 42
   },
   {
    "filename": "yv_ma_cung 8",
    "frame": {
-    "x": 456,
-    "y": 176,
-    "w": 152,
-    "h": 176
+    "x": 582,
+    "y": 216,
+    "w": 194,
+    "h": 216
    },
    "rotated": false,
    "trimmed": false,
    "spriteSourceSize": {
     "x": 0,
     "y": 0,
-    "w": 152,
-    "h": 176
+    "w": 194,
+    "h": 216
    },
    "sourceSize": {
-    "w": 152,
-    "h": 176
+    "w": 194,
+    "h": 216
    },
    "duration": 42
   },
   {
    "filename": "yv_ma_cung 9",
    "frame": {
-    "x": 608,
-    "y": 176,
-    "w": 152,
-    "h": 176
+    "x": 776,
+    "y": 216,
+    "w": 194,
+    "h": 216
    },
    "rotated": false,
    "trimmed": false,
    "spriteSourceSize": {
     "x": 0,
     "y": 0,
-    "w": 152,
-    "h": 176
+    "w": 194,
+    "h": 216
    },
    "sourceSize": {
-    "w": 152,
-    "h": 176
+    "w": 194,
+    "h": 216
    },
    "duration": 42
   },
@@ -224,109 +224,109 @@
    "filename": "yv_ma_cung 10",
    "frame": {
     "x": 0,
-    "y": 352,
-    "w": 152,
-    "h": 176
+    "y": 432,
+    "w": 194,
+    "h": 216
    },
    "rotated": false,
    "trimmed": false,
    "spriteSourceSize": {
     "x": 0,
     "y": 0,
-    "w": 152,
-    "h": 176
+    "w": 194,
+    "h": 216
    },
    "sourceSize": {
-    "w": 152,
-    "h": 176
+    "w": 194,
+    "h": 216
    },
    "duration": 42
   },
   {
    "filename": "yv_ma_cung 11",
    "frame": {
-    "x": 152,
-    "y": 352,
-    "w": 152,
-    "h": 176
+    "x": 194,
+    "y": 432,
+    "w": 194,
+    "h": 216
    },
    "rotated": false,
    "trimmed": false,
    "spriteSourceSize": {
     "x": 0,
     "y": 0,
-    "w": 152,
-    "h": 176
+    "w": 194,
+    "h": 216
    },
    "sourceSize": {
-    "w": 152,
-    "h": 176
+    "w": 194,
+    "h": 216
    },
    "duration": 42
   },
   {
    "filename": "yv_ma_cung 12",
    "frame": {
-    "x": 304,
-    "y": 352,
-    "w": 152,
-    "h": 176
+    "x": 388,
+    "y": 432,
+    "w": 194,
+    "h": 216
    },
    "rotated": false,
    "trimmed": false,
    "spriteSourceSize": {
     "x": 0,
     "y": 0,
-    "w": 152,
-    "h": 176
+    "w": 194,
+    "h": 216
    },
    "sourceSize": {
-    "w": 152,
-    "h": 176
+    "w": 194,
+    "h": 216
    },
    "duration": 42
   },
   {
    "filename": "yv_ma_cung 13",
    "frame": {
-    "x": 456,
-    "y": 352,
-    "w": 152,
-    "h": 176
+    "x": 582,
+    "y": 432,
+    "w": 194,
+    "h": 216
    },
    "rotated": false,
    "trimmed": false,
    "spriteSourceSize": {
     "x": 0,
     "y": 0,
-    "w": 152,
-    "h": 176
+    "w": 194,
+    "h": 216
    },
    "sourceSize": {
-    "w": 152,
-    "h": 176
+    "w": 194,
+    "h": 216
    },
    "duration": 42
   },
   {
    "filename": "yv_ma_cung 14",
    "frame": {
-    "x": 608,
-    "y": 352,
-    "w": 152,
-    "h": 176
+    "x": 776,
+    "y": 432,
+    "w": 194,
+    "h": 216
    },
    "rotated": false,
    "trimmed": false,
    "spriteSourceSize": {
     "x": 0,
     "y": 0,
-    "w": 152,
-    "h": 176
+    "w": 194,
+    "h": 216
    },
    "sourceSize": {
-    "w": 152,
-    "h": 176
+    "w": 194,
+    "h": 216
    },
    "duration": 42
   },
@@ -334,21 +334,21 @@
    "filename": "yv_ma_cung 15",
    "frame": {
     "x": 0,
-    "y": 528,
-    "w": 152,
-    "h": 176
+    "y": 648,
+    "w": 194,
+    "h": 216
    },
    "rotated": false,
    "trimmed": false,
    "spriteSourceSize": {
     "x": 0,
     "y": 0,
-    "w": 152,
-    "h": 176
+    "w": 194,
+    "h": 216
    },
    "sourceSize": {
-    "w": 152,
-    "h": 176
+    "w": 194,
+    "h": 216
    },
    "duration": 42
   }
@@ -359,8 +359,8 @@
   "image": "yv_ma_cung.png",
   "format": "RGBA8888",
   "size": {
-   "w": 760,
-   "h": 704
+   "w": 970,
+   "h": 864
   },
   "scale": "1",
   "frameTags": [
@@ -379,12 +379,12 @@
    "frames": 16,
    "rows": 1,
    "frameSize": [
-    152,
-    176
+    194,
+    216
    ],
    "pivot": [
     2,
-    88
+    108
    ],
    "columns": 5,
    "blend_light": "add",
@@ -394,8 +394,8 @@
    "facing": "east",
    "mirror": true,
    "mirror_pivot": [
-    150,
-    88
+    192,
+    108
    ],
    "sheet": "yv_ma_cung.png",
    "light": "yv_ma_cung_light.png",

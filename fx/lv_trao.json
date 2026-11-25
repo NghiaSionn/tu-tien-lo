@@ -5,108 +5,108 @@
    "frame": {
     "x": 0,
     "y": 0,
-    "w": 100,
-    "h": 160
+    "w": 139,
+    "h": 222
    },
    "rotated": false,
    "trimmed": false,
    "spriteSourceSize": {
     "x": 0,
     "y": 0,
-    "w": 100,
-    "h": 160
+    "w": 139,
+    "h": 222
    },
    "sourceSize": {
-    "w": 100,
-    "h": 160
+    "w": 139,
+    "h": 222
    },
    "duration": 42
   },
   {
    "filename": "lv_trao 1",
    "frame": {
-    "x": 100,
+    "x": 139,
     "y": 0,
-    "w": 100,
-    "h": 160
+    "w": 139,
+    "h": 222
    },
    "rotated": false,
    "trimmed": false,
    "spriteSourceSize": {
     "x": 0,
     "y": 0,
-    "w": 100,
-    "h": 160
+    "w": 139,
+    "h": 222
    },
    "sourceSize": {
-    "w": 100,
-    "h": 160
+    "w": 139,
+    "h": 222
    },
    "duration": 42
   },
   {
    "filename": "lv_trao 2",
    "frame": {
-    "x": 200,
+    "x": 278,
     "y": 0,
-    "w": 100,
-    "h": 160
+    "w": 139,
+    "h": 222
    },
    "rotated": false,
    "trimmed": false,
    "spriteSourceSize": {
     "x": 0,
     "y": 0,
-    "w": 100,
-    "h": 160
+    "w": 139,
+    "h": 222
    },
    "sourceSize": {
-    "w": 100,
-    "h": 160
+    "w": 139,
+    "h": 222
    },
    "duration": 42
   },
   {
    "filename": "lv_trao 3",
    "frame": {
-    "x": 300,
+    "x": 417,
     "y": 0,
-    "w": 100,
-    "h": 160
+    "w": 139,
+    "h": 222
    },
    "rotated": false,
    "trimmed": false,
    "spriteSourceSize": {
     "x": 0,
     "y": 0,
-    "w": 100,
-    "h": 160
+    "w": 139,
+    "h": 222
    },
    "sourceSize": {
-    "w": 100,
-    "h": 160
+    "w": 139,
+    "h": 222
    },
    "duration": 42
   },
   {
    "filename": "lv_trao 4",
    "frame": {
-    "x": 400,
+    "x": 556,
     "y": 0,
-    "w": 100,
-    "h": 160
+    "w": 139,
+    "h": 222
    },
    "rotated": false,
    "trimmed": false,
    "spriteSourceSize": {
     "x": 0,
     "y": 0,
-    "w": 100,
-    "h": 160
+    "w": 139,
+    "h": 222
    },
    "sourceSize": {
-    "w": 100,
-    "h": 160
+    "w": 139,
+    "h": 222
    },
    "duration": 42
   },
@@ -114,109 +114,109 @@
    "filename": "lv_trao 5",
    "frame": {
     "x": 0,
-    "y": 160,
-    "w": 100,
-    "h": 160
+    "y": 222,
+    "w": 139,
+    "h": 222
    },
    "rotated": false,
    "trimmed": false,
    "spriteSourceSize": {
     "x": 0,
     "y": 0,
-    "w": 100,
-    "h": 160
+    "w": 139,
+    "h": 222
    },
    "sourceSize": {
-    "w": 100,
-    "h": 160
+    "w": 139,
+    "h": 222
    },
    "duration": 42
   },
   {
    "filename": "lv_trao 6",
    "frame": {
-    "x": 100,
-    "y": 160,
-    "w": 100,
-    "h": 160
+    "x": 139,
+    "y": 222,
+    "w": 139,
+    "h": 222
    },
    "rotated": false,
    "trimmed": false,
    "spriteSourceSize": {
     "x": 0,
     "y": 0,
-    "w": 100,
-    "h": 160
+    "w": 139,
+    "h": 222
    },
    "sourceSize": {
-    "w": 100,
-    "h": 160
+    "w": 139,
+    "h": 222
    },
    "duration": 42
   },
   {
    "filename": "lv_trao 7",
    "frame": {
-    "x": 200,
-    "y": 160,
-    "w": 100,
-    "h": 160
+    "x": 278,
+    "y": 222,
+    "w": 139,
+    "h": 222
    },
    "rotated": false,
    "trimmed": false,
    "spriteSourceSize": {
     "x": 0,
     "y": 0,
-    "w": 100,
-    "h": 160
+    "w": 139,
+    "h": 222
    },
    "sourceSize": {
-    "w": 100,
-    "h": 160
+    "w": 139,
+    "h": 222
    },
    "duration": 42
   },
   {
    "filename": "lv_trao 8",
    "frame": {
-    "x": 300,
-    "y": 160,
-    "w": 100,
-    "h": 160
+    "x": 417,
+    "y": 222,
+    "w": 139,
+    "h": 222
    },
    "rotated": false,
    "trimmed": false,
    "spriteSourceSize": {
     "x": 0,
     "y": 0,
-    "w": 100,
-    "h": 160
+    "w": 139,
+    "h": 222
    },
    "sourceSize": {
-    "w": 100,
-    "h": 160
+    "w": 139,
+    "h": 222
    },
    "duration": 42
   },
   {
    "filename": "lv_trao 9",
    "frame": {
-    "x": 400,
-    "y": 160,
-    "w": 100,
-    "h": 160
+    "x": 556,
+    "y": 222,
+    "w": 139,
+    "h": 222
    },
    "rotated": false,
    "trimmed": false,
    "spriteSourceSize": {
     "x": 0,
     "y": 0,
-    "w": 100,
-    "h": 160
+    "w": 139,
+    "h": 222
    },
    "sourceSize": {
-    "w": 100,
-    "h": 160
+    "w": 139,
+    "h": 222
    },
    "duration": 42
   },
@@ -224,43 +224,43 @@
    "filename": "lv_trao 10",
    "frame": {
     "x": 0,
-    "y": 320,
-    "w": 100,
-    "h": 160
+    "y": 444,
+    "w": 139,
+    "h": 222
    },
    "rotated": false,
    "trimmed": false,
    "spriteSourceSize": {
     "x": 0,
     "y": 0,
-    "w": 100,
-    "h": 160
+    "w": 139,
+    "h": 222
    },
    "sourceSize": {
-    "w": 100,
-    "h": 160
+    "w": 139,
+    "h": 222
    },
    "duration": 42
   },
   {
    "filename": "lv_trao 11",
    "frame": {
-    "x": 100,
-    "y": 320,
-    "w": 100,
-    "h": 160
+    "x": 139,
+    "y": 444,
+    "w": 139,
+    "h": 222
    },
    "rotated": false,
    "trimmed": false,
    "spriteSourceSize": {
     "x": 0,
     "y": 0,
-    "w": 100,
-    "h": 160
+    "w": 139,
+    "h": 222
    },
    "sourceSize": {
-    "w": 100,
-    "h": 160
+    "w": 139,
+    "h": 222
    },
    "duration": 42
   }
@@ -271,8 +271,8 @@
   "image": "lv_trao.png",
   "format": "RGBA8888",
   "size": {
-   "w": 500,
-   "h": 480
+   "w": 695,
+   "h": 666
   },
   "scale": "1",
   "frameTags": [
@@ -291,12 +291,12 @@
    "frames": 12,
    "rows": 1,
    "frameSize": [
-    100,
-    160
+    139,
+    222
    ],
    "pivot": [
-    14,
-    80
+    19,
+    111
    ],
    "columns": 5,
    "blend_light": "add",
@@ -306,8 +306,8 @@
    "facing": "east",
    "mirror": true,
    "mirror_pivot": [
-    86,
-    80
+    120,
+    111
    ],
    "sheet": "lv_trao.png",
    "light": "lv_trao_light.png",

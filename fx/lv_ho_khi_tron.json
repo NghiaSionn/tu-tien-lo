@@ -1,310 +1,266 @@
 {
  "frames": [
   {
-   "filename": "lv_vet_nut 0",
+   "filename": "lv_ho_khi_tron 0",
    "frame": {
     "x": 0,
     "y": 0,
-    "w": 184,
-    "h": 36
+    "w": 256,
+    "h": 256
    },
    "rotated": false,
    "trimmed": false,
    "spriteSourceSize": {
     "x": 0,
     "y": 0,
-    "w": 184,
-    "h": 36
+    "w": 256,
+    "h": 256
    },
    "sourceSize": {
-    "w": 184,
-    "h": 36
+    "w": 256,
+    "h": 256
    },
    "duration": 42
   },
   {
-   "filename": "lv_vet_nut 1",
+   "filename": "lv_ho_khi_tron 1",
    "frame": {
-    "x": 184,
+    "x": 256,
     "y": 0,
-    "w": 184,
-    "h": 36
+    "w": 256,
+    "h": 256
    },
    "rotated": false,
    "trimmed": false,
    "spriteSourceSize": {
     "x": 0,
     "y": 0,
-    "w": 184,
-    "h": 36
+    "w": 256,
+    "h": 256
    },
    "sourceSize": {
-    "w": 184,
-    "h": 36
+    "w": 256,
+    "h": 256
    },
    "duration": 42
   },
   {
-   "filename": "lv_vet_nut 2",
+   "filename": "lv_ho_khi_tron 2",
    "frame": {
-    "x": 0,
-    "y": 36,
-    "w": 184,
-    "h": 36
+    "x": 512,
+    "y": 0,
+    "w": 256,
+    "h": 256
    },
    "rotated": false,
    "trimmed": false,
    "spriteSourceSize": {
     "x": 0,
     "y": 0,
-    "w": 184,
-    "h": 36
+    "w": 256,
+    "h": 256
    },
    "sourceSize": {
-    "w": 184,
-    "h": 36
+    "w": 256,
+    "h": 256
    },
    "duration": 42
   },
   {
-   "filename": "lv_vet_nut 3",
+   "filename": "lv_ho_khi_tron 3",
    "frame": {
-    "x": 184,
-    "y": 36,
-    "w": 184,
-    "h": 36
+    "x": 768,
+    "y": 0,
+    "w": 256,
+    "h": 256
    },
    "rotated": false,
    "trimmed": false,
    "spriteSourceSize": {
     "x": 0,
     "y": 0,
-    "w": 184,
-    "h": 36
+    "w": 256,
+    "h": 256
    },
    "sourceSize": {
-    "w": 184,
-    "h": 36
+    "w": 256,
+    "h": 256
    },
    "duration": 42
   },
   {
-   "filename": "lv_vet_nut 4",
+   "filename": "lv_ho_khi_tron 4",
    "frame": {
     "x": 0,
-    "y": 72,
-    "w": 184,
-    "h": 36
+    "y": 256,
+    "w": 256,
+    "h": 256
    },
    "rotated": false,
    "trimmed": false,
    "spriteSourceSize": {
     "x": 0,
     "y": 0,
-    "w": 184,
-    "h": 36
+    "w": 256,
+    "h": 256
    },
    "sourceSize": {
-    "w": 184,
-    "h": 36
+    "w": 256,
+    "h": 256
    },
    "duration": 42
   },
   {
-   "filename": "lv_vet_nut 5",
+   "filename": "lv_ho_khi_tron 5",
    "frame": {
-    "x": 184,
-    "y": 72,
-    "w": 184,
-    "h": 36
+    "x": 256,
+    "y": 256,
+    "w": 256,
+    "h": 256
    },
    "rotated": false,
    "trimmed": false,
    "spriteSourceSize": {
     "x": 0,
     "y": 0,
-    "w": 184,
-    "h": 36
+    "w": 256,
+    "h": 256
    },
    "sourceSize": {
-    "w": 184,
-    "h": 36
+    "w": 256,
+    "h": 256
    },
    "duration": 42
   },
   {
-   "filename": "lv_vet_nut 6",
+   "filename": "lv_ho_khi_tron 6",
    "frame": {
-    "x": 0,
-    "y": 108,
-    "w": 184,
-    "h": 36
+    "x": 512,
+    "y": 256,
+    "w": 256,
+    "h": 256
    },
    "rotated": false,
    "trimmed": false,
    "spriteSourceSize": {
     "x": 0,
     "y": 0,
-    "w": 184,
-    "h": 36
+    "w": 256,
+    "h": 256
    },
    "sourceSize": {
-    "w": 184,
-    "h": 36
+    "w": 256,
+    "h": 256
    },
    "duration": 42
   },
   {
-   "filename": "lv_vet_nut 7",
+   "filename": "lv_ho_khi_tron 7",
    "frame": {
-    "x": 184,
-    "y": 108,
-    "w": 184,
-    "h": 36
+    "x": 768,
+    "y": 256,
+    "w": 256,
+    "h": 256
    },
    "rotated": false,
    "trimmed": false,
    "spriteSourceSize": {
     "x": 0,
     "y": 0,
-    "w": 184,
-    "h": 36
+    "w": 256,
+    "h": 256
    },
    "sourceSize": {
-    "w": 184,
-    "h": 36
+    "w": 256,
+    "h": 256
    },
    "duration": 42
   },
   {
-   "filename": "lv_vet_nut 8",
+   "filename": "lv_ho_khi_tron 8",
    "frame": {
     "x": 0,
-    "y": 144,
-    "w": 184,
-    "h": 36
+    "y": 512,
+    "w": 256,
+    "h": 256
    },
    "rotated": false,
    "trimmed": false,
    "spriteSourceSize": {
     "x": 0,
     "y": 0,
-    "w": 184,
-    "h": 36
+    "w": 256,
+    "h": 256
    },
    "sourceSize": {
-    "w": 184,
-    "h": 36
+    "w": 256,
+    "h": 256
    },
    "duration": 42
   },
   {
-   "filename": "lv_vet_nut 9",
+   "filename": "lv_ho_khi_tron 9",
    "frame": {
-    "x": 184,
-    "y": 144,
-    "w": 184,
-    "h": 36
+    "x": 256,
+    "y": 512,
+    "w": 256,
+    "h": 256
    },
    "rotated": false,
    "trimmed": false,
    "spriteSourceSize": {
     "x": 0,
     "y": 0,
-    "w": 184,
-    "h": 36
+    "w": 256,
+    "h": 256
    },
    "sourceSize": {
-    "w": 184,
-    "h": 36
+    "w": 256,
+    "h": 256
    },
    "duration": 42
   },
   {
-   "filename": "lv_vet_nut 10",
+   "filename": "lv_ho_khi_tron 10",
    "frame": {
-    "x": 0,
-    "y": 180,
-    "w": 184,
-    "h": 36
+    "x": 512,
+    "y": 512,
+    "w": 256,
+    "h": 256
    },
    "rotated": false,
    "trimmed": false,
    "spriteSourceSize": {
     "x": 0,
     "y": 0,
-    "w": 184,
-    "h": 36
+    "w": 256,
+    "h": 256
    },
    "sourceSize": {
-    "w": 184,
-    "h": 36
+    "w": 256,
+    "h": 256
    },
    "duration": 42
   },
   {
-   "filename": "lv_vet_nut 11",
+   "filename": "lv_ho_khi_tron 11",
    "frame": {
-    "x": 184,
-    "y": 180,
-    "w": 184,
-    "h": 36
+    "x": 768,
+    "y": 512,
+    "w": 256,
+    "h": 256
    },
    "rotated": false,
    "trimmed": false,
    "spriteSourceSize": {
     "x": 0,
     "y": 0,
-    "w": 184,
-    "h": 36
+    "w": 256,
+    "h": 256
    },
    "sourceSize": {
-    "w": 184,
-    "h": 36
-   },
-   "duration": 42
-  },
-  {
-   "filename": "lv_vet_nut 12",
-   "frame": {
-    "x": 0,
-    "y": 216,
-    "w": 184,
-    "h": 36
-   },
-   "rotated": false,
-   "trimmed": false,
-   "spriteSourceSize": {
-    "x": 0,
-    "y": 0,
-    "w": 184,
-    "h": 36
-   },
-   "sourceSize": {
-    "w": 184,
-    "h": 36
-   },
-   "duration": 42
-  },
-  {
-   "filename": "lv_vet_nut 13",
-   "frame": {
-    "x": 184,
-    "y": 216,
-    "w": 184,
-    "h": 36
-   },
-   "rotated": false,
-   "trimmed": false,
-   "spriteSourceSize": {
-    "x": 0,
-    "y": 0,
-    "w": 184,
-    "h": 36
-   },
-   "sourceSize": {
-    "w": 184,
-    "h": 36
+    "w": 256,
+    "h": 256
    },
    "duration": 42
   }
@@ -312,37 +268,37 @@
  "meta": {
   "app": "beanfx",
   "version": "1",
-  "image": "lv_vet_nut.png",
+  "image": "lv_ho_khi_tron.png",
   "format": "RGBA8888",
   "size": {
-   "w": 368,
-   "h": 252
+   "w": 1024,
+   "h": 768
   },
   "scale": "1",
   "frameTags": [
    {
-    "name": "lv_vet_nut",
+    "name": "lv_ho_khi_tron",
     "from": 0,
-    "to": 13,
+    "to": 11,
     "direction": "forward"
    }
   ],
   "beanfx": {
-   "name": "lv_vet_nut",
+   "name": "lv_ho_khi_tron",
    "fps": 24,
-   "loop": false,
-   "end": "remove",
-   "frames": 14,
+   "loop": true,
+   "end": "loop",
+   "frames": 12,
    "rows": 1,
    "frameSize": [
-    184,
-    36
+    256,
+    256
    ],
    "pivot": [
-    12,
-    18
+    128,
+    128
    ],
-   "columns": 2,
+   "columns": 4,
    "blend_light": "add",
    "light_gain": 1.0,
    "view": "3/4",
@@ -350,12 +306,12 @@
    "facing": "east",
    "mirror": true,
    "mirror_pivot": [
-    172,
-    18
+    128,
+    128
    ],
-   "sheet": "lv_vet_nut.png",
-   "light": "lv_vet_nut_light.png",
-   "color": "lv_vet_nut_color.png"
+   "sheet": "lv_ho_khi_tron.png",
+   "light": "lv_ho_khi_tron_light.png",
+   "color": "lv_ho_khi_tron_color.png"
   }
  }
 }

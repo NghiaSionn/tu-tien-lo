@@ -282,14 +282,14 @@ export const BOSS_V2 = {
     // Liệt Trảo Hình Quạt: gồng khóa hướng, quét cung ARC (rad) bán kính R trước mặt; sau lưng boss an toàn
     CLAW: { TRIGGER: 85, R: 72, ARC: 2.2, WINDUP: 0.8, DMG: 1.6 },
     // Vồ Đầu Đàn: dấu đáp (vùng tròn R) ở vị trí người chơi + vận tốc × LEAD (dự đoán tối đa MAX_LEAD px), gồng WINDUP, bay AIR giây
-    LEAP: { MIN_D: 55, MAX_D: 230, LEAD: 0.55, MAX_LEAD: 60, R: 34, WINDUP: 1.0, AIR: 0.35, SYNC: 0.07, DMG: 1.8 },
+    LEAP: { MIN_D: 55, MAX_D: 290, LEAD: 0.55, MAX_LEAD: 60, R: 46, WINDUP: 1.0, AIR: 0.35, SYNC: 0.07, DMG: 1.8 },
     // (24/11) ĐỢT 2 — pha 2 "Huyết Nguyệt Cuồng Lang": ít đứng gồng, nhiều liên hoàn, ép vị trí (docs/design/BOSS_TUYET_KY_DE_XUAT.md)
-    BLOOD_DASH: { COUNT: 3, WINDUP: 0.65 },                                   // Huyết Ảnh Tam Xung: 3 lần lao, mỗi lần khóa hướng lại
-    COMBO: { L: -0.55, R: 0.55, WL: 0.7, WR: 0.55, BITE_D: 36, BITE_R: 30, BITE_T: 0.8, BITE_DMG: 1.6, GAP: 0.2 },   // Cuồng Nha Liên Kích: quạt lệch trái -> phải -> cắn trước mặt
-    QUAKE: { WINDUP: 0.5, N: 4, R0: 42, STEP: 34, W: 8, T0: 1.0, DT: 0.22, GAP: 0.85, DMG: 1.5 },   // Huyết Nguyệt Trấn Địa: vòng sóng nổ dần ra, chừa khe GAP rad (hướng về người chơi)
+    BLOOD_DASH: { COUNT: 3, WINDUP: 0.65, SPEED: 440, TIME: 0.5 },            // Huyết Ảnh Tam Xung: 3 lần lao, mỗi lần khóa hướng lại (25/11: lướt 220 px, gấp đôi lao thường)
+    COMBO: { CR: 100, L: -0.55, R: 0.55, WL: 0.75, WR: 0.65, BITE_D: 48, BITE_R: 42, BITE_T: 0.9, BITE_DMG: 1.6, GAP: 0.2 },   // Cuồng Nha Liên Kích: quạt lệch trái -> phải -> cắn trước mặt
+    QUAKE: { WINDUP: 1.0, N: 4, R0: 52, STEP: 44, W: 11, T0: 1.0, DT: 0.24, GAP: 0.85, DMG: 1.5 },   // Huyết Nguyệt Trấn Địa: vòng sóng nổ dần ra, chừa khe GAP rad (hướng về người chơi)
     HUNT: { GAP: 0.3 },                                                       // Lang Vương Truy Mệnh: Vồ 2 lần liền
-    CRACKS: { N: 3, SPREAD: 0.5, L: 175, W: 8, T0: 1.0, DT: 0.25, DMG: 1.6 },   // Huyết Trảo Phá Địa: 3 vệt nứt hình quạt nổ lần lượt
-    RAGE_HOWL: { R: 70, T: 1.1, DMG: 1.7 },                                   // Cuồng Lang Bạo Khiếu: vòng nổ lớn quanh thân
+    CRACKS: { N: 3, SPREAD: 0.55, L: 270, W: 13, T0: 1.0, DT: 0.07, TRAVEL: 0.3, DMG: 1.6 },   // Huyết Trảo Phá Địa (25/11): một cú cào phóng 3 sóng khí bay dọc 3 đường; TRAVEL giây tới cuối đường, trúng đúng lúc sóng lướt qua
+    RAGE_HOWL: { R: 110, T: 1.4, N: 3, DT: 0.3, DMG: 1.2 },                   // Cuồng Lang Bạo Khiếu (25/11): tiếng gầm R px quanh thân, N nhịp dồn dập (bất tử sau trúng đòn 0,5 s -> tối đa 2 nhịp trúng)
   },
   // ---------- M10-10: Ma Ảnh Yêu Vương 2 pha / 7 chiêu (ĐÚNG 2 pha; cuồng nộ cũ chỉ là trạng thái trong P2) ----------
   // PHASE2 null = giữ ngưỡng hiện có BOSS.FINAL.PHASE2 (không đổi ngưỡng khi chưa duyệt).
@@ -302,17 +302,17 @@ export const BOSS_V2 = {
     SHADOW: { MIN_R: 95, MAX_R: 140, WARN: 0.9, GRACE: 0.8, TRIES: 16 },
     // Ma Quang Hoành Tảo: tia dài L quét nửa vòng (ARC) trong TIME giây sau WINDUP; bắt đầu lệch SAFE_START rad khỏi người chơi.
     // Né: ra khỏi tầm L hoặc sang nửa vòng không bị quét.
-    SWEEP: { WINDUP: 1.1, TIME: 1.4, ARC: 3.1416, L: 180, W: 9, SAFE_START: 1.0, DMG: 1.8 },
+    SWEEP: { WINDUP: 1.3, TIME: 1.4, ARC: 3.1416, L: 215, W: 10, SAFE_START: 1.0, DMG: 1.8 },
     // Thập Tự Hắc Liệt: hai dải nổ vuông góc (dài 2×LEN, nửa bề rộng W) giao tại vị trí người chơi lúc khóa; 4 góc chéo an toàn
     CROSS: { WINDUP: 1.4, LEN: 130, W: 14, DMG: 1.8 },
     // (24/11) ĐỢT 2 — pha 2 "Huyết Lôi Ma Quân": vùng sét đỏ nổ theo nhịp — đọc thứ tự, tìm khe, đổi vị trí
-    THUNDER: { N: 4, R: 22, SPREAD: 36, T0: 0.9, DT: 0.25, DMG: 1.5 },        // Huyết Lôi Thiên Phạt: 4 điểm sét nổ tuần tự quanh người chơi
-    EIGHT: { N: 8, L: 210, W: 8, T: 1.0, DMG: 1.5 },                          // Ma Lôi Bát Phương: 8 tia sét tỏa từ boss, khe giữa các tia
-    RUNES: { N: 6, R: 90, W: 60, T0: 1.2, DT: 0.3, DMG: 1.5 },                // Nghịch Chuyển Ma Trận: vành 30..150 quanh boss chia 6 cung, nổ lần lượt
-    CHAIN: { N: 5, STEP: 40, ZIG: 22, W: 8, T: 1.0, DMG: 1.6 },               // Huyết Lôi Liên Tỏa: đường sét gấp khúc cắt qua người chơi
-    CLONES: { N: 2, D: 110, T: 1.2, SHOTS: 10, DMG: 1.2 },                    // Ma Ảnh Phân Thân: 2 bóng hai bên người chơi, mỗi bóng bắn đạn tỏa có khe
-    SWEEP2: { WINDUP: 0.7, GAP: 0.4 },                                        // Diệt Thế Ma Quang: quét 2 nhịp — nhịp 2 quét tiếp NỬA VÒNG CÒN LẠI (phải đổi sang vùng vừa quét)
-    NET: { N: 5, SPACING: 48, L: 240, W: 9, T0: 1.2, DT: 0.22, DMG: 1.5 },    // Huyết Lôi Thiên Võng: dải sét song song nổ thành sóng (khe >= 20 px)
+    THUNDER: { N: 4, R: 28, SPREAD: 46, T0: 0.9, DT: 0.25, DMG: 1.5 },        // Huyết Lôi Thiên Phạt: 4 điểm sét nổ tuần tự quanh người chơi
+    EIGHT: { N: 8, L: 270, W: 10, T: 1.0, DMG: 1.5 },                          // Ma Lôi Bát Phương: 8 tia sét tỏa từ boss, khe giữa các tia
+    RUNES: { N: 6, R: 110, W: 80, T0: 1.2, DT: 0.3, DMG: 1.5 },                // Nghịch Chuyển Ma Trận: vành 30..190 quanh boss chia 6 cung, nổ lần lượt
+    CHAIN: { N: 5, STEP: 50, ZIG: 28, W: 10, T: 1.0, DMG: 1.6 },               // Huyết Lôi Liên Tỏa: đường sét gấp khúc cắt qua người chơi
+    CLONES: { N: 2, D: 115, T: 1.2, SHOTS: 12, DMG: 1.2 },                    // Ma Ảnh Phân Thân: 2 bóng hai bên người chơi, mỗi bóng bắn đạn tỏa có khe
+    SWEEP2: { WINDUP: 0.85, GAP: 0.4 },                                        // Diệt Thế Ma Quang: quét 2 nhịp — nhịp 2 quét tiếp NỬA VÒNG CÒN LẠI (phải đổi sang vùng vừa quét)
+    NET: { N: 5, SPACING: 54, L: 310, W: 11, T0: 1.2, DT: 0.22, DMG: 1.5 },    // Huyết Lôi Thiên Võng: dải sét song song nổ thành sóng (khe >= 20 px)
   },
 };
 

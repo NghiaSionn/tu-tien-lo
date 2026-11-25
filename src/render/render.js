@@ -1,9 +1,10 @@
 // Vẽ một khung: bản đồ, vật thể sắp theo y, yêu thú, người chơi, công pháp, hiệu ứng beanfx và hạt sáng.
 import { VIEW, TILE as T, HUB, FEATURES, ARCH, BOSS, WOLF_PACK, FOX_TRAIL, ICE_FAN, ELITE_V2, BOSS_V2, BOSS_P2, BOSS_TK, BOSS_ULT, BOSS_SKILL_LABELS, TRIBULATION, SHRINE, BASIC_ATTACK } from '../core/config.js';
-import { bossFxEvent, bossFxSpawn, bossFxUpdate, bossFxClear, bossFxGround, bossFxObjs, bossFxBeam, bossFxCloneT } from './boss_fx.js';
+import { bossFxEvent, bossFxSpawn, bossFxUpdate, bossFxClear, bossFxGround, bossFxObjs, bossFxBeam, bossFxCloneT, bossRoars } from './boss_fx.js';
 import { GRASS, WATER, STONE, TREE, ROCK, BUILDING, FENCE, DIRT, CLIFF, CLOUD, FALL } from '../world/map.js';
 import { SPR, TIERS, BOSS_WHITE, BOSS_SPR, grassTiles, waterTiles, waterBank, stoneTile, treeSprs, rockSpr, hash } from './sprites.js';
 import { createFx } from '../../lib/beanfx.js';
+import { dashOf, clawOf } from '../systems/tactics.js';
 import { skillKind, skillParams, spiritOrbPos, sealOrbPos } from '../systems/combat.js';
 
 const { W, H } = VIEW;
@@ -58,7 +59,7 @@ export function spawnFx(vis, name, x, y, opts = {}) {
   vis.fxs.push(fx);
   return fx;
 }
-export function addShake(vis, t) { if (!vis.noShake) vis.shake = Math.max(vis.shake, t); }
+export function addShake(vis, t, a = 2) { if (vis.noShake) return; vis.shakeA = vis.shake > 0 ? Math.max(vis.shakeA || 2, a) : a; vis.shake = Math.max(vis.shake, t); }   // a: biên độ px (dậm đất, tiếng gầm mạnh hơn)
 export function addFlash(vis, t) { vis.flash = Math.max(vis.flash, vis.reduce ? t * 0.3 : t); }
 
 const TIER_COLORS = TIERS.map(t => t.c);
@@ -84,7 +85,7 @@ export function consumeEvents(vis, ev) {
     switch (e.type) {
       case 'text': floatText(vis, e.x, e.y, e.text, e.color); break;
       case 'fx': if (room) spawnFx(vis, e.name, e.x, e.y, { scale: e.scale || 1, flip: !!e.flip }); break;
-      case 'shake': addShake(vis, e.t); break;
+      case 'shake': addShake(vis, e.t, e.a); break;
       case 'chain': vis.chains.push({ pts: e.pts, life: 0.18 }); break;
       case 'bossFx': bossFxSpawn(vis, e); break;
       case 'boom': if (e.hz && bossFxEvent(vis, e)) break;
@@ -865,7 +866,7 @@ function drawTransformBody(ctx, m, time, vis) {
 }
 // Lang Vương pha 2: sheet dựng xương (12 khung đi + gồng + hú), bước theo tốc độ chạy; aura lửa dọc bờm/lưng/đuôi
 function drawWolfP2(ctx, m, time, sh, vis) {
-  const K = BOSS.DRAW_SCALE, x = Math.round(m.x), y = Math.round(m.y), pul = 0.5 + 0.5 * Math.sin(time * 5), pose = wolfP2Pose(m, vis, time);   // (25/11) tư thế gồng / bật / bay / đáp
+  const K = BOSS.DRAW_SCALE, pul = 0.5 + 0.5 * Math.sin(time * 5), pose = wolfP2Pose(m, vis, time), x = Math.round(m.x) + ((pose && pose.dx) || 0), y = Math.round(m.y);   // (25/11) tư thế gồng / bật / bay / đáp
   const flip = pose && pose.flip !== undefined ? pose.flip : m.ult ? m.x > m.ult.cx : mobFlip(m);
   const dt = Math.min(0.1, Math.max(0, time - (m._lt ?? time))); m._lt = time;
   const sp = Math.hypot(m.vx || 0, m.vy || 0);
@@ -882,6 +883,12 @@ function drawWolfP2(ctx, m, time, sh, vis) {
   if (m.st === 'windup') { ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 0.35; for (const [dx, dy] of [[-2, 0], [2, 0], [0, -2], [0, 2]]) sheetFrame(ctx, sh, name, x + dx, y + dy, flip, sh.white, K); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1; }
   sheetFrame(ctx, sh, name, x, y, flip, sh.img, K);
   if (m.hit > 0) { ctx.globalAlpha = 0.55; sheetFrame(ctx, sh, name, x, y, flip, sh.white, K); ctx.globalAlpha = 1; }
+  if (pose && pose.glint) {   // móng vuốt giơ cao sáng dần: chớp hình sao + quầng đỏ
+    const [cx, cy] = framePt(sh, x, y, flip, 41, 8, K), g = pose.glint, s = Math.round(3 + 9 * g * (0.8 + 0.2 * Math.sin(time * 40)));
+    ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 0.35 * g; ctx.fillStyle = '#ff3a2a'; ctx.beginPath(); ctx.arc(cx, cy, 6 + 12 * g, 0, 6.283); ctx.fill();
+    ctx.globalAlpha = 0.9 * g; ctx.fillStyle = '#fff2e0'; ctx.fillRect(Math.round(cx) - s, Math.round(cy), s * 2 + 1, 1); ctx.fillRect(Math.round(cx), Math.round(cy) - s, 1, s * 2 + 1); ctx.fillRect(Math.round(cx) - 2, Math.round(cy) - 1, 5, 3);
+    ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
+  }
   // lửa chạy dọc bờm, lưng, đuôi (không bao kín thân)
   const line = [[-22, -15], [-14, -22], [-6, -26], [2, -27], [10, -26], [16, -24]];   // đuôi -> bờm (px sprite tính từ pivot, mặt quay phải)
   for (let i = 0; i < 20; i++) {
@@ -1101,11 +1108,19 @@ function drawClawCode(ctx, c, t) {   // dự phòng khi thiếu sheet / đồ h�
 function wolfP2Pose(m, vis, time) {
   const lao = vis && vis.bossMini2Lao; if (!lao) return null;
   if (m.ult) { const P = ultWolfPose(m.ult, 0); return P ? { sh: lao, name: P.name, flip: P.d.x1 < P.d.x0 } : null; }
+  const dam = vis.bossMini2Dam, face = m.dirX < 0, tick = Math.sin(time * 70) > 0 ? 1 : 0;   // (25/11) chồm - dậm, giơ vuốt - cào, gầm
+  if (m._act && m.st !== 'windup') { m._actT = time; m._actK = m._act; m._act = null; }
+  if (m.st === 'windup') {
+    const k = 1 - Math.max(0, m.stT) / (m.stMax || 1); m._act = null;
+    if (dam && m.pat === 'quake') { m._act = 'DAM_dam'; return k < 0.22 ? { sh: lao, name: 'LAO_gong', flip: face } : m.stT < 0.06 ? { sh: dam, name: 'DAM_dam', flip: face } : { sh: dam, name: 'DAM_chom', flip: face, dx: k > 0.6 ? tick : 0, dy: -Math.round(6 * Math.sin(Math.min(1, (k - 0.22) / 0.5) * 1.57)) }; }
+    if (dam && (m.pat === 'cracks' || m.pat === 'claw')) { m._act = 'DAM_cao'; return k < 0.2 ? { sh: lao, name: 'LAO_gong', flip: face } : { sh: dam, name: 'DAM_gio', flip: face, dx: k > 0.7 ? tick : 0, glint: k > 0.45 ? (k - 0.45) / 0.55 : 0 }; }
+    if (m.pat === 'rageHowl') { const left = m.stMax - m.stT - m.howlT; return left < -0.22 ? { sh: lao, name: 'LAO_gong', flip: face, dx: left > -0.6 ? tick : 0 } : { sh: vis.bossMini2, name: 'MINI2_howl', flip: face, dx: tick }; }
+  } else if (dam && m._actK && time - m._actT < (m._actK === 'DAM_dam' ? 0.55 : 0.4) && (m.st === 'recover' || m.st === 'tkGap')) return { sh: dam, name: m._actK, flip: face };
   const air = m.st === 'dash' || m.st === 'leap';
   if (m._air && !air) m._landT = time;
   m._air = air;
   if (m.st === 'leap') return { sh: lao, name: 'LAO_bay', flip: m.leapX < m.lx0 };
-  if (m.st === 'dash') return { sh: lao, name: m.stT > BOSS.MINI.DASH.TIME * 0.75 ? 'LAO_bat' : 'LAO_bay', flip: m.dirX < 0 };
+  if (m.st === 'dash') return { sh: lao, name: m.stT > dashOf(m).TIME * 0.75 ? 'LAO_bat' : 'LAO_bay', flip: m.dirX < 0 };
   if (m.st === 'windup' && (m.pat === 'dash' || m.pat === 'leap')) return { sh: lao, name: 'LAO_gong', flip: m.pat === 'leap' ? m.leapX < m.x : m.dirX < 0 };
   if (m._landT !== undefined && time - m._landT < 0.3) return { sh: lao, name: 'LAO_dap' };
   return null;
@@ -1421,9 +1436,9 @@ function drawTelegraphsTop(ctx, scene) {
     let L = 0;
     if (m.arch === 'charger') L = ARCH.charger.DASH_SPEED * ARCH.charger.DASH_TIME;
     else if (m.arch === 'chaser') L = WOLF_PACK.POUNCE.SPEED * WOLF_PACK.POUNCE.TIME;   // M10-04: sói chồm
-    else if (m.boss && m.pat === 'dash') L = BOSS.MINI.DASH.SPEED * BOSS.MINI.DASH.TIME;
+    else if (m.boss && m.pat === 'dash') L = dashOf(m).SPEED * dashOf(m).TIME;
     else if (m.arch === 'elite' && m.sk === 'claw') { ctx.globalAlpha = 0.5; clawOutline(ctx, m, '#ff4a3a', 1); }   // M10-07
-    else if (m.boss && m.pat === 'claw') { ctx.globalAlpha = 0.6; clawOutline(ctx, m, '#ff4a3a', 1, 0, BOSS_V2.MINI.CLAW); }   // M10-09: thân boss ×2 hay che quạt
+    else if (m.boss && m.pat === 'claw') { ctx.globalAlpha = 0.6; clawOutline(ctx, m, '#ff4a3a', 1, 0, clawOf(m)); }   // M10-09: thân boss ×2 hay che quạt
     else if (m.arch === 'elite') { ctx.globalAlpha = 0.5; pxRing(ctx, m.x, m.y, ARCH.elite.SLAM_R, 60, 0, '#ff4a3a', 1, 1); }
     else if (m.boss && m.pat === 'howlDash') {   // M7-13: hú rồi lao — viền lớp trên để thân boss ×2 / tán cây không che
       const prog = 1 - Math.max(0, m.stT) / (m.stMax || 1);
@@ -1481,6 +1496,7 @@ function drawTelegraphs(ctx, scene, vis, time) {
   // vùng nguy hiểm của boss (đập đất, hắc diễm): vòng đỏ đúng bán kính trúng + lấp tím dần tới lúc nổ
   for (const h of scene.hazards || []) {
     const prog = 1 - Math.max(0, h.t) / (h.max || 1);
+    if (h.pulse && scene.hazards.some(o => o.owner === h.owner && o.src === h.src && o.pulse < h.pulse)) continue;   // (25/11) gầm nhiều nhịp cùng một vòng: chỉ tô nhịp gần nhất
     if (h.x0 !== undefined) {   // M10-10 Thập Tự Hắc Liệt: dải chữ nhật, lấp tím từ giữa ra theo bề rộng
       const ux = h.x1 - h.x0, uy = h.y1 - h.y0, L = Math.hypot(ux, uy) || 1, nx = -uy / L, ny = ux / L, w = h.r * prog;
       ctx.globalAlpha = 0.22; ctx.fillStyle = '#c070ff'; ctx.beginPath();
@@ -1545,7 +1561,7 @@ function drawAIDebug(ctx, scene, camX, camY, p) {
     const A = m.boss ? BOSS[m.bossKind].DASH : ARCH[m.arch];
     if ((m.arch === 'charger' || (m.boss && m.pat === 'dash')) && A) { const L = (A.DASH_SPEED || A.SPEED) * (A.DASH_TIME || A.TIME); return [m.x + m.dirX * L, m.y + m.dirY * L]; }
     if (m.arch === 'elite' && m.sk === 'claw') return [m.x + m.dirX * ELITE_V2.CLAW.R, m.y + m.dirY * ELITE_V2.CLAW.R];
-    if (m.boss && m.pat === 'claw') return [m.x + m.dirX * BOSS_V2.MINI.CLAW.R, m.y + m.dirY * BOSS_V2.MINI.CLAW.R];   // M10-09
+    if (m.boss && m.pat === 'claw') return [m.x + m.dirX * clawOf(m).R, m.y + m.dirY * clawOf(m).R];   // M10-09
     if (m.boss && m.pat === 'leap' && m.leapX !== undefined) return [m.leapX, m.leapY];
     if (m.arch === 'ranged') { const R = ARCH.ranged; return [m.x + m.dirX * R.SHOT_SPEED * R.SHOT_LIFE * 0.6, m.y + m.dirY * R.SHOT_SPEED * R.SHOT_LIFE * 0.6]; }
     return null;
@@ -1624,7 +1640,7 @@ function drawBossTelegraph(ctx, m) {
     ctx.globalAlpha = 1; return;
   }
   if (m.pat === 'claw' && m.st === 'windup') {   // M10-09 Liệt Trảo: quạt lấp tím dần + viền đỏ viền tối, sau lưng trống
-    const C = BOSS_V2.MINI.CLAW, a0 = Math.atan2(m.dirY, m.dirX);
+    const C = clawOf(m), a0 = Math.atan2(m.dirY, m.dirX);
     ctx.globalAlpha = 0.25; ctx.fillStyle = '#c070ff';
     ctx.beginPath(); ctx.moveTo(m.x, m.y); ctx.arc(m.x, m.y, C.R * prog, a0 - C.ARC / 2, a0 + C.ARC / 2); ctx.closePath(); ctx.fill();
     ctx.globalAlpha = 0.9; clawOutline(ctx, m, TG_DARK, 3, -1, C); clawOutline(ctx, m, '#ff4a3a', 1, 0, C);
@@ -1636,7 +1652,7 @@ function drawBossTelegraph(ctx, m) {
     ctx.globalAlpha = 1; return;
   }
   if (m.pat === 'dash') {
-    const L = B.DASH.SPEED * B.DASH.TIME, x0 = m.x, y0 = m.y - 4;
+    const L = dashOf(m).SPEED * dashOf(m).TIME, x0 = m.x, y0 = m.y - 4;
     ctx.globalAlpha = 0.7; tgLine(ctx, x0, y0, x0 + m.dirX * L, y0 + m.dirY * L, '#ff4a3a', 3);
     ctx.globalAlpha = 0.95; pxLine(ctx, x0, y0, x0 + m.dirX * L * prog, y0 + m.dirY * L * prog, '#ffd978', 1);
     ctx.fillStyle = '#ff4a3a'; ctx.fillRect(Math.round(x0 + m.dirX * L) - 3, Math.round(y0 + m.dirY * L) - 3, 6, 6);
@@ -2188,17 +2204,20 @@ function drawP2CutBoss(ctx, c, vis, time) {
 // như không khí bị đẩy. Khớp sheet lv_ho_khi v2: cứ 3 khung (24 fps) một đợt, sống 9 khung, R = (8 + 104·ease2.2) × 1,5.
 let ZBUF2 = null, vis_q = 'high';
 function howlRefract(ctx, c, camX, camY, sx, sy, z) {
-  const cv = ctx.canvas, K = BOSS.DRAW_SCALE;
-  const hx = ((c.bx + (c.faceLeft ? -1 : 1) * 18 * K) - camX - sx) * z, hy = ((c.by - 30 * K + 8) - camY - sy) * z;
+  const K = BOSS.DRAW_SCALE;
+  roarRefract(ctx, ((c.bx + (c.faceLeft ? -1 : 1) * 18 * K) - camX - sx) * z, ((c.by - 30 * K + 8) - camY - sy) * z, (c.t - c.T.HOWL[0]) * 24, 1.5 * z, 0.75, 1e9);
+}
+// hx, hy: tâm (px màn) · fh: khung 24 fps từ đầu tiếng gầm · sc: phóng sheet · flat: ép dẹt · end: khung thôi phát đợt mới
+function roarRefract(ctx, hx, hy, fh, sc, flat, end) {
+  const cv = ctx.canvas;
   let copied = false;
-  const fh = (c.t - c.T.HOWL[0]) * 24;
   for (let w0 = Math.floor(fh / 3) * 3; w0 > fh - 9; w0 -= 3) {
-    const u = (fh - w0) / 9; if (u < 0 || u >= 1) continue;
+    const u = (fh - w0) / 9; if (u < 0 || u >= 1 || w0 < 0 || w0 > end) continue;
     if (!copied) { if (!ZBUF2) ZBUF2 = document.createElement('canvas'); if (ZBUF2.width !== cv.width || ZBUF2.height !== cv.height) { ZBUF2.width = cv.width; ZBUF2.height = cv.height; }
       const g2 = ZBUF2.getContext('2d'); g2.setTransform(1, 0, 0, 1, 0, 0); g2.clearRect(0, 0, cv.width, cv.height); g2.drawImage(cv, 0, 0); copied = true; }
-    const Rs = (8 + 104 * (1 - (1 - u) ** 2.2)) * 1.5 * z, s = 1 + 0.07 * (1 - u) ** 1.5, band = 14 + 8 * u;
+    const Rs = (8 + 104 * (1 - (1 - u) ** 2.2)) * sc, s = 1 + 0.07 * (1 - u) ** 1.5, band = 14 + 8 * u;
     ctx.save(); ctx.beginPath();
-    ctx.ellipse(hx, hy, Rs + 4, (Rs + 4) * 0.75, 0, 0, 6.283); ctx.ellipse(hx, hy, Math.max(1, Rs - band), Math.max(1, Rs - band) * 0.75, 0, 0, 6.283);
+    ctx.ellipse(hx, hy, Rs + 4, (Rs + 4) * flat, 0, 0, 6.283); ctx.ellipse(hx, hy, Math.max(1, Rs - band), Math.max(1, Rs - band) * flat, 0, 0, 6.283);
     ctx.clip('evenodd'); ctx.imageSmoothingEnabled = false;
     ctx.translate(hx, hy); ctx.scale(s, s); ctx.translate(-hx, -hy);
     ctx.drawImage(ZBUF2, 0, 0, cv.width, cv.height, 0, 0, W, H);
@@ -2610,7 +2629,7 @@ export function render(ctx, g) {
   const fo = g.cut ? { x: g.cut.focusX, y: g.cut.focusY + 8 } : p;   // (23/11) cutscene: camera theo điểm nhìn của cảnh
   let camX = Math.round(Math.max(0, Math.min(map.pw - W, fo.x - W / 2)));
   let camY = Math.round(Math.max(0, Math.min(map.ph - H, fo.y - 8 - H / 2)));
-  if (vis.shake > 0) { camX += Math.round(rand(-2, 2)); camY += Math.round(rand(-2, 2)); }
+  if (vis.shake > 0) { const A = vis.reduce ? 2 : vis.shakeA || 2; camX += Math.round(rand(-A, A)); camY += Math.round(rand(-A, A)); }
   ctx.setTransform(1, 0, 0, 1, -camX, -camY); vis.cam = { x: camX, y: camY };
 
   const objs = [];
@@ -2922,6 +2941,7 @@ export function render(ctx, g) {
   mark('texts');
 
   ctx.setTransform(1, 0, 0, 1, 0, 0);
+  if (!g.cut && vis.quality !== 'low' && !vis.reduce) for (const q of bossRoars(scene)) roarRefract(ctx, q.x - camX, q.y - camY, q.f, 110 / 112, 1, q.end);   // (25/11) Cuồng Lang Bạo Khiếu: không khí méo theo từng đợt gầm
   if (g.cut && (g.cut.style === 'p2' || g.cut.style === 'ult')) { P2_CAM = { camX, camY }; vis_q = vis.quality; P2_ZOOM = g.cut.zoom > 1.001 || (g.cut.style === 'ult' && g.cut.shake > 0) ? zoomScreen(ctx, g.cut, camX, camY) : null; }   // (24/11) zoom cận cutscene pha 2
   if (g.run && g.run.rooms && scene.kind === 'run') drawMinimap(ctx, g.run);   // M9-B
   if (g.cut) drawCutOverlay(ctx, g.cut, vis, time); else drawBossBar(ctx, scene, camX, camY);
