@@ -10,7 +10,7 @@ import { dashOf } from '../systems/tactics.js';
 export const BOSS_FX_SHEETS = ['lv_dia_chan', 'lv_huyet_gai', 'lv_vet_nut', 'lv_dau_vuot', 'lv_trao', 'lv_can', 'lv_ho_khi_tron',
   'yv_loi_phat', 'yv_sam_bat', 'yv_sam_xich', 'yv_sam_vong', 'yv_nut_an', 'yv_ma_cung', 'yv_phan_anh', 'yv_ma_quang',
   // (26/11) Đợt C: pha 1 + Thập Tự
-  'lv_trao_1', 'lv_gio_lao', 'lv_ho_khi_1', 'yv_dan_no', 'yv_hac_diem', 'yv_chan_dia', 'yv_trieu', 'yv_hac_liet', 'lv_trieu_soi'];
+  'lv_trao_1', 'lv_gio_lao', 'lv_ho_khi_1', 'yv_dan_no', 'yv_hac_diem', 'yv_chan_dia', 'yv_trieu', 'yv_hac_liet', 'lv_trieu_soi', 'lv_ho_khi_2', 'lv_trieu_soi_2'];   // _2: pha 2 (máu)
 const FPS = 24, TILE = 64, CLUMP_N = 14, VET_L = 254, MAX_LIVE = 60, STOMP_K = 0.75;
 // src của vùng -> { name: sheet, peak: khung đúng lúc nổ, n: số khung }
 export const BOSS_FX_DEF = {
@@ -190,7 +190,7 @@ function howl(ctx, vis, m, time) {
   ctx.save();
   if (t * FPS < 12) { ctx.beginPath(); ctx.ellipse(x, y, r, r * 0.75, 0, 0, 6.283); ctx.clip(); }                         // đợt đầu mới bung
   else if (out > 0) { ctx.beginPath(); ctx.ellipse(x, y, 420, 320, 0, 0, 6.283); ctx.ellipse(x, y, 340 * out, 255 * out, 0, 0, 6.283, true); ctx.clip(); }   // dứt tiếng: sóng trôi ra ngoài
-  ctx.globalAlpha = 0.85 * (1 - out); cell(ctx, vis, 'lv_ho_khi_1', Math.floor(t * FPS) % 12, x, y, { scale: 2, light: 0.55 * (1 - out) }); ctx.restore();
+  ctx.globalAlpha = 0.85 * (1 - out); cell(ctx, vis, m.p2 && get(vis, 'lv_ho_khi_2') ? 'lv_ho_khi_2' : 'lv_ho_khi_1', Math.floor(t * FPS) % 12, x, y, { scale: 2, light: 0.55 * (1 - out) }); ctx.restore();
 }
 // không khí méo theo tiếng hú (render.js gọi sau khi vẽ xong cảnh)
 export const bossHowls = (scene, time) => scene.monsters.filter(m => m.boss && m._hwX !== undefined && howlT(m, time) >= 0 && howlEnd(m, time) < 0.6).map(m => ({ x: m._hwX, y: m._hwY, f: howlT(m, time) * FPS }));
@@ -208,7 +208,7 @@ export function bossFxObjs(vis, scene, time) {
   for (const h of scene.hazards || []) { const d = BOSS_FX_DEF[h.src]; if (d && has(vis, d)) upright(vis, h, d, h.t, -1, out); }
   for (const q of vis.bossFx || []) {
     if (q.d) upright(vis, q.h, q.d, 0, q.age, out);
-    else if (q.soi) { const { x, y } = q.soi, f = Math.floor(q.age * FPS); out.push({ y: y + 1, draw: ctx => cell(ctx, vis, 'lv_trieu_soi', f, x, y) }); }
+    else if (q.soi) { const { x, y } = q.soi, f = Math.floor(q.age * FPS); const sn = q.soi.p2 && get(vis, 'lv_trieu_soi_2') ? 'lv_trieu_soi_2' : 'lv_trieu_soi'; out.push({ y: y + 1, draw: ctx => cell(ctx, vis, sn, f, x, y) }); }
     else if (q.out) { const { x, y } = q.out, f = 10 + Math.floor(q.age * FPS); out.push({ y: y + 1, draw: ctx => cell(ctx, vis, q.small ? 'yv_trieu' : 'yv_phan_anh', f, x, y) }); }
   }
   for (const m of scene.monsters) if (m.clones && !m.dead && m.st === 'windup' && get(vis, 'yv_phan_anh')) {   // khói tụ thành bóng rồi tan lộ phân thân

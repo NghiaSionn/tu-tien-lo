@@ -87,7 +87,7 @@ export function summonAround(run, player, cx, cy, n, R, power, ev) {
     const a = run.rng() * Math.PI * 2, x = cx + Math.cos(a) * R, y = cy + Math.sin(a) * R;
     if (!run.scene.map.canStand(x, y) || Math.hypot(x - player.x, y - player.y) < 40) continue;
     makeRunEnemy(run, 'chaser', x, y, power).summoned = true; made++;
-    if (ev) ev.push({ type: 'bossFx', fx: 'trieuSoi', x, y });   // (26/11) hiệu ứng sói đàn hiện ra
+    if (ev) ev.push({ type: 'bossFx', fx: 'trieuSoi', x, y, p2: run.scene.monsters.some(o => o.boss && !o.dead && o.p2) });   // (26/11) hiệu ứng sói đàn hiện ra
   }
   return made;
 }

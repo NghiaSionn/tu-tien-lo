@@ -1,0 +1,317 @@
+{
+ "frames": [
+  {
+   "filename": "lv_ho_khi_2 0",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 360,
+    "h": 360
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 360,
+    "h": 360
+   },
+   "sourceSize": {
+    "w": 360,
+    "h": 360
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_ho_khi_2 1",
+   "frame": {
+    "x": 360,
+    "y": 0,
+    "w": 360,
+    "h": 360
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 360,
+    "h": 360
+   },
+   "sourceSize": {
+    "w": 360,
+    "h": 360
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_ho_khi_2 2",
+   "frame": {
+    "x": 720,
+    "y": 0,
+    "w": 360,
+    "h": 360
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 360,
+    "h": 360
+   },
+   "sourceSize": {
+    "w": 360,
+    "h": 360
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_ho_khi_2 3",
+   "frame": {
+    "x": 1080,
+    "y": 0,
+    "w": 360,
+    "h": 360
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 360,
+    "h": 360
+   },
+   "sourceSize": {
+    "w": 360,
+    "h": 360
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_ho_khi_2 4",
+   "frame": {
+    "x": 0,
+    "y": 360,
+    "w": 360,
+    "h": 360
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 360,
+    "h": 360
+   },
+   "sourceSize": {
+    "w": 360,
+    "h": 360
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_ho_khi_2 5",
+   "frame": {
+    "x": 360,
+    "y": 360,
+    "w": 360,
+    "h": 360
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 360,
+    "h": 360
+   },
+   "sourceSize": {
+    "w": 360,
+    "h": 360
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_ho_khi_2 6",
+   "frame": {
+    "x": 720,
+    "y": 360,
+    "w": 360,
+    "h": 360
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 360,
+    "h": 360
+   },
+   "sourceSize": {
+    "w": 360,
+    "h": 360
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_ho_khi_2 7",
+   "frame": {
+    "x": 1080,
+    "y": 360,
+    "w": 360,
+    "h": 360
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 360,
+    "h": 360
+   },
+   "sourceSize": {
+    "w": 360,
+    "h": 360
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_ho_khi_2 8",
+   "frame": {
+    "x": 0,
+    "y": 720,
+    "w": 360,
+    "h": 360
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 360,
+    "h": 360
+   },
+   "sourceSize": {
+    "w": 360,
+    "h": 360
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_ho_khi_2 9",
+   "frame": {
+    "x": 360,
+    "y": 720,
+    "w": 360,
+    "h": 360
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 360,
+    "h": 360
+   },
+   "sourceSize": {
+    "w": 360,
+    "h": 360
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_ho_khi_2 10",
+   "frame": {
+    "x": 720,
+    "y": 720,
+    "w": 360,
+    "h": 360
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 360,
+    "h": 360
+   },
+   "sourceSize": {
+    "w": 360,
+    "h": 360
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_ho_khi_2 11",
+   "frame": {
+    "x": 1080,
+    "y": 720,
+    "w": 360,
+    "h": 360
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 360,
+    "h": 360
+   },
+   "sourceSize": {
+    "w": 360,
+    "h": 360
+   },
+   "duration": 42
+  }
+ ],
+ "meta": {
+  "app": "beanfx",
+  "version": "1",
+  "image": "lv_ho_khi_2.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 1440,
+   "h": 1080
+  },
+  "scale": "1",
+  "frameTags": [
+   {
+    "name": "lv_ho_khi_2",
+    "from": 0,
+    "to": 11,
+    "direction": "forward"
+   }
+  ],
+  "beanfx": {
+   "name": "lv_ho_khi_2",
+   "fps": 24,
+   "loop": true,
+   "end": "loop",
+   "frames": 12,
+   "rows": 1,
+   "frameSize": [
+    360,
+    360
+   ],
+   "pivot": [
+    180,
+    180
+   ],
+   "columns": 4,
+   "blend_light": "add",
+   "light_gain": 1.0,
+   "view": "3/4",
+   "directions": 1,
+   "facing": "east",
+   "mirror": true,
+   "mirror_pivot": [
+    180,
+    180
+   ],
+   "sheet": "lv_ho_khi_2.png",
+   "light": "lv_ho_khi_2_light.png",
+   "color": "lv_ho_khi_2_color.png"
+  }
+ }
+}
