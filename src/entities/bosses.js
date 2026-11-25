@@ -269,7 +269,7 @@ const P2_PATS = {
     placeZones(io, B, player, zs, Q.T0); windup(m, Q.WINDUP); m.dirX = Math.cos(ap); m.dirY = Math.sin(ap); return true;   // chồm dậy suốt lúc gồng, dậm xuống đúng lúc vành đầu nổ
   },
   hunt(m, player, dx, dy, d, io, B, V, phase2) { return chain(m, 'hunt', [['leap'], ['leap']], V.HUNT.GAP, false, player, dx, dy, d, io, B, V, phase2); },
-  cracks(m, player, dx, dy, d, io, B, V) {   // Huyết Trảo Phá Địa: giơ vuốt cào, 3 vệt nứt hình quạt mọc gai máu nổ lần lượt
+  cracks(m, player, dx, dy, d, io, B, V) {   // Huyết Trảo Phá Địa: giơ vuốt cào, 3 vệt nứt hình quạt mọc gai máu cùng lúc
     const K = V.CRACKS, ap = Math.atan2(dy, dx), side = io.rng() < 0.5 ? -1 : 1, zs = [];
     for (let i = 0; i < K.N; i++) {
       const a = ap + side * (i - (K.N - 1) / 2) * K.SPREAD, c = Math.cos(a), s = Math.sin(a);

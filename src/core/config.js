@@ -288,8 +288,8 @@ export const BOSS_V2 = {
     COMBO: { CR: 100, L: -0.55, R: 0.55, WL: 0.75, WR: 0.65, BITE_D: 48, BITE_R: 42, BITE_T: 0.9, BITE_DMG: 1.6, GAP: 0.2 },   // Cuồng Nha Liên Kích: quạt lệch trái -> phải -> cắn trước mặt
     QUAKE: { WINDUP: 1.0, N: 4, R0: 52, STEP: 44, W: 11, T0: 1.0, DT: 0.24, GAP: 0.85, DMG: 1.5 },   // Huyết Nguyệt Trấn Địa: vòng sóng nổ dần ra, chừa khe GAP rad (hướng về người chơi)
     HUNT: { GAP: 0.3 },                                                       // Lang Vương Truy Mệnh: Vồ 2 lần liền
-    CRACKS: { N: 3, SPREAD: 0.55, L: 270, W: 13, T0: 1.0, DT: 0.25, DMG: 1.6 },   // Huyết Trảo Phá Địa: giơ vuốt cào, 3 vệt nứt + gai máu hình quạt nổ lần lượt
-    RAGE_HOWL: { MX: 36, MY: -50, R: 110, T: 1.7, N: 3, DT: 0.3, DMG: 1.2 },                   // Cuồng Lang Bạo Khiếu (25/11): tiếng gầm R px quanh MIỆNG sói (lệch MX theo hướng mặt, MY), N nhịp dồn dập (bất tử sau trúng đòn 0,5 s -> tối đa 2 nhịp trúng)
+    CRACKS: { N: 3, SPREAD: 0.55, L: 270, W: 13, T0: 1.0, DT: 0, DMG: 1.6 },   // Huyết Trảo Phá Địa: giơ vuốt cào, 3 vệt nứt + gai máu hình quạt bật lên CÙNG LÚC với cú cào
+    RAGE_HOWL: { MX: 46, MY: -52, R: 110, T: 1.7, N: 3, DT: 0.3, DMG: 1.2 },                   // Cuồng Lang Bạo Khiếu (25/11): tiếng gầm R px quanh MIỆNG sói (lệch MX theo hướng mặt, MY), N nhịp dồn dập (bất tử sau trúng đòn 0,5 s -> tối đa 2 nhịp trúng)
   },
   // ---------- M10-10: Ma Ảnh Yêu Vương 2 pha / 7 chiêu (ĐÚNG 2 pha; cuồng nộ cũ chỉ là trạng thái trong P2) ----------
   // PHASE2 null = giữ ngưỡng hiện có BOSS.FINAL.PHASE2 (không đổi ngưỡng khi chưa duyệt).
