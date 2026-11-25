@@ -1,0 +1,1 @@
+{"frameSize": [64, 40], "pivot": [32, 39], "image": "boss_mini2_lao.png", "frames": {"LAO_gong": [0, 0], "LAO_bat": [64, 0], "LAO_bay": [128, 0], "LAO_dap": [192, 0]}, "eyes": {"LAO_gong": [[51, 28]], "LAO_bat": [[49, 17]], "LAO_bay": [[49, 12]], "LAO_dap": [[49, 29]]}, "source": "docs/concept/lang_vuong_p2_lao_chatgpt.png", "tool": "tools/boss_pose_sheet.py", "scale": 10.8}

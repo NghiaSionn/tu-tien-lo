@@ -105,3 +105,31 @@ test('Lang Vương: boss thật đứng TRONG vòng (vị trí 0) cùng 7 phân 
   assert.ok(Math.abs(q - 1) < 0.02, 'boss trên vòng: ' + q.toFixed(3)); assert.ok(u.clones[0].real);
   assert.ok(u.R >= BOSS_ULT.MINI.R * 0.5 && u.R <= BOSS_ULT.MINI.R && u.RY <= BOSS_ULT.MINI.RY);
 });
+
+test('vùng sáng phụ là chỗ trú THẬT: không vòng ma trảo nào chạm vào; đứng trong đó suốt đợt thì không trúng', () => {
+  const U = BOSS_ULT.FINAL;
+  for (const seed of [1, 2, 3, 4, 5, 6]) {
+    // người chơi chạy thẳng vào vùng sáng phụ khi nó mở, đứng yên tới hết
+    const f = fight('FINAL', seed, { move: (p, r, b) => { const l = b && b.ult && b.ult.lights[0]; if (!l) return; const dx = l.x - p.x, dy = l.y - p.y, d = Math.hypot(dx, dy), st = Math.min(d, PLAYER.SPEED * 0.8 * DT); if (d > 0.1) { p.x += dx / d * st; p.y += dy / d * st; } } });
+    let checked = 0, dmg0 = null, inside = false;
+    for (let i = 0; i < 30 * 13; i++) {
+      f.step(1); const b = f.boss(); if (!b || !b.ult) continue;
+      for (const l of b.ult.lights) {
+        for (const h of f.r.scene.hazards) if (h.src === 'boss:ultEye') { assert.ok(Math.hypot(h.x - l.x, h.y - l.y) >= l.r + U.CLAW_R, `seed ${seed}: vòng ma trảo chạm chỗ trú`); checked++; }
+        if (Math.hypot(f.p.x - l.x, f.p.y - l.y) < l.r - 4) { if (!inside) { inside = true; dmg0 = f.r.dmgBy['boss:ultEye'] || 0; } }
+        if (inside) assert.equal(f.r.dmgBy['boss:ultEye'] || 0, dmg0, `seed ${seed}: đứng trong chỗ trú mà trúng`);
+      }
+    }
+    assert.ok(checked > 0 && inside, `seed ${seed}: có kiểm (${checked}) và chạy tới được chỗ trú`);
+  }
+});
+
+test('Lang Vương: sói lướt cực nhanh và qua giữa đường đúng lúc dải gây sát thương (hình khớp đòn)', () => {
+  const f = fight('MINI', 2); const seen = new Set();
+  for (let i = 0; i < 30 * 13; i++) {
+    f.step(1); const b = f.boss(); if (!b || !b.ult) continue;
+    for (const d of b.ult.dashes) { if (seen.has(d)) continue; seen.add(d);
+      assert.ok(d.dur < 0.35, 'lướt nhanh: ' + d.dur.toFixed(2)); assert.ok(Math.abs(d.fire + d.dur / 2 - d.hit) < 1e-6); }
+  }
+  assert.equal(seen.size, 11);
+});

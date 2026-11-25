@@ -1,0 +1,383 @@
+{
+ "frames": [
+  {
+   "filename": "yv_ma_trao 0",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 96
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_ma_trao 1",
+   "frame": {
+    "x": 96,
+    "y": 0,
+    "w": 96,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 96
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_ma_trao 2",
+   "frame": {
+    "x": 192,
+    "y": 0,
+    "w": 96,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 96
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_ma_trao 3",
+   "frame": {
+    "x": 288,
+    "y": 0,
+    "w": 96,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 96
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_ma_trao 4",
+   "frame": {
+    "x": 0,
+    "y": 96,
+    "w": 96,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 96
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_ma_trao 5",
+   "frame": {
+    "x": 96,
+    "y": 96,
+    "w": 96,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 96
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_ma_trao 6",
+   "frame": {
+    "x": 192,
+    "y": 96,
+    "w": 96,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 96
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_ma_trao 7",
+   "frame": {
+    "x": 288,
+    "y": 96,
+    "w": 96,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 96
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_ma_trao 8",
+   "frame": {
+    "x": 0,
+    "y": 192,
+    "w": 96,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 96
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_ma_trao 9",
+   "frame": {
+    "x": 96,
+    "y": 192,
+    "w": 96,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 96
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_ma_trao 10",
+   "frame": {
+    "x": 192,
+    "y": 192,
+    "w": 96,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 96
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_ma_trao 11",
+   "frame": {
+    "x": 288,
+    "y": 192,
+    "w": 96,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 96
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_ma_trao 12",
+   "frame": {
+    "x": 0,
+    "y": 288,
+    "w": 96,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 96
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_ma_trao 13",
+   "frame": {
+    "x": 96,
+    "y": 288,
+    "w": 96,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 96
+   },
+   "duration": 42
+  },
+  {
+   "filename": "yv_ma_trao 14",
+   "frame": {
+    "x": 192,
+    "y": 288,
+    "w": 96,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 96
+   },
+   "duration": 42
+  }
+ ],
+ "meta": {
+  "app": "beanfx",
+  "version": "1",
+  "image": "yv_ma_trao.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 384,
+   "h": 384
+  },
+  "scale": "1",
+  "frameTags": [
+   {
+    "name": "yv_ma_trao",
+    "from": 0,
+    "to": 14,
+    "direction": "forward"
+   }
+  ],
+  "beanfx": {
+   "name": "yv_ma_trao",
+   "fps": 24,
+   "loop": false,
+   "end": "remove",
+   "frames": 15,
+   "rows": 1,
+   "frameSize": [
+    96,
+    96
+   ],
+   "pivot": [
+    48,
+    70
+   ],
+   "columns": 4,
+   "blend_light": "add",
+   "light_gain": 1.0,
+   "view": "3/4",
+   "directions": 1,
+   "facing": "east",
+   "mirror": true,
+   "mirror_pivot": [
+    48,
+    70
+   ],
+   "sheet": "yv_ma_trao.png",
+   "light": "yv_ma_trao_light.png",
+   "color": "yv_ma_trao_color.png"
+  }
+ }
+}

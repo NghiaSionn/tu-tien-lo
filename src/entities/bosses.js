@@ -154,13 +154,13 @@ export function bossAI(m, player, dx, dy, d, dt, io) {
 // Mở đầu: sự kiện bossUlt -> main.js chiếu cutscene ngắn (CUTSCENE.*_ULT), trận đứng yên trong lúc chiếu.
 const ULT_WOLF = [   // [giây, phân thân k (góc k·45° + gốc; k = 0 là BOSS THẬT), đích (k + 4 = xuyên tâm, khác = dây cung), báo trước, tốc độ]
   [1.2, 2, 6, 0.95], [2.7, 1, 5, 0.9], [3.1, 3, 7, 0.9], [4.2, 2, 6, 0.85], [4.6, 4, 8, 0.85],
-  [5.7, 5, 8, 0.8], [6.1, 1, 4, 0.8], [6.5, 3, 6, 0.8], [7.2, 2, 7, 0.8], [7.6, 0, 4, 0.8], [8.0, 6, 10, 0.75, 330],
+  [5.7, 5, 8, 0.8], [6.1, 1, 4, 0.8], [6.5, 3, 6, 0.8], [7.2, 2, 7, 0.8], [7.6, 0, 4, 0.8], [8.0, 6, 10, 0.75, 1600],
 ];
 const ULT_CLAW = [   // [giây, báo trước, bù vị trí so với chỗ khóa [dx, dy] (khung xoay ngẫu nhiên), có vùng sáng phụ]
   [1.2, 1.2, [0, 0]],
   [2.9, 1.1, [0, 0]], [3.35, 1.1, [0, 0]],
   [4.6, 1.0, [-22, 0]], [4.6, 1.0, [22, 0]], [5.1, 1.0, [0, 0]],
-  [6.3, 1.1, [0, 0]], [6.3, 1.1, [-34, 26]], [6.3, 1.1, [-34, -26]], [6.3, 0, null, 'light'],
+  [6.3, 1.1, [0, 0]], [6.3, 1.1, [34, 26]], [6.3, 1.1, [34, -26]], [6.3, 0, null, 'light'],
   [8.0, 0.9, [0, 0]], [8.35, 0.9, [0, 0]], [8.7, 0.9, [0, 0]], [9.05, 0.9, [0, 0]],
 ];
 function startUlt(m, player, io, U) {
@@ -202,7 +202,8 @@ function updateUlt(m, player, dt, io, B, U) {
     if (e.kind === 'dash') {   // sói k lao tới phía đối diện (qua tâm hoặc dây cung), dải rộng W
       const c = u.clones[e.k], to = u.clones[e.to], ux = to.x - c.x, uy = to.y - c.y, l = Math.hypot(ux, uy) || 1, ex = to.x + ux / l * 16, ey = to.y + uy / l * 16;
       addHazard(io, B, { x: (c.x + ex) / 2, y: (c.y + ey) / 2, x0: c.x, y0: c.y, x1: ex, y1: ey, r: U.W / 2, t: e.tele - late, dmg: m.dmg * U.DMG, owner: m, src: 'miniboss:ult', color: U.COLOR });
-      c.hot = u.t + e.tele - late; u.dashes.push({ x0: c.x, y0: c.y, x1: ex, y1: ey, fire: c.hot, dur: (l + 16) / e.sp, k: e.k });
+      const dur = (l + 16) / e.sp;   // (25/11) lướt cực nhanh; sói qua GIỮA đường đúng lúc dải gây sát thương (hình khớp đòn)
+      c.hot = u.t + e.tele - late; u.dashes.push({ x0: c.x, y0: c.y, x1: ex, y1: ey, fire: c.hot - dur / 2, hit: c.hot, dur, k: e.k });
       io.ev.push({ type: 'sfx', name: 'bossWarn' });
     } else if (e.kind === 'eye') {   // mắt mở ngoài vùng sáng; khóa vị trí sau LOCK giây
       const a = u.a0 + u.eyes.length * 2.4, r = U.EYE_R[0] + io.rng() * (U.EYE_R[1] - U.EYE_R[0]);
@@ -215,7 +216,12 @@ function updateUlt(m, player, dt, io, B, U) {
   }
   for (const eye of u.eyes) if (!eye.locked && u.t >= eye.lockAt) {   // khóa: vòng ma trảo tại chỗ người chơi (+ bù theo khung xoay)
     eye.locked = true;
-    const [ox, oy] = eye.off, c = Math.cos(eye.rot), s = Math.sin(eye.rot), x = player.x + ox * c - oy * s, y = player.y + ox * s + oy * c;
+    const [ox, oy] = eye.off, c = Math.cos(eye.rot), s = Math.sin(eye.rot);
+    let x = player.x + ox * c - oy * s, y = player.y + ox * s + oy * c;
+    for (const l of u.lights) {   // (25/11) chỗ trú phải an toàn thật: vòng ma trảo không được chạm vùng sáng phụ
+      const ddx = x - l.x, ddy = y - l.y, dd = Math.hypot(ddx, ddy), min = l.r + U.CLAW_R + PLAYER.HITBOX + 2;
+      if (dd < min) { const a = dd > 0.5 ? Math.atan2(ddy, ddx) : u.a0; x = l.x + Math.cos(a) * min; y = l.y + Math.sin(a) * min; }
+    }
     eye.zx = x; eye.zy = y;
     addHazard(io, B, { x, y, r: U.CLAW_R, t: Math.max(0.1, eye.fire - u.t), dmg: m.dmg * U.DMG, owner: m, src: 'boss:ultEye', color: U.COLOR });
   }

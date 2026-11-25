@@ -1,0 +1,361 @@
+{
+ "frames": [
+  {
+   "filename": "lv_huyet_anh 0",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 256,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 256,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 256,
+    "h": 48
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_huyet_anh 1",
+   "frame": {
+    "x": 256,
+    "y": 0,
+    "w": 256,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 256,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 256,
+    "h": 48
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_huyet_anh 2",
+   "frame": {
+    "x": 0,
+    "y": 48,
+    "w": 256,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 256,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 256,
+    "h": 48
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_huyet_anh 3",
+   "frame": {
+    "x": 256,
+    "y": 48,
+    "w": 256,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 256,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 256,
+    "h": 48
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_huyet_anh 4",
+   "frame": {
+    "x": 0,
+    "y": 96,
+    "w": 256,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 256,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 256,
+    "h": 48
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_huyet_anh 5",
+   "frame": {
+    "x": 256,
+    "y": 96,
+    "w": 256,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 256,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 256,
+    "h": 48
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_huyet_anh 6",
+   "frame": {
+    "x": 0,
+    "y": 144,
+    "w": 256,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 256,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 256,
+    "h": 48
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_huyet_anh 7",
+   "frame": {
+    "x": 256,
+    "y": 144,
+    "w": 256,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 256,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 256,
+    "h": 48
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_huyet_anh 8",
+   "frame": {
+    "x": 0,
+    "y": 192,
+    "w": 256,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 256,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 256,
+    "h": 48
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_huyet_anh 9",
+   "frame": {
+    "x": 256,
+    "y": 192,
+    "w": 256,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 256,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 256,
+    "h": 48
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_huyet_anh 10",
+   "frame": {
+    "x": 0,
+    "y": 240,
+    "w": 256,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 256,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 256,
+    "h": 48
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_huyet_anh 11",
+   "frame": {
+    "x": 256,
+    "y": 240,
+    "w": 256,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 256,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 256,
+    "h": 48
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_huyet_anh 12",
+   "frame": {
+    "x": 0,
+    "y": 288,
+    "w": 256,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 256,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 256,
+    "h": 48
+   },
+   "duration": 42
+  },
+  {
+   "filename": "lv_huyet_anh 13",
+   "frame": {
+    "x": 256,
+    "y": 288,
+    "w": 256,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 256,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 256,
+    "h": 48
+   },
+   "duration": 42
+  }
+ ],
+ "meta": {
+  "app": "beanfx",
+  "version": "1",
+  "image": "lv_huyet_anh.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 512,
+   "h": 336
+  },
+  "scale": "1",
+  "frameTags": [
+   {
+    "name": "lv_huyet_anh",
+    "from": 0,
+    "to": 13,
+    "direction": "forward"
+   }
+  ],
+  "beanfx": {
+   "name": "lv_huyet_anh",
+   "fps": 24,
+   "loop": false,
+   "end": "remove",
+   "frames": 14,
+   "rows": 1,
+   "frameSize": [
+    256,
+    48
+   ],
+   "pivot": [
+    6,
+    24
+   ],
+   "columns": 2,
+   "blend_light": "add",
+   "light_gain": 1.0,
+   "view": "top-down",
+   "directions": 1,
+   "facing": "east",
+   "mirror": true,
+   "mirror_pivot": [
+    250,
+    24
+   ],
+   "sheet": "lv_huyet_anh.png",
+   "light": "lv_huyet_anh_light.png",
+   "color": "lv_huyet_anh_color.png"
+  }
+ }
+}

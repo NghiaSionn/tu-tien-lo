@@ -859,12 +859,14 @@ function drawTransformBody(ctx, m, time, vis) {
   drawEyes(ctx, m, time, fin && e && e.length > 4 ? pts.slice(0, 4) : pts, 1.4);
 }
 // Lang Vương pha 2: sheet dựng xương (12 khung đi + gồng + hú), bước theo tốc độ chạy; aura lửa dọc bờm/lưng/đuôi
-function drawWolfP2(ctx, m, time, sh) {
-  const K = BOSS.DRAW_SCALE, x = Math.round(m.x), y = Math.round(m.y), flip = mobFlip(m), pul = 0.5 + 0.5 * Math.sin(time * 5);
+function drawWolfP2(ctx, m, time, sh, vis) {
+  const K = BOSS.DRAW_SCALE, x = Math.round(m.x), y = Math.round(m.y), pul = 0.5 + 0.5 * Math.sin(time * 5), pose = wolfP2Pose(m, vis, time);   // (25/11) tư thế gồng / bật / bay / đáp
+  const flip = pose && pose.flip !== undefined ? pose.flip : m.ult ? m.x > m.ult.cx : mobFlip(m);
   const dt = Math.min(0.1, Math.max(0, time - (m._lt ?? time))); m._lt = time;
   const sp = Math.hypot(m.vx || 0, m.vy || 0);
   m._wph = ((m._wph || 0) + dt * Math.min(24, sp / (29.03 / 12))) % 12;   // khung/giây = tốc độ / (sải ÷ 12 khung): chân không trượt
-  const name = m.st === 'windup' ? 'MINI2_atk' : 'MINI2_walk' + (sp > 1 ? Math.floor(m._wph) : 0);
+  const name = pose ? pose.name : m.st === 'windup' ? 'MINI2_atk' : 'MINI2_walk' + (sp > 1 ? Math.floor(m._wph) : 0);
+  if (pose) sh = pose.sh;
   const auraK = m.st === 'windup' ? BOSS_P2.MINI.AURA_WINDUP : 1;
   ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(x - 20 * K, y - 4, 40 * K, 7);   // sói thật: có bóng
   // lớp aura phía sau: vòng đỏ dưới chân + viền lửa
@@ -892,9 +894,10 @@ function drawWolfP2(ctx, m, time, sh) {
 // Pha 2 "Huyết Lôi Ma Quân" (sprites/boss_final2): cánh khói + lõi ma ấn, viền đỏ hồng, vòng phù văn thứ hai, sét trên sừng/vai,
 // mắt đỏ kéo vệt. Aura giảm còn AURA_WINDUP khi gồng chiêu.
 function drawWraithBoss(ctx, m, time, sh1, vis) {
-  const p2 = m.p2 && m.st !== 'phase' && vis.bossFinal2, sh = p2 ? vis.bossFinal2 : sh1, P = p2 ? 'FINAL2' : 'FINAL';
+  const p2 = m.p2 && m.st !== 'phase' && vis.bossFinal2, P = p2 ? 'FINAL2' : 'FINAL', pose = p2 ? wraithP2Pose(m, vis) : null;   // (25/11) tư thế thi triển
+  const sh = pose ? pose.sh : p2 ? vis.bossFinal2 : sh1;
   const K = BOSS.DRAW_SCALE, flip = mobFlip(m), x = Math.round(m.x), y = Math.round(m.y), M = sh.meta;
-  const name = m.hit > 0 ? P + '_hurt' : m.st === 'windup' ? (m.pat === 'summon' ? P + '_cast' : P + '_atk')
+  const name = pose ? pose.name : m.hit > 0 ? P + '_hurt' : m.st === 'windup' ? (m.pat === 'summon' ? P + '_cast' : P + '_atk')
     : P + '_walk' + (Math.floor(time * 7 + (m.ph || 0) * 8) % (M.float || 8));
   const pul = 0.5 + 0.5 * Math.sin(time * 3), auraK = m.st === 'windup' ? BOSS_P2.FINAL.AURA_WINDUP : 1, rim = m.p2 ? sh.rage : sh.glow;
   const tr = m._trail || (m._trail = []);
@@ -961,6 +964,29 @@ function wolfEyes(sh, pose, x, y, flip, K) {   // vị trí mắt theo meta spri
   const e = eyeOf(sh, pose);
   return e ? e.map(([ex, ey]) => framePt(sh, x, y, flip, ex, ey, K)) : [[x + (flip ? -1 : 1) * 17 * K, y - 21 * K]];
 }
+// Tư thế sói k trong vòng tại u.t (25/11, sheet boss_mini2_lao): gồng -> bật -> bay -> đáp; rảnh = null (dáng đứng cũ).
+function ultWolfPose(u, k) {
+  for (const d of u.dashes) if (d.k === k) {
+    const t = u.t - d.fire;
+    if (t >= -0.4 && t < 0) return { name: 'LAO_gong', d, k: 0 };
+    if (t >= 0 && t < d.dur) { const p = t / d.dur; return { name: p < 0.16 ? 'LAO_bat' : p > 0.9 ? 'LAO_dap' : 'LAO_bay', d, k: p }; }
+    if (t >= d.dur && t < d.dur + 0.6) return { name: 'LAO_dap', d, k: 1, after: t - d.dur };
+  }
+  return null;
+}
+// Huyết Ảnh Trảm (beanfx lv_huyet_anh): vệt máu theo sau sói. Đang lao: khung đầy cắt tới chỗ sói; lao xong: 8 khung tan.
+function drawHuyetAnh(ctx, vis, d, t) {
+  const fx = p2Fx(vis, 'lv_huyet_anh'); if (!fx) return false;
+  const prog = t / d.dur, dx = d.x1 - d.x0, dy = d.y1 - d.y0, len = Math.hypot(dx, dy);
+  const f = prog < 1 ? 5 : 6 + Math.floor((t - d.dur) * 24);
+  if (prog < 0 || f >= vis.FX.lv_huyet_anh.meta.frames) return true;
+  ctx.save(); ctx.imageSmoothingEnabled = false;
+  ctx.translate(Math.round(d.x0), Math.round(d.y0) - 20); ctx.rotate(Math.atan2(dy, dx)); ctx.scale(len / 244, 2);
+  if (prog < 1) { ctx.beginPath(); ctx.rect(-8, -30, 244 * prog - 12 * 244 / len, 60); ctx.clip(); }   // cắt ngang thân sói
+  fx.frame = f; fx.x = 0; fx.y = 0; fx.scale = 1; fx.lightGain = 0.35; fx.draw(ctx); ctx.restore();   // sáng vừa để vệt giữ màu đỏ trên nền cỏ
+  return true;
+}
+let DARK_BUF = null;
 function drawUlt(ctx, scene, p, time, vis, camX, camY) {
   const m = scene.monsters.find(q => q.boss && !q.dead && q.ult); if (!m) return;
   const u = m.ult, U = BOSS_ULT[m.bossKind], K = BOSS.DRAW_SCALE, cut = ULT_CUT;
@@ -969,30 +995,33 @@ function drawUlt(ctx, scene, p, time, vis, camX, camY) {
     ctx.fillStyle = U.COLOR;   // vòng vây
     const n = Math.round(u.R * 0.8);
     for (let i = 0; i < n; i++) { if ((i + Math.floor(time * 8)) % 3 === 0) continue; const a = i / n * 6.283; ctx.globalAlpha = 0.7 * fin * (cut ? Math.min(1, cut.reveal / 7) : 1); ctx.fillRect(Math.round(u.cx + Math.cos(a) * u.R) - 1, Math.round(u.cy + Math.sin(a) * (u.RY || u.R)) - 1, 2, 2); }   // bầu dục
-    const sh = (vis && vis.bossMini2) || (vis && vis.bosses), pose = sh && (sh.meta.frames.MINI2_walk0 ? 'MINI2_walk0' : Object.keys(sh.meta.frames)[0]);
-    const wolf = (x, y, flip, a) => { if (!sh) return; ctx.globalAlpha = a; sheetFrame(ctx, sh, pose, x, y, flip, sh.img, K);
+    const st = (vis && vis.bossMini2) || (vis && vis.bosses), lao = vis && vis.bossMini2Lao, stand = st && (st.meta.frames.MINI2_walk0 ? 'MINI2_walk0' : Object.keys(st.meta.frames)[0]);
+    const wolf = (sh, pose, x, y, flip, a) => { if (!sh) return; ctx.globalAlpha = a; sheetFrame(ctx, sh, pose, x, y, flip, sh.img, K);
       if (sh.rage) { ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = a * 0.12; sheetFrame(ctx, sh, pose, x, y, flip, sh.rage, K); ctx.globalCompositeOperation = 'source-over'; } };   // ánh đỏ nhẹ (đậm quá thành hồng nhạt)
+    const eyes = (sh, pose, x, y, flip, hot, a) => { ctx.globalCompositeOperation = 'lighter';
+      for (const [ex, ey] of wolfEyes(sh, pose, x, y, flip, K)) {
+        ctx.globalAlpha = (hot ? 0.95 : 0.75) * a; ctx.fillStyle = hot ? '#fff0e0' : '#ff3a2a'; ctx.fillRect(Math.round(ex) - 1, Math.round(ey) - 1, 3, 2);
+        ctx.globalAlpha = (hot ? 0.5 : 0.25) * a; ctx.fillStyle = U.COLOR; ctx.beginPath(); ctx.arc(ex, ey, hot ? 7 : 4, 0, 6.283); ctx.fill();
+      }
+      ctx.globalCompositeOperation = 'source-over'; };
+    if (!cut) for (const d of u.dashes) drawHuyetAnh(ctx, vis, d, u.t - d.fire);   // vệt máu dưới lớp sói
     const eyesOn = !cut || cut.eyesOn;
     for (let k = 1; k < u.clones.length; k++) {   // k = 0 là boss thật (vẽ như boss)
       if (cut && k > cut.reveal) continue;
-      const c = u.clones[k], dash = u.dashes.find(d => d.k === k && u.t >= d.fire && u.t < d.fire + d.dur);
-      if (dash) continue;
-      const charging = !cut && c.hot > u.t && c.hot - u.t < 1.0, flip = c.x > u.cx;
+      const c = u.clones[k], P = cut || !lao ? null : ultWolfPose(u, k), flying = P && P.name !== 'LAO_gong';
+      if (flying && !P.after) continue;   // đang lao: vẽ ở dưới
+      const charging = !cut && c.hot > u.t && c.hot - u.t < 1.0, gong = P && P.name === 'LAO_gong', flip = gong ? P.d.x1 < P.d.x0 : c.x > u.cx;
       const pop = cut ? Math.min(1, (cut.t - (cut.T.RING[0] + (k - 1) * 0.07)) / 0.12) : 1;   // hiện bằng vài khung mờ
-      wolf(c.x, c.y, flip, (charging ? 0.95 : 0.72) * fin * Math.max(0, pop));
-      if (eyesOn && sh) {
-        ctx.globalCompositeOperation = 'lighter';
-        for (const [ex, ey] of wolfEyes(sh, pose, c.x, c.y, flip, K)) {
-          ctx.globalAlpha = (charging ? 0.95 : 0.75) * fin; ctx.fillStyle = charging ? '#fff0e0' : '#ff3a2a'; ctx.fillRect(Math.round(ex) - 1, Math.round(ey) - 1, 3, 2);
-          ctx.globalAlpha = (charging ? 0.5 : 0.25) * fin; ctx.fillStyle = U.COLOR; ctx.beginPath(); ctx.arc(ex, ey, charging ? 7 : 4, 0, 6.283); ctx.fill();
-        }
-        ctx.globalCompositeOperation = 'source-over';
-      }
+      const back = P && P.after !== undefined ? Math.max(0, (P.after - 0.3) / 0.3) : 1;       // lao xong: hiện lại ở chỗ cũ dần
+      const sh = gong ? lao : st, pose = gong ? 'LAO_gong' : stand, a = (charging ? 0.95 : 0.72) * fin * Math.max(0, pop) * back;
+      if (a > 0) { wolf(sh, pose, c.x, c.y, flip, a); if (eyesOn && sh) eyes(sh, pose, c.x, c.y, flip, charging, fin * back); }
     }
-    for (const d of u.dashes) {   // sói lao: 1 hình chính + 3 bóng mờ phía sau (boss thật tự di chuyển)
+    if (!cut) for (const d of u.dashes) {   // sói bóng lao: hình chính + 3 bóng mờ, đáp xuống rồi mờ dần ở cuối đường
       if (d.k === 0) continue;
-      const k = (u.t - d.fire) / d.dur; if (k < 0 || k >= 1) continue;
-      for (let j = 3; j >= 0; j--) { const kk = Math.max(0, k - j * 0.07); wolf(d.x0 + (d.x1 - d.x0) * kk, d.y0 + (d.y1 - d.y0) * kk, d.x1 < d.x0, j ? 0.22 : 0.9); }
+      const t = u.t - d.fire; if (t < 0 || t > d.dur + 0.45) continue;
+      const flip = d.x1 < d.x0, P = lao ? ultWolfPose(u, d.k) : null, sh = P ? lao : st, pose = P ? P.name : stand, k = Math.min(1, t / d.dur), out = t > d.dur ? Math.max(0, 1 - (t - d.dur) / 0.45) : 1;
+      for (let j = t > d.dur ? 0 : 3; j >= 0; j--) { const kk = Math.max(0, k - j * 0.07); wolf(sh, pose, d.x0 + (d.x1 - d.x0) * kk, d.y0 + (d.y1 - d.y0) * kk, flip, (j ? 0.22 : 0.92) * out); }
+      if (sh) eyes(sh, pose, d.x0 + (d.x1 - d.x0) * k, d.y0 + (d.y1 - d.y0) * k, flip, true, out);
     }
     ctx.globalAlpha = 1;
     return;
@@ -1000,17 +1029,25 @@ function drawUlt(ctx, scene, p, time, vis, camX, camY) {
   // ---- Yêu Vương: bóng tối + mắt đỏ + ma trảo ----
   if (cut) return;   // cutscene tự vẽ bóng tối của nó
   const fin = Math.min(1, Math.max(0, (U.DUR - u.t) / 1.2));   // cutscene đã tắt sáng sẵn -> vào trận tối ngay, không chớp sáng
-  const L = U.LIGHT, px = p.x, py = p.y - 8;
-  ctx.globalAlpha = 0.92 * fin; ctx.fillStyle = '#05010a';
-  ctx.beginPath(); ctx.rect(camX - 4, camY - 4, W + 8, H + 8); ctx.moveTo(px + L + 14, py); ctx.arc(px, py, L + 14, 0, 6.2832);
-  for (const l of u.lights) { ctx.moveTo(l.x + l.r + 8, l.y); ctx.arc(l.x, l.y, l.r + 8, 0, 6.2832); }   // vùng sáng phụ
-  ctx.fill('evenodd');
-  for (const [lx, ly, lr] of [[px, py, L + 14], ...u.lights.map(l => [l.x, l.y, l.r + 8])]) {   // mép mềm
-    const g = ctx.createRadialGradient(lx, ly, lr * 0.7, lx, ly, lr); g.addColorStop(0, 'rgba(5,1,10,0)'); g.addColorStop(1, 'rgba(5,1,10,1)');
-    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(lx, ly, lr, 0, 6.283); ctx.fill();
+  // bóng tối vẽ trên lớp riêng rồi KHOÉT từng vùng sáng (destination-out): các vùng sáng chồng nhau vẫn sáng
+  if (!DARK_BUF) { DARK_BUF = document.createElement('canvas'); DARK_BUF.width = W; DARK_BUF.height = H; }
+  const dg = DARK_BUF.getContext('2d'); dg.globalCompositeOperation = 'source-over'; dg.clearRect(0, 0, W, H); dg.fillStyle = '#05010a'; dg.fillRect(0, 0, W, H); dg.globalCompositeOperation = 'destination-out';
+  for (const [lx, ly, lr, la] of [[p.x, p.y - 8, U.LIGHT + 14, 1], ...u.lights.map(l => [l.x, l.y, l.r + 10, Math.min(1, (u.t - l.from) / 0.2) * Math.min(1, Math.max(0, (l.until - u.t) / 0.3))])]) {
+    const g = dg.createRadialGradient(lx - camX, ly - camY, lr * 0.7, lx - camX, ly - camY, lr); g.addColorStop(0, `rgba(0,0,0,${la})`); g.addColorStop(1, 'rgba(0,0,0,0)');
+    dg.fillStyle = g; dg.beginPath(); dg.arc(lx - camX, ly - camY, lr, 0, 6.2832); dg.fill();
   }
-  for (const l of u.lights) {   // viền vàng mờ: chỗ trú
-    ctx.globalAlpha = 0.6 * Math.min(1, (u.t - l.from) / 0.2) * Math.min(1, (l.until - u.t) / 0.3); tgRing(ctx, l.x, l.y, l.r, 48, '#ffe8a0', 1, 1);
+  ctx.globalAlpha = 0.92 * fin; ctx.drawImage(DARK_BUF, camX, camY);
+  // dáng Ma Quân mờ trong bóng tối + đôi mắt đỏ (tư thế thi triển: khép -> dang -> giơ cao, chỉ tay mỗi khi một con mắt mở)
+  const thi = vis && vis.bossFinal2Thi;
+  if (thi) {
+    const pose = wraithUltPose(u, U), bx = Math.round(m.x), by = Math.round(m.y), flip = p.x < m.x;
+    ctx.globalAlpha = 0.34 * fin; sheetFrame(ctx, thi, pose, bx, by, flip, thi.img, K);
+    ctx.globalCompositeOperation = 'lighter';
+    for (const [ex, ey] of wolfEyes(thi, pose, bx, by, flip, K)) { ctx.globalAlpha = (0.7 + 0.3 * Math.sin(time * 8)) * fin; ctx.fillStyle = '#ff2a3a'; ctx.fillRect(Math.round(ex) - 1, Math.round(ey) - 1, 4, 2); ctx.globalAlpha = 0.3 * fin; ctx.beginPath(); ctx.arc(ex, ey, 6, 0, 6.283); ctx.fill(); }
+    ctx.globalCompositeOperation = 'source-over';
+  }
+  for (const l of u.lights) {   // viền vàng: chỗ trú (không có ma trảo)
+    ctx.globalAlpha = 0.75 * Math.min(1, (u.t - l.from) / 0.2) * Math.min(1, Math.max(0, (l.until - u.t) / 0.3)); tgRing(ctx, l.x, l.y, l.r, 48, '#ffe8a0', 2, 1);
   }
   ctx.globalAlpha = 1;
   for (const h of scene.hazards) if (h.src === 'boss:ultEye') {   // vòng ma trảo vẽ xuyên bóng tối
@@ -1018,6 +1055,12 @@ function drawUlt(ctx, scene, p, time, vis, camX, camY) {
     ctx.globalAlpha = 0.3; ctx.fillStyle = '#a02060'; ctx.beginPath(); ctx.arc(h.x, h.y, h.r * prog, 0, 6.283); ctx.fill();
     ctx.globalAlpha = 0.95; tgRing(ctx, h.x, h.y, h.r, 40, '#ff3a6a', 2, 1);
   }
+  ctx.globalAlpha = 1;
+  // Ma Trảo Phá Thổ (beanfx yv_ma_trao): vết nứt 4 khung trước lúc nổ, móng bật lên ở khung 4 = đúng lúc gây sát thương
+  const hasFx = !!p2Fx(vis, 'yv_ma_trao');
+  for (const e of u.eyes) if (e.locked && !e.clawed && e.fire - u.t < 4 / 24) p2FxAt(ctx, vis, 'yv_ma_trao', Math.floor((u.t - (e.fire - 4 / 24)) * 24), e.zx, e.zy, 1.25);
+  for (const c of u.claws) if (hasFx) p2FxAt(ctx, vis, 'yv_ma_trao', 4 + Math.floor((u.t - c.at) * 24), c.x, c.y, 1.25);
+    else drawClawCode(ctx, c, u.t);
   for (const e of u.eyes) {   // mắt đỏ; vệt chấm từ mắt tới chỗ nó đang nhìn
     const left = e.fire - u.t, hot = left < 0.25 && left > -0.05, closing = u.t > e.fire ? Math.max(0, 1 - (u.t - e.fire) / 0.35) : 1;
     const tx = e.locked ? e.zx : p.x, ty = e.locked ? e.zy : p.y;
@@ -1030,15 +1073,42 @@ function drawUlt(ctx, scene, p, time, vis, camX, camY) {
     for (const dx of [-5, 3]) ctx.fillRect(Math.round(e.x + dx), Math.round(e.y - h2 / 2), 3, h2);
     ctx.globalCompositeOperation = 'source-over';
   }
-  for (const c of u.claws) {   // ma trảo trồi lên: 5 móng đen tím nhọn mọc từ đất rồi rút
-    const k = (u.t - c.at) / 0.5, hgt = (k < 0.3 ? k / 0.3 : 1 - (k - 0.3) / 0.7) * 26;
-    for (let i = 0; i < 5; i++) {
-      const ox = (i - 2) * 6, lean = (i - 2) * 2, x0 = c.x + ox, y0 = c.y + 4;
-      ctx.globalAlpha = 0.95; ctx.fillStyle = '#2a0a26'; ctx.beginPath(); ctx.moveTo(x0 - 3, y0); ctx.lineTo(x0 + 3, y0); ctx.lineTo(x0 + lean, y0 - hgt * (0.7 + 0.3 * (i % 2))); ctx.closePath(); ctx.fill();
-      ctx.fillStyle = '#ff3a6a'; ctx.fillRect(Math.round(x0 + lean) - 1, Math.round(y0 - hgt * (0.7 + 0.3 * (i % 2))), 2, 2);
-    }
+  ctx.globalAlpha = 1;
+}
+function wraithUltPose(u, U) {
+  if (u.t < 0.35 || u.t > U.DUR - 0.8) return 'THI_khep';
+  if (u.t < 0.9) return 'THI_dang';
+  return u.eyes.some(e => u.t - e.open < 0.4) ? 'THI_chi' : 'THI_cao';
+}
+function drawClawCode(ctx, c, t) {   // dự phòng khi thiếu sheet / đồ họa Thấp: 5 móng đen tím nhọn mọc từ đất rồi rút
+  const k = (t - c.at) / 0.5, hgt = (k < 0.3 ? k / 0.3 : 1 - (k - 0.3) / 0.7) * 26;
+  for (let i = 0; i < 5; i++) {
+    const ox = (i - 2) * 6, lean = (i - 2) * 2, x0 = c.x + ox, y0 = c.y + 4;
+    ctx.globalAlpha = 0.95; ctx.fillStyle = '#2a0a26'; ctx.beginPath(); ctx.moveTo(x0 - 3, y0); ctx.lineTo(x0 + 3, y0); ctx.lineTo(x0 + lean, y0 - hgt * (0.7 + 0.3 * (i % 2))); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#ff3a6a'; ctx.fillRect(Math.round(x0 + lean) - 1, Math.round(y0 - hgt * (0.7 + 0.3 * (i % 2))), 2, 2);
   }
   ctx.globalAlpha = 1;
+}
+// (25/11) Tư thế mới của boss pha 2 trong trận (ngoài tuyệt chiêu): { sh, name } hoặc null (dùng dáng cũ).
+function wolfP2Pose(m, vis, time) {
+  const lao = vis && vis.bossMini2Lao; if (!lao) return null;
+  if (m.ult) { const P = ultWolfPose(m.ult, 0); return P ? { sh: lao, name: P.name, flip: P.d.x1 < P.d.x0 } : null; }
+  const air = m.st === 'dash' || m.st === 'leap';
+  if (m._air && !air) m._landT = time;
+  m._air = air;
+  if (m.st === 'leap') return { sh: lao, name: 'LAO_bay', flip: m.leapX < m.lx0 };
+  if (m.st === 'dash') return { sh: lao, name: m.stT > BOSS.MINI.DASH.TIME * 0.75 ? 'LAO_bat' : 'LAO_bay', flip: m.dirX < 0 };
+  if (m.st === 'windup' && (m.pat === 'dash' || m.pat === 'leap')) return { sh: lao, name: 'LAO_gong', flip: m.pat === 'leap' ? m.leapX < m.x : m.dirX < 0 };
+  if (m._landT !== undefined && time - m._landT < 0.3) return { sh: lao, name: 'LAO_dap' };
+  return null;
+}
+const THI_POSE = { thunder: 'THI_chi', clones: 'THI_chi', chainBolt: 'THI_chi', zones: 'THI_chi', cross: 'THI_chi', runes: 'THI_cao', net: 'THI_cao', eight: 'THI_cao', prison: 'THI_cao', burst: 'THI_dang', sweep: 'THI_dang', slam: 'THI_dang' };
+function wraithP2Pose(m, vis) {
+  const thi = vis && vis.bossFinal2Thi; if (!thi || m.hit > 0) return null;
+  if (m.ult) return { sh: thi, name: ULT_CUT ? (ULT_CUT.t < 0.25 ? 'THI_khep' : ULT_CUT.t < 0.5 ? 'THI_dang' : 'THI_cao') : wraithUltPose(m.ult, BOSS_ULT.FINAL) };
+  if (m.st === 'sweep') return { sh: thi, name: 'THI_dang' };
+  if (m.st !== 'windup' || !THI_POSE[m.pat]) return null;
+  return { sh: thi, name: 1 - Math.max(0, m.stT) / (m.stMax || 1) < 0.25 ? 'THI_khep' : THI_POSE[m.pat] };   // thu vuốt rồi bung
 }
 // (24/11) Cutscene tuyệt chiêu — lớp màn hình (sau zoom). pack: tên chiêu theo vòng cung quanh tâm vòng rồi tan thành 8 vệt đỏ.
 // eyes: ánh sáng tắt từng vùng -> đôi mắt Ma Quân (chớp) -> mắt nhỏ mở nhìn người chơi -> vòng sáng quanh người chơi; tên lóe từng chữ.
@@ -1145,7 +1215,7 @@ function drawBoss(ctx, m, time, vis) {
   }
   if (bs && m.bossKind === 'FINAL' && bs.meta.float) return drawWraithBoss(ctx, m, time, bs, vis);
   if (m.bossKind === 'MINI' && m.p2 && vis && vis.bossMini2) {
-    drawWolfP2(ctx, m, time, vis.bossMini2);
+    drawWolfP2(ctx, m, time, vis.bossMini2, vis);
   } else if (bs) {
     ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(Math.round(m.x) - 20 * K, Math.round(m.y) - 4, 40 * K, 7);
     if (m.st === 'windup') {   // gồng chiêu: viền trắng sáng quanh thân

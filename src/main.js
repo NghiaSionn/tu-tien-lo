@@ -73,7 +73,7 @@ for (const name of ['kiem_khi', 'kiem_trung', 'loi_kiep', 'dot_pha', 'toa_thien'
 // đợt 2: Phi Kiếm Trận, Liệt Diễm (kiếm + vùng lửa), Băng Châm, Hàn Khí, Hỏa Luân, hắc diễm của boss
 for (const name of ['loi_cuong_back', 'loi_cuong_front', 'loi_vuc', 'hoa_cau_bay', 'hoa_cau_no', 'phong_nhan', 'hoa_long_quyen_v2',
   'phi_kiem', 'liet_diem_kiem', 'liet_diem_vung', 'bang_cham', 'han_khi', 'hoa_luan', 'hac_diem_no', 'hac_diem_dan',
-  'lv_pha_dia', 'yv_ho_den', 'lv_ho_khi']) { try { FX[name] = await loadFx(`fx/${name}.json`); } catch (e) { console.warn('[fx]', name, e); } }
+  'lv_pha_dia', 'yv_ho_den', 'lv_ho_khi', 'lv_huyet_anh', 'yv_ma_trao']) { try { FX[name] = await loadFx(`fx/${name}.json`); } catch (e) { console.warn('[fx]', name, e); } }
 const vis = makeVis(FX);
 const medFx = createFx(FX.toa_thien);
 // M5-02: sprite sheet ChatGPT vẽ, tools/sprite_clean.py làm sạch (docs/concept/). Lỗi nạp thì dùng sprite code cũ.
@@ -86,7 +86,7 @@ async function loadSheet(name) {
   const tint = col => { const c = document.createElement('canvas'); c.width = img.width; c.height = img.height; const g = c.getContext('2d'); g.drawImage(img, 0, 0); g.globalCompositeOperation = 'source-in'; g.fillStyle = col; g.fillRect(0, 0, c.width, c.height); return c; };
   return { img, meta, white: tint('#ffffff'), glow: tint('#c070ff'), wind: tint('#7ff0c8'), rage: tint('#ff4a2a') };   // rage: aura pha 2 (24/11)   // wind: tàn ảnh Phong Ảnh Bộ
 }
-for (const [key, name] of [['pbLang', 'pb_lang'], ['pbYeu', 'pb_yeu'], ['hero', 'nhan_vat'], ['mobs', 'quai'], ['bosses', 'boss'], ['bossIntro', 'boss_intro'], ['bossWalk', 'boss_walk'], ['bossIntroF', 'boss_intro_final'], ['bossFinal', 'boss_final'], ['bossFinal2', 'boss_final2'], ['bossMini2', 'boss_mini2'], ['rung', 'rung'], ['congTrinh', 'cong_trinh'], ['icons', 'bieu_tuong'], ['tienHoa', 'tien_hoa'], ['bia', 'bia'], ['phim', 'phim'],
+for (const [key, name] of [['pbLang', 'pb_lang'], ['pbYeu', 'pb_yeu'], ['hero', 'nhan_vat'], ['mobs', 'quai'], ['bosses', 'boss'], ['bossIntro', 'boss_intro'], ['bossWalk', 'boss_walk'], ['bossIntroF', 'boss_intro_final'], ['bossFinal', 'boss_final'], ['bossFinal2', 'boss_final2'], ['bossMini2', 'boss_mini2'], ['bossMini2Lao', 'boss_mini2_lao'], ['bossFinal2Thi', 'boss_final2_thi'], ['rung', 'rung'], ['congTrinh', 'cong_trinh'], ['icons', 'bieu_tuong'], ['tienHoa', 'tien_hoa'], ['bia', 'bia'], ['phim', 'phim'],
   ...(FEATURES.sectHub || /[?&]sect=1/.test(location.search) ? [['tmCt', 'tm_cong_trinh'], ['tmDv', 'tm_do_vat'], ['tmCd', 'tm_cay_da'], ['tmTran', 'tm_tran'], ['tmThem', 'tm_them'], ['tmCh', 'tm_chuong'], ['tmNui', 'tm_nui']] : [])]) {
   try { vis[key] = await loadSheet(name); } catch (e) { console.warn('[sprite] dùng hình cũ:', name, e); }
 }
