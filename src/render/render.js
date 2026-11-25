@@ -2807,7 +2807,7 @@ export function render(ctx, g) {
   if (g.cut) drawP2Ground(ctx, g.cut, vis, time);   // (24/11) VFX mặt đất cutscene pha 2: dưới cây / quái / boss
   mark('ground');
   for (const m of scene.monsters) objs.push({ y: m.y, m });
-  if (scene.kind === 'run') for (const o of bossFxObjs(vis, scene)) objs.push(o);   // (25/11) VFX chiêu boss dựng đứng: xếp theo chân
+  if (scene.kind === 'run') for (const o of bossFxObjs(vis, scene, time)) objs.push(o);   // (25/11) VFX chiêu boss dựng đứng: xếp theo chân
   objs.push({ y: p.y, player: true });
   if (scene.kind === 'hub' && FEATURES.run && g.portal && vis.pfx && !(g.sect && g.sect.gate)) objs.push({ y: g.portal.y, portal: true });
   if (scene.kind === 'hub' && g.bia && vis.ct && vis.ct.bia) objs.push({ y: g.bia.y, bia: true });

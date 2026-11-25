@@ -49,18 +49,22 @@ test('phiến đá chừa đúng khe an toàn của Trấn Địa', () => {
   for (const [x, y] of h._cl) { const a = Math.atan2(y - 3, x); assert.ok(Math.abs(a) > 0.425 + 9 / 110, `phiến đá lấn vào khe (${a.toFixed(2)})`); }
 });
 
-// ---- (25/11) góp ý: sóng khí vuốt bay, gầm nhiều nhịp, lướt xa hơn ----
-test('sóng khí vuốt: trúng đúng lúc đầu sóng lướt qua, mỗi sóng một lần, đứng ngoài dải không trúng', () => {
-  const mk = () => ({ x: 135, y: 0, x0: 0, y0: 0, x1: 270, y1: 0, r: 13, t: 0.02, max: 1, dmg: 5, src: 'miniboss:cracks', travel: 0.3 });
-  const run = (px, py) => {
-    const scene = { hazards: [mk()] }, ev = [], hits = []; let t = 0;
-    for (let i = 0; i < 30 && scene.hazards.length; i++) { t += 1 / 60; updateHazards(scene, { x: px, y: py, dead: false }, 1 / 60, ev, () => hits.push(t)); }
-    assert.equal(scene.hazards.length, 0); assert.equal(ev.filter(e => e.hz).length, 1, 'một sự kiện phóng');
-    return hits;
-  };
-  const a = run(40, 0), b = run(230, 5);
-  assert.equal(a.length, 1); assert.equal(b.length, 1); assert.ok(b[0] - a[0] > 0.15, 'đứng xa trúng sau');
-  assert.equal(run(120, 14).length, 0); assert.equal(run(-20, 0).length, 0); assert.equal(run(290, 0).length, 0);
+// ---- (25/11) góp ý: gầm nhiều nhịp từ miệng, lướt xa hơn ----
+test('Bạo Khiếu: vùng gầm tâm ở miệng sói (phía mặt đang quay), 3 nhịp cùng chỗ, trúng theo vòng đó', async () => {
+  const { BOSS_V2, BOSS } = await import('../src/core/config.js');
+  const { createRun, updateRun } = await import('../src/systems/run.js');
+  const { makeBoss } = await import('../src/systems/director.js');
+  const H = BOSS_V2.MINI.RAGE_HOWL;
+  for (const side of [1, -1]) {
+    const r = createRun({ seed: 5, startSkill: 'sword_qi', realmLevel: 0 }); r.bossV2 = true; r.scene.monsters.length = 0; r.time = BOSS.MINI.AT + 1; r.dir.mini = 'ALIVE';
+    const p = { x: r.scene.map.cx, y: r.scene.map.cy, inv: 1, dead: false, fx: 1, fy: 0 }, b = makeBoss(r, 'MINI', p.x - side * 80, p.y, 1);
+    b.p2 = true; b.hp = b.max * 0.4; b.tkDone = { 0.7: true, 0.4: true, 0.15: true }; b.tk = { seq: [['rageHowl']], i: 0, quiet: true, gap: 0.3 }; b.st = 'tkGap'; b.stT = 0;
+    for (let i = 0; i < 30 && !r.scene.hazards.length; i++) { p.inv = 1; updateRun(r, p, 1 / 30, []); r.hp = r.maxHp; r.pendingDrafts = 0; }
+    const hz = r.scene.hazards.filter(h => h.src === 'miniboss:rageHowl');
+    assert.equal(hz.length, H.N);
+    for (const h of hz) { assert.ok(Math.abs(h.x - (b.x + side * H.MX)) < 1 && Math.abs(h.y - (b.y + H.MY)) < 1, 'tâm ở miệng'); assert.equal(h.r, H.R); }
+    assert.equal(b.howlX, hz[0].x); assert.equal(b.howlY, hz[0].y);
+  }
 });
 
 test('tầm chiêu pha 2 rộng hơn bản cũ; Tam Xung lướt ít nhất gấp 1,8 lần lao thường', async () => {

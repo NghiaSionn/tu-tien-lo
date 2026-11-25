@@ -269,19 +269,18 @@ const P2_PATS = {
     placeZones(io, B, player, zs, Q.T0); windup(m, Q.WINDUP); m.dirX = Math.cos(ap); m.dirY = Math.sin(ap); return true;   // chồm dậy suốt lúc gồng, dậm xuống đúng lúc vành đầu nổ
   },
   hunt(m, player, dx, dy, d, io, B, V, phase2) { return chain(m, 'hunt', [['leap'], ['leap']], V.HUNT.GAP, false, player, dx, dy, d, io, B, V, phase2); },
-  cracks(m, player, dx, dy, d, io, B, V) {   // Huyết Trảo Phá Địa: giơ vuốt cào, 3 sóng khí sắc bén bay dọc 3 đường hình quạt
+  cracks(m, player, dx, dy, d, io, B, V) {   // Huyết Trảo Phá Địa: giơ vuốt cào, 3 vệt nứt hình quạt mọc gai máu nổ lần lượt
     const K = V.CRACKS, ap = Math.atan2(dy, dx), side = io.rng() < 0.5 ? -1 : 1, zs = [];
     for (let i = 0; i < K.N; i++) {
       const a = ap + side * (i - (K.N - 1) / 2) * K.SPREAD, c = Math.cos(a), s = Math.sin(a);
       zs.push(zSeg(m.x + c * 18, m.y + s * 18, m.x + c * K.L, m.y + s * K.L, K.W, K.T0 + i * K.DT, m.dmg * K.DMG, m, 'miniboss:cracks', '#ff5a3a'));
-      zs[i].travel = K.TRAVEL;   // sóng khí bay: trúng khi đầu sóng lướt qua (updateHazards)
     }
     placeZones(io, B, player, zs, K.T0); windup(m, K.T0); m.dirX = Math.cos(ap); m.dirY = Math.sin(ap); return true;
   },
   rageHowl(m, player, dx, dy, d, io, B, V) {   // Cuồng Lang Bạo Khiếu: vòng nổ lớn quanh thân
-    const H = V.RAGE_HOWL;
-    for (let i = 0; i < H.N; i++) addHazard(io, B, { x: m.x, y: m.y, r: H.R, t: H.T + i * H.DT, dmg: m.dmg * H.DMG, owner: m, src: 'miniboss:rageHowl', color: '#ffb050', pulse: i, ev: [{ type: 'shake', t: 0.34, a: 4 }, ...(i ? [] : [{ type: 'sfx', name: 'howl' }])] });
-    windup(m, H.T + (H.N - 1) * H.DT); m.howlT = H.T; m.dirX = dx; m.dirY = dy; return true;   // hít hơi rồi gầm suốt N nhịp
+    const H = V.RAGE_HOWL, mx = m.x + (dx < 0 ? -1 : 1) * H.MX, my = m.y + H.MY;   // tâm = miệng sói lúc gầm (khóa hướng mặt từ đầu)
+    for (let i = 0; i < H.N; i++) addHazard(io, B, { x: mx, y: my, r: H.R, t: H.T + i * H.DT, dmg: m.dmg * H.DMG, owner: m, src: 'miniboss:rageHowl', color: '#ffb050', pulse: i, ev: [{ type: 'shake', t: 0.34, a: 4 }, ...(i ? [] : [{ type: 'sfx', name: 'howl' }])] });
+    windup(m, H.T + (H.N - 1) * H.DT); m.howlT = H.T; m.howlX = mx; m.howlY = my; m.dirX = dx; m.dirY = dy; return true;   // hít hơi rồi gầm suốt N nhịp
   },
   // ---- Ma Ảnh Yêu Vương / Huyết Lôi Ma Quân ----
   thunder(m, player, dx, dy, d, io, B, V) {   // Huyết Lôi Thiên Phạt: điểm đầu ngay chỗ người chơi, 3 điểm quanh đó nổ tiếp
@@ -573,11 +572,6 @@ function unstick(m, d, dt, io, player) {
   return false;
 }
 
-// đầu sóng đi từ u0 tới u1 (tỉ lệ dọc dải) có quét qua người chơi không; lưỡi dày 10 px
-export function travelHits(h, p, u0, u1) {
-  const vx = h.x1 - h.x0, vy = h.y1 - h.y0, L = Math.hypot(vx, vy) || 1, s = ((p.x - h.x0) * vx + (p.y - h.y0) * vy) / L, off = Math.abs((p.x - h.x0) * vy - (p.y - h.y0) * vx) / L;
-  return off < h.r && s >= u0 * L - 10 && s <= u1 * L + 4 && s <= L;
-}
 // Vùng nguy hiểm có cảnh báo: đếm ngược, hết giờ thì nổ một lần
 export function updateHazards(scene, player, dt, ev, onHit) {
   const hz = scene.hazards;
@@ -585,13 +579,6 @@ export function updateHazards(scene, player, dt, ev, onHit) {
     const h = hz[i];
     h.t -= dt;
     if (h.t > 0) continue;
-    if (h.travel) {   // (25/11) sóng khí bay dọc dải: phát sự kiện một lần lúc phóng, trúng khi đầu sóng lướt qua người chơi
-      if (!h.fired) { h.fired = true; ev.push({ type: 'boom', x: h.x0, y: h.y0, r: h.r, color: h.color, hz: h }); }
-      const u0 = h.u || 0, u1 = Math.min(1, -h.t / h.travel); h.u = u1;
-      if (!h.hit && !player.dead && travelHits(h, player, u0, u1)) { h.hit = true; onHit(h.dmg, h); if (hz.length === 0) return; }
-      if (u1 >= 1) hz.splice(i, 1);
-      continue;
-    }
     hz.splice(i, 1);
     if (h.ev) ev.push(...h.ev);
     if (h.ring) ev.push({ type: 'pulse', x: h.x, y: h.y, r: h.R + h.r, color: h.color || '#ff6a6a', hz: h });   // vành / cung nổ; hz: bản chụp vùng cho VFX (src/render/boss_fx.js)
