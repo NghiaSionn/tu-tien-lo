@@ -3,7 +3,7 @@
 // M7-04: phiên bản ghi vào log playtest (đổi khi phát hành bản thử mới)
 export const BUILD = '0.6.0';
 // M7-15: nơi người chơi gửi góp ý. FORM_URL: link Google Form người phát triển tạo (để trống -> trang báo lỗi GitHub). Câu hỏi: docs/playtest/GOP_Y_FORM.md
-export const FEEDBACK = { FORM_URL: '', ISSUES_URL: 'https://github.com/NghiaSionn/tu-tien-lo/issues/new' };
+export const FEEDBACK = { FORM_URL: 'https://forms.gle/K35ZpiYTuWoaJy7s7', ISSUES_URL: 'https://github.com/NghiaSionn/tu-tien-lo/issues/new' };
 
 export const FEATURES = {
   run: true,            // M1: cổng bí cảnh + vòng run roguelite. false = game chạy như v0.1
