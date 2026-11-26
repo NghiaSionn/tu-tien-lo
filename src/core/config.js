@@ -362,10 +362,10 @@ export const BOSS_ARENA = { CLEAR_FIELD: true, NO_SPAWN: true };
 // FADE1..CLIFF: đấu trường ngửa lên trời + tối dần · CLIFF..PAN: cảnh vách sáng dần, camera hạ từ trời xuống mặt vách
 // EMERGE..WALK: sói hiện ra từ bóng tối · WALK..LOOK: bước chậm tới mỏm đá · LOOK/INHALE/HOWL/CROUCH/LEAP
 // FADE2..ARENA: phóng lên, tối dần · ARENA..LAND: đấu trường sáng dần, camera từ trên cao hạ theo cú rơi · NAME · OUT: về người chơi
-// Bước đi (24/11): 26/11: chân ChatGPT vẽ, ghép nhịp bằng tools/wolf_walk_chatgpt.py (thân không đổi).
+// Bước đi (24/11): sprites/boss_walk dựng bằng xương từ 1 khung đứng (tools/wolf_walk_rig.py — 4 chân luân phiên, thân không đổi).
 // Quãng đường KHỚP sải chân: thân tiến STRIDE/FRAMES px mỗi khung, đúng bằng tốc độ bàn chân lùi lúc chạm đất -> không trượt.
 // STRIDE lấy từ tool in ra. CONTACT: khung chân trước đặt xuống (tiếng dậm + bụi + rung). Thời gian đi = CYCLES chu kỳ.
-const LV_WALK = { FRAMES: 12, FPS: 14, STRIDE: 20, CYCLES: 7, CONTACT: [11] };
+const LV_WALK = { FRAMES: 12, FPS: 12, STRIDE: 29.03, CYCLES: 6, CONTACT: [3, 9] };
 const LV_WALK_SEC = LV_WALK.CYCLES * LV_WALK.FRAMES / LV_WALK.FPS;
 const LV_T = (() => {
   const T = { FADE1: 0.7, CLIFF: 1.2, PAN: 3.2, EMERGE: 2.6, WALK: 3.4 };
@@ -538,7 +538,7 @@ CUTSCENE.MINI_P2 = {
   STYLE: 'p2', FX: 'quake', BOSS: 'MINI', TITLE: 'HUYẾT NGUYỆT CUỒNG LANG', SUB: 'Lang Vương · cuồng thú phá địa', TITLE_COL: '#ffb070', TITLE_SIZE: 32,
   DUR: 7.2, ZOOM: 2, VIGN: 0.5, DESAT: 0, SKIP: 'TITLE',
   T: { IN: 0.35, BEATS: [0.6, 1.1, 1.6, 2.0], SWAP: 2.2, QUAKE: [2.2, 3.4], SPIKES: [2.35, 3.4], STOMP: 3.4, HOWL: [3.95, 5.0], TITLE: 5.0, OUT: 6.4 },
-  POSES: [[0, 'MINI_walk0'], [0.3, 'MINI_atk'], [2.2, 'MINI2_atk'], [3.1, 'MINI2_howl'], [3.4, 'MINI2_atk'], [3.95, 'MINI2_howl'], [5.0, 'MINI2_stand0']],
+  POSES: [[0, 'MINI_walk0'], [0.3, 'MINI_atk'], [2.2, 'MINI2_atk'], [3.1, 'MINI2_howl'], [3.4, 'MINI2_atk'], [3.95, 'MINI2_howl'], [5.0, 'MINI2_walk0']],
   FLASH: [[2.2, 0.08, '#ffd9a0', 0.95], [2.28, 0.06, '#ffffff', 0.6], [3.4, 0.1, '#ffffff', 0.95], [3.5, 0.25, '#ff6a2a', 0.55]],
   SHAKE: [[0.6, 0.15, 2], [1.1, 0.15, 2.5], [1.6, 0.15, 3], [2.0, 0.18, 3.5], [2.2, 1.2, 4.5], [3.4, 0.8, 10], [3.950, 0.11, 18.0], [4.075, 0.11, 17.2], [4.200, 0.11, 16.5], [4.325, 0.11, 15.8], [4.450, 0.11, 15.0], [4.575, 0.11, 14.2], [4.700, 0.11, 13.5], [4.825, 0.11, 12.8], [4.950, 0.11, 12.0], [3.95, 1.1, 7]],
   EVENTS: [[0.02, { type: 'sfx', name: 'thud' }], [0.6, { type: 'sfx', name: 'thud' }], [1.1, { type: 'sfx', name: 'thud' }], [1.6, { type: 'sfx', name: 'thud' }],
