@@ -35,7 +35,7 @@ import { createPlaytestLog } from './systems/playtest.js';
 import { masteryLevel, masteryCost, masteryMinRealm, canMaster, buyMastery, startLevel } from './progression/mastery.js';   // M9-D
 import { teleFrame, teleSummary } from './systems/telemetry.js';
 import { createCutscene, stepCutscene, skipCutscene, cutsceneState } from './systems/cutscene.js';   // (23/11) cutscene boss
-import { BUILD } from './core/config.js';
+import { BUILD, FEEDBACK } from './core/config.js';
 import { metaGoals, previewAfterClaim } from './progression/goals.js';
 import { newDiscoveries } from './progression/codex.js';
 import { pickVariant, variantOf } from './systems/variants.js';
@@ -775,7 +775,7 @@ function finishRun() {
   PT.log('combat_run', teleSummary(r, { tactics: r.tactics ?? FEATURES.enemyTactics, skillsV2: r.skillsV2 ?? FEATURES.enemySkillsV2, bossV2: r.bossV2 ?? FEATURES.bossPatternsV2 }), r);
   PT.log('run_end', { outcome: r.outcome, time: Math.round(r.time), level: r.level, kills: r.kills, cause, evolutions: [...r.evolutions], difficulty: r.diff, variant: r.variant, rerolls: r.rerollsUsed || 0, maxed, skills: r.skills.length }, r);
   Audio.play(r.outcome === 'WIN' ? 'win' : 'lose');
-  const extra = FEATURES.resultGoals ? { goals: metaGoals(previewAfterClaim(meta)), onNext: a => claimAndReturn(a) } : null;
+  const extra = FEATURES.resultGoals ? { goals: metaGoals(previewAfterClaim(meta)), onNext: a => claimAndReturn(a), feedbackUrl: FEEDBACK_URL } : null;
   UI.showResults(r, reward, () => claimAndReturn(), meta, extra);
 }
 // REWARDED -> HUB: cộng tài nguyên + xóa pending trong cùng một lần lưu; gọi lại lần nữa không cộng thêm
@@ -808,7 +808,7 @@ function returnToHub() {
 
 // ---------- cài đặt ----------
 // góp ý: trang issue của repo công khai; không gắn dữ liệu nào vào URL
-const FEEDBACK_URL = 'https://github.com/NghiaSionn/tu-tien-lo/issues/new';
+const FEEDBACK_URL = FEEDBACK.FORM_URL || FEEDBACK.ISSUES_URL;   // M7-15
 function download(text, name, type) {
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([text], { type }));
@@ -860,7 +860,7 @@ function openSettings() {
     onExport: () => { save(); download(exportSave(meta), `tutien_save_${new Date().toISOString().slice(0, 10)}.json`, 'application/json'); },
     // M7-04
     pt: PT,
-    feedbackUrl: FEEDBACK_URL,
+    feedbackUrl: FEEDBACK_URL, build: BUILD,
     onReplayTutorial: () => { replayTutorial(meta); save(); metaAct('tip_replay'); },
     onPlaytest: on => { PT.setEnabled(on, () => ({ realm: meta.realmLevel, runs: meta.stats.runs })); UI.log(on ? 'Đã bật ghi playtest (chỉ lưu trên máy này).' : 'Đã tắt ghi playtest.', 'good'); },
     onPtExport: kind => download(kind === 'csv' ? PT.exportCSV() : PT.exportJSON(), `tutien_playtest_${PT.testId || 'chua_bat'}.${kind}`, kind === 'csv' ? 'text/csv' : 'application/json'),
@@ -869,7 +869,7 @@ function openSettings() {
       `Tu Tiên Lộ — góp ý (bản ${BUILD})`,
       `Mã thử: ${PT.testId || '(chưa bật log)'} · Thiết bị: ${matchMedia('(pointer: coarse)').matches ? 'cảm ứng' : 'máy tính'}`,
       `Cảnh giới: ${levelName(meta.realmLevel)} · Số lượt bí cảnh: ${meta.stats.runs} · Thắng: ${meta.stats.wins} · Trụ lâu nhất: ${Math.floor(meta.stats.bestTime / 60)}:${String(meta.stats.bestTime % 60).padStart(2, '0')}`,
-      '1. Điểm vui nhất?', '2. Điểm khó hiểu nhất?', '3. Muốn mở khóa gì tiếp?',
+      '(Dán đoạn này vào ô cuối của trang góp ý)',
     ].join('\n'),
     // M9-C: khôi phục từ ô dự phòng
     backups: () => listBackups(storage, saveCtx).map(b => ({ ...b, name: b.ok ? levelName(b.realm) : '' })),

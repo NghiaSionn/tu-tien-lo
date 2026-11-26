@@ -1,5 +1,6 @@
 // Giao diện DOM: HUD động phủ, HUD bí cảnh, các bảng (chuẩn bị, chọn thẻ, kết quả, tạm dừng, cài đặt), nhật ký.
 import { RUN, ITEMS, BOSS, TRIBULATION, DIFFICULTY, REALM_UNLOCKS, FEATURES } from '../core/config.js';
+import { CHANGELOG } from '../data/changelog.js';
 import { levelName, maxHp, atk, need, isMajor, MAX_L } from '../progression/realm.js';
 import { xpToNext } from '../progression/runxp.js';
 import { canBreak, isFull, convertRate, yieldOf, trickleRate, pillQi } from '../systems/cultivation.js';
@@ -262,6 +263,7 @@ export function showResults(run, reward, onClose, meta, extra = null) {
     ${reward && reward.firstClear ? '<p class="sub">Lần đầu hạ Yêu Vương: thêm vé Cơ Duyên.</p>' : ''}
     <p class="sub">${run.outcome === 'WIN' ? 'Thắng: thưởng ×1,5.' : 'Thưởng theo tiến độ đã đạt.'} Cảnh giới, tu vi, đồ không đổi.</p>
     <h3>Bước tiếp theo</h3><p class="sub">${(goals.length ? nextGoal(run, reward, meta).slice(0, 1) : nextGoal(run, reward, meta)).map(esc).join('<br>')}</p>${goalHtml}
+    ${extra && extra.feedbackUrl ? `<p class="sub">Có ý kiến về lượt này? <a href="${extra.feedbackUrl}" target="_blank" rel="noopener">Góp ý ↗</a> (2–3 phút)</p>` : ''}
     <div class="row">${nextBtns.map(([a, t]) => `<button class="ghost" data-next="${a}">${t}</button>`).join('')}<button data-act="close">Nhận thưởng · về động phủ (Enter)</button></div>`,
   code => {
     if (code === 'Enter' || code === 'Escape' || code === 'Space') { close(); return true; }
@@ -275,7 +277,7 @@ export function showResults(run, reward, onClose, meta, extra = null) {
 
 export function showSettings(meta, h) {
   const s = meta.settings;
-  open(`<h2>Cài đặt</h2>
+  open(`<h2>Cài đặt <span class="sub">bản ${esc(h.build || '')}</span></h2>
     <label class="opt"><input type="checkbox" id="optReduce" ${s.reduceEffects ? 'checked' : ''}> Giảm hiệu ứng (ít hạt, chớp nhẹ)</label>
     <label class="opt"><input type="checkbox" id="optShake" ${s.screenShake ? 'checked' : ''}> Rung màn hình</label>
     <label class="opt">Đồ họa <select id="optQuality">${[['high', 'Cao'], ['medium', 'Vừa'], ['low', 'Thấp (máy yếu/điện thoại)']].map(([v, n]) => `<option value="${v}" ${s.quality === v ? 'selected' : ''}>${n}</option>`).join('')}</select></label>
@@ -294,8 +296,11 @@ export function showSettings(meta, h) {
     <label class="opt"><input type="checkbox" id="optPt" ${h.pt.enabled ? 'checked' : ''}> Bật ghi playtest</label>
     <p class="sub" id="ptInfo"></p>
     <div class="row"><button data-act="ptJson">Xuất log (.json)</button><button data-act="ptCsv">Xuất log (.csv)</button><button class="ghost" data-act="ptClear">Xóa log</button></div>
-    <div class="row"><button data-act="feedback">Sao chép tóm tắt góp ý</button><a class="btnlink" href="${h.feedbackUrl}" target="_blank" rel="noopener">Mở trang góp ý ↗</a></div>
+    <h3>Góp ý</h3>
+    <p class="sub">Trang góp ý có vài câu ngắn (2–3 phút). Bấm "Sao chép tóm tắt" để dán bản game, thiết bị, số lượt đã chơi vào ô cuối — không có tên hay email. File log ở trên chỉ đính kèm nếu bạn muốn.</p>
+    <div class="row"><button data-act="feedback">Sao chép tóm tắt</button><a class="btnlink" href="${h.feedbackUrl}" target="_blank" rel="noopener">Mở trang góp ý ↗</a></div>
     <textarea id="fbText" readonly hidden rows="6"></textarea>
+    <details class="backups"><summary>Có gì mới…</summary>${CHANGELOG.map(c => `<p class="sub"><b>Bản ${esc(c.v)}</b> · ${esc(c.date)}</p><ul class="sub">${c.items.map(i => `<li>${esc(i)}</li>`).join('')}</ul>`).join('')}</details>
     <div class="row"><button class="ghost" data-act="tutorial">Hiện lại hướng dẫn người mới</button></div>
     <div class="row"><button class="ghost danger" data-act="reset">Chơi lại từ đầu</button><button data-act="close">Đóng (Esc)</button></div>`,
   code => { if (code === 'Escape') { closeModal(); h.onClose(); return true; } return false; });

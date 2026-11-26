@@ -1,7 +1,9 @@
 // Mọi thông số gameplay. Các con số có nhãn [THỬ NGHIỆM] trong GDD là mặc định để playtest, không phải luật cuối.
 
 // M7-04: phiên bản ghi vào log playtest (đổi khi phát hành bản thử mới)
-export const BUILD = '0.5.0-m9b';
+export const BUILD = '0.6.0';
+// M7-15: nơi người chơi gửi góp ý. FORM_URL: link Google Form người phát triển tạo (để trống -> trang báo lỗi GitHub). Câu hỏi: docs/playtest/GOP_Y_FORM.md
+export const FEEDBACK = { FORM_URL: '', ISSUES_URL: 'https://github.com/NghiaSionn/tu-tien-lo/issues/new' };
 
 export const FEATURES = {
   run: true,            // M1: cổng bí cảnh + vòng run roguelite. false = game chạy như v0.1
